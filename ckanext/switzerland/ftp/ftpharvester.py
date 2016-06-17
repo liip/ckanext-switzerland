@@ -295,7 +295,7 @@ class FTPHarvester(HarvesterBase):
             ftp = FTP(ftpconfig.host)
             ftp.login()
         except:
-            throw "FTP connection error" # TODO - CKAN exception
+            raise Exception("FTP connection error") # TODO - CKAN exception
         try:
             ftp.cwd(ftpconfig.remotedirectory)
             dirlist = ftp.retrlines('LIST')
