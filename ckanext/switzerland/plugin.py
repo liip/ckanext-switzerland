@@ -29,16 +29,16 @@ log = logging.getLogger(__name__)
 
 
 class OgdchPlugin(plugins.SingletonPlugin):
-    plugins.implements(plugins.IConfigurer)
+    # plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IValidators)
     plugins.implements(plugins.IFacets)
     plugins.implements(plugins.IActions)
-    plugins.implements(plugins.ITemplateHelpers)
+    # plugins.implements(plugins.ITemplateHelpers)
 
     # IConfigurer
 
     def update_config(self, config_):
-        # toolkit.add_template_directory(config_, 'templates')
+        toolkit.add_template_directory(config_, 'templates')
         toolkit.add_public_directory(config_, 'public')
         toolkit.add_resource('fanstatic', 'switzerland')
 
@@ -195,7 +195,8 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         return pkg_dict
 
     def _package_map_ckan_default_fields(self, pkg_dict):
-        pkg_dict['display_name'] = pkg_dict['title']
+        if 'title' in pkg_dict:
+            pkg_dict['display_name'] = pkg_dict['title']
 
         if ('contact_points' in pkg_dict and pkg_dict['contact_points'] is not None):  # noqa
             if pkg_dict['maintainer'] is None:
@@ -209,7 +210,8 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
 
         if ('resources' in pkg_dict and pkg_dict['resources'] is not None):
             for resource in pkg_dict['resources']:
-                resource['name'] = resource['title']
+                if 'title' in resource:
+                    resource['name'] = resource['title']
 
         return pkg_dict
 
