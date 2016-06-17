@@ -29,18 +29,19 @@ log = logging.getLogger(__name__)
 
 
 class OgdchPlugin(plugins.SingletonPlugin):
-    # plugins.implements(plugins.IConfigurer)
+    plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IValidators)
     plugins.implements(plugins.IFacets)
     plugins.implements(plugins.IActions)
-    # plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.ITemplateHelpers)
 
     # IConfigurer
 
     def update_config(self, config_):
-        toolkit.add_template_directory(config_, 'templates')
-        toolkit.add_public_directory(config_, 'public')
-        toolkit.add_resource('fanstatic', 'switzerland')
+        toolkit.add_template_directory(config_, 'templates2')
+        # toolkit.add_template_directory(config_, 'templates')
+        # toolkit.add_public_directory(config_, 'public')
+        # toolkit.add_resource('fanstatic', 'switzerland')
 
     # IValidators
 
