@@ -312,13 +312,13 @@ class FTPHarvester(HarvesterBase):
 
 
 
-        # fetch the files via FTP
+        # # fetch the files via FTP
         # from ftplib import FTP
         # try:
         #     ftp = FTP(ftpconfig.host)
         #     ftp.login()
         # except:
-        #     throw "FTP connection error" # TODO - CKAN exception
+        #     raise Exception("FTP connection error") # TODO - CKAN exception
         # try:
         #     ftp.cwd(ftpconfig.remotedirectory)
         #     dirlist = ftp.retrlines('LIST')
@@ -328,8 +328,6 @@ class FTPHarvester(HarvesterBase):
         #             ftp.retrbinary( 'RETR %s' % file, open(os.path.join(ftpconfig.localpath, file), 'wb').write )
         # except:
         #    return None # TODO
-
-
 
 
         # Save the filelist in the HarvestObject so that it can be processed in the next step

@@ -38,9 +38,10 @@ class OgdchPlugin(plugins.SingletonPlugin):
     # IConfigurer
 
     def update_config(self, config_):
+        toolkit.add_template_directory(config_, 'templates2')
         # toolkit.add_template_directory(config_, 'templates')
-        toolkit.add_public_directory(config_, 'public')
-        toolkit.add_resource('fanstatic', 'switzerland')
+        # toolkit.add_public_directory(config_, 'public')
+        # toolkit.add_resource('fanstatic', 'switzerland')
 
     # IValidators
 
@@ -195,7 +196,8 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         return pkg_dict
 
     def _package_map_ckan_default_fields(self, pkg_dict):
-        pkg_dict['display_name'] = pkg_dict['title']
+        if 'title' in pkg_dict:
+            pkg_dict['display_name'] = pkg_dict['title']
 
         if ('contact_points' in pkg_dict and pkg_dict['contact_points'] is not None):  # noqa
             if pkg_dict['maintainer'] is None:
@@ -209,7 +211,8 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
 
         if ('resources' in pkg_dict and pkg_dict['resources'] is not None):
             for resource in pkg_dict['resources']:
-                resource['name'] = resource['title']
+                if 'title' in resource:
+                    resource['name'] = resource['title']
 
         return pkg_dict
 
