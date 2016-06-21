@@ -31,10 +31,10 @@ log = logging.getLogger(__name__)
 
 from base import HarvesterBase
 
-import paramiko
 import sys, os
 import ckan.config as ftpconfig
-
+import paramiko
+paramiko.util.log_to_file('/tmp/paramiko.log')
 
 
 # ----------------------------------------------------
@@ -55,6 +55,9 @@ class FTPHarvester(HarvesterBase):
     """
     config = None
 
+    sftp = None
+    transport = None
+
     api_version = 2
     action_api_version = 3
 
@@ -74,6 +77,17 @@ class FTPHarvester(HarvesterBase):
             'description': 'Fetches FTP data',
             'form_config_interface':'Text'
         }
+
+
+    def _connect(self):
+        self.transport = paramiko.Transport((ftpconfig.ftp.host, ftpconfig.ftp.port))
+        self.transport.connect(username=ftpconfig.ftp.username, password=ftpconfig.ftp.password)
+        self.sftp = paramiko.SFTPClient.from_transport(transport)
+
+    def _disconnect(self):
+        self.sftp.close()
+        self.transport.close()
+
 
     def validate_config(self, config):
 
@@ -266,45 +280,56 @@ class FTPHarvester(HarvesterBase):
         """
         log.debug('In FTPHarvester fetch_stage')
 
+
         # create the directory if it does not exist
-        if not os.path.isdir(ftpconfig.localpath):
-            os.mkdir(ftpconfig.localpath, 0755);
+        if not os.path.isdir(ftpconfig.ftp.localpath):
+            os.mkdir(ftpconfig.ftp.localpath, 0755);
+
 
         # # fetch the files via SFTP
-        # transport = paramiko.Transport((ftpconfig.host, ftpconfig.port))
-        # # transport.connect(username=ftpconfig.username, password=ftpconfig.password)
-        # transport.connect(username='', password=None, pkey=None)
-        # sftp = paramiko.SFTPClient.from_transport(transport)
-        # try:
-        #     # Return a list containing the names of the entries in the given path.
-        #     # The list is in arbitrary order. It does not include the special entries '.' and '..' even if they are present in the folder.
-        #     dirlist = sftp.listdir(ftpconfig.remotedirectory)
-        #     if len(dirlist):
-        #         for file_id in dirlist:
-        #             # fetch the file
-        #             sftp.get(ftpconfig.remotedirectory, ftpconfig.localpath)
-        # except:
-        #        return None
-        # sftp.close()
-        # transport.close()
+        try:
+            self._connect()
+
+            # Return a list containing the names of the entries in the given path.
+            # The list is in arbitrary order. It does not include the special entries '.' and '..' even if they are present in the folder.
+            dirlist = self.sftp.listdir(ftpconfig.ftp.remotedirectory)
+
+            # debug: save the dirlist into tmp file
+            tmp_file = open("/tmp/ftpharvest/dirlist.txt", "w")
+            tmp_file.write(str(dirlist))
+            tmp_file.close()
+
+            # fetch the files
+            if len(dirlist):
+                for file_id in dirlist:
+                    self.sftp.get(ftpconfig.ftp.remotedirectory, ftpconfig.ftp.localpath)
+
+            self._disconnect()
+
+        except Exception as e: # TODO
+            self._save_object_error('Unable to get ftp content: %r' % e, harvest_object, 'Fetch')
+            return None
+
 
 
         # fetch the files via FTP
-        from ftplib import FTP
-        try:
-            ftp = FTP(ftpconfig.host)
-            ftp.login()
-        except:
-            throw "FTP connection error" # TODO - CKAN exception
-        try:
-            ftp.cwd(ftpconfig.remotedirectory)
-            dirlist = ftp.retrlines('LIST')
-            if len(dirlist):
-                for file in dirlist:
-                    # fetch the file
-                    ftp.retrbinary( 'RETR %s' % file, open(os.path.join(ftpconfig.localpath, file), 'wb').write )
-        except:
-           return None # TODO
+        # from ftplib import FTP
+        # try:
+        #     ftp = FTP(ftpconfig.host)
+        #     ftp.login()
+        # except:
+        #     throw "FTP connection error" # TODO - CKAN exception
+        # try:
+        #     ftp.cwd(ftpconfig.remotedirectory)
+        #     dirlist = ftp.retrlines('LIST')
+        #     if len(dirlist):
+        #         for file in dirlist:
+        #             # fetch the file
+        #             ftp.retrbinary( 'RETR %s' % file, open(os.path.join(ftpconfig.localpath, file), 'wb').write )
+        # except:
+        #    return None # TODO
+
+
 
 
         # Save the filelist in the HarvestObject so that it can be processed in the next step
