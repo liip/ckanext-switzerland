@@ -31,10 +31,12 @@ log = logging.getLogger(__name__)
 
 from base import HarvesterBase
 
-import sys, os
-import ckan.config as ftpconfig
-import paramiko
-paramiko.util.log_to_file('/tmp/paramiko.log')
+import sys, os, json
+from ftplib import FTP_TLS
+# import ckan.config as ftpconfig
+from pylons import config as ckanconf
+
+
 
 
 # ----------------------------------------------------
@@ -79,65 +81,70 @@ class FTPHarvester(HarvesterBase):
         }
 
 
-    def _connect(self):
-        self.transport = paramiko.Transport((ftpconfig.ftp.host, ftpconfig.ftp.port))
-        self.transport.connect(username=ftpconfig.ftp.username, password=ftpconfig.ftp.password)
-        self.sftp = paramiko.SFTPClient.from_transport(transport)
+    def _connect(self, ftpconfig):
+        ftpconfig['host'] = str(ftpconfig['host'])
+        ftpconfig['port'] = int(ftpconfig['port'])
+        self.ftps = FTP_TLS(ftpconfig['host'], user=ftpconfig['username'], passwd=ftpconfig['password'], source_address=(ftpconfig['host'], ftpconfig['port']))
+        self.ftps.login()
+        self.ftps.prot_p() # switch to secure data connection
 
     def _disconnect(self):
-        self.sftp.close()
-        self.transport.close()
+        self.ftps.quit()
 
 
     def validate_config(self, config):
 
-        # if not config:
-        #     return config
+        if not ftpconfig:
+            raise ValueError('Missing FTP configuration in ckan.ini')
 
-        # try:
-        #     config_obj = json.loads(config)
 
-        #     if 'api_version' in config_obj:
-        #         try:
-        #             int(config_obj['api_version'])
-        #         except ValueError:
-        #             raise ValueError('api_version must be an integer')
+        if not config:
+            return config
 
-        #     if 'default_tags' in config_obj:
-        #         if not isinstance(config_obj['default_tags'],list):
-        #             raise ValueError('default_tags must be a list')
+        try:
+            config_obj = json.loads(config)
 
-        #     if 'default_groups' in config_obj:
-        #         if not isinstance(config_obj['default_groups'],list):
-        #             raise ValueError('default_groups must be a list')
+            if 'api_version' in config_obj:
+                try:
+                    int(config_obj['api_version'])
+                except ValueError:
+                    raise ValueError('api_version must be an integer')
 
-        #         # Check if default groups exist
-        #         context = {'model':model,'user':c.user}
-        #         for group_name in config_obj['default_groups']:
-        #             try:
-        #                 group = get_action('group_show')(context,{'id':group_name})
-        #             except NotFound,e:
-        #                 raise ValueError('Default group not found')
+            if 'default_tags' in config_obj:
+                if not isinstance(config_obj['default_tags'],list):
+                    raise ValueError('default_tags must be a list')
 
-        #     if 'default_extras' in config_obj:
-        #         if not isinstance(config_obj['default_extras'],dict):
-        #             raise ValueError('default_extras must be a dictionary')
+            if 'default_groups' in config_obj:
+                if not isinstance(config_obj['default_groups'],list):
+                    raise ValueError('default_groups must be a list')
 
-        #     if 'user' in config_obj:
-        #         # Check if user exists
-        #         context = {'model':model,'user':c.user}
-        #         try:
-        #             user = get_action('user_show')(context,{'id':config_obj.get('user')})
-        #         except NotFound,e:
-        #             raise ValueError('User not found')
+                # Check if default groups exist
+                context = {'model':model,'user':c.user}
+                for group_name in config_obj['default_groups']:
+                    try:
+                        group = get_action('group_show')(context,{'id':group_name})
+                    except NotFound,e:
+                        raise ValueError('Default group not found')
 
-        #     for key in ('read_only','force_all'):
-        #         if key in config_obj:
-        #             if not isinstance(config_obj[key],bool):
-        #                 raise ValueError('%s must be boolean' % key)
+            if 'default_extras' in config_obj:
+                if not isinstance(config_obj['default_extras'],dict):
+                    raise ValueError('default_extras must be a dictionary')
 
-        # except ValueError,e:
-        #     raise e
+            if 'user' in config_obj:
+                # Check if user exists
+                context = {'model':model,'user':c.user}
+                try:
+                    user = get_action('user_show')(context,{'id':config_obj.get('user')})
+                except NotFound,e:
+                    raise ValueError('User not found')
+
+            for key in ('read_only','force_all'):
+                if key in config_obj:
+                    if not isinstance(config_obj[key],bool):
+                        raise ValueError('%s must be boolean' % key)
+
+        except ValueError,e:
+            raise e
 
         return config
 
@@ -280,19 +287,25 @@ class FTPHarvester(HarvesterBase):
         """
         log.debug('In FTPHarvester fetch_stage')
 
+        # load the ftp configuration
+        ftpconfig = {}
+        for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
+            ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
+        # print ftpconfig
+
 
         # create the directory if it does not exist
-        if not os.path.isdir(ftpconfig.ftp.localpath):
-            os.mkdir(ftpconfig.ftp.localpath, 0755);
+        if not os.path.isdir(ftpconfig['localpath']):
+            os.mkdir(ftpconfig['localpath'], 0755);
 
 
-        # # fetch the files via SFTP
+        # fetch the files via FTP over TLS
         try:
-            self._connect()
+            self._connect(ftpconfig)
 
             # Return a list containing the names of the entries in the given path.
             # The list is in arbitrary order. It does not include the special entries '.' and '..' even if they are present in the folder.
-            dirlist = self.sftp.listdir(ftpconfig.ftp.remotedirectory)
+            dirlist = self.sftp.listdir(ftpconfig['remotedirectory'])
 
             # debug: save the dirlist into tmp file
             tmp_file = open("/tmp/ftpharvest/dirlist.txt", "w")
@@ -302,7 +315,7 @@ class FTPHarvester(HarvesterBase):
             # fetch the files
             if len(dirlist):
                 for file_id in dirlist:
-                    self.sftp.get(ftpconfig.ftp.remotedirectory, ftpconfig.ftp.localpath)
+                    self.sftp.get(ftpconfig['remotedirectory'], ftpconfig['localpath'])
 
             self._disconnect()
 
