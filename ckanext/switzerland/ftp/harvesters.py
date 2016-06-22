@@ -36,7 +36,7 @@ from pylons import config as ckanconf
 
 import sys, os, json
 import ftplib
-
+import errno
 
 
 # ----------------------------------------------------
@@ -49,6 +49,16 @@ import ftplib
 # ----------------------------------------------------
 
 
+# http://stackoverflow.com/a/600612/426266
+def mkdir_p(path, perms=0777):
+    try:
+        os.makedirs(path, perms)
+    except OSError as exc:  # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
+
 
 class FTPConnection(object):
     """
@@ -58,22 +68,50 @@ class FTPConnection(object):
     config = None
 
     def __init__(self, ftpconfig):
+        """
+        Constructor
+        
+        @type  ftpconfig: number
+        @param ftpconfig: FTP configuration (host, port, ...)
+        """
         # if not ftpconfig:
         #     raise ValueError('Missing FTP configuration in ckan.ini')
         ftpconfig['host'] = str(ftpconfig['host'])
         ftpconfig['port'] = int(ftpconfig['port'])
-        print ftpconfig
         self.config = ftpconfig
 
-    # enter and exit methods for the 'with' statement
     def __enter__(self):
+        """
+        Magic enter method, triggered when accessing the object with a 'with' statement
+
+        @rtype:   object
+        @return:  FTPConnection object
+        """
         self._connect()
-        return self.ftps
+        return self
+
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Magic exit method to clean up the connection after accessing the object with a 'with' statement
+
+        @type  exc_type:
+        @param exc_type: exc_type
+        @type  exc_value: 
+        @param exc_value: exc_value
+        @type  traceback: object
+        @param traceback: Traceback
+        @rtype:   None
+        @return:  None
+        """
         self._disconnect()
 
     def _connect(self):
-        """ Establish ftp connection """
+        """
+        Establish an FTP connection
+
+        @rtype:   None
+        @return:  None
+        """
         # overwrite the default port (21)
         ftplib.FTP.port = int(self.config['port'])
         # connect
@@ -82,24 +120,92 @@ class FTPConnection(object):
         self.ftps.prot_p()
 
     def _disconnect(self):
-        """ Close ftp connection """
+        """
+        Close ftp connection
+
+        @rtype:   None
+        @return:  None
+        """
         self.ftps.quit() # '221 Goodbye.'
 
-    def cdremote(self):
-        self.ftps.cwd(self.config['remotedirectory'])
+    def cdremote(self, remotedir=None):
+        """
+        Change remote directory
+
+        @type  remotedir: string
+        @param remotedir: Full path on the remote server
+        @rtype:   None
+        @return:  None
+        """
+        if not remotedir:
+            remotedir = self.config['remotedirectory']
+        self.ftps.cwd(remotedir)
 
     def listdir(self):
-        """ List files """
-        return self.ftps.retrlines('LIST')
+        """
+        List files and sub-directories in the current directory
 
-    def fetch(self, filename):
-        """ Fetch files """
-        localfile = open(os.path.join(self.config['localpath'], filename), 'wb')
-        status = self.ftps.retrbinary('RETR %s' % filename, localfile.write )
+        @rtype:   list
+        @return:  Directory listing (exclusing '.' and '..')
+        """
+        return dirlist = filter(lambda x: x not in ['.', '..'], self.ftps.nlst())
+
+    def fetch(self, filename, localpath=None):
+        """
+        Fetch a single file from the remote server
+
+        @type  filename: string
+        @param filename: Name of the file to download
+        @rtype:   string
+        @return:  FTP status message
+        """
+        if not localpath:
+            localpath = os.path.join(self.config['localpath'], filename)
+
+        localfile = open(localpath, 'wb')
+        status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
         localfile.close()
         # TODO: check status
         # TODO: verify download
         return status
+
+    def getdir(self, path='', recursive=True):
+        """
+        Retrieve all files of a directory, optionally including all sub-directories
+
+        @type  remotedir: string
+        @param remotedir: Full path on the remote server
+        @rtype:   None
+        @return:  None
+        """
+
+        # import pprint
+        # pprint.pprint(e)
+        # print "FILE DOWNLOAD EXCP: %s" % e
+
+        # cd into the remote directory
+        self.cdremote(path)
+
+        # Return a list containing the names of the entries in the given path.
+        # The list is in arbitrary order. It does not include the special entries '.' and '..' even if they are present in the folder.
+        dirlist = self.listdir() # 226 Transfer complete
+
+        for item in dirlist:
+
+            try:
+
+                # try to download the file
+                self.fetch(item)
+
+            except Exception as e:
+
+                # it must be a directory
+                if recursive:
+                    self.getdir(item)
+
+            # prefix the filename
+            # fileordir = os.path.join(path, fileordir)
+
 
 
 class FTPHarvester(HarvesterBase):
@@ -327,7 +433,7 @@ class FTPHarvester(HarvesterBase):
 
         # create the directory if it does not exist
         if not os.path.isdir(ftpconfig['localpath']):
-            os.mkdir(ftpconfig['localpath'], 0755);
+            mkdir_p(ftpconfig['localpath'])
 
 
         # fetch the files via FTP over TLS
@@ -335,14 +441,6 @@ class FTPHarvester(HarvesterBase):
 
             with FTPConnection(ftpconfig) as sftp:
 
-                print sftp
-
-                # cd into the remote directory
-                sftp.cdremote()
-
-                # Return a list containing the names of the entries in the given path.
-                # The list is in arbitrary order. It does not include the special entries '.' and '..' even if they are present in the folder.
-                dirlist = sftp.listdir()
 
                 # debug: save the dirlist into tmp file
                 tmp_file = open("/tmp/ftpharvest/dirlist.txt", "w")
@@ -353,9 +451,13 @@ class FTPHarvester(HarvesterBase):
                     self._save_object_error('FTP server returned empty directory listing: %r' % e, harvest_object, 'Fetch')
                     return None
 
-                # fetch the file(s)
+                # recursively mirror the file structure locally
                 for filename in dirlist:
-                    status = sftp.fetch(filename)
+                    try:
+                        # try to fetch the file
+                        status = sftp.fetch(filename)
+                    except Exception as e:
+                            # must be a directory
 
         # ftplib exceptions
         except ftplib.all_errors as e:
@@ -369,31 +471,12 @@ class FTPHarvester(HarvesterBase):
                 msg = 'A permanent error was encountered'
             elif exceptionname == 'error_proto':
                 msg = 'Server replied with non-FTP response'
-            self._save_object_error(msg + ': %r' % e, harvest_object, 'Fetch')
+            self._save_object_error(msg + ': %s' % e, harvest_object, 'Fetch')
             return None
 
         except Exception as e:
-            self._save_object_error('An error occurred: %r' % e, harvest_object, 'Fetch')
+            self._save_object_error('An error occurred: %s' % e, harvest_object, 'Fetch')
             return None
-
-
-
-        # # fetch the files via FTP
-        # from ftplib import FTP
-        # try:
-        #     ftp = FTP(ftpconfig.host)
-        #     ftp.login()
-        # except:
-        #     raise Exception("FTP connection error") # TODO - CKAN exception
-        # try:
-        #     ftp.cwd(ftpconfig.remotedirectory)
-        #     dirlist = ftp.retrlines('LIST')
-        #     if len(dirlist):
-        #         for file in dirlist:
-        #             # fetch the file
-        #             ftp.retrbinary( 'RETR %s' % file, open(os.path.join(ftpconfig.localpath, file), 'wb').write )
-        # except:
-        #    return None # TODO
 
 
         # Save the directory listing in the HarvestObject so that it can be processed in the next step
