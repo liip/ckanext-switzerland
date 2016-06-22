@@ -31,12 +31,20 @@ log = logging.getLogger(__name__)
 
 from base import HarvesterBase
 
-# import ckan.config as ftpconfig
 from pylons import config as ckanconf
 
 import sys, os, json
-import ftplib
-import errno
+import subprocess
+import zipfile
+
+from ckan.logic.action.create import package_create, group_create, organization_create
+from ckan.logic.action.update import package_update, group_update, organization_update
+from ckan.logic.action.get import package_show
+
+from ckan.logic import NotFound
+
+import pprint # debug-only
+
 
 
 # ----------------------------------------------------
@@ -49,173 +57,79 @@ import errno
 # ----------------------------------------------------
 
 
-# http://stackoverflow.com/a/600612/426266
-def mkdir_p(path, perms=0777):
-    try:
-        os.makedirs(path, perms)
-    except OSError as exc:  # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise
-
-
-class FTPConnection(object):
-    """
-    FTP Connection
-    """
-    ftps = None
-    config = None
-
-    def __init__(self, ftpconfig):
-        """
-        Constructor
-        
-        @type  ftpconfig: number
-        @param ftpconfig: FTP configuration (host, port, ...)
-        """
-        # if not ftpconfig:
-        #     raise ValueError('Missing FTP configuration in ckan.ini')
-        ftpconfig['host'] = str(ftpconfig['host'])
-        ftpconfig['port'] = int(ftpconfig['port'])
-        self.config = ftpconfig
-
-    def __enter__(self):
-        """
-        Magic enter method, triggered when accessing the object with a 'with' statement
-
-        @rtype:   object
-        @return:  FTPConnection object
-        """
-        self._connect()
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        """
-        Magic exit method to clean up the connection after accessing the object with a 'with' statement
-
-        @type  exc_type:
-        @param exc_type: exc_type
-        @type  exc_value: 
-        @param exc_value: exc_value
-        @type  traceback: object
-        @param traceback: Traceback
-        @rtype:   None
-        @return:  None
-        """
-        self._disconnect()
-
-    def _connect(self):
-        """
-        Establish an FTP connection
-
-        @rtype:   None
-        @return:  None
-        """
-        # overwrite the default port (21)
-        ftplib.FTP.port = int(self.config['port'])
-        # connect
-        self.ftps = ftplib.FTP_TLS(self.config['host'], self.config['username'], self.config['password'])
-        # switch to secure data connection
-        self.ftps.prot_p()
-
-    def _disconnect(self):
-        """
-        Close ftp connection
-
-        @rtype:   None
-        @return:  None
-        """
-        self.ftps.quit() # '221 Goodbye.'
-
-    def cdremote(self, remotedir=None):
-        """
-        Change remote directory
-
-        @type  remotedir: string
-        @param remotedir: Full path on the remote server
-        @rtype:   None
-        @return:  None
-        """
-        if not remotedir:
-            remotedir = self.config['remotedirectory']
-        self.ftps.cwd(remotedir)
-
-    def listdir(self):
-        """
-        List files and sub-directories in the current directory
-
-        @rtype:   list
-        @return:  Directory listing (exclusing '.' and '..')
-        """
-        return dirlist = filter(lambda x: x not in ['.', '..'], self.ftps.nlst())
-
-    def fetch(self, filename, localpath=None):
-        """
-        Fetch a single file from the remote server
-
-        @type  filename: string
-        @param filename: Name of the file to download
-        @rtype:   string
-        @return:  FTP status message
-        """
-        if not localpath:
-            localpath = os.path.join(self.config['localpath'], filename)
-
-        localfile = open(localpath, 'wb')
-        status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
-        localfile.close()
-        # TODO: check status
-        # TODO: verify download
-        return status
-
-    def getdir(self, path='', recursive=True):
-        """
-        Retrieve all files of a directory, optionally including all sub-directories
-
-        @type  remotedir: string
-        @param remotedir: Full path on the remote server
-        @rtype:   None
-        @return:  None
-        """
-
-        # import pprint
-        # pprint.pprint(e)
-        # print "FILE DOWNLOAD EXCP: %s" % e
-
-        # cd into the remote directory
-        self.cdremote(path)
-
-        # Return a list containing the names of the entries in the given path.
-        # The list is in arbitrary order. It does not include the special entries '.' and '..' even if they are present in the folder.
-        dirlist = self.listdir() # 226 Transfer complete
-
-        for item in dirlist:
-
-            try:
-
-                # try to download the file
-                self.fetch(item)
-
-            except Exception as e:
-
-                # it must be a directory
-                if recursive:
-                    self.getdir(item)
-
-            # prefix the filename
-            # fileordir = os.path.join(path, fileordir)
-
 
 
 class FTPHarvester(HarvesterBase):
     """
     A FTP Harvester for data
     """
-    config = None
+    config = None # ckan harvester config, not ftp config
 
     api_version = 2
     action_api_version = 3
+
+    class FTP(object):
+
+        _config = None
+
+        def __init__(self):
+
+            # load the ftp configuration
+            ftpconfig = {}
+            for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
+                ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
+            ftpconfig['host'] = str(ftpconfig['host'])
+            ftpconfig['port'] = int(ftpconfig['port'])
+            self._config = ftpconfig
+
+            # create the local directory if it does not exist
+            if not os.path.isdir(self._config['localpath']):
+                self._mkdir_p(self._config['localpath'])
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, type, value, traceback):
+            pass
+
+        def wget(self):
+            # optional parameters:
+                # -nv: non-verbose
+                # -r: recursive
+                # --no-clobber: do not overwrite existing files (DEV-only)
+            return subprocess.call("/usr/local/bin/wget -r --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/" % (self._config['username'], self._config['password'], self._config['host'], int(self._config['port'])), shell=True)
+
+    def _mkdir_p(path, perms=0777):
+        """
+        Recursively create directories
+        See: http://stackoverflow.com/a/600612/426266
+        """
+        try:
+            os.makedirs(path, perms)
+        except OSError as exc:  # Python >2.5
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else:
+                raise
+
+    def _unzip(self, filepath):
+        """
+        Extract a single zip file
+        """
+        target_folder = os.path.dirname(filepath)
+        zfile = zipfile.ZipFile(filepath)
+        zfile.extractall(target_folder)
+
+    def _get_dirlist(self, localpath="."):
+        """
+        Get directory listing, including all sub-folders
+        """
+        dirlist = []
+        for dirpath, dirnames, filenames in os.walk(localpath):
+            for filename in [f for f in filenames]:
+                dirlist.append(os.path.join(dirpath, filename))
+        return dirlist
+
 
     def _get_rest_api_offset(self):
         return '/api/%d/rest' % self.api_version
@@ -225,6 +139,15 @@ class FTPHarvester(HarvesterBase):
 
     def _get_search_api_offset(self):
         return '/api/%d/search' % self.api_version
+
+    def _set_config(self, config_str):
+        if config_str:
+            self.config = json.loads(config_str)
+            if 'api_version' in self.config:
+                self.api_version = int(self.config['api_version'])
+            log.debug('Using config: %r', self.config)
+        else:
+            self.config = {}
 
     def info(self):
         return {
@@ -296,6 +219,8 @@ class FTPHarvester(HarvesterBase):
         """
         log.debug('In FTPHarvester gather_stage (%s)' % harvest_job.source.url)
 
+        # self._set_config(harvest_job.source.config)
+
         # fake a harvest object and return it for the next step
         obj = HarvestObject(guid='ftpdata', job=harvest_job)
         obj.save()
@@ -303,12 +228,13 @@ class FTPHarvester(HarvesterBase):
         return [ obj.id ]
 
 
+
+
+
         # old stuff
 
         # get_all_packages = True
         # package_ids = []
-
-        # self._set_config(harvest_job.source.config)
 
         # # Check if this source has been harvested before
         # previous_job = Session.query(HarvestJob) \
@@ -425,65 +351,50 @@ class FTPHarvester(HarvesterBase):
         """
         log.debug('In FTPHarvester fetch_stage')
 
-        # load the ftp configuration
-        ftpconfig = {}
-        for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
-            ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
 
+        retobj = {}
 
-        # create the directory if it does not exist
-        if not os.path.isdir(ftpconfig['localpath']):
-            mkdir_p(ftpconfig['localpath'])
-
-
-        # fetch the files via FTP over TLS
         try:
 
-            with FTPConnection(ftpconfig) as sftp:
+            with self.FTP() as ftps:
 
+                # change into the local directory
+                os.chdir(ftps._config['localpath'])
 
-                # debug: save the dirlist into tmp file
-                tmp_file = open("/tmp/ftpharvest/dirlist.txt", "w")
-                tmp_file.write(str(dirlist))
-                tmp_file.close()
+                # store some config for the next step
+                retobj['topfolder'] = "%s:%d" % (ftps._config['host'], ftps._config['port']) # 'ftp-secure.sbb.ch:990'
 
-                if not dirlist:
-                    self._save_object_error('FTP server returned empty directory listing: %r' % e, harvest_object, 'Fetch')
-                    return None
+                retobj['localpath'] = os.path.join(ftps._config['localpath'], retobj['topfolder'])
 
-                # recursively mirror the file structure locally
-                for filename in dirlist:
-                    try:
-                        # try to fetch the file
-                        status = sftp.fetch(filename)
-                    except Exception as e:
-                            # must be a directory
+                cmdstatus = ftps.wget()
 
-        # ftplib exceptions
-        except ftplib.all_errors as e:
-            exceptionname = type(e).__name__
-            msg = 'A ftplib exception occurred'
-            if exceptionname == 'error_reply':
-                msg = 'An unexpected reply was received from the FTP server'
-            elif exceptionname == 'error_temp':
-                msg = 'A temporary error was encountered'
-            elif exceptionname == 'error_perm':
-                msg = 'A permanent error was encountered'
-            elif exceptionname == 'error_proto':
-                msg = 'Server replied with non-FTP response'
-            self._save_object_error(msg + ': %s' % e, harvest_object, 'Fetch')
+        except subprocess.CalledProcessError as e:
+            self._save_object_error('WGet Error [%d]: %s' % (e.returncode, e), harvest_object, 'Fetch')
             return None
 
         except Exception as e:
             self._save_object_error('An error occurred: %s' % e, harvest_object, 'Fetch')
             return None
 
+        # print "Unzipping files"
+        # for file in self._get_dirlist("."):
+        #     # if file is a zip, unzip
+        #     filename, file_extension = os.path.splitext(file)
+        #     if file_extension == '.zip':
+        #         print "unziping: %s" % file
+        #         self._unzip(file)
+
+        # get an updated list of all local files (extracted and zip)
+        # retobj['dirlist'] = self._get_dirlist(".")
 
         # Save the directory listing in the HarvestObject so that it can be processed in the next step
-        harvest_object.content = dirlist
+        harvest_object.content = json.dumps(retobj)
         harvest_object.save()
 
         return True
+
+
+
 
 
 
@@ -518,221 +429,311 @@ class FTPHarvester(HarvesterBase):
         """
         log.debug('In FTPHarvester import_stage')
 
-        # there should be a harvest object and filelist from the previous step
+        context = {'model': model, 'session': Session, 'user': self._get_user_name()}
+
+        harvest_api_key = model.User.get(context['user']).apikey.encode('utf8')
+
         if not harvest_object:
             log.error('No harvest object received')
             return False
-        if not harvest_object.get('content'):
-            log.error('Harvest object is missing file list')
+        if not harvest_object.content:
+            self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, 'Import')
             return False
 
+        # unserialize
+        harvest_object.content = json.loads(harvest_object.content)
+
+        # need the local path
+        if not harvest_object.content['localpath']:
+            self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, 'Import')
+            return False
+        # if not harvest_object.content['dirlist']:
+        #     self._save_object_error('Empty directory for harvest object %s' % harvest_object.id, harvest_object, 'Import')
+        #     return False
+
+        # set harvester config
+        self._set_config(harvest_object.job.source.config)
+
+        # change into the local directory
+        os.chdir(harvest_object.content['localpath'])
+
         # get the file list from the Harvest object
-        dirlist = harvest_object.content
+        # local_dirlist = harvest_object.content['dirlist']
 
-        # TODO: import the local files into CKAN
+        # TODO: for each top-level sub-folder, create a package
 
-        # TODO: map the files to organisations and groups
+        topdirs = next(os.walk('.'))[1]
+
+        pprint.pprint("topdirs: %s" % str(topdirs))
+
+        for package in topdirs:
+
+            try:
+
+                # =======================================================================
+                # create a package dictionary
+                # =======================================================================
+                package_dict = {}
+
+                package_dict['name'] = self._ensure_name_is_unique(os.path.basename(package))
+
+                log.info('Creating/updating package %s' % package_dict['name'])
+
+                # -----------------------------------------------------------------------
+                # Set default tags if needed
+                # -----------------------------------------------------------------------
+                default_tags = self.config.get('default_tags', [])
+                if default_tags:
+                    if not 'tags' in package_dict:
+                        package_dict['tags'] = []
+                    package_dict['tags'].extend([t for t in default_tags if t not in package_dict['tags']])
+
+                # -----------------------------------------------------------------------
+                # group creation
+                # -----------------------------------------------------------------------
+                # remote_groups = self.config.get('remote_groups', None)
+                # if not remote_groups in ('only_local', 'create'):
+                #     # Ignore remote groups
+                #     package_dict.pop('groups', None)
+                # else:
+                #     if not 'groups' in package_dict:
+                #         package_dict['groups'] = []
+                #     # check if remote groups exist locally, otherwise remove
+                #     validated_groups = []
+                #     for group_name in package_dict['groups']:
+                #         try:
+                #             data_dict = {'id': group_name}
+                #             group = get_action('group_show')(context, data_dict)
+                #             if self.api_version == 1:
+                #                 validated_groups.append(group['name'])
+                #             else:
+                #                 validated_groups.append(group['id'])
+                #         except NotFound, e:
+                #             log.info('Group %s is not available' % group_name)
+                #             if remote_groups == 'create':
+                #                 try:
+                #                     group = self._get_group(harvest_object.source.url, group_name)
+                #                 except RemoteResourceError:
+                #                     log.error('Could not get remote group %s' % group_name)
+                #                     continue
+                #                 for key in ['packages', 'created', 'users', 'groups', 'tags', 'extras', 'display_name']:
+                #                     group.pop(key, None)
+                #                 get_action('group_create')(context, group)
+                #                 log.info('Group %s has been newly created' % group_name)
+                #                 if self.api_version == 1:
+                #                     validated_groups.append(group['name'])
+                #                 else:
+                #                     validated_groups.append(group['id'])
+                #     package_dict['groups'] = validated_groups
+
+                # Set default groups if needed
+                default_groups = self.config.get('default_groups', [])
+                if default_groups:
+                    if not 'groups' in package_dict:
+                        package_dict['groups'] = []
+                    package_dict['groups'].extend([g for g in default_groups if g not in package_dict['groups']])
+
+                # -----------------------------------------------------------------------
+                # organization creation
+                # -----------------------------------------------------------------------
+                #     # Local harvest source organization
+                #     source_dataset = get_action('package_show')(context, {'id': harvest_object.source.id})
+                #     local_org = source_dataset.get('owner_org')
+                #     remote_orgs = self.config.get('remote_orgs', None)
+                #     if not remote_orgs in ('only_local', 'create'):
+                #         # Assign dataset to the source organization
+                #         package_dict['owner_org'] = local_org
+                #     else:
+                #         if not 'owner_org' in package_dict:
+                #             package_dict['owner_org'] = None
+                #         # check if remote org exist locally, otherwise remove
+                #         validated_org = None
+                #         remote_org = package_dict['owner_org']
+                #         if remote_org:
+                #             try:
+                #                 data_dict = {'id': remote_org}
+                #                 org = get_action('organization_show')(context, data_dict)
+                #                 validated_org = org['id']
+                #             except NotFound, e:
+                #                 log.info('Organization %s is not available' % remote_org)
+                #                 if remote_orgs == 'create':
+                #                     try:
+                #                         try:
+                #                             org = self._get_organization(harvest_object.source.url, remote_org)
+                #                         except RemoteResourceError:
+                #                             # fallback if remote CKAN exposes organizations as groups
+                #                             # this especially targets older versions of CKAN
+                #                             org = self._get_group(harvest_object.source.url, remote_org)
+                #                         for key in ['packages', 'created', 'users', 'groups', 'tags', 'extras', 'display_name', 'type']:
+                #                             org.pop(key, None)
+                #                         get_action('organization_create')(context, org)
+                #                         log.info('Organization %s has been newly created' % remote_org)
+                #                         validated_org = org['id']
+                #                     except (RemoteResourceError, ValidationError):
+                #                         log.error('Could not get remote org %s' % remote_org)
+                #         package_dict['owner_org'] = validated_org or local_org
+
+                # -----------------------------------------------------------------------
+                # extras creation
+                # -----------------------------------------------------------------------
+
+                #     # Find any extras whose values are not strings and try to convert
+                #     # them to strings, as non-string extras are not allowed anymore in
+                #     # CKAN 2.0.
+                #     for key in package_dict['extras'].keys():
+                #         if not isinstance(package_dict['extras'][key], basestring):
+                #             try:
+                #                 package_dict['extras'][key] = json.dumps(
+                #                         package_dict['extras'][key])
+                #             except TypeError:
+                #                 # If converting to a string fails, just delete it.
+                #                 del package_dict['extras'][key]
+
+                # Set default extras if needed
+                default_extras = self.config.get('default_extras',{})
+                if default_extras:
+                    override_extras = self.config.get('override_extras',False)
+                    if not 'extras' in package_dict:
+                        package_dict['extras'] = {}
+                    for key,value in default_extras.iteritems():
+                        if not key in package_dict['extras'] or override_extras:
+                            # Look for replacement strings
+                            if isinstance(value,basestring):
+                                value = value.format(harvest_source_id=harvest_object.job.source.id,
+                                         harvest_source_url=harvest_object.job.source.url.strip('/'),
+                                         harvest_source_title=harvest_object.job.source.title,
+                                         harvest_job_id=harvest_object.job.id,
+                                         harvest_object_id=harvest_object.id,
+                                         dataset_id=package_dict['id'])
+
+                            package_dict['extras'][key] = value
+
+                # -----------------------------------------------------------------------
+                # resources creation
+                # -----------------------------------------------------------------------
+
+                dirlist = self._get_dirlist()
+
+                # import the local files into CKAN
+                for file in dirlist:
+
+                    # TODO: add resources
+
+
+                    # TODO: get metadata of files
 
 
 
 
 
 
+                    pass
 
 
 
 
+# {"license_title": "Other (Open)",
+# "maintainer": "Government of Canada, Natural Resources Canada, Centre for Topographic Information (Sherbrooke)",
+# "relationships_as_object": [],
+# "private": false,
+# "maintainer_email": "geoginfo@NRCan.gc.ca",
+# "num_tags": 3,
+# "id": "ad015a0f-578c-4699-b28a-5131df11be78",
+# "metadata_created": "2011-12-15T18:59:35.951158",
+# "metadata_modified": "2013-10-10T19:26:46.832604",
+# "author": "Government of Canada, Natural Resources Canada, Canada Centre ...",
+# "author_email": null,
+# "state": "active",
+# "version": "1996-05-14",
+# "creator_user_id": "e7f30c0d-944b-4a69-84c4-61b08bbf6b98",
+# "type": "dataset",
+# "resources": [{"mimetype": null, "cache_url": null, "hash": "", "description": "Lambert Conformal Conic (LCC).", "name": null, "format": "ESRI Shape File", "url": "ftp://ftp.geogratis.gc.ca/atlas/Population_Ecumene_Census/1996/1996.zip", "datastore_active": false, "cache_last_updated": null, "package_id": "ad015a0f-578c-4699-b28a-5131df11be78", "webstore_url": null, "state": "active", "mimetype_inner": null, "webstore_last_updated": null, "last_modified": null, "position": 0, "revision_id": "f0041445-1551-4419-b76e-5d7a8ca5fb96", "url_type": null, "id": "7ba4d842-23ee-4fdf-a5e0-317cb1cb37ec", "resource_type": null, "size": null}],
+# "num_resources": 1,
+# "tags": [{"vocabulary_id": null, "state": "active", "display_name": "canada-gov", "id": "adc94ee0-9bbf-48b6-abb3-bd4d5ab61362", "name": "canada-gov"}, {"vocabulary_id": null, "state": "active", "display_name": "meta.imported-from-ca-ckan-net", "id": "38e43d18-82ef-4624-b593-21db62d9290c", "name": "meta.imported-from-ca-ckan-net"}, {"vocabulary_id": null, "state": "active", "display_name": "population", "id": "9224d0c2-c9dd-493c-91f7-c5244f617415", "name": "population"}],
+# "groups": [],
+# "license_id": "other-open",
+# "relationships_as_subject": [],
+# "organization": {"description": "...", "created": "2011-12-15T18:59:28.065988", "title": "Canada", "name": "country-ca", "is_organization": true, "state": "active", "image_url": "http://upload.wikimedia.org/wikipedia/en/c/cf/Flag_of_Canada.svg", "revision_id": "ad708f77-26b4-4085-9fb4-01470336f280", "type": "organization", "id": "c1e89abb-13cd-4e18-9078-03d15bf6f256", "approval_status": "approved"},
+# "name": "1996_population_census_data_canada",
+# "isopen": true,
+# "url": "ftp://ftp.geogratis.gc.ca/atlas/Population_Ecumene_Census/1996/",
+# "notes": "...",
+# "owner_org": "c1e89abb-13cd-4e18-9078-03d15bf6f256",
+# "extras": [{"key": "date_released", "value": ""}, {"key": "date_updated", "value": ""}, {"key": "department", "value": "Natural Resources"}, {"key": "federal_agency", "value": ""}, {"key": "level_of_government", "value": "Federal"}, {"key": "temporal_coverage-from", "value": "1996"}, {"key": "temporal_coverage-to", "value": "1996"}, {"key": "update_frequency", "value": ""}],"title": "1996 Population (Ecumene) Census Data, Canada", "revision_id": "e3a5b236-a832-45b3-ae14-929708a29729"}}
+
+                print "Package: %s" % str(package_dict)
 
 
 
+                # -----------------------------------------------------------------------
+                # create or update package
+                # -----------------------------------------------------------------------
+
+                # check if the package already exists
+                try:
+
+                    existing_package = package_show(context, {'id': package_dict.get('name')})
+                    package_dict['id'] = existing_package.get('id')
+
+                    if not package_dict['id']:
+                        # abort updating
+                        raise NotFound("Package '%s' not found" % package_dict.get('name'))
+
+                    # update the package
+                    # requires the id
+                    # see: https://github.com/ckan/ckanext-harvest/blob/7f506913f8e78988899af9c1dd518dc76e2c3e62/ckanext/harvest/harvesters/base.py#L219
+                    # result = self._create_or_update_package(package_dict, harvest_object)
+
+                    dataset = package_update(context, package_dict)
+                    print "Updated: %s" % str(dataset['name'])
+
+                # TODO
+                # except ckan.logic.NotFound as e:
+                #     log.info("New package: %s" % package_dict['name'])
+                except Exception as e:
+                    log.info("New package: %s" % package_dict['name'])
+
+                    # creat ethe package instead
+                    dataset = package_create(context, package_dict)
+                    print "Created: %s" % str(dataset['name'])
 
 
-        # old stuff
+                # -----------------------------------------------------------------------
+                # optional permissions (set read-only)
+                # -----------------------------------------------------------------------
+                if dataset and self.config.get('read_only', True) is True: # read-only = default
 
-        # context = {'model': model, 'session': Session, 'user': self._get_user_name()}
-        # if not harvest_object:
-        #     log.error('No harvest object received')
-        #     return False
+                    package = model.Package.get(package_dict['id'])
 
-        # if harvest_object.content is None:
-        #     self._save_object_error('Empty content for object %s' % harvest_object.id,
-        #             harvest_object, 'Import')
-        #     return False
+                    # Clear default permissions
+                    model.clear_user_roles(package)
 
-        # self._set_config(harvest_object.job.source.config)
+                    # Setup harvest user as admin of this package
+                    user_name = self.config.get('user', u'harvest')
+                    user = model.User.get(user_name)
+                    pkg_role = model.PackageRole(package=package, user=user, role=model.Role.ADMIN)
 
-        # try:
-        #     package_dict = json.loads(harvest_object.content)
+                    # Other users can only read
+                    for user_name in (u'visitor', u'logged_in'):
+                        user = model.User.get(user_name)
+                        pkg_role = model.PackageRole(package=package, user=user, role=model.Role.READER)
 
-        #     if package_dict.get('type') == 'harvest':
-        #         log.warn('Remote dataset is a harvest source, ignoring...')
-        #         return True
+                # -----------------------------------------------------------------------
+                # return result
+                # -----------------------------------------------------------------------
 
-        #     # Set default tags if needed
-        #     default_tags = self.config.get('default_tags',[])
-        #     if default_tags:
-        #         if not 'tags' in package_dict:
-        #             package_dict['tags'] = []
-        #         package_dict['tags'].extend([t for t in default_tags if t not in package_dict['tags']])
+            except ValidationError,e:
+                self._save_object_error('Invalid package with GUID %s: %r' % (harvest_object.guid, e.error_dict),
+                        harvest_object, 'Import')
 
-        #     remote_groups = self.config.get('remote_groups', None)
-        #     if not remote_groups in ('only_local', 'create'):
-        #         # Ignore remote groups
-        #         package_dict.pop('groups', None)
-        #     else:
-        #         if not 'groups' in package_dict:
-        #             package_dict['groups'] = []
-
-        #         # check if remote groups exist locally, otherwise remove
-        #         validated_groups = []
-
-        #         for group_name in package_dict['groups']:
-        #             try:
-        #                 data_dict = {'id': group_name}
-        #                 group = get_action('group_show')(context, data_dict)
-        #                 if self.api_version == 1:
-        #                     validated_groups.append(group['name'])
-        #                 else:
-        #                     validated_groups.append(group['id'])
-        #             except NotFound, e:
-        #                 log.info('Group %s is not available' % group_name)
-        #                 if remote_groups == 'create':
-        #                     try:
-        #                         group = self._get_group(harvest_object.source.url, group_name)
-        #                     except RemoteResourceError:
-        #                         log.error('Could not get remote group %s' % group_name)
-        #                         continue
-
-        #                     for key in ['packages', 'created', 'users', 'groups', 'tags', 'extras', 'display_name']:
-        #                         group.pop(key, None)
-
-        #                     get_action('group_create')(context, group)
-        #                     log.info('Group %s has been newly created' % group_name)
-        #                     if self.api_version == 1:
-        #                         validated_groups.append(group['name'])
-        #                     else:
-        #                         validated_groups.append(group['id'])
-
-        #         package_dict['groups'] = validated_groups
+            except Exception, e:
+                self._save_object_error('%r'%e, harvest_object, 'Import')
 
 
-        #     # Local harvest source organization
-        #     source_dataset = get_action('package_show')(context, {'id': harvest_object.source.id})
-        #     local_org = source_dataset.get('owner_org')
+            # =======================================================================
+            return True
 
-        #     remote_orgs = self.config.get('remote_orgs', None)
 
-        #     if not remote_orgs in ('only_local', 'create'):
-        #         # Assign dataset to the source organization
-        #         package_dict['owner_org'] = local_org
-        #     else:
-        #         if not 'owner_org' in package_dict:
-        #             package_dict['owner_org'] = None
-
-        #         # check if remote org exist locally, otherwise remove
-        #         validated_org = None
-        #         remote_org = package_dict['owner_org']
-
-        #         if remote_org:
-        #             try:
-        #                 data_dict = {'id': remote_org}
-        #                 org = get_action('organization_show')(context, data_dict)
-        #                 validated_org = org['id']
-        #             except NotFound, e:
-        #                 log.info('Organization %s is not available' % remote_org)
-        #                 if remote_orgs == 'create':
-        #                     try:
-        #                         try:
-        #                             org = self._get_organization(harvest_object.source.url, remote_org)
-        #                         except RemoteResourceError:
-        #                             # fallback if remote CKAN exposes organizations as groups
-        #                             # this especially targets older versions of CKAN
-        #                             org = self._get_group(harvest_object.source.url, remote_org)
-
-        #                         for key in ['packages', 'created', 'users', 'groups', 'tags', 'extras', 'display_name', 'type']:
-        #                             org.pop(key, None)
-        #                         get_action('organization_create')(context, org)
-        #                         log.info('Organization %s has been newly created' % remote_org)
-        #                         validated_org = org['id']
-        #                     except (RemoteResourceError, ValidationError):
-        #                         log.error('Could not get remote org %s' % remote_org)
-
-        #         package_dict['owner_org'] = validated_org or local_org
-
-        #     # Set default groups if needed
-        #     default_groups = self.config.get('default_groups', [])
-        #     if default_groups:
-        #         if not 'groups' in package_dict:
-        #             package_dict['groups'] = []
-        #         package_dict['groups'].extend([g for g in default_groups if g not in package_dict['groups']])
-
-        #     # Find any extras whose values are not strings and try to convert
-        #     # them to strings, as non-string extras are not allowed anymore in
-        #     # CKAN 2.0.
-        #     for key in package_dict['extras'].keys():
-        #         if not isinstance(package_dict['extras'][key], basestring):
-        #             try:
-        #                 package_dict['extras'][key] = json.dumps(
-        #                         package_dict['extras'][key])
-        #             except TypeError:
-        #                 # If converting to a string fails, just delete it.
-        #                 del package_dict['extras'][key]
-
-        #     # Set default extras if needed
-        #     default_extras = self.config.get('default_extras',{})
-        #     if default_extras:
-        #         override_extras = self.config.get('override_extras',False)
-        #         if not 'extras' in package_dict:
-        #             package_dict['extras'] = {}
-        #         for key,value in default_extras.iteritems():
-        #             if not key in package_dict['extras'] or override_extras:
-        #                 # Look for replacement strings
-        #                 if isinstance(value,basestring):
-        #                     value = value.format(harvest_source_id=harvest_object.job.source.id,
-        #                              harvest_source_url=harvest_object.job.source.url.strip('/'),
-        #                              harvest_source_title=harvest_object.job.source.title,
-        #                              harvest_job_id=harvest_object.job.id,
-        #                              harvest_object_id=harvest_object.id,
-        #                              dataset_id=package_dict['id'])
-
-        #                 package_dict['extras'][key] = value
-
-        #     for resource in package_dict.get('resources', []):
-        #         # Clear remote url_type for resources (eg datastore, upload) as
-        #         # we are only creating normal resources with links to the
-        #         # remote ones
-        #         resource.pop('url_type', None)
-
-        #         # Clear revision_id as the revision won't exist on this CKAN
-        #         # and saving it will cause an IntegrityError with the foreign
-        #         # key.
-        #         resource.pop('revision_id', None)
-
-        #     result = self._create_or_update_package(package_dict,harvest_object)
-
-        #     if result is True and self.config.get('read_only', False) is True:
-
-        #         package = model.Package.get(package_dict['id'])
-
-        #         # Clear default permissions
-        #         model.clear_user_roles(package)
-
-        #         # Setup harvest user as admin
-        #         user_name = self.config.get('user',u'harvest')
-        #         user = model.User.get(user_name)
-        #         pkg_role = model.PackageRole(package=package, user=user, role=model.Role.ADMIN)
-
-        #         # Other users can only read
-        #         for user_name in (u'visitor',u'logged_in'):
-        #             user = model.User.get(user_name)
-        #             pkg_role = model.PackageRole(package=package, user=user, role=model.Role.READER)
-
-        #     return result
-        # except ValidationError,e:
-        #     self._save_object_error('Invalid package with GUID %s: %r' % (harvest_object.guid, e.error_dict),
-        #             harvest_object, 'Import')
-        # except Exception, e:
-        #     self._save_object_error('%r'%e, harvest_object, 'Import')
 
 
 class ContentFetchError(Exception):
