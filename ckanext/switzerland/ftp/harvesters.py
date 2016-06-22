@@ -31,11 +31,11 @@ log = logging.getLogger(__name__)
 
 from base import HarvesterBase
 
-import sys, os, json
-from ftplib import FTP_TLS
 # import ckan.config as ftpconfig
 from pylons import config as ckanconf
 
+import sys, os, json
+import ftplib
 
 
 
@@ -50,15 +50,63 @@ from pylons import config as ckanconf
 
 
 
+class FTPConnection(object):
+    """
+    FTP Connection
+    """
+    ftps = None
+    config = None
+
+    def __init__(self, ftpconfig):
+        # if not ftpconfig:
+        #     raise ValueError('Missing FTP configuration in ckan.ini')
+        ftpconfig['host'] = str(ftpconfig['host'])
+        ftpconfig['port'] = int(ftpconfig['port'])
+        print ftpconfig
+        self.config = ftpconfig
+
+    # enter and exit methods for the 'with' statement
+    def __enter__(self):
+        self._connect()
+        return self.ftps
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._disconnect()
+
+    def _connect(self):
+        """ Establish ftp connection """
+        # overwrite the default port (21)
+        ftplib.FTP.port = int(self.config['port'])
+        # connect
+        self.ftps = ftplib.FTP_TLS(self.config['host'], self.config['username'], self.config['password'])
+        # switch to secure data connection
+        self.ftps.prot_p()
+
+    def _disconnect(self):
+        """ Close ftp connection """
+        self.ftps.quit() # '221 Goodbye.'
+
+    def cdremote(self):
+        self.ftps.cwd(self.config['remotedirectory'])
+
+    def listdir(self):
+        """ List files """
+        return self.ftps.retrlines('LIST')
+
+    def fetch(self, filename):
+        """ Fetch files """
+        localfile = open(os.path.join(self.config['localpath'], filename), 'wb')
+        status = self.ftps.retrbinary('RETR %s' % filename, localfile.write )
+        localfile.close()
+        # TODO: check status
+        # TODO: verify download
+        return status
+
 
 class FTPHarvester(HarvesterBase):
     """
     A FTP Harvester for data
     """
     config = None
-
-    sftp = None
-    transport = None
 
     api_version = 2
     action_api_version = 3
@@ -80,23 +128,7 @@ class FTPHarvester(HarvesterBase):
             'form_config_interface':'Text'
         }
 
-
-    def _connect(self, ftpconfig):
-        ftpconfig['host'] = str(ftpconfig['host'])
-        ftpconfig['port'] = int(ftpconfig['port'])
-        self.ftps = FTP_TLS(ftpconfig['host'], user=ftpconfig['username'], passwd=ftpconfig['password'], source_address=(ftpconfig['host'], ftpconfig['port']))
-        self.ftps.login()
-        self.ftps.prot_p() # switch to secure data connection
-
-    def _disconnect(self):
-        self.ftps.quit()
-
-
     def validate_config(self, config):
-
-        if not ftpconfig:
-            raise ValueError('Missing FTP configuration in ckan.ini')
-
 
         if not config:
             return config
@@ -291,7 +323,6 @@ class FTPHarvester(HarvesterBase):
         ftpconfig = {}
         for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
             ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
-        # print ftpconfig
 
 
         # create the directory if it does not exist
@@ -301,26 +332,48 @@ class FTPHarvester(HarvesterBase):
 
         # fetch the files via FTP over TLS
         try:
-            self._connect(ftpconfig)
 
-            # Return a list containing the names of the entries in the given path.
-            # The list is in arbitrary order. It does not include the special entries '.' and '..' even if they are present in the folder.
-            dirlist = self.sftp.listdir(ftpconfig['remotedirectory'])
+            with FTPConnection(ftpconfig) as sftp:
 
-            # debug: save the dirlist into tmp file
-            tmp_file = open("/tmp/ftpharvest/dirlist.txt", "w")
-            tmp_file.write(str(dirlist))
-            tmp_file.close()
+                print sftp
 
-            # fetch the files
-            if len(dirlist):
-                for file_id in dirlist:
-                    self.sftp.get(ftpconfig['remotedirectory'], ftpconfig['localpath'])
+                # cd into the remote directory
+                sftp.cdremote()
 
-            self._disconnect()
+                # Return a list containing the names of the entries in the given path.
+                # The list is in arbitrary order. It does not include the special entries '.' and '..' even if they are present in the folder.
+                dirlist = sftp.listdir()
 
-        except Exception as e: # TODO
-            self._save_object_error('Unable to get ftp content: %r' % e, harvest_object, 'Fetch')
+                # debug: save the dirlist into tmp file
+                tmp_file = open("/tmp/ftpharvest/dirlist.txt", "w")
+                tmp_file.write(str(dirlist))
+                tmp_file.close()
+
+                if not dirlist:
+                    self._save_object_error('FTP server returned empty directory listing: %r' % e, harvest_object, 'Fetch')
+                    return None
+
+                # fetch the file(s)
+                for filename in dirlist:
+                    status = sftp.fetch(filename)
+
+        # ftplib exceptions
+        except ftplib.all_errors as e:
+            exceptionname = type(e).__name__
+            msg = 'A ftplib exception occurred'
+            if exceptionname == 'error_reply':
+                msg = 'An unexpected reply was received from the FTP server'
+            elif exceptionname == 'error_temp':
+                msg = 'A temporary error was encountered'
+            elif exceptionname == 'error_perm':
+                msg = 'A permanent error was encountered'
+            elif exceptionname == 'error_proto':
+                msg = 'Server replied with non-FTP response'
+            self._save_object_error(msg + ': %r' % e, harvest_object, 'Fetch')
+            return None
+
+        except Exception as e:
+            self._save_object_error('An error occurred: %r' % e, harvest_object, 'Fetch')
             return None
 
 
@@ -343,7 +396,7 @@ class FTPHarvester(HarvesterBase):
         #    return None # TODO
 
 
-        # Save the filelist in the HarvestObject so that it can be processed in the next step
+        # Save the directory listing in the HarvestObject so that it can be processed in the next step
         harvest_object.content = dirlist
         harvest_object.save()
 
