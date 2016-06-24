@@ -36,16 +36,15 @@ class InfoplusHarvester(BaseFTPHarvester):
 
     # -----------------------------------------------------------------------
 
-    def gather_stage(self, harvest_job):
+    def gather_stage(self, harvest_object):
         """
         Gathers resources to fetch
 
-        :param harvest_job: Harvester job
+        :param harvest_object: Harvester job
         :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
         """
-        log.debug('In %s FTPHarvester gather_stage' % self.harvester_name) # harvest_job.source.url
 
-        ret = super(InfoplusHarvester, self).gather_stage(harvest_job)
+        ret = super(InfoplusHarvester, self).gather_stage(harvest_object)
 
         return ret
 
@@ -58,9 +57,8 @@ class InfoplusHarvester(BaseFTPHarvester):
         :param harvest_object: HarvestObject
         :returns: True|None Whether HarvestObject was saved or not
         """
-        log.debug('In %s FTPHarvester fetch_stage' % self.harvester_name) # harvest_job.source.url
 
-        ret = super(InfoplusHarvester, self).fetch_stage(harvest_job)
+        ret = super(InfoplusHarvester, self).fetch_stage(harvest_object)
 
         return ret
 
@@ -73,11 +71,10 @@ class InfoplusHarvester(BaseFTPHarvester):
         :param harvest_object: HarvestObject
         :returns: True|False boolean Whether the HarvestObject was imported or not
         """
-        log.debug('In %s FTPHarvester import_stage' % self.harvester_name) # harvest_job.source.url
 
         # harvest_api_key = model.User.get(context['user']).apikey.encode('utf8')
 
-        ret = super(InfoplusHarvester, self).gather_stage(harvest_job)
+        ret = super(InfoplusHarvester, self).import_stage(harvest_object)
 
         return ret
 
@@ -101,13 +98,15 @@ class DidokHarvester(BaseFTPHarvester):
 
     # -----------------------------------------------------------------------
 
-    def gather_stage(self, harvest_job):
+    def gather_stage(self, harvest_object):
         """
         Gathers resources to fetch
-        """
-        log.debug('In %s FTPHarvester gather_stage' % self.harvester_name) # harvest_job.source.url
 
-        ret = super(InfoplusHarvester, self).gather_stage(harvest_job)
+        :param harvest_object: Harvester job
+        :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
+        """
+
+        ret = super(InfoplusHarvester, self).gather_stage(harvest_object)
 
         return ret
 
@@ -116,10 +115,12 @@ class DidokHarvester(BaseFTPHarvester):
     def fetch_stage(self, harvest_object):
         """
         Fetching of resources
-        """
-        log.debug('In %s FTPHarvester fetch_stage' % self.harvester_name) # harvest_job.source.url
 
-        ret = super(InfoplusHarvester, self).fetch_stage(harvest_job)
+        :param harvest_object: HarvestObject
+        :returns: True|None Whether HarvestObject was saved or not
+        """
+
+        ret = super(InfoplusHarvester, self).fetch_stage(harvest_object)
 
         return ret
 
@@ -128,11 +129,13 @@ class DidokHarvester(BaseFTPHarvester):
     def import_stage(self, harvest_object):
         """
         Imports the fetched files into CKAN storage
+
+        :param harvest_object: HarvestObject
+        :returns: True|False boolean Whether the HarvestObject was imported or not
         """
-        log.debug('In %s FTPHarvester import_stage' % self.harvester_name) # harvest_job.source.url
 
         # harvest_api_key = model.User.get(context['user']).apikey.encode('utf8')
 
-        ret = super(InfoplusHarvester, self).gather_stage(harvest_job)
+        ret = super(InfoplusHarvester, self).import_stage(harvest_object)
 
         return ret
