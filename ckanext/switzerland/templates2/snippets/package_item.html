@@ -16,18 +16,18 @@ Example:
 {% set truncate = truncate or 180 %}
 {% set truncate_title = truncate_title or 80 %}
 {% set title = package.title or package.name %}
-{% set notes = h.markdown_extract(package.notes, extract_length=truncate) %}
+{% set description = h.truncate(package.description, truncate) %}
 
 {% block package_item %}
-  <li class="{{ item_class or "dataset-item" }}">
+  <li class="{{ item_class or 'dataset-item' }}">
     {% block content %}
       <div class="dataset-content">
         {% block heading %}
           <h3 class="dataset-heading">
             {% block heading_private %}
               {% if package.private %}
-                <span class="dataset-private label label-inverse">
-                  <i class="icon-lock"></i>
+                <span class="label label-default">
+                  <i class="fa fa-lock"></i>
                   {{ _('Private') }}
                 </span>
               {% endif %}
@@ -37,35 +37,40 @@ Example:
             {% endblock %}
             {% block heading_meta %}
               {% if package.get('state', '').startswith('draft') %}
-                <span class="label label-info">{{ _('Draft') }}</span>
+                <span class="label label-default">{{ _('Draft') }}</span>
               {% elif package.get('state', '').startswith('deleted') %}
-                <span class="label label-important">{{ _('Deleted') }}</span>
+                <span class="label label-danger">{{ _('Deleted') }}</span>
               {% endif %}
               {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
             {% endblock %}
           </h3>
         {% endblock %}
-        {% block banner %}
-          {% if banner %}
-            <span class="banner">{{ _('Popular') }}</span>
+        {% block groups %}
+          {% if package.groups %}
+            <p class="small">
+            {% for group in package.groups %}
+              {{ group.display_name }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+            </p>
           {% endif %}
         {% endblock %}
-        {% block notes %}
-          {% if notes %}
-            <div>{{ notes|urlize }}</div>
+        {% block description %}
+          {% if description %}
+            <p>{{ description }}</p>
           {% else %}
-            <p class="empty">{{ _("This dataset has no description") }}</p>
+            <p class="empty">{{ _('This dataset has no description') }}</p>
           {% endif %}
         {% endblock %}
       </div>
       {% block resources %}
         {% if package.resources and not hide_resources %}
           {% block resources_outer %}
-            <ul class="dataset-resources unstyled">
+            <ul class="dataset-resources list-inline">
               {% block resources_inner %}
-                {% for resource in h.dict_list_reduce(package.resources, 'format') %}
+                {% for media_type in h.dict_list_reduce(package.resources, 'media_type') %}
                 <li>
-                  <a href="{{ h.url_for(controller='package', action='read', id=package.name) }}" class="label" data-format="{{ resource.lower() }}">{{ resource }}</a>
+                  {% set media_type_truncated = h.truncate(media_type, 30) %}
+                  <small><span class="label label-default" title="{{ media_type }}">{{ media_type_truncated.upper() }}</span></small>
                 </li>
                 {% endfor %}
               {% endblock %}
