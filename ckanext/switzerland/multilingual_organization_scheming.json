@@ -23,6 +23,7 @@
         "fr": "Nom d'affichage",
         "it": "Nome visualizzato"
       },
+      "form_snippet": null,
       "preset": "multilingual_output"
     },
     {
@@ -64,15 +65,6 @@
         "it": "URL d'immagine"
       },
       "form_placeholder": "http://example.com/my-image.jpg"
-    },
-    {
-      "field_name": "parent",
-      "label": {
-        "en": "Parent",
-        "de": "Übergeordnete Organisation",
-        "fr": "Organisation de Parent",
-        "it": "Organizzazione Parent"
-      }
     }
   ]
 }
