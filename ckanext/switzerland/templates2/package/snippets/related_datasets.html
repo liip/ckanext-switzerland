@@ -10,13 +10,13 @@ Example:
 #}
 {% if pkg.see_alsos %}
 <section class="container related-datasets">
-  <div class="row">
-    <div class="col-xs-12">
+  <div>
+    <div>
       <h2>{{ _('Related datasets') }}</h2>
     </div>
   </div>
-  <div class="row">
-    <div class="col-xs-12">
+  <div>
+    <div>
       {% block related_datasets %}
       <ul>
         {% for see_also in pkg.see_alsos %}
