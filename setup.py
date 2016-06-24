@@ -84,7 +84,8 @@ setup(
         ogdch_group=ckanext.switzerland.plugin:OgdchGroupPlugin
         ogdch_org=ckanext.switzerland.plugin:OgdchOrganizationPlugin
         dcat_ch_rdf_harvester=ckanext.switzerland.dcat.harvesters:SwissDCATRDFHarvester
-        ftp_harvester=ckanext.switzerland.ftp.harvesters:FTPHarvester
+        infoplus_harvester=ckanext.switzerland.ftp.harvesters:InfoplusHarvester
+        didok_harvester=ckanext.switzerland.ftp.harvesters:DidokHarvester
 
         [ckan.rdf.profiles]
         swiss_dcat_ap=ckanext.switzerland.dcat.profiles:SwissDCATAPProfile

@@ -58,6 +58,202 @@ import pprint # debug-only
 
 
 
+class FTPHelper(object):
+
+    _config = None
+
+    ftps = None
+
+    remotefolder = ''
+
+    def __init__(self, remotefolder=''):
+
+        # load the ftp configuration from ckan config file
+        ftpconfig = {}
+        for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
+            ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
+        ftpconfig['host'] = str(ftpconfig['host'])
+        ftpconfig['port'] = int(ftpconfig['port'])
+        self._config = ftpconfig
+
+        self.remotefolder = remotefolder
+
+        # create the local directory, if it does not exist
+        # TODO: use Python temp lib
+        self.create_local_dir()
+
+    def __enter__(self):
+        # establish ftp connection
+        self._connect()
+        # return helper
+        return self
+
+    def __exit__(self, type, value, traceback):
+        # disconnect ftp
+        self._disconnect()
+
+    def create_local_dir(self, folder=None):
+        if not folder:
+            folder = self._config['localpath']
+        # create the local directory if it does not exist
+        if not os.path.isdir(folder):
+            self._mkdir_p(folder)
+
+    def _connect(self):
+        """
+        Establish an FTP connection
+
+        @rtype:   None
+        @return:  None
+        """
+        # overwrite the default port (21)
+        ftplib.FTP.port = int(self._config['port'])
+        # connect
+        self.ftps = ftplib.FTP_TLS(self._config['host'], self._config['username'], self._config['password'])
+        # switch to secure data connection
+        self.ftps.prot_p()
+
+    def _disconnect(self):
+        """
+        Close ftp connection
+
+        @rtype:   None
+        @return:  None
+        """
+        self.ftps.quit() # '221 Goodbye.'
+
+    def _mkdir_p(path, perms=0777):
+        """
+        Recursively create local directories
+        See: http://stackoverflow.com/a/600612/426266
+        """
+        try:
+            os.makedirs(path, perms)
+        except OSError as exc:  # Python >2.5
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else:
+                raise
+
+    def cdremote(self, remotedir=None):
+        """
+        Change remote directory
+
+        @type  remotedir: string
+        @param remotedir: Full path on the remote server
+        @rtype:   None
+        @return:  None
+        """
+        if not remotedir:
+            remotedir = self.remotefolder # self._config['remotedirectory']
+        self.ftps.cwd(remotedir)
+
+    def get_dirlist(self, folder=None):
+        """
+        List files and sub-directories in the current directory
+
+        @rtype:   list
+        @return:  Directory listing (exclusing '.' and '..')
+        """
+        # get dir listing of a specific directory
+        if folder:
+            dirlist = self.ftps.nlst(folder)
+        # get dir listing of current directory
+        else:
+            dirlist = self.ftps.nlst()
+        # filter out '.' and '..' and return the list
+        return filter(lambda x: x not in ['.', '..'], dirlist)
+
+    def dir_empty(self, folder=None):
+        """
+        Check if a remote directory is empty
+
+        @rtype:   list
+        @return:  Directory listing (exclusing '.' and '..')
+        """
+        # get dir listing of a specific directory
+        if folder:
+            num_files = len(self.get_dirlist(folder))
+        else:
+            num_files = len(self.get_dirlist())
+        return num_files
+
+    # see: http://stackoverflow.com/a/31512228/426266
+    def get_dirlist_all(self, folder=None):
+        if not folder:
+            folder = self.remotefolder
+        dirs = []
+        new_dirs = self.get_dirlist(folder)
+        while len(new_dirs) > 0:
+            for dir in new_dirs:
+                dirs.append(dir)
+            old_dirs = new_dirs[:]
+            new_dirs = []
+            for dir in old_dirs:
+                for new_dir in self.get_dirlist(dir):
+                    new_dirs.append(new_dir)
+        dirs.sort()
+        return dirs
+
+    def wget_folder_fetch(self):
+        # optional parameters:
+            # -nv: non-verbose
+            # --no-clobber: do not overwrite existing files
+        return subprocess.call("/usr/local/bin/wget -r --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (self._config['username'], self._config['password'], self._config['host'], int(self._config['port'], os.path.join(self._config['remotedirectory'], remotefolder))), shell=True)
+
+    def wget_fetch(self, file):
+        return subprocess.call("/usr/local/bin/wget --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (self._config['username'], self._config['password'], self._config['host'], int(self._config['port'], file)), shell=True)
+
+    def fetch(self, filename, localpath=None):
+        """
+        Fetch a single file from the remote server
+
+        @type  filename: string
+        @param filename: Name of the file to download
+        @rtype:   string
+        @return:  FTP status message
+        """
+        if not localpath:
+            localpath = os.path.join(self._config['localpath'], filename)
+
+        localfile = open(localpath, 'wb')
+        status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
+        localfile.close()
+        # TODO: check status
+        # TODO: verify download
+        return status
+
+    # TODO
+    # def getdir(self, path='', recursive=True):
+    #     """
+    #     Retrieve all files of a directory, optionally including all sub-directories
+    #     @type  remotedir: string
+    #     @param remotedir: Full path on the remote server
+    #     @rtype:   None
+    #     @return:  None
+    #     """
+    #     # import pprint
+    #     # pprint.pprint(e)
+    #     # print "FILE DOWNLOAD EXCP: %s" % e
+    #     # cd into the remote directory
+    #     self.cdremote(path)
+    #     # Return a list containing the names of the entries in the given path.
+    #     # The list is in arbitrary order. It does not include the special entries '.' and '..' even if they are present in the folder.
+    #     dirlist = self.listdir() # 226 Transfer complete
+    #     for item in dirlist:
+    #         try:
+    #             # try to download the file
+    #             self.fetch(item)
+    #         except Exception as e:
+    #             # it must be a directory
+    #             if recursive:
+    #                 self.getdir(item)
+    #         # prefix the filename
+    #         # fileordir = os.path.join(path, fileordir)
+
+
+
+
 class BaseFTPHarvester(HarvesterBase):
     """
     A FTP Harvester for data
@@ -69,7 +265,7 @@ class BaseFTPHarvester(HarvesterBase):
     action_api_version = 3
 
     # default harvester id, to be overwritten by child classes
-    harvester_name = ''
+    harvester_name = 'ckanftp'
 
     # default remote directory to harvest, to be overwritten by child classes
     # e.g. infodoc or didok
@@ -77,77 +273,6 @@ class BaseFTPHarvester(HarvesterBase):
 
     # subfolder in the above remote folder
     environment = 'test'
-
-
-    class FTP(object):
-
-        _config = None
-
-        ftps = None
-
-        def __init__(self, remotefolder=''):
-            # load the ftp configuration
-            ftpconfig = {}
-            for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
-                ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
-            ftpconfig['host'] = str(ftpconfig['host'])
-            ftpconfig['port'] = int(ftpconfig['port'])
-            self._config = ftpconfig
-
-            # create the local directory if it does not exist
-            if not os.path.isdir(self._config['localpath']):
-                self._mkdir_p(self._config['localpath'])
-
-        def __enter__(self):
-            return self
-        def __exit__(self, type, value, traceback):
-            self.ftps.quit()
-
-        # get the file listing (including all subdirs)
-        # see: http://stackoverflow.com/a/31512228/426266
-        def get_dirlist(folder=""):
-            contents = ftp.nlst(folder)
-            folders = []
-            for item in contents:
-                if "." not in item:
-                    folders.append(item)
-            return folders
-        def get_dirlist_all(folder=""):
-            dirs = []
-            new_dirs = self.get_dirlist(folder)
-            while len(new_dirs) > 0:
-                for dir in new_dirs:
-                    dirs.append(dir)
-                old_dirs = new_dirs[:]
-                new_dirs = []
-                for dir in old_dirs:
-                    for new_dir in self.get_dirlist(dir):
-                        new_dirs.append(new_dir)
-            dirs.sort()
-            return dirs
-
-        def wget_folder(self):
-            # optional parameters:
-                # -nv: non-verbose
-                # --no-clobber: do not overwrite existing files
-            return subprocess.call("/usr/local/bin/wget -r --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (self._config['username'], self._config['password'], self._config['host'], int(self._config['port'], os.path.join(self._config['remotedirectory'], remotefolder))), shell=True)
-
-        def wget_file(self, file):
-            return subprocess.call("/usr/local/bin/wget --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (self._config['username'], self._config['password'], self._config['host'], int(self._config['port'], file)), shell=True)
-
-
-    def _mkdir_p(path, perms=0777):
-        """
-        Recursively create directories
-        See: http://stackoverflow.com/a/600612/426266
-        """
-        try:
-            os.makedirs(path, perms)
-        except OSError as exc:  # Python >2.5
-            if exc.errno == errno.EEXIST and os.path.isdir(path):
-                pass
-            else:
-                raise
 
     def _unzip(self, filepath):
         """
@@ -187,7 +312,7 @@ class BaseFTPHarvester(HarvesterBase):
 
     def info(self):
         return {
-            'name': 'ckanftp',
+            'name': 'ckanftp', # '%sharvest' % self.harvester_name.lower(),
             'title': 'CKAN FTP %s Harvester' % self.harvester_name,
             'description': 'Fetches %s/%s' % (self.remotefolder, self.environment),
             'form_config_interface': 'Text'
@@ -253,37 +378,59 @@ class BaseFTPHarvester(HarvesterBase):
         :param harvest_job: Harvester job
         :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
         """
-        log.debug('In FTPHarvester \'%s\' gather_stage (%s)' % (self.harvester_name, harvest_job.source.url))
+        log.debug('In FTPHarvester \'%s\' gather_stage' % self.harvester_name) # harvest_job.source.url
 
         # self._set_config(harvest_job.source.config)
 
         # get directory listing
 
-        remotefolder = os.path.join(self.remotefolder, self.environment)
+        remotefolder = os.path.join('/', self.remotefolder, self.environment) # e.g. didok/test
+        print "FTP remotefolder: %s" % remotefolder
 
-        with self.FTP(remotefolder) as ftps:
+        dirlist = []
 
-            dirlist = ftps.get_dirlist_all()
+        try:
 
-            pass
+            with FTPHelper(remotefolder) as ftph:
+
+                # cd into the remote directory
+                ftph.cdremote()
+
+                dirlist = ftph.get_dirlist()
+
+                pprint.pprint(dirlist)
+
+        except ftplib.all_errors as e:
+            self._save_gather_error('Ftplib error: %s' % str(e), harvest_job)
+            return None
 
 
+        if not len(dirlist):
+            self._save_gather_error('No files found to harvest. Harvest aborted.', harvest_job)
+            return None
 
 
+        # prepare harvesting objects for the next stage
+        object_ids = []
+        for file in dirlist:
+            # Create a new HarvestObject for this resource
+            harvest_guid = "%s-%s-%s" % (self.remotefolder, self.environment, file) # TODO: guid should be the id of the resource to be updated (?)
+            obj = HarvestObject(guid=harvest_guid, job=harvest_job)
+            obj.save()
+            object_ids.append(obj.id)
+
+        # DEV
+        # pprint.pprint(object_ids)
+        # return None
+
+        # to fake a single harvest object to start the next step
+        # obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
+        # obj.save()
+        # return [ obj.id ]
+
+        return object_ids
 
 
-
-
-
-
-
-
-
-        # fake a harvest object and return it for the next step
-        obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
-        obj.save()
-
-        return [ obj.id ]
 
 
 
@@ -409,6 +556,9 @@ class BaseFTPHarvester(HarvesterBase):
         """
         log.debug('In FTPHarvester fetch_stage')
 
+        return None
+
+
         retobj = {}
 
         try:
@@ -461,6 +611,8 @@ class BaseFTPHarvester(HarvesterBase):
         :returns: True|False boolean Whether the HarvestObject was imported or not
         """
         log.debug('In %s FTPHarvester import_stage' % self.harvester_name) # harvest_job.source.url
+
+        return None
 
         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
 
