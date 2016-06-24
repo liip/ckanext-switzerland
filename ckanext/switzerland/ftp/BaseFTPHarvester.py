@@ -544,9 +544,6 @@ class BaseFTPHarvester(HarvesterBase):
 
         # self._set_config(harvest_job.source.config)
 
-
-        # get directory listing
-
         remotefolder = os.path.join('/', self.remotefolder, self.environment) # e.g. didok/test
         log.debug("FTP remotefolder: %s" % remotefolder)
 
@@ -582,7 +579,11 @@ class BaseFTPHarvester(HarvesterBase):
                 retobj['workingdir'] = os.path.join(ftph._config['localpath'], retobj['topfolder'])
 
         except ftplib.all_errors as e:
-            self._save_gather_error('Ftplib error: %s' % str(e), harvest_job)
+            self._save_object_error('Ftplib error: %s' % str(e), harvest_object)
+            return None
+
+        except CmdError as e:
+            self._save_object_error('Cmd error: %s' % str(e), harvest_object, 'Fetch')
             return None
 
         except subprocess.CalledProcessError as e:
@@ -598,7 +599,7 @@ class BaseFTPHarvester(HarvesterBase):
         dirlist = self._get_local_dirlist(".")
 
         if not len(dirlist):
-            self._save_gather_error('No files found to harvest in remote directory [%s]. Harvest aborted.' % str(remotefolder), harvest_job)
+            self._save_object_error('No files found to harvest in remote directory [%s]. Harvest aborted.' % str(remotefolder), harvest_object, 'Fetch')
             return None
 
         # log.debug("Unzipping files")
@@ -632,10 +633,6 @@ class BaseFTPHarvester(HarvesterBase):
         """
         log.debug('In %s FTPHarvester import_stage' % self.harvester_name) # harvest_job.source.url
 
-        context = {'model': model, 'session': Session, 'user': self._get_user_name()}
-
-        harvest_api_key = model.User.get(context['user']).apikey.encode('utf8')
-
         if not harvest_object:
             log.error('No harvest object received')
             return False
@@ -643,24 +640,26 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, 'Import')
             return False
 
+        context = {'model': model, 'session': Session, 'user': self._get_user_name()}
+
+        # api key of the harvester user
+        harvest_api_key = model.User.get(context['user']).apikey.encode('utf8')
+
         # set harvester config
         self._set_config(harvest_object.job.source.config)
 
         # unserialize the info from the previous step
         harvest_object.content = json.loads(harvest_object.content)
 
-
-
         # need the local path
-        if not harvest_object.content.get('localpath'):
+        if not harvest_object.content.get('workingdir'):
             self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, 'Import')
             return False
         # if not harvest_object.content.get('dirlist'):
         #     self._save_object_error('Empty directory for harvest object %s' % harvest_object.id, harvest_object, 'Import')
         #     return False
 
-
-        pprint.pprint('workingdir: %s' % str(harvest_object.content['workingdir']))
+        log.debug('Workingdir: %s' % str(harvest_object.content['workingdir']))
 
         # DEV
         return None
