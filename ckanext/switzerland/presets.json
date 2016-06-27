@@ -37,7 +37,6 @@
     {
       "preset_name": "multilingual_output",
       "values": {
-        "form_snippet": null,
         "validators": "ignore",
         "output_validators": "multilingual_text_output"
       }
