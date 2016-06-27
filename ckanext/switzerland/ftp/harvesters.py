@@ -34,6 +34,8 @@ class InfoplusHarvester(BaseFTPHarvester):
     # subfolder in the above remote folder
     environment = 'test'
 
+    do_unzip = False # for DEV
+
     # -----------------------------------------------------------------------
 
     def gather_stage(self, harvest_object):
@@ -95,6 +97,8 @@ class DidokHarvester(BaseFTPHarvester):
 
     # subfolder in the above remote folder
     environment = 'test'
+
+    do_unzip = False # for DEV
 
     # -----------------------------------------------------------------------
 

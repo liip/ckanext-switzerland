@@ -308,9 +308,21 @@ class BaseFTPHarvester(HarvesterBase):
     # subfolder in the above remote folder
     environment = 'test'
 
+    do_unzip = True
+
+
+    def _get_rest_api_offset(self):
+        return '/api/%d/rest' % self.api_version
+    def _get_action_api_offset(self):
+        return '/api/%d/action' % self.action_api_version
+    def _get_search_api_offset(self):
+        return '/api/%d/search' % self.api_version
+
+
     def _unzip(self, filepath):
         """
         Extract a single zip file
+        E.g. will extract a file /tmp/somedir/myfile.zip into /tmp/somedir/
         """
         target_folder = os.path.dirname(filepath)
         zfile = zipfile.ZipFile(filepath)
@@ -324,16 +336,11 @@ class BaseFTPHarvester(HarvesterBase):
         for dirpath, dirnames, filenames in os.walk(localpath):
             for filename in [f for f in filenames]:
                 dirlist.append(os.path.join(dirpath, filename))
+
+        # .TMP must be ignored, as they are still being uploaded
+        dirlist =  filter(lambda x: not x.lower().endswith(self.tmpfile_extension), dirlist)
+
         return dirlist
-
-
-    def _get_rest_api_offset(self):
-        return '/api/%d/rest' % self.api_version
-    def _get_action_api_offset(self):
-        return '/api/%d/action' % self.action_api_version
-    def _get_search_api_offset(self):
-        return '/api/%d/search' % self.api_version
-
 
     def _set_config(self, config_str):
         if config_str:
@@ -560,16 +567,13 @@ class BaseFTPHarvester(HarvesterBase):
                 # get a directory listing
                 # dirlist = ftph.get_dirlist()
 
-                # .TMP must be ignored, as they are still being uploaded
-                # dirlist =  filter(lambda x: not x.lower().endswith(self.tmpfile_extension), dirlist)
-
                 # store some config for the next step
                 retobj['topfolder'] = ftph.get_top_folder() # 'ftp-secure.sbb.ch:990'
 
                 # change into the local directory
                 os.chdir(ftph._config['localpath'])
 
-                # fetch the files
+                # fetch the files via wget (TBD)
                 cmdstatus = ftph.wget_folder_fetch()
                 log.debug("wget_folder_fetch cmdstatus: %s" % str(cmdstatus))
                 if cmdstatus > 0:
@@ -596,26 +600,25 @@ class BaseFTPHarvester(HarvesterBase):
 
 
         # get an updated list of all local files (extracted and zip)
-        dirlist = self._get_local_dirlist(".")
+        dirlist = self._get_local_dirlist()
 
         if not len(dirlist):
             self._save_object_error('No files found to harvest in remote directory [%s]. Harvest aborted.' % str(remotefolder), harvest_object, 'Fetch')
             return None
 
         # log.debug("Unzipping files")
-        for file in dirlist:
-            # if file is a zip, unzip
-            filename, file_extension = os.path.splitext(file)
-            if file_extension == '.zip':
-                log.debug("Unziping: %s" % file)
-                self._unzip(file)
+        if self.do_unzip:
+            for file in dirlist:
+                # if file is a zip, unzip
+                filename, file_extension = os.path.splitext(file)
+                if file_extension == '.zip':
+                    log.debug("Unzipping: %s" % file)
+                    self._unzip(file)
 
-        # .TMP must be ignored, as they are still being uploaded
-        dirlist =  filter(lambda x: not x.lower().endswith(self.tmpfile_extension), dirlist)
-
-        log.debug("Fetched files: %s" % str(dirlist))
-
-        retobj['dirlist'] = dirlist
+        # get an updated list of all local files (extracted and zip)
+        # dirlist = self._get_local_dirlist()
+        # log.debug("Fetched files: %s" % str(dirlist))
+        # retobj['dirlist'] = dirlist
 
         # Save the directory listing and other info in the HarvestObject
         harvest_object.content = json.dumps(retobj)
@@ -653,32 +656,22 @@ class BaseFTPHarvester(HarvesterBase):
 
         # need the local path
         if not harvest_object.content.get('workingdir'):
-            self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, 'Import')
+            self._save_object_error('Missing workingdir in harvest object %s' % harvest_object.id, harvest_object, 'Import')
             return False
-        # if not harvest_object.content.get('dirlist'):
-        #     self._save_object_error('Empty directory for harvest object %s' % harvest_object.id, harvest_object, 'Import')
-        #     return False
 
-        log.debug('Workingdir: %s' % str(harvest_object.content['workingdir']))
+        wdir = os.path.join(harvest_object.content['workingdir'], self.remotefolder, self.environment)
 
-        # DEV
-        return None
-
+        log.debug('Workingdir: %s' % str(wdir))
 
         # change into the local directory
-        os.chdir(os.path.join(harvest_object.content['workingdir'], self.remotefolder)) # e.g. ftp.somedomain.com:21/infoplus
+        os.chdir(wdir) # e.g. /tmp/ftpharvest/ftp.somedomain.com:21/infoplus/prod
 
 
+        dirlist = self._get_local_dirlist()
 
-
-
-
-        dirlist =  filter(lambda x: not x.lower().endswith(self.tmpfile_extension), dirlist)
-
-
-
-
-
+        if not len(dirlist):
+            self._save_object_error('No files found to process for %s harvester (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, 'Import')
+            return False
 
 
         try:
@@ -687,9 +680,7 @@ class BaseFTPHarvester(HarvesterBase):
             # create a package dictionary
             # =======================================================================
             package_dict = {}
-            package_dict['name'] = self._ensure_name_is_unique(os.path.basename(self.remotefolder))
-
-            log.info('Creating/updating package %s' % package_dict['name'])
+            package_dict['name'] = self.remotefolder # self._ensure_name_is_unique(os.path.basename(self.remotefolder))
 
             # -----------------------------------------------------------------------
             # Set default tags if needed
@@ -820,26 +811,8 @@ class BaseFTPHarvester(HarvesterBase):
 
                         package_dict['extras'][key] = value
 
-            # -----------------------------------------------------------------------
-            # resources creation
-            # -----------------------------------------------------------------------
 
-            dirlist = self._get_dirlist()
-
-            # import the local files into CKAN
-            for file in dirlist:
-
-                # TODO: add resources
-
-
-                # TODO: get metadata of files
-
-
-                pass
-
-
-
-            print "Package: %s" % str(package_dict)
+            log.debug("Package dict (pre-save): %s" % str(package_dict))
 
 
             # -----------------------------------------------------------------------
@@ -854,31 +827,38 @@ class BaseFTPHarvester(HarvesterBase):
 
                 if not package_dict['id']:
                     # abort updating
+                    log.debug("Package '%s' not found" % package_dict.get('name'))
                     raise NotFound("Package '%s' not found" % package_dict.get('name'))
+
+                log.debug("Found package with id %s" % str(package_dict['id']))
+
+                # patch the package dict
+                existing_package.update(package_dict)
 
                 # update the package
                 # requires the id
                 # see: https://github.com/ckan/ckanext-harvest/blob/7f506913f8e78988899af9c1dd518dc76e2c3e62/ckanext/harvest/harvesters/base.py#L219
                 # result = self._create_or_update_package(package_dict, harvest_object)
 
-                dataset = package_update(context, package_dict)
-                print "Updated: %s" % str(dataset['name'])
+                # update the package
+                dataset = package_update(context, existing_package)
+                log.debug("Updated: %s" % str(dataset.get('name')))
 
             # TODO
-            # except ckan.logic.NotFound as e:
-            #     log.info("New package: %s" % package_dict['name'])
-            except Exception as e:
-                log.info("New package: %s" % package_dict['name'])
-
-                # creat ethe package instead
+            except NotFound as e:
+                # create the package instead
                 dataset = package_create(context, package_dict)
-                print "Created: %s" % str(dataset['name'])
+                log.info("Created package: %s" % str(dataset['name']))
+
+            except Exception as e:
+                self._save_object_error('Package update/creation error: %s' % str(e), harvest_object, 'Import')
+                return False
 
 
             # -----------------------------------------------------------------------
-            # optional permissions (set read-only)
+            # Configure permissions of the package
             # -----------------------------------------------------------------------
-            if dataset and self.config.get('read_only', True) is True: # read-only = default
+            if dataset:
 
                 package = model.Package.get(package_dict['id'])
 
@@ -890,21 +870,57 @@ class BaseFTPHarvester(HarvesterBase):
                 user = model.User.get(user_name)
                 pkg_role = model.PackageRole(package=package, user=user, role=model.Role.ADMIN)
 
-                # Other users can only read
-                for user_name in (u'visitor', u'logged_in'):
-                    user = model.User.get(user_name)
-                    pkg_role = model.PackageRole(package=package, user=user, role=model.Role.READER)
+                # Set the package read-only ?
+                if self.config.get('read_only', True) is True:
+                    # Other users can only read
+                    for user_name in (u'visitor', u'logged_in'):
+                        user = model.User.get(user_name)
+                        pkg_role = model.PackageRole(package=package, user=user, role=model.Role.READER)
+
+
+            # -----------------------------------------------------------------------
+            # resources creation
+            # -----------------------------------------------------------------------
+
+            # now that the harvest user is admin of package, 
+
+            log.debug('Processing files: %s' % str(dirlist))
+
+            # import the local files into CKAN
+            for file in dirlist:
+
+
+                log.debug("TODO: add %s" % str(file))
+
+
+                # TODO: use API to upload
+
+
+                # TODO: add resources
+
+
+
+                # TODO: import metadata of files
+
+
+                # TODO: add resources to package_dict
+
+
+                pass
+
 
             # -----------------------------------------------------------------------
             # return result
             # -----------------------------------------------------------------------
 
-        except ValidationError,e:
+        except ValidationError, e:
             self._save_object_error('Invalid package with GUID %s: %r' % (harvest_object.guid, e.error_dict),
                     harvest_object, 'Import')
+            return False
 
         except Exception, e:
-            self._save_object_error('%r'%e, harvest_object, 'Import')
+            self._save_object_error('%r' % e, harvest_object, 'Import')
+            return False
 
 
         # =======================================================================
