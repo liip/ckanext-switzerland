@@ -34,7 +34,7 @@ class InfoplusHarvester(BaseFTPHarvester):
     # subfolder in the above remote folder
     environment = 'test'
 
-    do_unzip = False # PROD: set to True
+    do_unzip = False # PROD: set this to True
 
     # -----------------------------------------------------------------------
 

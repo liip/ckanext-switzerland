@@ -312,6 +312,10 @@ class BaseFTPHarvester(HarvesterBase):
     # subfolder in the above remote folder
     environment = 'test'
 
+    default_format = 'TXT'
+    default_mimetype = 'TXT'
+    default_mimetype_inner = 'TXT'
+
     do_unzip = True
 
 
@@ -444,7 +448,7 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job, 'Gather')
             return None
 
-        # create a harvest object
+        # version 1: create one harvest object for the package
         harvest_object = HarvestObject(guid=self.harvester_name, job=harvest_job)
         # serialise and store the dirlist
         harvest_object.content = json.dumps(dirlist)
@@ -452,6 +456,16 @@ class BaseFTPHarvester(HarvesterBase):
         harvest_object.save()
         return [ harvest_object.id ]
 
+
+
+        # version 2: create one harvest object for each resource in the package
+        # TODO
+        # harvest_object = HarvestObject(guid=self.harvester_name, job=harvest_job)
+        # # serialise and store the dirlist
+        # harvest_object.content = json.dumps(dirlist)
+        # # save it for the next step
+        # harvest_object.save()
+        # return [ harvest_object.id ]
 
 
 
@@ -640,7 +654,7 @@ class BaseFTPHarvester(HarvesterBase):
                     start = time.time()
                     # fetch the file with ftplib
 
-                    # DEV: skip existing files
+                    # DEV-only: skip existing files
                     if os.path.exists(targetfile):
                         continue
 
@@ -675,7 +689,7 @@ class BaseFTPHarvester(HarvesterBase):
             dirlist = self._get_local_dirlist(retobj['workingdir'])
             for file in dirlist:
                 # if file is a zip, unzip
-                filename, file_extension = os.path.splitext(file)
+                na, file_extension = os.path.splitext(file)
                 if file_extension == '.zip':
                     log.debug("Unzipping: %s" % file)
                     self._unzip(file)
@@ -729,7 +743,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         # api key of the harvester user
         harvest_api_key = model.User.get(context['user']).apikey.encode('utf8')
-        log.debug("API KEY: %s" % harvest_api_key)
+        # log.debug("API KEY: %s" % harvest_api_key)
 
         # set harvester config
         self._set_config(harvest_object.job.source.config)
@@ -749,6 +763,13 @@ class BaseFTPHarvester(HarvesterBase):
             # =======================================================================
             package_dict = {}
             package_dict['name'] = self.remotefolder # self._ensure_name_is_unique(os.path.basename(self.remotefolder))
+            # title of the package
+            package_dict['title'] = self.remotefolder.title()
+            # set package to active
+            package_dict['state'] = "active"
+            # TODO
+            # package_dict['version'] = "TODO"
+
 
             # -----------------------------------------------------------------------
             # Set default tags if needed
@@ -899,8 +920,9 @@ class BaseFTPHarvester(HarvesterBase):
 
             try:
 
-                existing_package = package_show(context, {'id': package_dict.get('name').lower()})
-                log.debug("Found package: %s" % str(existing_package))
+                existing_package = package_show(context, {'id': package_dict.get('name')})
+                # log.debug("Found package: %s" % str(existing_package))
+                log.debug("Found package with id %s" % str(existing_package.get('id')))
 
                 if not existing_package.get('id'):
                     # abort updating
@@ -993,18 +1015,18 @@ class BaseFTPHarvester(HarvesterBase):
 
                     na, ext = os.path.splitext(file)
                     # fallback to TXT mimetype for files that do not have an extension
+                    ext = ext.lstrip('.').upper()
                     if not ext:
-                        mimetype = 'TXT'
-                        mimetype_inner = 'TXT'
+                        file_format = self.default_format
+                        mimetype = self.default_mimetype
+                        mimetype_inner = self.default_mimetype_inner
                     # file has an extension
                     else:
-                        ext = ext.upper().lstrip('.')
-                        mimetype = ext
-                        if ext == 'ZIP':
-                            # TODO: need to know what mimetype is inside the zip file. This is part of the metadata management. TBD.
-                            mimetype_inner = 'TXT'
-                        else:
-                            mimetype_inner = ext
+                        file_format = mimetype = mimetype_inner = ext
+                        # TODO: need to know what mimetype is inside the archive. This is part of the metadata management. TBD.
+                        # if ext in ['ZIP', 'RAR', 'TAR', 'TAR.GZ', '7Z']:
+                            # mimetype_inner = 'TXT'
+                            # pass
 
                     # use API to upload the file
                     fp = open(file, 'rb')
@@ -1012,9 +1034,9 @@ class BaseFTPHarvester(HarvesterBase):
                         package_id=dataset['id'],
                         name=os.path.basename(file),
                         description='', # TODO
-                        format='TXT', # TODO
-                        mimetype=mimetype, # TODO - this could also be ZIP, etc.
-                        mimetype_inner=mimetype_inner, # TODO
+                        format=file_format,
+                        mimetype=mimetype,
+                        mimetype_inner=mimetype_inner,
                         url='dummy-value', # ignored, but required by ckan
                         upload=fp
                     )
