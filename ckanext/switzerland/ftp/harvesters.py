@@ -34,7 +34,7 @@ class InfoplusHarvester(BaseFTPHarvester):
     # subfolder in the above remote folder
     environment = 'test'
 
-    do_unzip = False # for DEV
+    do_unzip = False # PROD: set to True
 
     # -----------------------------------------------------------------------
 
@@ -98,7 +98,7 @@ class DidokHarvester(BaseFTPHarvester):
     # subfolder in the above remote folder
     environment = 'test'
 
-    do_unzip = False # for DEV
+    do_unzip = False # no zip files in the folder (so far)
 
     # -----------------------------------------------------------------------
 
