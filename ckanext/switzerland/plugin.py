@@ -117,6 +117,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'get_org_count': get_org_count,
             'get_tweet_count': get_tweet_count,
             'get_localized_org': get_localized_org,
+            'get_localized_value': get_localized_value,
             'localize_json_title': localize_json_title,
             'get_frequency_name': get_frequency_name,
             'get_terms_of_use_icon': get_terms_of_use_icon,
