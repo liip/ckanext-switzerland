@@ -41,7 +41,7 @@ import ftplib
 import time
 
 from ckan.logic.action.create import package_create, group_create, organization_create
-from ckan.logic.action.update import package_update, group_update, organization_update
+from ckan.logic.action.update import group_update, organization_update # package_update
 from ckan.logic.action.patch import package_patch
 from ckan.logic.action.get import package_show
 
