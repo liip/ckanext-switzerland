@@ -42,6 +42,7 @@ import time
 
 from ckan.logic.action.create import package_create, group_create, organization_create
 from ckan.logic.action.update import package_update, group_update, organization_update
+from ckan.logic.action.patch import package_patch
 from ckan.logic.action.get import package_show
 
 import ckanapi
@@ -427,6 +428,7 @@ class BaseFTPHarvester(HarvesterBase):
         :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
         """
         log.debug('In %s FTPHarvester gather_stage' % self.harvester_name) # harvest_job.source.url
+        stage = 'Gather'
 
         dirlist = []
 
@@ -445,7 +447,7 @@ class BaseFTPHarvester(HarvesterBase):
         log.debug("Remote dirlist: %s" % str(dirlist))
 
         if not len(dirlist):
-            self._save_gather_error('No files found in %s' % remotefolder, harvest_job, 'Gather')
+            self._save_gather_error('No files found in %s' % remotefolder, harvest_job, stage)
             return None
 
         # version 1: create one harvest object for the package
@@ -589,6 +591,7 @@ class BaseFTPHarvester(HarvesterBase):
         :returns: True|None Whether HarvestObject was saved or not
         """
         log.debug('In %s FTPHarvester fetch_stage' % self.harvester_name)
+        stage = 'Fetch'
 
         # self._set_config(harvest_job.source.config)
 
@@ -596,14 +599,18 @@ class BaseFTPHarvester(HarvesterBase):
             log.error('No harvest object received')
             return False
         if not harvest_object.content:
-            self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, 'Import')
+            self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, stage)
             return False
 
-        dirlist = json.loads(harvest_object.content)
-        # pprint.pprint(dirlist)
+        try:
+            dirlist = json.loads(harvest_object.content)
+            # pprint.pprint(dirlist)
+        except JSONDecodeError,e:
+            self._save_gather_error('Unable to decode content for URL: %s: %s' % (url, str(e)), harvest_object, stage)
+            return None
 
         if not len(dirlist):
-            self._save_object_error('Empty directory listing', harvest_job, 'Fetch')
+            self._save_object_error('Empty directory listing', harvest_job, stage)
             return None
 
         # return dict
@@ -662,18 +669,18 @@ class BaseFTPHarvester(HarvesterBase):
                     elapsed = time.time() - start
                     log.debug("Fetched %s [%s] in %ds" % (file, str(status), elapsed)) # 226 Transfer complete
                     if status != '226 Transfer complete':
-                        self._save_object_error('Download error for file %s: %s' % (file, str(status)), harvest_object, 'Fetch')
+                        self._save_object_error('Download error for file %s: %s' % (file, str(status)), harvest_object, stage)
                         continue
 
         except ftplib.all_errors as e:
-            self._save_object_error('Ftplib error: %s' % str(e), harvest_object, 'Fetch')
+            self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
             return None
 
         except CmdError as e:
-            self._save_object_error('Cmd error: %s' % str(e), harvest_object, 'Fetch')
+            self._save_object_error('Cmd error: %s' % str(e), harvest_object, stage)
             return None
         except subprocess.CalledProcessError as e:
-            self._save_object_error('WGet Error [%d]: %s' % (e.returncode, e), harvest_object, 'Fetch')
+            self._save_object_error('WGet Error [%d]: %s' % (e.returncode, e), harvest_object, stage)
             return None
 
         # except Exception as e:
@@ -681,7 +688,7 @@ class BaseFTPHarvester(HarvesterBase):
         #     return None
 
         if not len(dirlist):
-            self._save_object_error('No files found in local directory [%s]. Harvest aborted.' % str(remotefolder), harvest_object, 'Fetch')
+            self._save_object_error('No files found in local directory [%s]. Harvest aborted.' % str(remotefolder), harvest_object, stage)
             return None
 
         # log.debug("Unzipping files")
@@ -714,12 +721,13 @@ class BaseFTPHarvester(HarvesterBase):
         :returns: True|False boolean Whether the HarvestObject was imported or not
         """
         log.debug('In %s FTPHarvester import_stage' % self.harvester_name) # harvest_job.source.url
+        stage = 'Import'
 
         if not harvest_object:
             log.error('No harvest object received')
             return False
         if not harvest_object.content:
-            self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, 'Import')
+            self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, stage)
             return False
 
         obj = json.loads(harvest_object.content)
@@ -734,7 +742,7 @@ class BaseFTPHarvester(HarvesterBase):
         #     return False
 
         if not dirlist:
-            self._save_object_error('Empty directory listing', harvest_job, 'Import')
+            self._save_object_error('Empty directory listing', harvest_object, stage)
             return None
 
         log.debug('Importing files: %s' % str(dirlist))
@@ -753,7 +761,7 @@ class BaseFTPHarvester(HarvesterBase):
         # os.chdir(workingdir) # e.g. /tmp/ftpharvest/ftp.somedomain.com:21/infoplus/prod
 
         if not len(dirlist):
-            self._save_object_error('No files found to process for %s harvester (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, 'Import')
+            self._save_object_error('No files found to process for %s harvester (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, stage)
             return False
 
         try:
@@ -935,7 +943,7 @@ class BaseFTPHarvester(HarvesterBase):
                 existing_package.update(package_dict)
 
                 # update the package
-                dataset = package_update(context, existing_package)
+                dataset = package_patch(context, existing_package)
                 log.debug("Updated package: %s" % str(dataset.get('name')))
 
             except NotFound as e:
@@ -944,13 +952,13 @@ class BaseFTPHarvester(HarvesterBase):
                 log.info("Created package: %s" % str(dataset['name']))
 
             except Exception as e:
-                self._save_object_error('Package update/creation error: %s' % str(e), harvest_object, 'Import')
+                self._save_object_error('Package update/creation error: %s' % str(e), harvest_object, stage)
                 return False
 
 
             # need a dataset to continue
             if not dataset:
-                self._save_object_error('Could not update or create package: %s' % self.harvester_name, harvest_object, 'Import')
+                self._save_object_error('Could not update or create package: %s' % self.harvester_name, harvest_object, stage)
                 return False
 
 
@@ -986,7 +994,7 @@ class BaseFTPHarvester(HarvesterBase):
 
             site_url = ckanconf.get('ckan.site_url', None)
             if not site_url:
-                self._save_object_error('Could not get site_url from CKAN config file', harvest_object, 'Import')
+                self._save_object_error('Could not get site_url from CKAN config file', harvest_object, stage)
                 return False
 
             try:
@@ -997,13 +1005,13 @@ class BaseFTPHarvester(HarvesterBase):
                 log.debug("Connected to %s" % site_url)
 
             except ckanapi.NotAuthorized, e:
-                self._save_object_error('User not authorized or accessing a deleted item', harvest_object, 'Import')
+                self._save_object_error('User not authorized or accessing a deleted item', harvest_object, stage)
                 return False
             except ckanapi.CKANAPIError, e:
-                self._save_object_error('Could not connect to CKAN via API', harvest_object, 'Import')
+                self._save_object_error('Could not connect to CKAN via API', harvest_object, stage)
                 return False
             except ckanapi.ServerIncompatibleError, e:
-                self._save_object_error('Could not connect to CKAN via API (remote API is not a CKAN API)', harvest_object, 'Import')
+                self._save_object_error('Could not connect to CKAN via API (remote API is not a CKAN API)', harvest_object, stage)
                 return False
 
 
@@ -1067,11 +1075,11 @@ class BaseFTPHarvester(HarvesterBase):
 
         except ValidationError, e:
             self._save_object_error('Invalid package with GUID %s: %r' % (harvest_object.guid, e.error_dict),
-                    harvest_object, 'Import')
+                    harvest_object, stage)
             return False
 
         except Exception, e:
-            self._save_object_error('%r' % e, harvest_object, 'Import')
+            self._save_object_error('%r' % e, harvest_object, stage)
             return False
 
 
