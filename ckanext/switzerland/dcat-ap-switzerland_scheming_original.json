@@ -85,7 +85,28 @@
       },
       "preset": "dataset_organization"
     },
-
+    {
+      "field_name": "publishers",
+      "label": {
+        "en": "Publishers",
+        "de": "Publisher",
+        "fr": "Editeurs",
+        "it": "Editori"
+      },
+      "preset": "dicts",
+      "display_snippet": "publishers.html"
+    },
+    {
+      "field_name": "contact_points",
+      "label": {
+        "en": "Contact points",
+        "de": "Kontaktstellen",
+        "fr": "Points de contact",
+        "it": "Punti di contatto"
+      },
+      "preset": "dicts",
+      "display_snippet": "contact_points.html"
+    },
     {
       "field_name": "language",
       "label": {
@@ -135,6 +156,17 @@
       ]
     },
     {
+      "field_name": "relations",
+      "label": {
+        "en": "Further information",
+        "de": "Weitere Informationen",
+        "fr": "Informations complémentaires",
+        "it": "Addizionali informazioni"
+      },
+      "preset": "dicts",
+      "display_snippet": "relations.html"
+    },
+    {
       "field_name": "keywords",
       "label": {
         "en": "Keywords",
@@ -171,6 +203,16 @@
         "fr": "Couverture",
         "it": "Copertura"
       }
+    },
+    {
+      "field_name": "temporals",
+      "label": {
+        "en": "Temporal coverage",
+        "de": "Zeitliche Abdeckung",
+        "fr": "Couverture temporelle",
+        "it": "Copertura temporale"
+      },
+      "preset": "temporals"
     },
     {
       "field_name": "accrual_periodicity",
