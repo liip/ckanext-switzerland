@@ -181,16 +181,6 @@
         "it": "Intervallo di aggiornamento"
       },
       "display_snippet": "periodicity.html"
-    },
-    {
-      "field_name": "see_alsos",
-      "label": {
-        "en": "Related datasets",
-        "de": "Verwandte Datensätze",
-        "fr": "Jeux de données relationnels",
-        "it": "Set di dati relativi"
-      },
-      "preset": "dicts"
     }
   ],
   "resource_fields": [
