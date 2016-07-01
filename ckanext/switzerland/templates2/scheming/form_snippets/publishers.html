@@ -1,6 +1,6 @@
 {% import 'macros/form.html' as form %}
 
-{% if not data[field.field_name] %}
+{% if not data[field.field_name] and not field.field_name + '-1-label' in data %}
     {% call form.input(
         field.field_name + '-1-label',
         type='text',
@@ -15,7 +15,12 @@
     %}
     {% endcall %}
 {% else %}
-    {% set publishers = h.parse_json(data[field.field_name]) %}
+    {% if field.field_name + '-1-label' in data %}
+        {% set publishers =  h.convert_post_data_to_dict(field.field_name, data) %}
+    {% else %}
+        {% set publishers = h.parse_json(data[field.field_name]) %}
+    {% endif %}
+
     {% for publisher in publishers %}
         {% call form.input(
             field.field_name + '-' + loop.index|string + '-label',

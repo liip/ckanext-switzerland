@@ -2,7 +2,7 @@
 
 <h3>{{ h.scheming_language_text(field.label) }}</h3>
 
-{% if not data[field.field_name] %}
+{% if not data[field.field_name] and not field.field_name + '-1-start_date' in data %}
     {% call form.input(
         field.field_name + '-1-start_date',
         type='date',
@@ -31,7 +31,12 @@
     %}
     {% endcall %}
 {% else %}
-    {% set temporals = h.parse_json(data[field.field_name]) %}
+    {% if field.field_name + '-1-start_date' in data %}
+        {% set temporals =  h.convert_post_data_to_dict(field.field_name, data, parse_datetime=True) %}
+    {% else %}
+        {% set temporals = h.parse_json(data[field.field_name]) %}
+    {% endif %}
+
     {% for temporal in temporals %}
         {% call form.input(
             field.field_name + '-' + loop.index|string + '-start_date',
