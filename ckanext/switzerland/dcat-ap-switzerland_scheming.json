@@ -16,16 +16,6 @@
       "validators": "scheming_required ogdch_unique_identifier"
     },
     {
-      "field_name": "notes",
-      "label": {
-        "en": "Description",
-        "de": "Beschreibung",
-        "fr": "Description",
-        "it": "Descrizione"
-      },
-      "preset": "multilingual_output"
-    },
-    {
       "field_name": "title",
       "label": {
         "en": "Title",
@@ -212,16 +202,6 @@
         "it": "Titolo"
       },
       "preset": "multilingual_text"
-    },
-    {
-      "field_name": "display_name",
-      "label": {
-        "en": "Display name",
-        "de": "Anzeigename",
-        "fr": "Nom d'affichage",
-        "it": "Nome visualizzato"
-      },
-      "preset": "multilingual_output"
     },
     {
       "field_name": "description",
