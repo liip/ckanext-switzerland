@@ -6,7 +6,7 @@
     {% call form.input(
         field.field_name + '-1-start_date',
         type='date',
-        id='field-' + field.field_name + '-start_date-1',
+        id='field-' + field.field_name + '-1-start_date',
         label=_('Start date'),
         placeholder=h.scheming_language_text(field.form_placeholder),
         error=errors[field.field_name],
@@ -20,7 +20,7 @@
     {% call form.input(
         field.field_name + '-1-end_date',
         type='date',
-        id='field-' + field.field_name + '-end_date-1',
+        id='field-' + field.field_name + '-1-end_date',
         label=_('End date'),
         placeholder=h.scheming_language_text(field.form_placeholder),
         error=errors[field.field_name],
@@ -36,7 +36,7 @@
         {% call form.input(
             field.field_name + '-' + loop.index|string + '-start_date',
             type='date',
-            id='field-' + field.field_name + '-start_date-' + loop.index|string,
+            id='field-' + field.field_name + '-' + loop.index|string + '-start_date',
             label=_('Start date'),
             placeholder=h.scheming_language_text(field.form_placeholder),
             value=h.render_datetime(temporal['start_date'], '%d.%m.%Y'),
@@ -51,7 +51,7 @@
         {% call form.input(
             field.field_name + '-' + loop.index|string + '-end_date',
             type='date',
-            id='field-' + field.field_name + '-end_date-' + loop.index|string,
+            id='field-' + field.field_name + '-' + loop.index|string + '-end_date',
             label=_('End date'),
             placeholder=h.scheming_language_text(field.form_placeholder),
             value=h.render_datetime(temporal['end_date'], '%d.%m.%Y'),
