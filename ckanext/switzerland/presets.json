@@ -16,9 +16,9 @@
     {
       "preset_name": "temporals",
       "values": {
-        "display_snippet": "temporals.html",
-        "validators": "list_of_dicts",
-        "output_validators": "temporals_to_datetime_output"
+        "validators": "temporals",
+        "form_snippet": "temporals.html",
+        "display_snippet": "temporals.html"
       }
     },
     {

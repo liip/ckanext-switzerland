@@ -1,12 +1,88 @@
+from collections import defaultdict
+
 from ckan.plugins.toolkit import missing, _
 import ckan.lib.navl.dictization_functions as df
 from ckanext.scheming.validation import scheming_validator
 from ckanext.switzerland.helpers import parse_json
 from ckan.logic import NotFound, get_action
+from itertools import izip
 import json
 import datetime
 import logging
 log = logging.getLogger(__name__)
+
+
+def pairwise(iterable):
+    a = iter(iterable)
+    return izip(a, a)
+
+
+@scheming_validator
+def temporals(field, schema):
+
+    def validator(key, data, errors, context):
+        # code idea based on ckanext-fluents fluent_text validator
+
+        value = data[key]
+
+        # 1 or 2. dict or JSON encoded string
+        if value is not missing:
+            if isinstance(value, basestring):
+                try:
+                    value = json.loads(value)
+                except ValueError:
+                    errors[key].append(_('Failed to decode JSON string'))
+                    return
+                except UnicodeDecodeError:
+                    errors[key].append(_('Invalid encoding for JSON string'))
+                    return
+            if not isinstance(value, dict):
+                errors[key].append(_('expecting JSON object'))
+                return
+
+            # TODO: validate value
+
+            if not errors[key]:
+                data[key] = json.dumps(value)
+            return
+
+        """
+        3. separate fields/parse form data
+        we change the name attribute in the template, so the value is "missing"
+        we get the actual values from the __extras dict
+
+        """
+
+        prefix = key[-1] + '-'
+        extras = data.get(key[:-1] + ('__extras',), {})
+
+        values = defaultdict(lambda: {})
+
+        for name, text in extras.iteritems():
+            if not name.startswith(prefix):
+                continue
+
+            try:
+                counter, start_end = name.split('-')[1:]
+                counter = int(counter)
+                if start_end not in ('start_date', 'end_date'):
+                    raise ValueError
+            except ValueError:
+                errors[name] = _('Invalid form data')
+                continue
+
+            try:
+                values[counter][start_end] = datetime.datetime.strptime(text, '%d.%m.%Y').isoformat()
+            except ValueError:
+                errors[name] = _('Invalid date')
+
+        for number, dates in values.iteritems():
+            for start_end in dates.keys():
+                # TODO: validate that start AND end date is set
+                del extras['{}{}-{}'.format(prefix, number, start_end)]
+
+        data[key] = json.dumps(values.values())
+    return validator
 
 
 @scheming_validator

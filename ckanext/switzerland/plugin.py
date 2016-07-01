@@ -55,6 +55,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'ogdch_multiple_choice': v.ogdch_multiple_choice,
             'ogdch_unique_identifier': v.ogdch_unique_identifier,
             'temporals_to_datetime_output': v.temporals_to_datetime_output,
+            'temporals': v.temporals,
             'parse_json': parse_json,
         }
 
@@ -125,6 +126,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'get_dataset_by_identifier': get_dataset_by_identifier,
             'get_readable_file_size': get_readable_file_size,
             'get_piwik_config': get_piwik_config,
+            'parse_json': parse_json,
         }
 
 

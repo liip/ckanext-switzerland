@@ -173,6 +173,16 @@
       }
     },
     {
+      "field_name": "temporals",
+      "label": {
+        "en": "Temporal coverage",
+        "de": "Zeitliche Abdeckung",
+        "fr": "Couverture temporelle",
+        "it": "Copertura temporale"
+      },
+      "preset": "temporals"
+    },
+    {
       "field_name": "accrual_periodicity",
       "label": {
         "en": "Update interval",
