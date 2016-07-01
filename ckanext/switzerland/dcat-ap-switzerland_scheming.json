@@ -75,7 +75,30 @@
       },
       "preset": "dataset_organization"
     },
-
+    {
+      "field_name": "publishers",
+      "label": {
+        "en": "Publishers",
+        "de": "Publisher",
+        "fr": "Editeurs",
+        "it": "Editori"
+      },
+      "preset": "json_list_of_dicts_field",
+      "form_snippet": "publishers.html",
+      "display_snippet": "publishers.html"
+    },
+    {
+      "field_name": "contact_points",
+      "label": {
+        "en": "Contact points",
+        "de": "Kontaktstellen",
+        "fr": "Points de contact",
+        "it": "Punti di contatto"
+      },
+      "preset": "json_list_of_dicts_field",
+      "form_snippet": "contact_points.html",
+      "display_snippet": "contact_points.html"
+    },
     {
       "field_name": "language",
       "label": {
@@ -125,6 +148,18 @@
       ]
     },
     {
+      "field_name": "relations",
+      "label": {
+        "en": "Further information",
+        "de": "Weitere Informationen",
+        "fr": "Informations complémentaires",
+        "it": "Addizionali informazioni"
+      },
+      "preset": "json_list_of_dicts_field",
+      "form_snippet": "relations.html",
+      "display_snippet": "relations.html"
+    },
+    {
       "field_name": "keywords",
       "label": {
         "en": "Keywords",
@@ -170,7 +205,9 @@
         "fr": "Couverture temporelle",
         "it": "Copertura temporale"
       },
-      "preset": "temporals"
+      "preset": "json_list_of_dicts_field",
+      "form_snippet": "temporals.html",
+      "display_snippet": "temporals.html"
     },
     {
       "field_name": "accrual_periodicity",

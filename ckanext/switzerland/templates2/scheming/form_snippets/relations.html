@@ -1,0 +1,66 @@
+{% import 'macros/form.html' as form %}
+
+<h3>{{ h.scheming_language_text(field.label) }}</h3>
+
+{% if not data[field.field_name] %}
+    {% call form.input(
+        field.field_name + '-1-label',
+        type='text',
+        id='field-' + field.field_name + '-1-label',
+        label=_('Title'),
+        placeholder=h.scheming_language_text(field.form_placeholder),
+        error=errors[field.field_name],
+        classes=['control-medium'],
+        attrs=field.form_attrs if 'form_attrs' in field else {},
+        is_required=h.scheming_field_required(field)
+        )
+    %}
+    {% endcall %}
+
+    {% call form.input(
+        field.field_name + '-1-url',
+        type='url',
+        id='field-' + field.field_name + '-1-url',
+        label=_('URL'),
+        placeholder=h.scheming_language_text(field.form_placeholder),
+        error=errors[field.field_name],
+        classes=['control-medium'],
+        attrs=field.form_attrs if 'form_attrs' in field else {},
+        is_required=h.scheming_field_required(field)
+        )
+    %}
+    {% endcall %}
+{% else %}
+    {% set relations = h.parse_json(data[field.field_name]) %}
+    {% for relation in relations %}
+        {% call form.input(
+            field.field_name + '-' + loop.index|string + '-label',
+            type='text',
+            id='field-' + field.field_name + '-' + loop.index|string + '-label',
+            label=_('Title'),
+            placeholder=h.scheming_language_text(field.form_placeholder),
+            value=relation['label'],
+            error=errors[field.field_name],
+            classes=['control-medium'],
+            attrs=field.form_attrs if 'form_attrs' in field else {},
+            is_required=h.scheming_field_required(field)
+            )
+        %}
+        {% endcall %}
+
+        {% call form.input(
+            field.field_name + '-' + loop.index|string + '-url',
+            type='url',
+            id='field-' + field.field_name + '-' + loop.index|string + '-url',
+            label=_('URL'),
+            placeholder=h.scheming_language_text(field.form_placeholder),
+            value=relation['url'],
+            error=errors[field.field_name],
+            classes=['control-medium'],
+            attrs=field.form_attrs if 'form_attrs' in field else {},
+            is_required=h.scheming_field_required(field)
+            )
+        %}
+        {% endcall %}
+    {% endfor %}
+{% endif %}

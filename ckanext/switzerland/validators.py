@@ -5,20 +5,32 @@ import ckan.lib.navl.dictization_functions as df
 from ckanext.scheming.validation import scheming_validator
 from ckanext.switzerland.helpers import parse_json
 from ckan.logic import NotFound, get_action
-from itertools import izip
 import json
 import datetime
 import logging
 log = logging.getLogger(__name__)
 
 
-def pairwise(iterable):
-    a = iter(iterable)
-    return izip(a, a)
-
-
 @scheming_validator
-def temporals(field, schema):
+def json_list_of_dicts_field(field, schema):
+
+    field_type = {
+        'temporals': {
+            'start_date': lambda date: datetime.datetime.strptime(date, '%d.%m.%Y').isoformat(),
+            'end_date': lambda date: datetime.datetime.strptime(date, '%d.%m.%Y').isoformat(),
+        },
+        'contact_points': {
+            'email': lambda text: text,
+            'name': lambda text: text,
+        },
+        'publishers': {
+            'label': lambda text: text,
+        },
+        'relations': {
+            'url': lambda text: text,
+            'label': lambda text: text,
+        },
+    }[field['field_name']]
 
     def validator(key, data, errors, context):
         # code idea based on ckanext-fluents fluent_text validator
@@ -52,34 +64,36 @@ def temporals(field, schema):
         we get the actual values from the __extras dict
 
         """
-
         prefix = key[-1] + '-'
         extras = data.get(key[:-1] + ('__extras',), {})
 
         values = defaultdict(lambda: {})
 
+        # iterate over all extra fields and find our fields
         for name, text in extras.iteritems():
             if not name.startswith(prefix):
                 continue
 
             try:
-                counter, start_end = name.split('-')[1:]
+                # field name example: temporals-1-start_date
+                counter, json_field_name = name.split('-')[1:]
                 counter = int(counter)
-                if start_end not in ('start_date', 'end_date'):
+                if json_field_name not in field_type.keys():
                     raise ValueError
             except ValueError:
                 errors[name] = _('Invalid form data')
                 continue
 
             try:
-                values[counter][start_end] = datetime.datetime.strptime(text, '%d.%m.%Y').isoformat()
+                # convert field value
+                values[counter][json_field_name] = field_type[json_field_name](text)
             except ValueError:
                 errors[name] = _('Invalid date')
 
-        for number, dates in values.iteritems():
-            for start_end in dates.keys():
+        for counter, field_values in values.iteritems():
+            for json_field_name in field_values.keys():
                 # TODO: validate that start AND end date is set
-                del extras['{}{}-{}'.format(prefix, number, start_end)]
+                del extras['{}{}-{}'.format(prefix, counter, json_field_name)]
 
         data[key] = json.dumps(values.values())
     return validator

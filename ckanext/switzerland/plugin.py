@@ -55,7 +55,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'ogdch_multiple_choice': v.ogdch_multiple_choice,
             'ogdch_unique_identifier': v.ogdch_unique_identifier,
             'temporals_to_datetime_output': v.temporals_to_datetime_output,
-            'temporals': v.temporals,
+            'json_list_of_dicts_field': v.json_list_of_dicts_field,
             'parse_json': parse_json,
         }
 

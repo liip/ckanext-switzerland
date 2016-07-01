@@ -1,0 +1,66 @@
+{% import 'macros/form.html' as form %}
+
+<h3>{{ h.scheming_language_text(field.label) }}</h3>
+
+{% if not data[field.field_name] %}
+    {% call form.input(
+        field.field_name + '-1-name',
+        type='text',
+        id='field-' + field.field_name + '-1-name',
+        label=_('Name'),
+        placeholder=h.scheming_language_text(field.form_placeholder),
+        error=errors[field.field_name],
+        classes=['control-medium'],
+        attrs=field.form_attrs if 'form_attrs' in field else {},
+        is_required=h.scheming_field_required(field)
+        )
+    %}
+    {% endcall %}
+
+    {% call form.input(
+        field.field_name + '-1-email',
+        type='email',
+        id='field-' + field.field_name + '-1-email',
+        label=_('Email'),
+        placeholder=h.scheming_language_text(field.form_placeholder),
+        error=errors[field.field_name],
+        classes=['control-medium'],
+        attrs=field.form_attrs if 'form_attrs' in field else {},
+        is_required=h.scheming_field_required(field)
+        )
+    %}
+    {% endcall %}
+{% else %}
+    {% set contact_points = h.parse_json(data[field.field_name]) %}
+    {% for contact_point in contact_points %}
+        {% call form.input(
+            field.field_name + '-' + loop.index|string + '-name',
+            type='text',
+            id='field-' + field.field_name + '-' + loop.index|string + '-name',
+            label=_('Name'),
+            placeholder=h.scheming_language_text(field.form_placeholder),
+            value=contact_point['name'],
+            error=errors[field.field_name],
+            classes=['control-medium'],
+            attrs=field.form_attrs if 'form_attrs' in field else {},
+            is_required=h.scheming_field_required(field)
+            )
+        %}
+        {% endcall %}
+
+        {% call form.input(
+            field.field_name + '-' + loop.index|string + '-email',
+            type='email',
+            id='field-' + field.field_name + '-' + loop.index|string + '-email',
+            label=_('Email'),
+            placeholder=h.scheming_language_text(field.form_placeholder),
+            value=contact_point['email'],
+            error=errors[field.field_name],
+            classes=['control-medium'],
+            attrs=field.form_attrs if 'form_attrs' in field else {},
+            is_required=h.scheming_field_required(field)
+            )
+        %}
+        {% endcall %}
+    {% endfor %}
+{% endif %}

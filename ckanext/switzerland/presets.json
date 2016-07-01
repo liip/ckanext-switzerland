@@ -14,17 +14,9 @@
       }
     },
     {
-      "preset_name": "temporals",
+      "preset_name": "json_list_of_dicts_field",
       "values": {
-        "validators": "temporals",
-        "form_snippet": "temporals.html",
-        "display_snippet": "temporals.html"
-      }
-    },
-    {
-      "preset_name": "dicts",
-      "values": {
-        "validators": "list_of_dicts",
+        "validators": "json_list_of_dicts_field",
         "output_validators": "multiple_text_output"
       }
     },
