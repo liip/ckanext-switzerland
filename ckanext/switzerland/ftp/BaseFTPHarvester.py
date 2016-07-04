@@ -1055,6 +1055,27 @@ class BaseFTPHarvester(HarvesterBase):
                             # mimetype_inner = 'TXT'
                             # pass
 
+                    # Before we upload this resource, we search for 
+                    # an old resource by this (munged) filename.
+                    # If a resource is found, we delete it.
+                    # A revision of the resource will be kept.
+
+                    # find resource in the existing packages resource list
+                    if dataset.get('resources'):
+                        for res in dataset['resources']:
+                            if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
+                                continue
+                            try:
+                                # delete this resource
+                                ckan.action.resource_delete(
+                                    id=res['id']
+                                )
+                            except Exception as e:
+                                log.error("Error deleting the existing resource %s" % res.get('id'))
+                                pass
+                            # break
+
+
                     # use API to upload the file
                     fp = open(file, 'rb')
                     resource = ckan.action.resource_create(
