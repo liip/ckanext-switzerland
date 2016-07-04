@@ -34,6 +34,24 @@ class InfoplusHarvester(BaseFTPHarvester):
     # subfolder in the above remote folder
     environment = 'Test'
 
+    # package metadata
+    package_dict_meta = {
+        # author and maintainer
+        'author': "", # TODO
+        'author_email': "", # TODO
+        'maintainer': "", # TODO
+        'maintainer_email': "", # TODO
+        # license
+        'license_id': "other-open", # TODO
+        'license_title': "Other (Open)", # TODO
+        # owner organisation
+        # 'owner_org': "<ckan-id>", # TODO
+        # optional groups
+        'groups': [], # TODO
+        'tags': [], # TODO
+    }
+
+    # whether or not to unzip the files found locally
     do_unzip = False # PROD: set this to True
 
     # -----------------------------------------------------------------------
@@ -98,6 +116,24 @@ class DidokHarvester(BaseFTPHarvester):
     # subfolder in the above remote folder
     environment = 'Test'
 
+    # package metadata
+    package_dict_meta = {
+        # author and maintainer
+        'author': "", # TODO
+        'author_email': "", # TODO
+        'maintainer': "", # TODO
+        'maintainer_email': "", # TODO
+        # license
+        'license_id': "other-open", # TODO
+        'license_title': "Other (Open)", # TODO
+        # owner organisation
+        # 'owner_org': "<ckan-id>", # TODO
+        # optional groups
+        'groups': [], # TODO
+        'tags': [], # TODO
+    }
+
+    # whether or not to unzip the files found locally
     do_unzip = False # no zip files in the folder (so far)
 
     # -----------------------------------------------------------------------

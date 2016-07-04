@@ -21,6 +21,7 @@ from ckan.lib.base import c
 from ckan import model
 from ckan.model import Session, Package
 from ckan.logic import ValidationError, NotFound, get_action
+from ckan.lib import helpers
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_name
 from simplejson.scanner import JSONDecodeError
@@ -35,7 +36,7 @@ from base import HarvesterBase
 
 from pylons import config as ckanconf
 
-import sys, os, json
+import sys, os# , json
 import errno
 import subprocess
 import zipfile
@@ -268,6 +269,9 @@ class BaseFTPHarvester(HarvesterBase):
     """
 
     config = None # ckan harvester config, not ftp config
+
+    # package metadata - each harvester should overwrite this with meta data fields
+    package_dict_meta = {}
 
     api_version = 2
     action_api_version = 3
@@ -753,38 +757,40 @@ class BaseFTPHarvester(HarvesterBase):
             # version
 
             package_dict['version'] = dt.isoformat() # TODO: "2011-12-15T18:59:35.951158"
-            # TODO: METADATA of the package
 
-            # license
-            package_dict['license_id'] = "other-open" # TODO
-            package_dict['license_title'] = "Other (Open)" # TODO
+            # -----------------------------
+            # TODO: METADATA of the package
+            # -----------------------------
 
             package_dict['creator_user_id'] = model.User.get(context['user']).id
-            # package_dict['author'] = "" # TODO
-            # package_dict['author_email'] = "" # TODO
-            # package_dict['maintainer'] = "" # TODO
-            # package_dict['maintainer_email'] = "" # TODO
 
-            # package_dict['metadata_created'] = "2011-12-15T18:59:35.951158" # TODO
-            # package_dict['metadata_modified'] = "2013-10-10T19:26:46.832604" # TODO
+            # is there a package meta configuration in the harvester?
+            if self.package_dict_meta:
 
-            # TODO
-            # package_dict['organization'] = { ... }
-            # package_dict['owner_org'] = "<ckan-id>" # TODO
+                for key,val in self.package_dict_meta.iteritems():
 
-            # TODO - release notes could go in here
+                    if self.package_dict_meta.get('owner_org'):
+                        # get the organisation and add it to the package
+                        org_dict = helpers.call_action('organization_show', id=self.package_dict_meta['owner_org'])
+                        if org_dict:
+                            package_dict['organization'] = org_dict
+
+                        del self.package_dict_meta['owner_org']
+
+                    # add the rest of the metadata to the package dictionary
+                    package_dict[key] = val
+
+            # TODO - release notes could go in here - but where do they come from ?
             package_dict['notes'] = "" # TODO
 
-            # TODO - optional groups
-            package_dict['groups'] = [] # TODO
-
-            # TODO - optional tags
-            # package_dict['num_tags'] = 0 # TODO
-            # package_dict['tags'] = [  # TODO
-            #     {"vocabulary_id": null, "state": "active", "display_name": "canada-gov", "id": "adc94ee0-9bbf-48b6-abb3-bd4d5ab61362", "name": "canada-gov"},
-            #     {"vocabulary_id": null, "state": "active", "display_name": "meta.imported-from-ca-ckan-net", "id": "38e43d18-82ef-4624-b593-21db62d9290c", "name": "meta.imported-from-ca-ckan-net"},
-            #     {"vocabulary_id": null, "state": "active", "display_name": "population", "id": "9224d0c2-c9dd-493c-91f7-c5244f617415", "name": "population"}
-            # ]
+            # add optional tags
+            package_dict['tags'] = []
+            for tag in self.package_dict_meta.get('tags'):
+                tag_dict = helpers.call_action('tag_show')(context, {'id': tag})
+                if tag_dict:
+                    # add the found tag to the package's tags
+                    package_dict['tags'].append(tag_dict)
+            package_dict['num_tags'] = len(package_dict['tags'])
 
             log.debug("package_dict: %s" % str(package_dict))
 
