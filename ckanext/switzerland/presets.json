@@ -128,7 +128,7 @@
       "preset_name": "ogdch_date",
       "values": {
         "display_snippet": "date.html",
-        "output_validators": "timestamp_to_datetime"
+        "output_validators": "swiss_date"
       }
     },
     {

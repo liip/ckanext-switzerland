@@ -12,6 +12,19 @@ log = logging.getLogger(__name__)
 
 
 @scheming_validator
+def swiss_date(field, schema):
+    def validator(key, data, errors, context):
+        value = data[key]
+        if isinstance(value, datetime.date):
+            return value
+        try:
+            return datetime.datetime.strptime(value, '%d.%m.%Y')
+        except ValueError:
+            errors[key].append(_('Invalid date'))
+    return validator
+
+
+@scheming_validator
 def json_list_of_dicts_field(field, schema):
 
     field_type = {
