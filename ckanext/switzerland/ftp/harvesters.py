@@ -29,10 +29,10 @@ class InfoplusHarvester(BaseFTPHarvester):
     harvester_name = 'Infoplus'
 
     # parent folder of the data on the ftp server
-    remotefolder = 'infoplus'
+    remotefolder = 'Info+'
 
     # subfolder in the above remote folder
-    environment = 'test'
+    environment = 'Test'
 
     do_unzip = False # PROD: set this to True
 
@@ -93,10 +93,10 @@ class DidokHarvester(BaseFTPHarvester):
     harvester_name = 'Didok'
 
     # parent folder of the data on the ftp server
-    remotefolder = 'didok'
+    remotefolder = 'DiDok'
 
     # subfolder in the above remote folder
-    environment = 'test'
+    environment = 'Test'
 
     do_unzip = False # no zip files in the folder (so far)
 

@@ -15,6 +15,8 @@ table.
 
 import urllib2
 
+from datetime import datetime
+
 from ckan.lib.base import c
 from ckan import model
 from ckan.model import Session, Package
@@ -46,8 +48,6 @@ from ckan.logic.action.patch import package_patch
 from ckan.logic.action.get import package_show
 
 import ckanapi
-
-import pprint # debug-only
 
 
 
@@ -260,35 +260,6 @@ class FTPHelper(object):
         # TODO: verify download
         return status
 
-    # TODO
-    # def getdir(self, path='', recursive=True):
-    #     """
-    #     Retrieve all files of a directory, optionally including all sub-directories
-    #     @type  remotedir: string
-    #     @param remotedir: Full path on the remote server
-    #     @rtype:   None
-    #     @return:  None
-    #     """
-    #     # import pprint
-    #     # pprint.pprint(e)
-    #     # print "FILE DOWNLOAD EXCP: %s" % e
-    #     # cd into the remote directory
-    #     self.cdremote(path)
-    #     # Return a list containing the names of the entries in the given path.
-    #     # The list is in arbitrary order. It does not include the special entries '.' and '..' even if they are present in the folder.
-    #     dirlist = self.listdir() # 226 Transfer complete
-    #     for item in dirlist:
-    #         try:
-    #             # try to download the file
-    #             self.fetch(item)
-    #         except Exception as e:
-    #             # it must be a directory
-    #             if recursive:
-    #                 self.getdir(item)
-    #         # prefix the filename
-    #         # fileordir = os.path.join(path, fileordir)
-
-
 
 
 class BaseFTPHarvester(HarvesterBase):
@@ -310,7 +281,7 @@ class BaseFTPHarvester(HarvesterBase):
     # e.g. infodoc or didok
     remotefolder = ''
 
-    # subfolder in the above remote folder
+    # parent folder of the above remote folder
     environment = 'test'
 
     default_format = 'TXT'
@@ -329,7 +300,8 @@ class BaseFTPHarvester(HarvesterBase):
 
 
     def get_remote_folder(self):
-        return os.path.join('/', self.remotefolder, self.environment) # e.g. /didok/test or /infoplus/prod
+        return os.path.join('/', self.environment, self.remotefolder.lstrip('/')) # e.g. /test/DiDok or /prod/Info+
+
 
     def _unzip(self, filepath):
         """
@@ -363,7 +335,7 @@ class BaseFTPHarvester(HarvesterBase):
         return {
             'name': '%sharvest' % self.harvester_name.lower(), # 'ckanftp'
             'title': 'CKAN FTP %s Harvester' % self.harvester_name,
-            'description': 'Fetches %s/%s' % (self.remotefolder, self.environment),
+            'description': 'Fetches %s' % self.get_remote_folder(),
             'form_config_interface': 'Text'
         }
 
@@ -437,17 +409,23 @@ class BaseFTPHarvester(HarvesterBase):
         remotefolder = self.get_remote_folder()
         log.debug("Getting listing from remotefolder: %s" % remotefolder)
 
-        with FTPHelper(remotefolder) as ftph:
+        try:
 
-            dirlist = ftph.get_remote_dirlist()
+            with FTPHelper(remotefolder) as ftph:
 
-            # .TMP must be ignored, as they are still being uploaded
-            dirlist =  filter(lambda x: not x.lower().endswith(self.tmpfile_extension), dirlist)
+                dirlist = ftph.get_remote_dirlist()
+
+                # .TMP must be ignored, as they are still being uploaded
+                dirlist = filter(lambda x: not x.lower().endswith(self.tmpfile_extension), dirlist)
+
+        except ftplib.all_errors as e:
+            self._save_gather_error('Error getting remote directory listing: %s' % str(e), harvest_job)
+            return None
 
         log.debug("Remote dirlist: %s" % str(dirlist))
 
         if not len(dirlist):
-            self._save_gather_error('No files found in %s' % remotefolder, harvest_job, stage)
+            self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
             return None
 
         # version 1: create one harvest object for the package
@@ -603,14 +581,15 @@ class BaseFTPHarvester(HarvesterBase):
             return False
 
         try:
+
             dirlist = json.loads(harvest_object.content)
-            # pprint.pprint(dirlist)
+
         except JSONDecodeError,e:
-            self._save_gather_error('Unable to decode content for URL: %s: %s' % (url, str(e)), harvest_object, stage)
+            self._save_object_error('Unable to decode content for URL: %s: %s' % (url, str(e)), harvest_object, stage)
             return None
 
         if not len(dirlist):
-            self._save_object_error('Empty directory listing', harvest_job, stage)
+            self._save_object_error('Empty directory listing', harvest_object, stage)
             return None
 
         # return dict
@@ -732,14 +711,8 @@ class BaseFTPHarvester(HarvesterBase):
 
         obj = json.loads(harvest_object.content)
 
-        # workingdir = obj.get('workingdir')
-
         # dirlist contains the absolute paths of files to be added to the CKAN package
         dirlist = obj.get('dirlist')
-
-        # if not workingdir:
-        #     self._save_object_error('Missing workingdir in harvest object %s' % harvest_object.id, harvest_object, 'Import')
-        #     return False
 
         if not dirlist:
             self._save_object_error('Empty directory listing', harvest_object, stage)
@@ -756,10 +729,6 @@ class BaseFTPHarvester(HarvesterBase):
         # set harvester config
         self._set_config(harvest_object.job.source.config)
 
-        # log.debug('Workingdir: %s' % str(workingdir))
-        # # change into the local directory
-        # os.chdir(workingdir) # e.g. /tmp/ftpharvest/ftp.somedomain.com:21/infoplus/prod
-
         if not len(dirlist):
             self._save_object_error('No files found to process for %s harvester (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, stage)
             return False
@@ -769,15 +738,55 @@ class BaseFTPHarvester(HarvesterBase):
             # =======================================================================
             # create a package dictionary
             # =======================================================================
+            dt = datetime.now()
+
             package_dict = {}
-            package_dict['name'] = self.remotefolder # self._ensure_name_is_unique(os.path.basename(self.remotefolder))
+            package_dict['name'] = self.harvester_name.lower() # self.remotefolder # self._ensure_name_is_unique(os.path.basename(self.remotefolder))
             # title of the package
             package_dict['title'] = self.remotefolder.title()
             # set package to active
             package_dict['state'] = "active"
-            # TODO
-            # package_dict['version'] = "TODO"
+            # privacy of the package
+            package_dict['private'] = False
+            package_dict['state'] = 'active'
+            package_dict['isopen'] = True
+            # version
 
+            package_dict['version'] = dt.isoformat() # TODO: "2011-12-15T18:59:35.951158"
+            # TODO: METADATA of the package
+
+            # license
+            package_dict['license_id'] = "other-open" # TODO
+            package_dict['license_title'] = "Other (Open)" # TODO
+
+            package_dict['creator_user_id'] = model.User.get(context['user']).id
+            # package_dict['author'] = "" # TODO
+            # package_dict['author_email'] = "" # TODO
+            # package_dict['maintainer'] = "" # TODO
+            # package_dict['maintainer_email'] = "" # TODO
+
+            # package_dict['metadata_created'] = "2011-12-15T18:59:35.951158" # TODO
+            # package_dict['metadata_modified'] = "2013-10-10T19:26:46.832604" # TODO
+
+            # TODO
+            # package_dict['organization'] = { ... }
+            # package_dict['owner_org'] = "<ckan-id>" # TODO
+
+            # TODO - release notes could go in here
+            package_dict['notes'] = "" # TODO
+
+            # TODO - optional groups
+            package_dict['groups'] = [] # TODO
+
+            # TODO - optional tags
+            # package_dict['num_tags'] = 0 # TODO
+            # package_dict['tags'] = [  # TODO
+            #     {"vocabulary_id": null, "state": "active", "display_name": "canada-gov", "id": "adc94ee0-9bbf-48b6-abb3-bd4d5ab61362", "name": "canada-gov"},
+            #     {"vocabulary_id": null, "state": "active", "display_name": "meta.imported-from-ca-ckan-net", "id": "38e43d18-82ef-4624-b593-21db62d9290c", "name": "meta.imported-from-ca-ckan-net"},
+            #     {"vocabulary_id": null, "state": "active", "display_name": "population", "id": "9224d0c2-c9dd-493c-91f7-c5244f617415", "name": "population"}
+            # ]
+
+            log.debug("package_dict: %s" % str(package_dict))
 
             # -----------------------------------------------------------------------
             # Set default tags if needed
@@ -956,31 +965,33 @@ class BaseFTPHarvester(HarvesterBase):
                 return False
 
 
+            # -----------------------------------------------------------------------
+            # Configure permissions of the package
+            # -----------------------------------------------------------------------
             # need a dataset to continue
             if not dataset:
                 self._save_object_error('Could not update or create package: %s' % self.harvester_name, harvest_object, stage)
                 return False
 
-
-            # -----------------------------------------------------------------------
-            # Configure permissions of the package
-            # -----------------------------------------------------------------------
             package = model.Package.get(dataset['id'])
 
             # Clear default permissions
-            model.clear_user_roles(package)
+            # --- deprecated ---
+            # model.clear_user_roles(package)
 
             # Set harvest user as admin of this package
-            user_name = self.config.get('user', u'harvest')
-            user = model.User.get(user_name)
-            pkg_role = model.PackageRole(package=package, user=user, role=model.Role.ADMIN)
+            # --- deprecated ---
+            # user_name = self.config.get('user', u'harvest')
+            # user = model.User.get(user_name)
+            # pkg_role = model.PackageRole(package=package, user=user, role=model.Role.ADMIN)
 
-            # Set the package read-only ?
-            if self.config.get('read_only', True) is True: # default is true -> read-only
-                # Other users can only read
-                for user_name in (u'visitor', u'logged_in'):
-                    user = model.User.get(user_name)
-                    pkg_role = model.PackageRole(package=package, user=user, role=model.Role.READER)
+            # Set the package read-only
+            # --- deprecated ---
+            # if self.config.get('read_only', True) is True: # default is true -> read-only
+            #     # Other users can only read
+            #     for user_name in (u'visitor', u'logged_in'):
+            #         user = model.User.get(user_name)
+            #         pkg_role = model.PackageRole(package=package, user=user, role=model.Role.READER)
 
 
             # -----------------------------------------------------------------------
