@@ -1070,6 +1070,7 @@ class BaseFTPHarvester(HarvesterBase):
                                 ckan.action.resource_delete(
                                     id=res['id']
                                 )
+                                log.debug("Deleted resource %s" % res.get('id'))
                             except Exception as e:
                                 log.error("Error deleting the existing resource %s" % res.get('id'))
                                 pass
