@@ -774,6 +774,8 @@ class BaseFTPHarvester(HarvesterBase):
                         org_dict = helpers.call_action('organization_show', id=self.package_dict_meta['owner_org'])
                         if org_dict:
                             package_dict['organization'] = org_dict
+                        else:
+                            package_dict['owner_org'] = None
 
                         del self.package_dict_meta['owner_org']
 

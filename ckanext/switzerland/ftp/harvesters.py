@@ -36,6 +36,10 @@ class InfoplusHarvester(BaseFTPHarvester):
 
     # package metadata
     package_dict_meta = {
+        # package privacy
+        'private': False,
+        'state': 'active',
+        'isopen': True,
         # author and maintainer
         'author': "", # TODO
         'author_email': "", # TODO
@@ -118,6 +122,10 @@ class DidokHarvester(BaseFTPHarvester):
 
     # package metadata
     package_dict_meta = {
+        # package privacy
+        'private': False,
+        'state': 'active',
+        'isopen': True,
         # author and maintainer
         'author': "", # TODO
         'author_email': "", # TODO
