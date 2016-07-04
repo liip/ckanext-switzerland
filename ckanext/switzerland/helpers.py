@@ -1,5 +1,8 @@
+from collections import defaultdict
+
 import ckan.plugins.toolkit as tk
 import ckan.logic as logic
+import datetime
 import requests
 import json
 import pylons
@@ -245,3 +248,15 @@ def get_piwik_config():
         'url': pylons.config.get('piwik.url', False),
         'site_id': pylons.config.get('piwik.site_id', False)
     }
+
+
+def convert_post_data_to_dict(field_name, data, parse_datetime=False):
+    d = defaultdict(lambda: {})
+    for json_field_name, value in data.iteritems():
+        if json_field_name.startswith(field_name + '-'):
+            counter, json_field_name = json_field_name.split('-')[1:]
+            if parse_datetime:
+                d[counter][json_field_name] = datetime.datetime.strptime(value, '%d.%m.%Y')
+            else:
+                d[counter][json_field_name] = value
+    return d.values()

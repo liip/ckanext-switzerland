@@ -16,16 +16,6 @@
       "preset": "multilingual_text"
     },
     {
-      "field_name": "display_name",
-      "label": {
-        "en": "Display name",
-        "de": "Anzeigename",
-        "fr": "Nom d'affichage",
-        "it": "Nome visualizzato"
-      },
-      "preset": "multilingual_output"
-    },
-    {
       "field_name": "name",
       "label": {
         "en": "Slug",
@@ -64,15 +54,6 @@
         "it": "URL d'immagine"
       },
       "form_placeholder": "http://example.com/my-image.jpg"
-    },
-    {
-      "field_name": "parent",
-      "label": {
-        "en": "Parent",
-        "de": "Übergeordnete Organisation",
-        "fr": "Organisation de Parent",
-        "it": "Organizzazione Parent"
-      }
     }
   ]
 }

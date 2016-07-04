@@ -11,7 +11,8 @@ from ckanext.switzerland.helpers import (
     get_localized_org, localize_json_title, get_langs,
     get_frequency_name, get_terms_of_use_icon, get_dataset_terms_of_use,
     get_dataset_by_identifier, get_readable_file_size,
-    simplify_terms_of_use, parse_json, get_piwik_config
+    simplify_terms_of_use, parse_json, get_piwik_config,
+    convert_post_data_to_dict
 )
 
 import ckan.plugins as plugins
@@ -55,6 +56,8 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'ogdch_multiple_choice': v.ogdch_multiple_choice,
             'ogdch_unique_identifier': v.ogdch_unique_identifier,
             'temporals_to_datetime_output': v.temporals_to_datetime_output,
+            'json_list_of_dicts_field': v.json_list_of_dicts_field,
+            'swiss_date': v.swiss_date,
             'parse_json': parse_json,
         }
 
@@ -117,6 +120,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'get_org_count': get_org_count,
             'get_tweet_count': get_tweet_count,
             'get_localized_org': get_localized_org,
+            'get_localized_value': get_localized_value,
             'localize_json_title': localize_json_title,
             'get_frequency_name': get_frequency_name,
             'get_terms_of_use_icon': get_terms_of_use_icon,
@@ -124,6 +128,8 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'get_dataset_by_identifier': get_dataset_by_identifier,
             'get_readable_file_size': get_readable_file_size,
             'get_piwik_config': get_piwik_config,
+            'parse_json': parse_json,
+            'convert_post_data_to_dict': convert_post_data_to_dict,
         }
 
 
@@ -148,9 +154,9 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         pkg_dict = self._package_map_ckan_default_fields(pkg_dict)
 
         try:
-            # Do not change the resulting dict for API requests
+            # Do not change the resulting dict for API requests and form saves
             path = pylons.request.path
-            if path.startswith('/api'):
+            if path.startswith('/api') or pylons.request.method == 'POST':
                 return pkg_dict
         except TypeError:
             # we get here if there is no request (i.e. on the command line)
@@ -198,7 +204,6 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
     def _package_map_ckan_default_fields(self, pkg_dict):
         if 'title' in pkg_dict:
             pkg_dict['display_name'] = pkg_dict['title']
-
         if ('contact_points' in pkg_dict and pkg_dict['contact_points'] is not None):  # noqa
             if pkg_dict['maintainer'] is None:
                 pkg_dict['maintainer'] = pkg_dict['contact_points'][0]['name']
@@ -213,7 +218,6 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
             for resource in pkg_dict['resources']:
                 if 'title' in resource:
                     resource['name'] = resource['title']
-
         return pkg_dict
 
     def _extract_lang_value(self, value, lang_code):
@@ -473,44 +477,3 @@ class LangToString(object):
             '%s - %s - %s - %s'
             % (lang['de'], lang['fr'], lang['it'], lang['en'])
         )
-
-
-# Monkeypatch to style CKAN pagination
-class OGDPage(paginate.Page):
-    # Curry the pager method of the webhelpers.paginate.Page class, so we have
-    # our custom layout set as default.
-
-    def pager(self, *args, **kwargs):
-        kwargs.update(
-            format=u"<ul class='pagination'>$link_previous ~2~ $link_next</ul>",  # noqa
-            symbol_previous=u'«', symbol_next=u'»',
-            curpage_attr={'class': 'active'}, link_attr={}
-        )
-        return super(OGDPage, self).pager(*args, **kwargs)
-
-    # Put each page link into a <li> (for Bootstrap to style it)
-
-    def _pagerlink(self, page, text, extra_attributes=None):
-        anchor = super(OGDPage, self)._pagerlink(page, text)
-        extra_attributes = extra_attributes or {}
-        return HTML.li(anchor, **extra_attributes)
-
-    # Change 'current page' link from <span> to <li><a>
-    # and '..' into '<li><a>..'
-    # (for Bootstrap to style them properly)
-
-    def _range(self, regexp_match):
-        html = super(OGDPage, self)._range(regexp_match)
-        # Convert ..
-        dotdot = '<span class="pager_dotdot">..</span>'
-        dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
-        html = re.sub(dotdot, dotdot_link, html)
-
-        # Convert current page
-        text = '%s' % self.page
-        current_page_span = str(HTML.span(c=text, **self.curpage_attr))
-        current_page_link = self._pagerlink(self.page, text,
-                                            extra_attributes=self.curpage_attr)
-        return re.sub(current_page_span, current_page_link, html)
-
-h.Page = OGDPage

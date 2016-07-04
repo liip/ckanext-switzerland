@@ -16,6 +16,16 @@
       "validators": "scheming_required ogdch_unique_identifier"
     },
     {
+      "field_name": "notes",
+      "label": {
+        "en": "Description",
+        "de": "Beschreibung",
+        "fr": "Description",
+        "it": "Descrizione"
+      },
+      "preset": "multilingual_output"
+    },
+    {
       "field_name": "title",
       "label": {
         "en": "Title",
@@ -83,8 +93,7 @@
         "fr": "Editeurs",
         "it": "Editori"
       },
-      "preset": "json_list_of_dicts_field",
-      "form_snippet": "publishers.html",
+      "preset": "dicts",
       "display_snippet": "publishers.html"
     },
     {
@@ -95,8 +104,7 @@
         "fr": "Points de contact",
         "it": "Punti di contatto"
       },
-      "preset": "json_list_of_dicts_field",
-      "form_snippet": "contact_points.html",
+      "preset": "dicts",
       "display_snippet": "contact_points.html"
     },
     {
@@ -155,8 +163,7 @@
         "fr": "Informations complémentaires",
         "it": "Addizionali informazioni"
       },
-      "preset": "json_list_of_dicts_field",
-      "form_snippet": "relations.html",
+      "preset": "dicts",
       "display_snippet": "relations.html"
     },
     {
@@ -205,9 +212,7 @@
         "fr": "Couverture temporelle",
         "it": "Copertura temporale"
       },
-      "preset": "json_list_of_dicts_field",
-      "form_snippet": "temporals.html",
-      "display_snippet": "temporals.html"
+      "preset": "temporals"
     },
     {
       "field_name": "accrual_periodicity",
@@ -218,6 +223,16 @@
         "it": "Intervallo di aggiornamento"
       },
       "display_snippet": "periodicity.html"
+    },
+    {
+      "field_name": "see_alsos",
+      "label": {
+        "en": "Related datasets",
+        "de": "Verwandte Datensätze",
+        "fr": "Jeux de données relationnels",
+        "it": "Set di dati relativi"
+      },
+      "preset": "dicts"
     }
   ],
   "resource_fields": [
@@ -241,6 +256,16 @@
       "preset": "multilingual_text"
     },
     {
+      "field_name": "display_name",
+      "label": {
+        "en": "Display name",
+        "de": "Anzeigename",
+        "fr": "Nom d'affichage",
+        "it": "Nome visualizzato"
+      },
+      "preset": "multilingual_output"
+    },
+    {
       "field_name": "description",
       "label": {
         "en": "Description",
@@ -258,6 +283,7 @@
         "fr": "Date de publication",
         "it": "Data di rilascio"
       },
+      "required": true,
       "preset": "ogdch_date"
     },
     {

@@ -1,0 +1,71 @@
+{% import 'macros/form.html' as form %}
+
+<h3>{{ h.scheming_language_text(field.label) }}</h3>
+
+{% if not data[field.field_name] and not field.field_name + '-1-start_date' in data %}
+    {% call form.input(
+        field.field_name + '-1-start_date',
+        type='date',
+        id='field-' + field.field_name + '-1-start_date',
+        label=_('Start date'),
+        placeholder=h.scheming_language_text(field.form_placeholder),
+        error=errors[field.field_name],
+        classes=['control-medium'],
+        attrs=field.form_attrs if 'form_attrs' in field else {},
+        is_required=h.scheming_field_required(field)
+        )
+    %}
+    {% endcall %}
+
+    {% call form.input(
+        field.field_name + '-1-end_date',
+        type='date',
+        id='field-' + field.field_name + '-1-end_date',
+        label=_('End date'),
+        placeholder=h.scheming_language_text(field.form_placeholder),
+        error=errors[field.field_name],
+        classes=['control-medium'],
+        attrs=field.form_attrs if 'form_attrs' in field else {},
+        is_required=h.scheming_field_required(field)
+        )
+    %}
+    {% endcall %}
+{% else %}
+    {% if field.field_name + '-1-start_date' in data %}
+        {% set temporals =  h.convert_post_data_to_dict(field.field_name, data, parse_datetime=True) %}
+    {% else %}
+        {% set temporals = h.parse_json(data[field.field_name]) %}
+    {% endif %}
+
+    {% for temporal in temporals %}
+        {% call form.input(
+            field.field_name + '-' + loop.index|string + '-start_date',
+            type='date',
+            id='field-' + field.field_name + '-' + loop.index|string + '-start_date',
+            label=_('Start date'),
+            placeholder=h.scheming_language_text(field.form_placeholder),
+            value=h.render_datetime(temporal['start_date'], '%d.%m.%Y'),
+            error=errors[field.field_name],
+            classes=['control-medium'],
+            attrs=field.form_attrs if 'form_attrs' in field else {},
+            is_required=h.scheming_field_required(field)
+            )
+        %}
+        {% endcall %}
+
+        {% call form.input(
+            field.field_name + '-' + loop.index|string + '-end_date',
+            type='date',
+            id='field-' + field.field_name + '-' + loop.index|string + '-end_date',
+            label=_('End date'),
+            placeholder=h.scheming_language_text(field.form_placeholder),
+            value=h.render_datetime(temporal['end_date'], '%d.%m.%Y'),
+            error=errors[field.field_name],
+            classes=['control-medium'],
+            attrs=field.form_attrs if 'form_attrs' in field else {},
+            is_required=h.scheming_field_required(field)
+            )
+        %}
+        {% endcall %}
+    {% endfor %}
+{% endif %}

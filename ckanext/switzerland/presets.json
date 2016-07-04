@@ -14,17 +14,9 @@
       }
     },
     {
-      "preset_name": "temporals",
+      "preset_name": "json_list_of_dicts_field",
       "values": {
-        "display_snippet": "temporals.html",
-        "validators": "list_of_dicts",
-        "output_validators": "temporals_to_datetime_output"
-      }
-    },
-    {
-      "preset_name": "dicts",
-      "values": {
-        "validators": "list_of_dicts",
+        "validators": "json_list_of_dicts_field",
         "output_validators": "multiple_text_output"
       }
     },
@@ -136,7 +128,7 @@
       "preset_name": "ogdch_date",
       "values": {
         "display_snippet": "date.html",
-        "output_validators": "timestamp_to_datetime"
+        "output_validators": "swiss_date"
       }
     },
     {
