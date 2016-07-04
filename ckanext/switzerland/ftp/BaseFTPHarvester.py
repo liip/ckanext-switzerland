@@ -1038,46 +1038,45 @@ class BaseFTPHarvester(HarvesterBase):
 
                 log.debug("Adding %s to package with id %s" % (str(file), dataset['id']))
 
+                na, ext = os.path.splitext(file)
+                # fallback to TXT mimetype for files that do not have an extension
+                ext = ext.lstrip('.').upper()
+                if not ext:
+                    file_format = self.default_format
+                    mimetype = self.default_mimetype
+                    mimetype_inner = self.default_mimetype_inner
+                # file has an extension
+                else:
+                    file_format = mimetype = mimetype_inner = ext
+                    # TODO: need to know what mimetype is inside the archive. This is part of the metadata management. TBD.
+                    # if ext in ['ZIP', 'RAR', 'TAR', 'TAR.GZ', '7Z']:
+                        # mimetype_inner = 'TXT'
+                        # pass
+
+                # Before we upload this resource, we search for 
+                # an old resource by this (munged) filename.
+                # If a resource is found, we delete it.
+                # A revision of the resource will be kept.
+                if dataset.get('resources'):
+                    # Find resource in the existing packages resource list
+                    for res in dataset['resources']:
+                        if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
+                            continue
+                        try:
+                            # delete this resource
+                            ckan.action.resource_delete(
+                                id=res.get('id')
+                            )
+                            log.debug("Deleted resource %s" % res.get('id'))
+                        except Exception as e:
+                            log.error("Error deleting the existing resource %s" % res.get('id'))
+                            pass
+                        # break
+
+
+                # use API to upload the file
                 try:
 
-                    na, ext = os.path.splitext(file)
-                    # fallback to TXT mimetype for files that do not have an extension
-                    ext = ext.lstrip('.').upper()
-                    if not ext:
-                        file_format = self.default_format
-                        mimetype = self.default_mimetype
-                        mimetype_inner = self.default_mimetype_inner
-                    # file has an extension
-                    else:
-                        file_format = mimetype = mimetype_inner = ext
-                        # TODO: need to know what mimetype is inside the archive. This is part of the metadata management. TBD.
-                        # if ext in ['ZIP', 'RAR', 'TAR', 'TAR.GZ', '7Z']:
-                            # mimetype_inner = 'TXT'
-                            # pass
-
-                    # Before we upload this resource, we search for 
-                    # an old resource by this (munged) filename.
-                    # If a resource is found, we delete it.
-                    # A revision of the resource will be kept.
-
-                    # find resource in the existing packages resource list
-                    if dataset.get('resources'):
-                        for res in dataset['resources']:
-                            if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
-                                continue
-                            try:
-                                # delete this resource
-                                ckan.action.resource_delete(
-                                    id=res['id']
-                                )
-                                log.debug("Deleted resource %s" % res.get('id'))
-                            except Exception as e:
-                                log.error("Error deleting the existing resource %s" % res.get('id'))
-                                pass
-                            # break
-
-
-                    # use API to upload the file
                     fp = open(file, 'rb')
                     resource = ckan.action.resource_create(
                         package_id=dataset['id'],
@@ -1092,23 +1091,8 @@ class BaseFTPHarvester(HarvesterBase):
                     fp.close()
                     log.debug("Added resource: %s" % str(resource))
 
-                    # TODO: import metadata of files
-
-                    # add resources to package_dict
-                    # dataset.setdefault('resources', []).append(resource)
-
                 except Exception as e:
-                    log.error("CKANAPI error when adding resource: %s" % str(e))
-                    pass
-
-
-            # update the package with the resources list
-            # log.debug("Resources: %s" % str(dataset['resources']))
-            # dataset_with_resources = package_update(context, dataset)
-
-            # _package = package_show(context, {'id': dataset('id')})
-            # log.debug("Updated package: %s" % str(_package))
-
+                    log.error("Error adding resource: %s" % str(e))
 
             # -----------------------------------------------------------------------
             # return result
