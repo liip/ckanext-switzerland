@@ -153,9 +153,9 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         pkg_dict = self._package_map_ckan_default_fields(pkg_dict)
 
         try:
-            # Do not change the resulting dict for API requests
+            # Do not change the resulting dict for API requests and form saves
             path = pylons.request.path
-            if path.startswith('/api'):
+            if path.startswith('/api') or pylons.request.method == 'POST':
                 return pkg_dict
         except TypeError:
             # we get here if there is no request (i.e. on the command line)

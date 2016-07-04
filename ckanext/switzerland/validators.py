@@ -95,6 +95,17 @@ def json_list_of_dicts_field(field, schema):
                 # TODO: validate that start AND end date is set
                 del extras['{}{}-{}'.format(prefix, counter, json_field_name)]
 
+        # iterate over junk fields (used in resource creation/update)
+        junk = data.get(('__junk',))
+        if junk:
+            for (field_name, counter, json_field_name), value in junk.iteritems():
+                if field_name == key[-1]:
+                    values[counter][json_field_name] = value
+
+            for counter, field_values in values.iteritems():
+                for json_field_name in field_values.keys():
+                    del junk[(key[-1], counter, json_field_name)]
+
         data[key] = json.dumps(values.values())
     return validator
 
