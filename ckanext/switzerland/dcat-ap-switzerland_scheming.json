@@ -258,7 +258,6 @@
         "fr": "Date de publication",
         "it": "Data di rilascio"
       },
-      "required": true,
       "preset": "ogdch_date"
     },
     {
