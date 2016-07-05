@@ -32,7 +32,7 @@
     {% endcall %}
 {% else %}
     {% if field.field_name + '-1-start_date' in data %}
-        {% set temporals =  h.convert_post_data_to_dict(field.field_name, data, parse_datetime=True) %}
+        {% set temporals =  h.convert_post_data_to_dict(field.field_name, data) %}
     {% else %}
         {% set temporals = h.parse_json(data[field.field_name]) %}
     {% endif %}

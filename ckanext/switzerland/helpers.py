@@ -250,13 +250,10 @@ def get_piwik_config():
     }
 
 
-def convert_post_data_to_dict(field_name, data, parse_datetime=False):
+def convert_post_data_to_dict(field_name, data):
     d = defaultdict(lambda: {})
     for json_field_name, value in data.iteritems():
         if json_field_name.startswith(field_name + '-'):
             counter, json_field_name = json_field_name.split('-')[1:]
-            if parse_datetime:
-                d[counter][json_field_name] = datetime.datetime.strptime(value, '%d.%m.%Y')
-            else:
-                d[counter][json_field_name] = value
+            d[counter][json_field_name] = value
     return d.values()
