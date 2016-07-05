@@ -969,6 +969,7 @@ class BaseFTPHarvester(HarvesterBase):
                 log.info("Created package: %s" % str(dataset['name']))
 
             except Exception as e:
+                # log.error("Error: Package dict: %s" % str(package_dict))
                 self._save_object_error('Package update/creation error: %s' % str(e), harvest_object, stage)
                 return False
 
