@@ -2,14 +2,7 @@
 FTP Harvesters
 '''
 
-# from ckan import model
-# from ckan.model import Session, Package
-
-from ckan.logic import ValidationError, NotFound
-
 # from ckan.lib.munge import munge_name
-
-from ckanext.harvest.model import HarvestGatherError, HarvestObjectError
 
 import logging
 log = logging.getLogger(__name__)
@@ -74,12 +67,19 @@ class InfoplusHarvester(BaseFTPHarvester):
         "modified": "21.03.2016",
         "url": "https://catalog.data.gov/", # TODO
         # "revision_id": "355bff9c-7d43-41e9-8caa-adbdfa7365e9",
-        "relations": [],
+        "relations": [{}],
         "relationships_as_object": [], # ???
         "relationships_as_subject": [], # ???
         "spatial": "Spatial", # TODO
         "type": "dataset",
         "description": { # TODO
+            "fr": "FR Description",
+            "en": "EN Description",
+            "de": "DE Description",
+            "it": "IT Description"
+        },
+        # TODO - release notes could go in here - but where do they come from ?
+        "notes": { # TODO
             "fr": "FR Description",
             "en": "EN Description",
             "de": "DE Description",

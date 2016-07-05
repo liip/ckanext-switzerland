@@ -13,14 +13,13 @@ them on the database. Errors occurring in this second stage
 table.
 '''
 
-import urllib2
-
-from datetime import datetime
+# import urllib2
 
 from ckan.lib.base import c
 from ckan import model
 from ckan.model import Session, Package
-from ckan.logic import ValidationError, NotFound, get_action
+from ckan.logic import ValidationError, NotFound
+from ckan.logic import get_action, check_access
 from ckan.lib import helpers
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_name
@@ -36,30 +35,21 @@ from base import HarvesterBase
 
 from pylons import config as ckanconf
 
-import sys, os# , json
+# shouldn't import this directly
+from ckan.logic.action.create import package_create
+
+import os # , json
+from datetime import datetime
 import errno
 import subprocess
 import zipfile
 import ftplib
+import ckanapi
 import time
 
-from ckan.logic.action.create import package_create, group_create, organization_create
-from ckan.logic.action.update import group_update, organization_update # package_update
-from ckan.logic.action.get import package_show
-# from ckan.logic.action.patch import package_patch
-
-import ckanapi
+# package_patch action - nice to have
 
 
-
-# ----------------------------------------------------
-# host = "THEHOST.com"
-# port = 22
-# password = "THEPASSWORD"
-# username = "THEUSERNAME"
-# remotedirectory = "./THETARGETDIRECTORY/"
-# localpath = "./LOCALDIRECTORY/"
-# ----------------------------------------------------
 
 
 
@@ -263,6 +253,9 @@ class FTPHelper(object):
 
 
 
+
+
+
 class BaseFTPHarvester(HarvesterBase):
     """
     A FTP Harvester for data
@@ -395,6 +388,25 @@ class BaseFTPHarvester(HarvesterBase):
 
         return config
 
+    def _add_harvester_metadata(self, package_dict, context):
+
+        # is there a package meta configuration in the harvester?
+        if self.package_dict_meta:
+
+            # get organization dictionary based on the owner_org id
+            if self.package_dict_meta.get('owner_org'):
+                # get the organisation and add it to the package
+                org_dict = get_action('organization_show')(context, {'id': self.package_dict_meta['owner_org']})
+                if org_dict:
+                    package_dict['organization'] = org_dict
+                else:
+                    package_dict['owner_org'] = None
+
+            # add each key/value from the meta data of the harvester
+            for key,val in self.package_dict_meta.iteritems():
+                package_dict[key] = val
+
+        return package_dict
 
     def _add_package_tags(self, package_dict):
         """
@@ -412,7 +424,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         # add optional tags
         for tag in self.package_dict_meta.get('tags'):
-            tag_dict = helpers.call_action('tag_show')(context, {'id': tag})
+            tag_dict = get_action('tag_show')(context, {'id': tag})
             if tag_dict:
                 # add the found tag to the package's tags
                 package_dict['tags'].append(tag_dict)
@@ -758,6 +770,7 @@ class BaseFTPHarvester(HarvesterBase):
         """
         log.debug('=====================================================')
         log.debug('In %s FTPHarvester fetch_stage' % self.harvester_name)
+        log.debug('Running harvest job %s' % harvest_object.id)
         stage = 'Fetch'
 
         # self._set_config(harvest_job.source.config)
@@ -771,10 +784,11 @@ class BaseFTPHarvester(HarvesterBase):
 
         try:
 
+            # unserialize the dirlist stored in the harvest_object in the previous step
             dirlist = json.loads(harvest_object.content)
 
         except JSONDecodeError,e:
-            self._save_object_error('Unable to decode content for URL: %s: %s' % (url, str(e)), harvest_object, stage)
+            self._save_object_error('Unable to decode dirlist from harvest_object: %s' % str(e), harvest_object, stage)
             return None
 
         if not len(dirlist):
@@ -914,11 +928,9 @@ class BaseFTPHarvester(HarvesterBase):
 
         log.debug('Importing files: %s' % str(dirlist))
 
+
         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
 
-        # api key of the harvester user
-        harvest_api_key = model.User.get(context['user']).apikey.encode('utf8')
-        # log.debug("API KEY: %s" % harvest_api_key)
 
         # set harvester config
         self._set_config(harvest_object.job.source.config)
@@ -932,32 +944,33 @@ class BaseFTPHarvester(HarvesterBase):
         dataset = None
 
         package_dict = {
-            'name': self.harvester_name.lower() # self.remotefolder # self._ensure_name_is_unique(os.path.basename(self.remotefolder))
+            'name': self.harvester_name.lower(), # self.remotefolder # self._ensure_name_is_unique(os.path.basename(self.remotefolder))
+            'identifier': self.harvester_name.title() # DCAT
         }
 
         try:
             # -----------------------------------------------------------------------
-            # try to use the existing package dictionary
+            # use the existing package dictionary (if it exists)
             # -----------------------------------------------------------------------
 
-            dataset = package_show(context, {'id': package_dict.get('name')})
+            dataset = get_action('package_show')(context, {'id': package_dict.get('name')})
 
             if not dataset.get('id'):
                 # abort updating
                 log.debug("Package '%s' not found" % package_dict.get('name'))
                 raise NotFound("Package '%s' not found" % package_dict.get('name'))
 
-            log.debug("Found package with id %s" % str(dataset.get('id')))
+            log.debug("Using existing package with id %s" % str(dataset.get('id')))
 
         except NotFound as e:
             # -----------------------------------------------------------------------
             # create the package dictionary instead
             # -----------------------------------------------------------------------
 
-            dt = datetime.now()
+            now = datetime.now().isoformat()
 
             # version
-            package_dict['version'] = dt.isoformat() # TODO: "2011-12-15T18:59:35.951158"
+            package_dict['version'] = now
 
             # title of the package
             # package_dict['title'] = self.remotefolder.title()
@@ -967,54 +980,39 @@ class BaseFTPHarvester(HarvesterBase):
                 "fr": self.remotefolder.title(),
                 "it": self.remotefolder.title()
             })
-            package_dict['display_name'] = json.dumps({
-                "de": self.remotefolder.title(),
-                "en": self.remotefolder.title(),
-                "fr": self.remotefolder.title(),
-                "it": self.remotefolder.title()
-            })
-
-            # TODO - release notes could go in here - but where do they come from ?
-            # package_dict['notes'] = "" # TODO
+            # for DCAT schema - same info as in the title
+            package_dict['display_name'] = package_dict['title']
 
             package_dict['creator_user_id'] = model.User.get(context['user']).id
 
-            # is there a package meta configuration in the harvester?
-            if self.package_dict_meta:
+            package_dict = self._add_harvester_metadata(package_dict, context)
 
-                # add organization based on the owner_org id
-                if self.package_dict_meta.get('owner_org'):
-                    # get the organisation and add it to the package
-                    org_dict = helpers.call_action('organization_show', id=self.package_dict_meta['owner_org'])
-                    if org_dict:
-                        package_dict['organization'] = org_dict
-                    else:
-                        package_dict['owner_org'] = None
-
-                # add the meta data from the harvester
-                for key,val in self.package_dict_meta.iteritems():
-                    package_dict[key] = val
-
-            # configure default metadata (provided via the harvester config)
-
-            package_dict = self._add_package_tags(package_dict) # TODO: tags are multi-lang
-
-            package_dict = self._add_package_groups(package_dict)
-
-            package_dict = self._add_package_orgs(package_dict)
-
-            package_dict = self._add_package_extras(package_dict, harvest_object)
+            # configure default metadata (optionally provided via the harvester configuration as a json object)
+            # TODO: make this compatible with multi-lang
+            # package_dict = self._add_package_tags(package_dict)
+            # package_dict = self._add_package_groups(package_dict)
+            # package_dict = self._add_package_orgs(package_dict)
+            # package_dict = self._add_package_extras(package_dict, harvest_object)
 
             # -----------------------------------------------------------------------
-            # create or update package
+            # create the package
             # -----------------------------------------------------------------------
 
             log.debug("Package dict (pre-creation): %s" % str(package_dict))
 
-            dataset = package_create(context, package_dict)
+            # this logic action requires to call check_access
+            # to add action name onto the __auth_audit stack
+            result = check_access('package_create', context)
+
+            # create the dataset
+            dataset = get_action('package_create')(context, package_dict)
+
             log.info("Created package: %s" % str(dataset['name']))
 
+            # produces Exception: Action function package_show did not call its auth function
             dataset = self._set_package_permissions(dataset, context)
+
+
 
         # except ValidationError, e:
         #     self._save_object_error('Invalid package with GUID %s: %r' % (harvest_object.guid, e.error_dict),
@@ -1039,9 +1037,6 @@ class BaseFTPHarvester(HarvesterBase):
             # resources creation
             # -----------------------------------------------------------------------
 
-            # now that the harvest user is admin of package
-            # import the local files into CKAN
-
             log.debug('Processing files: %s' % str(dirlist))
 
             site_url = ckanconf.get('ckan.site_url', None)
@@ -1051,7 +1046,8 @@ class BaseFTPHarvester(HarvesterBase):
 
             try:
                 ckan = ckanapi.RemoteCKAN(site_url,
-                    apikey=harvest_api_key,
+                    # api key of the harvester user
+                    apikey=model.User.get(context['user']).apikey.encode('utf8'),
                     user_agent='ckanapi/1.0 (+%s)' % site_url
                 )
                 log.debug("Connected to %s" % site_url)
@@ -1067,19 +1063,23 @@ class BaseFTPHarvester(HarvesterBase):
                 return False
 
 
+
+            # import the local files into CKAN
             for file in dirlist:
 
                 log.debug("Adding %s to package with id %s" % (str(file), dataset['id']))
 
+                # set mimetypes of resource based on file extension
                 na, ext = os.path.splitext(file)
-                # fallback to TXT mimetype for files that do not have an extension
                 ext = ext.lstrip('.').upper()
+                # fallback to TXT mimetype for files that do not have an extension
                 if not ext:
                     file_format = self.default_format
                     mimetype = self.default_mimetype
                     mimetype_inner = self.default_mimetype_inner
-                # file has an extension
+                # if file has an extension
                 else:
+                    # set mime types
                     file_format = mimetype = mimetype_inner = ext
                     # TODO: need to know what mimetype is inside the archive. This is part of the metadata management. TBD.
                     # if ext in ['ZIP', 'RAR', 'TAR', 'TAR.GZ', '7Z']:
@@ -1087,8 +1087,10 @@ class BaseFTPHarvester(HarvesterBase):
                         # pass
 
 
+                resource_meta = None
+
                 # ------------------------------------------------------------
-                # CLEAN-UP the dataset
+                # CLEAN-UP the dataset:
                 # Before we upload this resource, we search for 
                 # an old resource by this (munged) filename.
                 # If a resource is found, we delete it.
@@ -1100,47 +1102,120 @@ class BaseFTPHarvester(HarvesterBase):
                         if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
                             continue
                         try:
+
+                            # store the resource's metadata for later use
+                            resource_meta = res
+
                             # delete this resource
-                            ckan.action.resource_delete(
-                                id=res.get('id')
-                            )
+                            get_action('resource_delete')(context, {'id': res.get('id')})
                             log.debug("Deleted resource %s" % res.get('id'))
+
+                            # remove this resource from the data dict
+                            if dataset.get('resources'):
+                                dataset['resources'].remove(res)
+
+                            # there should only be one file with the same name in each dataset
+                            break
+
                         except Exception as e:
-                            log.error("Error deleting the existing resource %s" % str(res.get('id')))
+                            log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
                             pass
-                        # break
                 # ------------------------------------------------------------
 
 
-                # use API to upload the file
+                # use remote API to upload the file
                 try:
 
+                    try:
+                        size = int(os.path.getsize(file))
+                    except:
+                        size = 0
+
                     fp = open(file, 'rb')
-                    resource = ckan.action.resource_create(
-                        package_id=dataset['id'],
-                        name=json.dumps({
-                            "de": os.path.basename(file),
-                            "en": os.path.basename(file),
-                            "fr": os.path.basename(file),
-                            "it": os.path.basename(file)
-                        }),
-                        description=json.dumps({
-                            "de": "",
-                            "en": "",
-                            "fr": "",
-                            "it": ""
-                        }), # TODO
-                        format=file_format,
-                        mimetype=mimetype,
-                        mimetype_inner=mimetype_inner,
-                        url='dummy-value', # ignored, but required by ckan
-                        upload=fp
-                    )
-                    fp.close()
-                    log.debug("Added resource: %s" % str(resource))
+
+                    # -----------------------------------------------------
+                    # create new resource, if it did not previously exist
+                    # -----------------------------------------------------
+                    if not resource_meta:
+
+                        resource = ckan.action.resource_create(
+                            package_id=dataset['id'],
+                            name=json.dumps({
+                                "de": os.path.basename(file),
+                                "en": os.path.basename(file),
+                                "fr": os.path.basename(file),
+                                "it": os.path.basename(file)
+                            }),
+                            description=json.dumps({
+                                "de": "",
+                                "en": "",
+                                "fr": "",
+                                "it": ""
+                            }),
+
+                            # extra data per resource from the harvester
+                            license_id=self.package_dict_meta.get('license_id'),
+                            license_title=self.package_dict_meta.get('license_title'),
+                            author=self.package_dict_meta.get('author'),
+                            author_email=self.package_dict_meta.get('author_email'),
+                            maintainer=self.package_dict_meta.get('maintainer'),
+                            maintainer_email=self.package_dict_meta.get('maintainer_email'),
+                            publishers=self.package_dict_meta.get('publishers'),
+                            coverage=self.package_dict_meta.get('coverage'),
+                            issued=self.package_dict_meta.get('issued'),
+                            spatial=self.package_dict_meta.get('spatial'),
+                            language=self.package_dict_meta.get('language'),
+                            accrual_periodicity=self.package_dict_meta.get('accrual_periodicity'),
+
+                            resource_type=None,
+                            format=file_format,
+                            mimetype=mimetype,
+                            mimetype_inner=mimetype_inner,
+                            url='dummy-value', # ignored, but required by ckan
+                            size=size,
+                            upload=fp
+                        )
+                        log.debug("Added new resource: %s" % str(resource))
+
+                        # add the resource to the dataset dict
+                        dataset.setdefault('resources', []).append(resource)
+
+                    # -----------------------------------------------------
+                    # create the resource, but use the metadata of the old resource
+                    # -----------------------------------------------------
+                    else:
+
+                        # the resource should get a new id
+                        if resource_meta.get('id'):
+                            del resource_meta['id']
+
+                        if resource_meta.get('revision_id'):
+                            del resource_meta['revision_id']
+
+                        # the new file to upload
+                        resource_meta['upload'] = fp
+                        resource_meta['size'] = size
+                        resource_meta['url'] = 'dummy-value' # ignored, but required by ckan
+
+                        resource_meta['resource_type'] = None
+                        resource_meta['format'] = file_format
+                        resource_meta['mimetype'] = mimetype
+                        resource_meta['mimetype_inner'] = mimetype_inner
+
+                        resource = ckan.action.resource_create(**resource_meta)
+
+                        log.debug("Created resource with known metadata: %s" % str(resource))
+
+                        # add the resource to the dataset dict
+                        dataset.setdefault('resources', []).append(resource)
 
                 except Exception as e:
                     log.error("Error adding resource: %s" % str(e))
+
+                finally:
+                    # close the file pointer
+                    if fp:
+                        fp.close()
 
             # -----------------------------------------------------------------------
             # return result
@@ -1152,7 +1227,7 @@ class BaseFTPHarvester(HarvesterBase):
 
 
         # =======================================================================
-        return True
+        return dataset # True
 
 
 class ContentFetchError(Exception):
