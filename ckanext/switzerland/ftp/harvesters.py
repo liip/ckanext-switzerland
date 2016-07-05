@@ -39,20 +39,55 @@ class InfoplusHarvester(BaseFTPHarvester):
         # package privacy
         'private': False,
         'state': 'active',
-        'isopen': True,
+        'isopen': False,
         # author and maintainer
-        'author': "", # TODO
-        'author_email': "", # TODO
-        'maintainer': "", # TODO
-        'maintainer_email': "", # TODO
+        'author': "Author name", # TODO
+        'author_email': "author@example.com", # TODO
+        'maintainer': "Maintainer name", # TODO
+        'maintainer_email': "maintainer@example.com", # TODO
+        # publisher (TODO)
+        "publishers": [{
+            "label": "Publisher 1"
+        }],
         # license
         'license_id': "other-open", # TODO
         'license_title': "Other (Open)", # TODO
         # owner organisation
-        # 'owner_org': "<ckan-id>", # TODO
+        "owner_org": "7dbaad15-597f-499c-9a72-95de38b95cad", # TODO
         # optional groups
         'groups': [], # TODO
         'tags': [], # TODO
+        'keywords': {}, # TODO
+        # ckan multilang/switzerland custom required fields
+        'coverage': "Coverage",
+        'issued': "21.03.2015", # TODO
+        'contact_points': [{
+            "name": "Contact Name",
+            "email": "contact@example.com"
+        }],
+        "temporals": [{ # TODO
+            "start_date": "2014-03-21T00:00:00",
+            "end_date": "2019-03-21T00:00:00"
+        }],
+        "metadata_created": "2016-07-05T07:41:28.741265", # TODO
+        "metadata_modified": "2016-07-05T07:43:30.079030", # TODO
+        "modified": "21.03.2016",
+        "url": "https://catalog.data.gov/", # TODO
+        # "revision_id": "355bff9c-7d43-41e9-8caa-adbdfa7365e9",
+        "relations": [],
+        "relationships_as_object": [], # ???
+        "relationships_as_subject": [], # ???
+        "spatial": "Spatial", # TODO
+        "type": "dataset",
+        "description": { # TODO
+            "fr": "FR Description",
+            "en": "EN Description",
+            "de": "DE Description",
+            "it": "IT Description"
+        },
+        "language": ["en", "de", "fr", "it"],
+        "accrual_periodicity": "",
+        "notes": None,
     }
 
     # whether or not to unzip the files found locally
