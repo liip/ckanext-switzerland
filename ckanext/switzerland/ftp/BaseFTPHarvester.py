@@ -828,8 +828,10 @@ class BaseFTPHarvester(HarvesterBase):
 
                 # version 2: fetch each file separately via ftplib
                 # -------------------------------------------------------------------
-                log.debug('Fetching files...' if len(dirlist) > 1 else 'Fetching file...')
                 for file in dirlist:
+
+                    log.debug('Fetching file: %s' % str(file))
+
                     # target
                     targetfile = os.path.join(retobj['workingdir'], file)
                     # if file is in a subfolder, create the directory
@@ -925,8 +927,6 @@ class BaseFTPHarvester(HarvesterBase):
         if not dirlist:
             self._save_object_error('Empty directory listing', harvest_object, stage)
             return None
-
-        log.debug('Importing files: %s' % str(dirlist))
 
 
         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
@@ -1037,7 +1037,7 @@ class BaseFTPHarvester(HarvesterBase):
             # resources creation
             # -----------------------------------------------------------------------
 
-            log.debug('Processing files: %s' % str(dirlist))
+            log.debug('Importing files: %s' % str(dirlist))
 
             site_url = ckanconf.get('ckan.site_url', None)
             if not site_url:
@@ -1138,75 +1138,76 @@ class BaseFTPHarvester(HarvesterBase):
                     # -----------------------------------------------------
                     if not resource_meta:
 
-                        resource = ckan.action.resource_create(
-                            package_id=dataset['id'],
-                            name=json.dumps({
+                        # extra data per resource from the harvester
+                        if self.package_dict_meta:
+
+                            resource_meta = self.package_dict_meta
+
+                            # send all lists as json-encoded strings:
+                            # https://github.com/ckan/ckanapi/blob/b4d109b2b3538f39340079ddd39532451868e32a/ckanapi/common.py#L73
+                            for key,value in resource_meta.iteritems():
+                                if isinstance(value, list) or isinstance(value, dict):
+                                    resource_meta[key] = json.dumps(value)
+
+                        else:
+                            resource_meta = {}
+
+                        resource_meta['package_id'] = dataset['id']
+                        resource_meta['name'] = json.dumps({
                                 "de": os.path.basename(file),
                                 "en": os.path.basename(file),
                                 "fr": os.path.basename(file),
                                 "it": os.path.basename(file)
-                            }),
-                            description=json.dumps({
+                            })
+                        resource_meta['description'] = json.dumps({
                                 "de": "",
                                 "en": "",
                                 "fr": "",
                                 "it": ""
-                            }),
+                            })
 
-                            # extra data per resource from the harvester
-                            license_id=self.package_dict_meta.get('license_id'),
-                            license_title=self.package_dict_meta.get('license_title'),
-                            author=self.package_dict_meta.get('author'),
-                            author_email=self.package_dict_meta.get('author_email'),
-                            maintainer=self.package_dict_meta.get('maintainer'),
-                            maintainer_email=self.package_dict_meta.get('maintainer_email'),
-                            publishers=self.package_dict_meta.get('publishers'),
-                            coverage=self.package_dict_meta.get('coverage'),
-                            issued=self.package_dict_meta.get('issued'),
-                            spatial=self.package_dict_meta.get('spatial'),
-                            language=self.package_dict_meta.get('language'),
-                            accrual_periodicity=self.package_dict_meta.get('accrual_periodicity'),
+                        resource_meta['format'] = file_format
+                        resource_meta['mimetype'] = mimetype
+                        resource_meta['mimetype_inner'] = mimetype_inner
+                        resource_meta['url'] = 'dummy-value' # ignored, but required by ckan
+                        resource_meta['size'] = size
+                        resource_meta['upload'] = fp
 
-                            resource_type=None,
-                            format=file_format,
-                            mimetype=mimetype,
-                            mimetype_inner=mimetype_inner,
-                            url='dummy-value', # ignored, but required by ckan
-                            size=size,
-                            upload=fp
-                        )
+                        resource = ckan.action.resource_create(**resource_meta)
+
                         log.debug("Added new resource: %s" % str(resource))
-
-                        # add the resource to the dataset dict
-                        dataset.setdefault('resources', []).append(resource)
 
                     # -----------------------------------------------------
                     # create the resource, but use the metadata of the old resource
                     # -----------------------------------------------------
                     else:
 
-                        # the resource should get a new id
+                        # the resource should get a new id, so delete the old one
                         if resource_meta.get('id'):
                             del resource_meta['id']
 
+                        # the resource will get a new revision id
                         if resource_meta.get('revision_id'):
                             del resource_meta['revision_id']
 
-                        # the new file to upload
+                        # send all lists as json-encoded strings:
+                        # https://github.com/ckan/ckanapi/blob/b4d109b2b3538f39340079ddd39532451868e32a/ckanapi/common.py#L73
+                        for key,value in resource_meta.iteritems():
+                            if isinstance(value, list) or isinstance(value, dict):
+                                resource_meta[key] = json.dumps(value)
+
+                        # info for the new file to upload
                         resource_meta['upload'] = fp
                         resource_meta['size'] = size
                         resource_meta['url'] = 'dummy-value' # ignored, but required by ckan
-
-                        resource_meta['resource_type'] = None
-                        resource_meta['format'] = file_format
-                        resource_meta['mimetype'] = mimetype
-                        resource_meta['mimetype_inner'] = mimetype_inner
 
                         resource = ckan.action.resource_create(**resource_meta)
 
                         log.debug("Created resource with known metadata: %s" % str(resource))
 
-                        # add the resource to the dataset dict
+
+                    # add the resource to the dataset dict
+                    if resource:
                         dataset.setdefault('resources', []).append(resource)
 
                 except Exception as e:
