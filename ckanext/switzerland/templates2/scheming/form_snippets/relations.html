@@ -9,7 +9,7 @@
         id='field-' + field.field_name + '-1-label',
         label=_('Title'),
         placeholder=h.scheming_language_text(field.form_placeholder),
-        error=errors[field.field_name],
+        error=errors[field.field_name + '-1-label'],
         classes=['control-medium'],
         attrs=field.form_attrs if 'form_attrs' in field else {},
         is_required=h.scheming_field_required(field)
@@ -23,7 +23,7 @@
         id='field-' + field.field_name + '-1-url',
         label=_('URL'),
         placeholder=h.scheming_language_text(field.form_placeholder),
-        error=errors[field.field_name],
+        error=errors[field.field_name + '-1-url'],
         classes=['control-medium'],
         attrs=field.form_attrs if 'form_attrs' in field else {},
         is_required=h.scheming_field_required(field)
@@ -45,7 +45,7 @@
             label=_('Title'),
             placeholder=h.scheming_language_text(field.form_placeholder),
             value=relation['label'],
-            error=errors[field.field_name],
+            error=errors[field.field_name + '-' + loop.index|string + '-label'],
             classes=['control-medium'],
             attrs=field.form_attrs if 'form_attrs' in field else {},
             is_required=h.scheming_field_required(field)
@@ -60,7 +60,7 @@
             label=_('URL'),
             placeholder=h.scheming_language_text(field.form_placeholder),
             value=relation['url'],
-            error=errors[field.field_name],
+            error=errors[field.field_name + '-' + loop.index|string + '-url'],
             classes=['control-medium'],
             attrs=field.form_attrs if 'form_attrs' in field else {},
             is_required=h.scheming_field_required(field)

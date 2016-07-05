@@ -98,14 +98,14 @@ def json_list_of_dicts_field(field, schema):
                 continue
 
             if not text:
-                errors[key].append(_('This field is required'))
+                errors[(name,)] = [_('This field is required')]
                 continue
 
             try:
                 # convert field value
                 values[counter][json_field_name] = field_type[json_field_name](text)
             except ValueError:
-                errors[key].append(_('Invalid date'))
+                errors[(name,)] = [_('Invalid date')]
 
         # iterate over junk fields (used in resource creation/update)
         junk = data.get(('__junk',))

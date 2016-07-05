@@ -9,7 +9,7 @@
         id='field-' + field.field_name + '-1-start_date',
         label=_('Start date'),
         placeholder=h.scheming_language_text(field.form_placeholder),
-        error=errors[field.field_name],
+        error=errors[field.field_name + '-1-start_date'],
         classes=['control-medium'],
         attrs=field.form_attrs if 'form_attrs' in field else {},
         is_required=h.scheming_field_required(field)
@@ -23,7 +23,7 @@
         id='field-' + field.field_name + '-1-end_date',
         label=_('End date'),
         placeholder=h.scheming_language_text(field.form_placeholder),
-        error=errors[field.field_name],
+        error=errors[field.field_name + '-1-end_date'],
         classes=['control-medium'],
         attrs=field.form_attrs if 'form_attrs' in field else {},
         is_required=h.scheming_field_required(field)
@@ -45,7 +45,7 @@
             label=_('Start date'),
             placeholder=h.scheming_language_text(field.form_placeholder),
             value=h.render_datetime(temporal['start_date'], '%d.%m.%Y'),
-            error=errors[field.field_name],
+            error=errors[field.field_name + '-' + loop.index|string + '-start_date'],
             classes=['control-medium'],
             attrs=field.form_attrs if 'form_attrs' in field else {},
             is_required=h.scheming_field_required(field)
@@ -60,7 +60,7 @@
             label=_('End date'),
             placeholder=h.scheming_language_text(field.form_placeholder),
             value=h.render_datetime(temporal['end_date'], '%d.%m.%Y'),
-            error=errors[field.field_name],
+            error=errors[field.field_name + '-' + loop.index|string + '-end_date'],
             classes=['control-medium'],
             attrs=field.form_attrs if 'form_attrs' in field else {},
             is_required=h.scheming_field_required(field)

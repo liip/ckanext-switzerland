@@ -7,7 +7,7 @@
         id='field-' + field.field_name + '-1-label',
         label=h.scheming_language_text(field.label),
         placeholder=h.scheming_language_text(field.form_placeholder),
-        error=errors[field.field_name],
+        error=errors[field.field_name + '-1-label'],
         classes=['control-medium'],
         attrs=field.form_attrs if 'form_attrs' in field else {},
         is_required=h.scheming_field_required(field)
@@ -29,7 +29,7 @@
             label=h.scheming_language_text(field.label),
             placeholder=h.scheming_language_text(field.form_placeholder),
             value=publisher['label'],
-            error=errors[field.field_name],
+            error=errors[field.field_name + '-' + loop.index|string + '-label'],
             classes=['control-medium'],
             attrs=field.form_attrs if 'form_attrs' in field else {},
             is_required=h.scheming_field_required(field)
