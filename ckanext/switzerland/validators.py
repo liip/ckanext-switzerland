@@ -114,6 +114,10 @@ def json_list_of_dicts_field(field, schema):
                 if field_name == key[-1]:
                     values[counter][json_field_name] = value
 
+            for counter, field_values in values.iteritems():
+                for json_field_name in field_values.keys():
+                    del junk[(key[-1], counter, json_field_name)]
+
         data[key] = json.dumps(values.values())
     return validator
 
