@@ -61,6 +61,7 @@ import time
 
 
 class FTPHelper(object):
+    """ FTP Helper Class """
 
     _config = None
 
@@ -69,8 +70,12 @@ class FTPHelper(object):
     remotefolder = ''
 
     def __init__(self, remotefolder=''):
+        """
+        Load the ftp configuration from ckan config file
 
-        # load the ftp configuration from ckan config file
+        :param remotefolder: Remote folder path
+        :type remotefolder: str or unicode
+        """
         ftpconfig = {}
         for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
             ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
@@ -85,7 +90,12 @@ class FTPHelper(object):
         self.create_local_dir()
 
     def __enter__(self):
-        # establish ftp connection
+        """
+        Establish an ftp connection
+
+        :returns: Instance of FTPHelper
+        :rtype: object
+        """
         self._connect()
         # cd into the remote directory
         self.cdremote()
@@ -93,16 +103,29 @@ class FTPHelper(object):
         return self
 
     def __exit__(self, type, value, traceback):
-        # disconnect ftp
+        """
+        Disconnect the ftp connection
+        """
         self._disconnect()
 
     def get_top_folder(self):
+        """
+        Get the name of the top-most folder in /tmp
+
+        :returns: Directory listing (exclusing '.' and '..')
+        :rtype: list
+        """
         return "%s:%d" % (self._config['host'], self._config['port'])
 
     def _mkdir_p(self, path, perms=0777):
         """
         Recursively create local directories
-        See: http://stackoverflow.com/a/600612/426266
+        Based on http://stackoverflow.com/a/600612/426266
+
+        :param path: Folder path
+        :type path: str or unicode
+        :param perms: Folder permissions
+        :type perms: octal
         """
         try:
             os.makedirs(path, perms)
@@ -118,10 +141,11 @@ class FTPHelper(object):
         """
         Create a local folder
 
-        @type  folder: string
-        @param folder: Name of the folder
-        @rtype:   None
-        @return:  None
+        :param folder: Folder path
+        :type folder: str or unicode
+
+        :returns: None
+        :rtype: None
         """
         if not folder:
             folder = self._config['localpath']
@@ -137,8 +161,8 @@ class FTPHelper(object):
         """
         Establish an FTP connection
 
-        @rtype:   None
-        @return:  None
+        :returns: None
+        :rtype: None
         """
         # overwrite the default port (21)
         ftplib.FTP.port = int(self._config['port'])
@@ -151,8 +175,8 @@ class FTPHelper(object):
         """
         Close ftp connection
 
-        @rtype:   None
-        @return:  None
+        :returns: None
+        :rtype: None
         """
         self.ftps.quit() # '221 Goodbye.'
 
@@ -160,10 +184,11 @@ class FTPHelper(object):
         """
         Change remote directory
 
-        @type  remotedir: string
-        @param remotedir: Full path on the remote server
-        @rtype:   None
-        @return:  None
+        :param remotedir: Full path on the remote server
+        :type remotedir: str or unicode
+
+        :returns: None
+        :rtype: None
         """
         if not remotedir:
             remotedir = self.remotefolder
@@ -173,8 +198,11 @@ class FTPHelper(object):
         """
         List files and sub-directories in the current directory
 
-        @rtype:   list
-        @return:  Directory listing (exclusing '.' and '..')
+        :param folder: Full path on the remote server
+        :type folder: str or unicode
+
+        :returns: Directory listing (excluding '.' and '..')
+        :rtype: list
         """
         # get dir listing of a specific directory
         if folder:
@@ -187,6 +215,15 @@ class FTPHelper(object):
 
     # see: http://stackoverflow.com/a/31512228/426266
     def get_remote_dirlist_all(self, folder=None):
+        """
+        Get a listing of all files (including subdirectories in a specific folder on the remote server
+
+        :param folder: Folder name or path
+        :type folder: str or unicode
+
+        :returns: Directory listing (excluding '.' and '..')
+        :rtype: list
+        """
         if not folder:
             folder = self.remotefolder
         dirs = []
@@ -206,17 +243,24 @@ class FTPHelper(object):
         """
         Check if a remote directory is empty
 
-        @rtype:   list
-        @return:  Directory listing (exclusing '.' and '..')
+        :param folder: Folder name or path
+        :type folder: str or unicode
+
+        :returns: Number of directories in remote folder
+        :rtype: int
         """
         # get dir listing of a specific directory
         if folder:
-            num_files = len(self.get_dirlist(folder))
-        else:
-            num_files = len(self.get_dirlist())
+            num_files = len(self.get_remote_dirlist_all(folder))
         return num_files
 
     def wget_fetch_all(self):
+        """
+        Fetch all files in a folder from the remote server with wget
+
+        :returns: Shell execution status
+        :rtype: int
+        """
         # optional parameters:
             # -nv: non-verbose
             # --no-clobber: do not overwrite existing files
@@ -230,6 +274,15 @@ class FTPHelper(object):
             ), shell=True)
 
     def wget_fetch(self, file):
+        """
+        Fetch a single file from the remote server with wget
+
+        :param file: File to fetch
+        :type file: str or unicode
+
+        :returns: Shell execution status
+        :rtype: int
+        """
         return subprocess.call(
             "/usr/local/bin/wget --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (
                 self._config['username'],
@@ -241,12 +294,15 @@ class FTPHelper(object):
 
     def fetch(self, filename, localpath=None):
         """
-        Fetch a single file from the remote server
+        Fetch a single file from the remote server with ftplib
 
-        @type  filename: string
-        @param filename: Name of the file to download
-        @rtype:   string
-        @return:  FTP status message
+        :param filename: File to fetch
+        :type filename: str or unicode
+        :param localpath: Local folder to store the file
+        :type localpath: str or unicode
+
+        :returns: Status of the FTP operation
+        :rtype: string
         """
         if not localpath:
             localpath = os.path.join(self._config['localpath'], filename)
@@ -262,10 +318,12 @@ class FTPHelper(object):
 
 
 
-
 class BaseFTPHarvester(HarvesterBase):
     """
-    A FTP Harvester for data
+    A FTP Harvester for ftp data
+    The class can operate on its own.
+    However, usually one would create a specific class
+    for a harvester and overwrite the base class attributes.
     """
 
     config = None # ckan harvester config, not ftp config
@@ -311,6 +369,9 @@ class BaseFTPHarvester(HarvesterBase):
         """
         Extract a single zip file
         E.g. will extract a file /tmp/somedir/myfile.zip into /tmp/somedir/
+
+        :param filepath: Path to a local file
+        :type filepath: str or unicode
         """
         target_folder = os.path.dirname(filepath)
         zfile = zipfile.ZipFile(filepath)
@@ -319,6 +380,12 @@ class BaseFTPHarvester(HarvesterBase):
     def _get_local_dirlist(self, localpath="."):
         """
         Get directory listing, including all sub-folders
+
+        :param localpath: Path to a local folder
+        :type localpath: str or unicode
+
+        :returns: Directory listing
+        :rtype: list
         """
         dirlist = []
         for dirpath, dirnames, filenames in os.walk(localpath):
@@ -327,6 +394,12 @@ class BaseFTPHarvester(HarvesterBase):
         return dirlist
 
     def _set_config(self, config_str):
+        """
+        Set configuration value
+
+        :param localpath: config_str
+        :type localpath: str or unicode
+        """
         if config_str:
             self.config = json.loads(config_str)
             if 'api_version' in self.config:
@@ -336,6 +409,12 @@ class BaseFTPHarvester(HarvesterBase):
             self.config = {}
 
     def info(self):
+        """
+        Return basic information about the harvester
+
+        :returns: Dictionary with basic information about the harvester
+        :rtype: dict
+        """
         return {
             'name': '%sharvest' % self.harvester_name.lower(), # 'ckanftp'
             'title': 'CKAN FTP %s Harvester' % self.harvester_name,
@@ -344,6 +423,15 @@ class BaseFTPHarvester(HarvesterBase):
         }
 
     def validate_config(self, config):
+        """
+        Validates the configuration that can be pasted into the harvester web interface
+
+        :param config: Configuration (JSON-encoded object)
+        :type config: dict
+
+        :returns: Configuration dictionary
+        :rtype: dict
+        """
 
         if not config:
             return config
@@ -396,9 +484,21 @@ class BaseFTPHarvester(HarvesterBase):
         return config
 
     def _add_harvester_metadata(self, package_dict, context):
+        """
+        Adds the metadata stored in the harvester class
+
+        :param package_dict: Package metadata
+        :type package_dict: dict
+
+        :param context: Context
+        :type context: dict
+
+        :returns: Package dictionary
+        :rtype: dict
+        """
+
         # is there a package meta configuration in the harvester?
         if self.package_dict_meta:
-
             # get organization dictionary based on the owner_org id
             if self.package_dict_meta.get('owner_org'):
                 # get the organisation and add it to the package
@@ -409,7 +509,6 @@ class BaseFTPHarvester(HarvesterBase):
                         package_dict['organization'] = org_dict
                     else:
                         package_dict['owner_org'] = None
-
             # add each key/value from the meta data of the harvester
             for key,val in self.package_dict_meta.iteritems():
                 package_dict[key] = val
@@ -420,8 +519,11 @@ class BaseFTPHarvester(HarvesterBase):
         """
         Create tags
 
-        :param package_dict: Package dictionary
-        :returns: dict Package dictionary with tags
+        :param package_dict: Package metadata
+        :type package_dict: dict
+
+        :returns: Package dictionary
+        :rtype: dict
         """
         if not 'tags' in package_dict:
             package_dict['tags'] = []
@@ -442,10 +544,13 @@ class BaseFTPHarvester(HarvesterBase):
 
     def _add_package_groups(self, package_dict):
         """
-        Create groups
+        Create (default) groups
 
-        :param package_dict: Package dictionary
-        :returns: dict Package dictionary with groups
+        :param package_dict: Package metadata
+        :type package_dict: dict
+
+        :returns: Package dictionary
+        :rtype: dict
         """
         #     if not 'groups' in package_dict:
         #         package_dict['groups'] = []
@@ -487,6 +592,15 @@ class BaseFTPHarvester(HarvesterBase):
         return package_dict
 
     def _add_package_orgs(self, package_dict):
+        """
+        Create default organization(s)
+        
+        :param package_dict: Package metadata
+        :type package_dict: dict
+
+        :returns: Package dictionary
+        :rtype: dict
+        """
         # -----------------------------------------------------------------------
         # organization creation
         # -----------------------------------------------------------------------
@@ -530,6 +644,17 @@ class BaseFTPHarvester(HarvesterBase):
         return package_dict
 
     def _add_package_extras(self, package_dict, harvest_object):
+        """
+        Create default organization(s)
+        
+        :param package_dict: Package metadata
+        :type package_dict: dict
+        :param harvest_object: Instance of the Harvester Object
+        :type harvest_object: object
+
+        :returns: Package dictionary
+        :rtype: dict
+        """
 
         #     # Find any extras whose values are not strings and try to convert
         #     # them to strings, as non-string extras are not allowed anymore in
@@ -566,8 +691,19 @@ class BaseFTPHarvester(HarvesterBase):
 
     def _set_package_permissions(self, dataset, context):
         """
-        TODO: The methods were all deprecated
+        Set the permissions of a CKAN package (e.g. read-only)
+
+        :param dataset: Package dictionary
+        :type dataset: dict
+        :param context: Context
+        :type context: dict
+
+        :returns: Package dictionary
+        :rtype: dict
         """
+
+        # TODO: The methods were all deprecated - is there something that replaces them?
+
         # package = model.Package.get(dataset['id'])
 
         # Clear default permissions
@@ -591,7 +727,15 @@ class BaseFTPHarvester(HarvesterBase):
         return dataset
 
     def _convert_values_to_json_strings(self, resource_meta=None):
-        """ Convert all list and dict values of a dictionary into json-encoded strings"""
+        """
+        Convert all list and dict values of a dictionary into json-encoded strings
+
+        :param resource_meta: Package dictionary
+        :type resource_meta: dict
+
+        :returns: Package dictionary
+        :rtype: dict
+        """
         if not resource_meta:
             resource_meta = {}
         # send all lists as json-encoded strings:
@@ -609,8 +753,11 @@ class BaseFTPHarvester(HarvesterBase):
         """
         Dummy stage that launches the next phase
 
-        :param harvest_job: Harvester job
-        :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
+        :param resource_meta: Harvester job
+        :type resource_meta: object
+
+        :returns: List of HarvestObject ids that are processed in the next stage (fetch_stage)
+        :rtype: list
         """
         log.debug('=====================================================')
         log.debug('In %s FTPHarvester gather_stage' % self.harvester_name) # harvest_job.source.url
@@ -783,8 +930,11 @@ class BaseFTPHarvester(HarvesterBase):
         """
         Fetching of resources
 
-        :param harvest_object: HarvestObject
-        :returns: True|None Whether HarvestObject was saved or not
+        :param harvest_object: HarvesterObject instance
+        :type harvest_object: object
+
+        :returns: Whether HarvestObject was saved or not
+        :rtype: mixed
         """
         log.debug('=====================================================')
         log.debug('In %s FTPHarvester fetch_stage' % self.harvester_name)
@@ -925,8 +1075,11 @@ class BaseFTPHarvester(HarvesterBase):
         """
         Importing the fetched files into CKAN storage
 
-        :param harvest_object: HarvestObject
-        :returns: True|False boolean Whether the HarvestObject was imported or not
+        :param harvest_object: HarvesterObject instance
+        :type harvest_object: object
+
+        # :returns: Whether the things listed in the HarvestObject were successfully imported or not (True|False)
+        # :rtype: bool
         """
         log.debug('=====================================================')
         log.debug('In %s FTPHarvester import_stage' % self.harvester_name) # harvest_job.source.url
