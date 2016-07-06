@@ -13,7 +13,8 @@ them on the database. Errors occurring in this second stage
 table.
 '''
 
-# import urllib2
+import logging
+log = logging.getLogger(__name__)
 
 from ckan.lib.base import c
 from ckan import model
@@ -28,8 +29,15 @@ from simplejson.scanner import JSONDecodeError
 from ckanext.harvest.model import HarvestJob, HarvestObject, HarvestGatherError, \
                                     HarvestObjectError
 
-import logging
-log = logging.getLogger(__name__)
+# try:
+#     from urllib2 import Request, urlopen, HTTPError
+#     from urlparse import urlparse
+# except ImportError:
+#     from urllib.request import Request, urlopen, HTTPError
+#     from urllib.parse import urlparse
+import requests
+
+# import ckanapi
 
 from base import HarvesterBase
 
@@ -44,7 +52,6 @@ import errno
 import subprocess
 import zipfile
 import ftplib
-import ckanapi
 import time
 
 # package_patch action - nice to have
@@ -389,18 +396,19 @@ class BaseFTPHarvester(HarvesterBase):
         return config
 
     def _add_harvester_metadata(self, package_dict, context):
-
         # is there a package meta configuration in the harvester?
         if self.package_dict_meta:
 
             # get organization dictionary based on the owner_org id
             if self.package_dict_meta.get('owner_org'):
                 # get the organisation and add it to the package
-                org_dict = get_action('organization_show')(context, {'id': self.package_dict_meta['owner_org']})
-                if org_dict:
-                    package_dict['organization'] = org_dict
-                else:
-                    package_dict['owner_org'] = None
+                result = check_access('organization_show', context)
+                if result:
+                    org_dict = get_action('organization_show')(context, {'id': self.package_dict_meta['owner_org']})
+                    if org_dict:
+                        package_dict['organization'] = org_dict
+                    else:
+                        package_dict['owner_org'] = None
 
             # add each key/value from the meta data of the harvester
             for key,val in self.package_dict_meta.iteritems():
@@ -582,6 +590,16 @@ class BaseFTPHarvester(HarvesterBase):
 
         return dataset
 
+    def _convert_values_to_json_strings(self, resource_meta=None):
+        """ Convert all list and dict values of a dictionary into json-encoded strings"""
+        if not resource_meta:
+            resource_meta = {}
+        # send all lists as json-encoded strings:
+        # https://github.com/ckan/ckanapi/blob/b4d109b2b3538f39340079ddd39532451868e32a/ckanapi/common.py#L73
+        for key,value in resource_meta.iteritems():
+            if isinstance(value, list) or isinstance(value, dict):
+                resource_meta[key] = json.dumps(value)
+        return resource_meta
 
     # =======================================================================
     # GATHER Stage
@@ -872,8 +890,9 @@ class BaseFTPHarvester(HarvesterBase):
         #     return None
 
         if not len(dirlist):
-            self._save_object_error('No files found in local directory [%s]. Harvest aborted.' % str(remotefolder), harvest_object, stage)
+            self._save_object_error('No files found in local directory. Harvest aborted.', harvest_object, stage)
             return None
+
 
         # log.debug("Unzipping files")
         if self.do_unzip:
@@ -887,6 +906,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         # get an updated list of all local files (extracted and zip)
         dirlist = self._get_local_dirlist(retobj['workingdir'])
+
         # log.debug("Local dirlist: %s" % str(dirlist))
         retobj['dirlist'] = dirlist
 
@@ -923,7 +943,6 @@ class BaseFTPHarvester(HarvesterBase):
 
         # dirlist contains the absolute paths of files to be added to the CKAN package
         dirlist = obj.get('dirlist')
-
         if not dirlist:
             self._save_object_error('Empty directory listing', harvest_object, stage)
             return None
@@ -952,6 +971,9 @@ class BaseFTPHarvester(HarvesterBase):
             # -----------------------------------------------------------------------
             # use the existing package dictionary (if it exists)
             # -----------------------------------------------------------------------
+
+            # add package_show to the auth audit stack
+            result = check_access('package_show', context)
 
             dataset = get_action('package_show')(context, {'id': package_dict.get('name')})
 
@@ -985,6 +1007,7 @@ class BaseFTPHarvester(HarvesterBase):
 
             package_dict['creator_user_id'] = model.User.get(context['user']).id
 
+            # add the metadata from the harvester
             package_dict = self._add_harvester_metadata(package_dict, context)
 
             # configure default metadata (optionally provided via the harvester configuration as a json object)
@@ -1003,6 +1026,9 @@ class BaseFTPHarvester(HarvesterBase):
             # this logic action requires to call check_access
             # to add action name onto the __auth_audit stack
             result = check_access('package_create', context)
+            if not result:
+                self._save_object_error('%s not authorised to create packages (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, stage)
+                return False
 
             # create the dataset
             dataset = get_action('package_create')(context, package_dict)
@@ -1031,6 +1057,12 @@ class BaseFTPHarvester(HarvesterBase):
             return False
 
 
+
+        # =======================================================================
+        # resources
+        # =======================================================================
+
+
         try:
 
             # -----------------------------------------------------------------------
@@ -1044,25 +1076,54 @@ class BaseFTPHarvester(HarvesterBase):
                 self._save_object_error('Could not get site_url from CKAN config file', harvest_object, stage)
                 return False
 
-            try:
-                ckan = ckanapi.RemoteCKAN(site_url,
-                    # api key of the harvester user
-                    apikey=model.User.get(context['user']).apikey.encode('utf8'),
-                    user_agent='ckanapi/1.0 (+%s)' % site_url
-                )
-                log.debug("Connected to %s" % site_url)
+            # monkey patch all the things
+            # ---------------------------
+            # import ckanapi
+            # def patch_prepare_action(self, action, data_dict=None, apikey=None, files=None):
+            #     """
+            #     Patches ckanapi.common.py:prepare_action()
+            #     """
+            #     if not data_dict:
+            #         data_dict = {}
+            #     headers = {}
+            #     if not files:
+            #         data_dict = json.dumps(data_dict).encode('ascii')
+            #         headers['Content-Type'] = 'application/json'
+            #     if apikey:
+            #         apikey = str(apikey)
+            #         headers['X-CKAN-API-Key'] = apikey
+            #         headers['Authorization'] = apikey
+            #     url = 'api/action/' + action
+            #     return url, data_dict, headers
+            # patch_method.prepare_action = patch_prepare_action
+            # ---------------------------
 
-            except ckanapi.NotAuthorized, e:
-                self._save_object_error('User not authorized or accessing a deleted item', harvest_object, stage)
-                return False
-            except ckanapi.CKANAPIError, e:
-                self._save_object_error('Could not connect to CKAN via API', harvest_object, stage)
-                return False
-            except ckanapi.ServerIncompatibleError, e:
-                self._save_object_error('Could not connect to CKAN via API (remote API is not a CKAN API)', harvest_object, stage)
-                return False
+            # try:
+            #     ckan = ckanapi.RemoteCKAN(site_url,
+            #         # api key of the harvester user
+            #         apikey=model.User.get(context['user']).apikey.encode('utf8'),
+            #         user_agent='ckanapi/1.0 (+%s)' % site_url
+            #     )
+            #     log.debug("Connected to %s" % site_url)
+            # except ckanapi.NotAuthorized, e:
+            #     self._save_object_error('User not authorized or accessing a deleted item', harvest_object, stage)
+            #     return False
+            # except ckanapi.CKANAPIError, e:
+            #     self._save_object_error('Could not connect to CKAN via API', harvest_object, stage)
+            #     return False
+            # except ckanapi.ServerIncompatibleError, e:
+            #     self._save_object_error('Could not connect to CKAN via API (remote API is not a CKAN API)', harvest_object, stage)
+            #     return False
 
 
+            request_headers = {}
+            harvester_apikey = model.User.get(context['user']).apikey.encode('utf8')
+            request_headers['X-CKAN-API-Key'] = harvester_apikey
+            request_headers['Authorization'] = harvester_apikey
+            request_headers['Content-Type'] = 'application/json'
+            request_headers['Accept-Type'] = 'application/json'
+
+            api_url = site_url+'/api/3/action/resource_create'
 
             # import the local files into CKAN
             for file in dirlist:
@@ -1143,39 +1204,36 @@ class BaseFTPHarvester(HarvesterBase):
 
                             resource_meta = self.package_dict_meta
 
-                            # send all lists as json-encoded strings:
-                            # https://github.com/ckan/ckanapi/blob/b4d109b2b3538f39340079ddd39532451868e32a/ckanapi/common.py#L73
-                            for key,value in resource_meta.iteritems():
-                                if isinstance(value, list) or isinstance(value, dict):
-                                    resource_meta[key] = json.dumps(value)
+                            # resource_meta = self._convert_values_to_json_strings(resource_meta)
 
                         else:
                             resource_meta = {}
 
                         resource_meta['package_id'] = dataset['id']
-                        resource_meta['name'] = json.dumps({
+                        resource_meta['name'] = {
                                 "de": os.path.basename(file),
                                 "en": os.path.basename(file),
                                 "fr": os.path.basename(file),
                                 "it": os.path.basename(file)
-                            })
-                        resource_meta['description'] = json.dumps({
+                            }
+                        resource_meta['description'] = {
                                 "de": "",
                                 "en": "",
                                 "fr": "",
                                 "it": ""
-                            })
+                            }
 
                         resource_meta['format'] = file_format
                         resource_meta['mimetype'] = mimetype
                         resource_meta['mimetype_inner'] = mimetype_inner
                         resource_meta['url'] = 'dummy-value' # ignored, but required by ckan
                         resource_meta['size'] = size
-                        resource_meta['upload'] = fp
+                        # resource_meta['upload'] = fp
 
-                        resource = ckan.action.resource_create(**resource_meta)
+                        # ckanapi
+                        # resource = ckan.action.resource_create(**resource_meta)
 
-                        log.debug("Added new resource: %s" % str(resource))
+                        log_msg = "Created new resource: %s"
 
                     # -----------------------------------------------------
                     # create the resource, but use the metadata of the old resource
@@ -1190,25 +1248,52 @@ class BaseFTPHarvester(HarvesterBase):
                         if resource_meta.get('revision_id'):
                             del resource_meta['revision_id']
 
-                        # send all lists as json-encoded strings:
-                        # https://github.com/ckan/ckanapi/blob/b4d109b2b3538f39340079ddd39532451868e32a/ckanapi/common.py#L73
-                        for key,value in resource_meta.iteritems():
-                            if isinstance(value, list) or isinstance(value, dict):
-                                resource_meta[key] = json.dumps(value)
+                        # resource_meta = self._convert_values_to_json_strings(resource_meta)
 
                         # info for the new file to upload
-                        resource_meta['upload'] = fp
                         resource_meta['size'] = size
                         resource_meta['url'] = 'dummy-value' # ignored, but required by ckan
+                        # resource_meta['upload'] = fp
 
-                        resource = ckan.action.resource_create(**resource_meta)
+                        # ckanapi
+                        # resource = ckan.action.resource_create(**resource_meta)
 
-                        log.debug("Created resource with known metadata: %s" % str(resource))
+                        log_msg = "Created resource (with known metadata): %s"
 
 
-                    # add the resource to the dataset dict
-                    if resource:
-                        dataset.setdefault('resources', []).append(resource)
+                    # log.debug('resource_meta: %s' % str(resource_meta))
+
+                    # execute the post request
+                    # log.debug("Posting to %s" % api_url)
+                    # try:
+
+                    log.debug("resource_meta: %s" % str(resource_meta))
+                    log.debug(request_headers)
+                    response = requests.post(api_url,
+                        data=resource_meta,
+                        headers=request_headers,
+                        files={'file': fp},
+                        allow_redirects=False
+                    )
+                    log.debug("POST repsonse: %s", str(response))
+
+                    # except requests.exceptions.ConnectionError:
+                    #     self._save_object_error('Could not save the resource %s' % str(resource_meta.get('name').get('en')), harvest_object, stage)
+                    #     continue
+
+                    # except requests.exceptions.HTTPError:
+                    #     self._save_object_error('Could not save the resource %s' % str(resource_meta.get('name').get('en')), harvest_object, stage)
+                    #     continue
+
+                    # except requests.exceptions.Timeout:
+                    #     self._save_object_error('Request to save the resource %s timed-out' % str(resource_meta.get('name').get('en')), harvest_object, stage)
+                    #     continue
+
+                    # if response.text:
+                    #     resource = response.text
+                    #     log.debug(log_msg % str(resource))
+                    #     # add the resource to the dataset dict
+                    #     dataset.setdefault('resources', []).append(json.loads(resource))
 
                 except Exception as e:
                     log.error("Error adding resource: %s" % str(e))

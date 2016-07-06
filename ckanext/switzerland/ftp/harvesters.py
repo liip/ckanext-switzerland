@@ -21,11 +21,11 @@ class InfoplusHarvester(BaseFTPHarvester):
     # name of the harvester
     harvester_name = 'Infoplus'
 
+    # parent folder to use
+    environment = 'Test'
+
     # parent folder of the data on the ftp server
     remotefolder = 'Info+'
-
-    # subfolder in the above remote folder
-    environment = 'Test'
 
     # package metadata
     package_dict_meta = {
@@ -43,17 +43,16 @@ class InfoplusHarvester(BaseFTPHarvester):
         'license_title': "Other (Open)", # TODO
         # owner organisation
         "owner_org": "7dbaad15-597f-499c-9a72-95de38b95cad", # TODO
+        # --------------------------------------------------------------------------
         # ckan multilang/switzerland custom required fields
-        'coverage': "Coverage",
+        'coverage': "Coverage", # TODO
         'issued': "21.03.2015", # TODO
         "metadata_created": "2016-07-05T07:41:28.741265", # TODO
         "metadata_modified": "2016-07-05T07:43:30.079030", # TODO
-        "modified": "21.03.2016",
+        #"modified": "21.03.2016",
         "url": "https://catalog.data.gov/", # TODO
         "spatial": "Spatial", # TODO
-        "type": "dataset",
-        "accrual_periodicity": "",
-        "notes": None,
+        "accrual_periodicity": "", # TODO
         "description": { # TODO
             "fr": "FR Description",
             "en": "EN Description",
@@ -61,12 +60,12 @@ class InfoplusHarvester(BaseFTPHarvester):
             "it": "IT Description"
         },
         # TODO - release notes could go in here - but where do they come from ?
-        "notes": { # TODO
-            "fr": "FR Description",
-            "en": "EN Description",
-            "de": "DE Description",
-            "it": "IT Description"
-        },
+        # "notes": { # TODO
+        #     "fr": "...",
+        #     "en": "...",
+        #     "de": "...",
+        #     "it": "..."
+        # },
         "language": ["en", "de", "fr", "it"],
         # relations
         "relations": [{}],
@@ -149,11 +148,11 @@ class DidokHarvester(BaseFTPHarvester):
     # name of the harvester
     harvester_name = 'Didok'
 
-    # parent folder of the data on the ftp server
-    remotefolder = 'DiDok'
-
-    # subfolder in the above remote folder
+    # parent folder to use
     environment = 'Test'
+
+    # folder of the data on the ftp server
+    remotefolder = 'DiDok'
 
     # package metadata
     package_dict_meta = {
