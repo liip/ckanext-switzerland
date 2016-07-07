@@ -27,6 +27,8 @@ from ckan.lib.munge import munge_name
 from simplejson.scanner import JSONDecodeError
 from pylons import config as ckanconf
 
+import traceback
+
 import os # , json
 from datetime import datetime
 import errno
@@ -1204,6 +1206,7 @@ class BaseFTPHarvester(HarvesterBase):
                 return False
 
             # create the dataset
+            result = check_access('package_create', context)
             dataset = get_action('package_create')(context, package_dict)
 
             log.info("Created package: %s" % str(dataset['name']))
@@ -1230,6 +1233,7 @@ class BaseFTPHarvester(HarvesterBase):
 
 
 
+
         # =======================================================================
         # resources
         # =======================================================================
@@ -1240,8 +1244,6 @@ class BaseFTPHarvester(HarvesterBase):
         if not site_url:
             self._save_object_error('Could not get site_url from CKAN config file', harvest_object, stage)
             return False
-
-        api_url = site_url + '/api/3/action/'
 
 
         # connect to ckan with ckanapi
@@ -1285,7 +1287,7 @@ class BaseFTPHarvester(HarvesterBase):
             # an old resource by this (munged) filename.
             # If a resource is found, we delete it.
             # A revision of the resource will be kept.
-            if dataset.get('resources'):
+            if dataset.get('resources') and len(dataset['resources']):
                 # Find resource in the existing packages resource list
                 for res in dataset['resources']:
                     # match the resource by its filename
@@ -1318,7 +1320,7 @@ class BaseFTPHarvester(HarvesterBase):
                 try:
                     size = int(os.path.getsize(file))
                 except:
-                    size = 0
+                    size = None
 
                 fp = open(file, 'rb')
 
@@ -1329,9 +1331,7 @@ class BaseFTPHarvester(HarvesterBase):
 
                     # extra data per resource from the harvester
                     if self.package_dict_meta:
-
                         resource_meta = self.package_dict_meta
-
                     else:
                         resource_meta = {}
 
@@ -1389,7 +1389,12 @@ class BaseFTPHarvester(HarvesterBase):
                 # ckanapi - request 1: create the resource with the dict meta data
                 # ---------------------------------------------------------------------
                 log.debug('********req 1-pre')
-                resource = ckan.action.resource_create(**resource_meta)
+                try:
+                    resource = ckan.action.resource_create(**resource_meta)
+                except Exception,e:
+                    log.error("CKANAPI exception: %s" % str(e))
+                    log.debug(traceback.format_exc())
+                    return False
                 # resource = ckan.call_action('resource_create', resource_meta)
                 if not resource or not resource.get('id'):
                     raise Exception("failed ckan.action.resource_create: %s" % str(resource))
@@ -1401,14 +1406,14 @@ class BaseFTPHarvester(HarvesterBase):
                 # log.debug('********req 2-pre')
                 # resource_update = {}
                 # resource_update['id'] = resource['id']
-                # resource_update['size'] = size
+                # if size != None:
+                    # resource_update['size'] = size
                 # resource_update['url'] = 'http://dummy-value' # ignored, but required by ckan
                 # resource_update['upload'] = fp
                 # resource = ckan.action.resource_update(**resource_update)
                 # # resource = ckan.call_action('resource_update', resource_update, files={'upload': fp})
                 # log.debug('********req 2-post')
                 # ---------------------------------------------------------------------
-
 
                 log.debug(log_msg % str(resource))
 
