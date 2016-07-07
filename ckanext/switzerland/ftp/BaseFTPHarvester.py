@@ -37,6 +37,7 @@ import zipfile
 import ftplib
 import tempfile
 import time
+import shutil
 
 import ckanapi
 from ckanapi.errors import CKANAPIError
@@ -351,6 +352,8 @@ class BaseFTPHarvester(HarvesterBase):
     default_mimetype = 'TXT'
     default_mimetype_inner = 'TXT'
 
+    tmpfolder_prefix = "%d%m%Y-%H%M-"
+
     do_unzip = True
 
 
@@ -372,7 +375,7 @@ class BaseFTPHarvester(HarvesterBase):
                 apikey=apikey,
                 user_agent='ckanapi/1.0 (+%s)' % site_url
             )
-            log.debug("Connected to %s" % site_url)
+            log.debug("CKANAPI-Connected to %s" % site_url)
         except ckanapi.NotAuthorized, e:
             self._save_object_error('User not authorized or accessing a deleted item', harvest_object, stage)
             return False
@@ -392,10 +395,18 @@ class BaseFTPHarvester(HarvesterBase):
 
         :param filepath: Path to a local file
         :type filepath: str or unicode
+
+        :returns: Number of extracted files
+        :rtype: int
         """
-        target_folder = os.path.dirname(filepath)
-        zfile = zipfile.ZipFile(filepath)
-        zfile.extractall(target_folder)
+        na, file_extension = os.path.splitext(filepath)
+        if file_extension.lower() == '.zip':
+            log.debug("Unzipping: %s" % filepath)
+            target_folder = os.path.dirname(filepath)
+            zfile = zipfile.ZipFile(filepath)
+            filelist = zfile.namelist()
+            zfile.extractall(target_folder)
+            return len(filelist)
 
     def _get_local_dirlist(self, localpath="."):
         """
@@ -765,8 +776,11 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta[key] = json.dumps(value)
         return resource_meta
 
-    def clean_tmpfolder(self):
-        pass
+    def remove_tmpfolder(self, tmpfolder):
+        if not tmpfolder:
+            return
+        shutil.rmtree(tmpfolder)
+
 
     # =======================================================================
     # GATHER Stage
@@ -989,7 +1003,7 @@ class BaseFTPHarvester(HarvesterBase):
 
 
         remotefolder = self.get_remote_folder()
-        log.debug("Remotefolder: %s" % remotefolder)
+        log.debug("Remote directory: %s" % remotefolder)
 
 
         # return dict
@@ -1008,8 +1022,8 @@ class BaseFTPHarvester(HarvesterBase):
 
                 # set base for tmp folder
                 tempfile.tempdir = os.path.join(ftph._config['localpath'], retobj['ftplibfolder'].strip('/'), remotefolder.lstrip('/'))
-                today = date.today()
-                prefix = today.strftime('%d%M%Y-')
+                today = datetime.now()
+                prefix = today.strftime(self.tmpfolder_prefix)
                 # create tmp folder
                 retobj['tmpfolder'] = tempfile.mkdtemp(prefix=prefix)
 
@@ -1021,22 +1035,17 @@ class BaseFTPHarvester(HarvesterBase):
 
                 # fetch file via ftplib
                 # -------------------------------------------------------------------
-
-                # target
+                # full path of the destination file
                 targetfile = os.path.join(retobj['tmpfolder'], file)
                 # if file is in a subfolder, create the directory
                 # check if directory exists
                 basepath = os.path.dirname(targetfile)
-                log.debug('Using directory: %s' % basepath)
+                log.debug('Local directory: %s' % basepath)
                 # create local directory, if necessary
                 if not os.path.exists(basepath):
                     ftph.create_local_dir(basepath)
 
                 log.debug('Fetching file: %s' % str(file))
-
-                # DEV-only: skip existing files
-                # if os.path.exists(targetfile):
-                #     continue
 
                 start = time.time()
                 status = ftph.fetch(file, targetfile) # 226 Transfer complete
@@ -1053,14 +1062,11 @@ class BaseFTPHarvester(HarvesterBase):
                     # dirlist = self._get_local_dirlist(retobj['workingdir'])
                     # for file in dirlist:
                     # if file is a zip, unzip
-                    na, file_extension = os.path.splitext(targetfile)
-                    if file_extension == '.zip':
-                        log.debug("Unzipping: %s" % targetfile)
-                        self._unzip(targetfile)
+                    self._unzip(targetfile)
 
         except ftplib.all_errors as e:
             self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
-            self.clean_tmpfolder(retobj['tmpfolder'])
+            self.remove_tmpfolder(retobj['tmpfolder'])
             return None
 
         # except CmdError as e:
@@ -1072,7 +1078,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         except Exception as e:
             self._save_object_error('An error occurred: %s' % e, harvest_object, 'Fetch')
-            self.clean_tmpfolder(retobj['tmpfolder'])
+            self.remove_tmpfolder(retobj['tmpfolder'])
             return None
 
 
@@ -1163,11 +1169,11 @@ class BaseFTPHarvester(HarvesterBase):
             # -----------------------------------------------------------------------
 
             # add package_show to the auth audit stack
-            result = check_access('package_show', context)
+            # result = check_access('package_show', context)
+            # dataset = get_action('package_show')(context, {'id': package_dict.get('name')})
+            dataset = self._find_existing_package({'id': package_dict.get('name')})
 
-            dataset = get_action('package_show')(context, {'id': package_dict.get('name')})
-
-            if not dataset.get('id'):
+            if not dataset or not dataset.get('id'):
                 # abort updating
                 log.debug("Package '%s' not found" % package_dict.get('name'))
                 raise NotFound("Package '%s' not found" % package_dict.get('name'))
@@ -1248,6 +1254,10 @@ class BaseFTPHarvester(HarvesterBase):
             return False
 
 
+        # associate the harvester with the dataset
+        harvest_object.guid = dataset['id']
+        harvest_object.package_id = dataset['id']
+
 
 
         # =======================================================================
@@ -1273,7 +1283,6 @@ class BaseFTPHarvester(HarvesterBase):
 
         # import the the file into CKAN
         # ---------------------------
-
         log.debug("Adding %s to package with id %s" % (str(file), dataset['id']))
 
         # set mimetypes of resource based on file extension
@@ -1302,30 +1311,33 @@ class BaseFTPHarvester(HarvesterBase):
         # an old resource by this (munged) filename.
         # If a resource is found, we delete it.
         # A revision of the resource will be kept.
-        if dataset.get('resources') and len(dataset['resources']):
-            # Find resource in the existing packages resource list
-            for res in dataset['resources']:
-                # match the resource by its filename
-                if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
-                    continue
-                try:
 
-                    # store the resource's metadata for later use
-                    resource_meta = res
+        # TODO
 
-                    # delete this resource
-                    get_action('resource_delete')(context, {'id': res.get('id')})
-                    log.debug("Deleted resource %s" % res.get('id'))
+        # if dataset.get('resources') and len(dataset['resources']):
+        #     # Find resource in the existing packages resource list
+        #     for res in dataset['resources']:
+        #         # match the resource by its filename
+        #         if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
+        #             continue
+        #         try:
 
-                    # remove this resource from the data dict
-                    dataset['resources'].remove(res)
+        #             # store the resource's metadata for later use
+        #             resource_meta = res
 
-                    # there should only be one file with the same name in each dataset
-                    break
+        #             # delete this resource
+        #             get_action('resource_delete')(context, {'id': res.get('id')})
+        #             log.debug("Deleted resource %s" % res.get('id'))
 
-                except Exception as e:
-                    log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
-                    pass
+        #             # remove this resource from the data dict
+        #             dataset['resources'].remove(res)
+
+        #             # there should only be one file with the same name in each dataset
+        #             break
+
+        #         except Exception as e:
+        #             log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
+        #             pass
         # ------------------------------------------------------------
 
 
@@ -1431,7 +1443,7 @@ class BaseFTPHarvester(HarvesterBase):
         # except CKANAPIError, e:
         except Exception as e:
             log.error("Error adding resource: %s" % str(e))
-            log.debug(traceback.format_exc())
+            # log.debug(traceback.format_exc())
             self._save_object_error('Error adding resource: %s' % str(e), harvest_object, stage)
             return False
 
@@ -1441,11 +1453,12 @@ class BaseFTPHarvester(HarvesterBase):
                 fp.close()
 
 
-
         # TODO:
         # the last harvest job needs to clean and remove the tmpfolder
         # ---------------------------------------------------------------------
-        log.debug(harvest_object)
+        # do this somewhere else:
+        # if harvest_object.get('import_finished') != None:
+        #     self.remove_tmpfolder(harvest_object.content.get('tmpfolder'))
         # ---------------------------------------------------------------------
 
 
