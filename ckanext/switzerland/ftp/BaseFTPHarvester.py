@@ -25,26 +25,7 @@ from ckan.lib import helpers
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_name
 from simplejson.scanner import JSONDecodeError
-
-from ckanext.harvest.model import HarvestJob, HarvestObject, HarvestGatherError, \
-                                    HarvestObjectError
-
-# try:
-#     from urllib2 import Request, urlopen, HTTPError
-#     from urlparse import urlparse
-# except ImportError:
-#     from urllib.request import Request, urlopen, HTTPError
-#     from urllib.parse import urlparse
-import requests
-
-# import ckanapi
-
-from base import HarvesterBase
-
 from pylons import config as ckanconf
-
-# shouldn't import this directly
-from ckan.logic.action.create import package_create
 
 import os # , json
 from datetime import datetime
@@ -54,8 +35,25 @@ import zipfile
 import ftplib
 import time
 
-# package_patch action - nice to have
+import ckanapi
+from ckanapi.errors import CKANAPIError
+    # NotAuthorized, NotFound, ValidationError,
+    # SearchQueryError, SearchError, SearchIndexError,
+    # ServerIncompatibleError
 
+# try:
+#     from urllib2 import Request, urlopen, HTTPError
+#     from urlparse import urlparse
+# except ImportError:
+#     from urllib.request import Request, urlopen, HTTPError
+#     from urllib.parse import urlparse
+import requests
+
+from base import HarvesterBase
+from ckanext.harvest.model import HarvestJob, HarvestObject, HarvestGatherError, \
+                                    HarvestObjectError
+
+# package_patch action - nice to have
 
 
 
@@ -363,6 +361,25 @@ class BaseFTPHarvester(HarvesterBase):
 
     def get_remote_folder(self):
         return os.path.join('/', self.environment, self.remotefolder.lstrip('/')) # e.g. /test/DiDok or /prod/Info+
+
+    def ckanapi_connect(self, site_url, apikey):
+        try:
+            ckan = ckanapi.RemoteCKAN(site_url,
+                # api key of the harvester user
+                apikey=apikey,
+                user_agent='ckanapi/1.0 (+%s)' % site_url
+            )
+            log.debug("Connected to %s" % site_url)
+        except ckanapi.NotAuthorized, e:
+            self._save_object_error('User not authorized or accessing a deleted item', harvest_object, stage)
+            return False
+        except ckanapi.CKANAPIError, e:
+            self._save_object_error('Could not connect to CKAN via API', harvest_object, stage)
+            return False
+        except ckanapi.ServerIncompatibleError, e:
+            self._save_object_error('Could not connect to CKAN via API (remote API is not a CKAN API)', harvest_object, stage)
+            return False
+        return ckan
 
 
     def _unzip(self, filepath):
@@ -1005,7 +1022,7 @@ class BaseFTPHarvester(HarvesterBase):
                     # if file is in a subfolder, create the directory
                     # check if directory exists
                     basepath = os.path.dirname(targetfile)
-                    # log.debug('Basepath: %s' % basepath)
+                    log.debug('=== Basepath: %s' % basepath)
                     # create local directory, if necessary
                     if not os.path.exists(basepath):
                         ftph.create_local_dir(basepath)
@@ -1078,8 +1095,10 @@ class BaseFTPHarvester(HarvesterBase):
         :param harvest_object: HarvesterObject instance
         :type harvest_object: object
 
-        # :returns: Whether the things listed in the HarvestObject were successfully imported or not (True|False)
-        # :rtype: bool
+        :returns: True if the create or update occurred ok,
+                  'unchanged' if it didn't need updating or
+                  False if there were errors.
+        :rtype: bool|string
         """
         log.debug('=====================================================')
         log.debug('In %s FTPHarvester import_stage' % self.harvester_name) # harvest_job.source.url
@@ -1176,8 +1195,9 @@ class BaseFTPHarvester(HarvesterBase):
 
             log.debug("Package dict (pre-creation): %s" % str(package_dict))
 
-            # this logic action requires to call check_access
-            # to add action name onto the __auth_audit stack
+            # This logic action requires to call check_access to 
+            # prevent the Exception: 'Action function package_show did not call its auth function'
+            # Adds action name onto the __auth_audit stack
             result = check_access('package_create', context)
             if not result:
                 self._save_object_error('%s not authorised to create packages (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, stage)
@@ -1188,9 +1208,8 @@ class BaseFTPHarvester(HarvesterBase):
 
             log.info("Created package: %s" % str(dataset['name']))
 
-            # produces Exception: Action function package_show did not call its auth function
-            dataset = self._set_package_permissions(dataset, context)
-
+            # TODO
+            # dataset = self._set_package_permissions(dataset, context)
 
 
         # except ValidationError, e:
@@ -1215,258 +1234,198 @@ class BaseFTPHarvester(HarvesterBase):
         # resources
         # =======================================================================
 
+        log.debug('Importing files: %s' % str(dirlist))
 
-        try:
-
-            # -----------------------------------------------------------------------
-            # resources creation
-            # -----------------------------------------------------------------------
-
-            log.debug('Importing files: %s' % str(dirlist))
-
-            site_url = ckanconf.get('ckan.site_url', None)
-            if not site_url:
-                self._save_object_error('Could not get site_url from CKAN config file', harvest_object, stage)
-                return False
-
-            # monkey patch all the things
-            # ---------------------------
-            # import ckanapi
-            # def patch_prepare_action(self, action, data_dict=None, apikey=None, files=None):
-            #     """
-            #     Patches ckanapi.common.py:prepare_action()
-            #     """
-            #     if not data_dict:
-            #         data_dict = {}
-            #     headers = {}
-            #     if not files:
-            #         data_dict = json.dumps(data_dict).encode('ascii')
-            #         headers['Content-Type'] = 'application/json'
-            #     if apikey:
-            #         apikey = str(apikey)
-            #         headers['X-CKAN-API-Key'] = apikey
-            #         headers['Authorization'] = apikey
-            #     url = 'api/action/' + action
-            #     return url, data_dict, headers
-            # patch_method.prepare_action = patch_prepare_action
-            # ---------------------------
-
-            # try:
-            #     ckan = ckanapi.RemoteCKAN(site_url,
-            #         # api key of the harvester user
-            #         apikey=model.User.get(context['user']).apikey.encode('utf8'),
-            #         user_agent='ckanapi/1.0 (+%s)' % site_url
-            #     )
-            #     log.debug("Connected to %s" % site_url)
-            # except ckanapi.NotAuthorized, e:
-            #     self._save_object_error('User not authorized or accessing a deleted item', harvest_object, stage)
-            #     return False
-            # except ckanapi.CKANAPIError, e:
-            #     self._save_object_error('Could not connect to CKAN via API', harvest_object, stage)
-            #     return False
-            # except ckanapi.ServerIncompatibleError, e:
-            #     self._save_object_error('Could not connect to CKAN via API (remote API is not a CKAN API)', harvest_object, stage)
-            #     return False
-
-
-            request_headers = {}
-            harvester_apikey = model.User.get(context['user']).apikey.encode('utf8')
-            request_headers['X-CKAN-API-Key'] = harvester_apikey
-            request_headers['Authorization'] = harvester_apikey
-            request_headers['Content-Type'] = 'application/json'
-            request_headers['Accept-Type'] = 'application/json'
-
-            api_url = site_url+'/api/3/action/resource_create'
-
-            # import the local files into CKAN
-            for file in dirlist:
-
-                log.debug("Adding %s to package with id %s" % (str(file), dataset['id']))
-
-                # set mimetypes of resource based on file extension
-                na, ext = os.path.splitext(file)
-                ext = ext.lstrip('.').upper()
-                # fallback to TXT mimetype for files that do not have an extension
-                if not ext:
-                    file_format = self.default_format
-                    mimetype = self.default_mimetype
-                    mimetype_inner = self.default_mimetype_inner
-                # if file has an extension
-                else:
-                    # set mime types
-                    file_format = mimetype = mimetype_inner = ext
-                    # TODO: need to know what mimetype is inside the archive. This is part of the metadata management. TBD.
-                    # if ext in ['ZIP', 'RAR', 'TAR', 'TAR.GZ', '7Z']:
-                        # mimetype_inner = 'TXT'
-                        # pass
-
-
-                resource_meta = None
-
-                # ------------------------------------------------------------
-                # CLEAN-UP the dataset:
-                # Before we upload this resource, we search for 
-                # an old resource by this (munged) filename.
-                # If a resource is found, we delete it.
-                # A revision of the resource will be kept.
-                if dataset.get('resources'):
-                    # Find resource in the existing packages resource list
-                    for res in dataset['resources']:
-                        # match the resource by its filename
-                        if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
-                            continue
-                        try:
-
-                            # store the resource's metadata for later use
-                            resource_meta = res
-
-                            # delete this resource
-                            get_action('resource_delete')(context, {'id': res.get('id')})
-                            log.debug("Deleted resource %s" % res.get('id'))
-
-                            # remove this resource from the data dict
-                            if dataset.get('resources'):
-                                dataset['resources'].remove(res)
-
-                            # there should only be one file with the same name in each dataset
-                            break
-
-                        except Exception as e:
-                            log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
-                            pass
-                # ------------------------------------------------------------
-
-
-                # use remote API to upload the file
-                try:
-
-                    try:
-                        size = int(os.path.getsize(file))
-                    except:
-                        size = 0
-
-                    fp = open(file, 'rb')
-
-                    # -----------------------------------------------------
-                    # create new resource, if it did not previously exist
-                    # -----------------------------------------------------
-                    if not resource_meta:
-
-                        # extra data per resource from the harvester
-                        if self.package_dict_meta:
-
-                            resource_meta = self.package_dict_meta
-
-                            # resource_meta = self._convert_values_to_json_strings(resource_meta)
-
-                        else:
-                            resource_meta = {}
-
-                        resource_meta['package_id'] = dataset['id']
-                        resource_meta['name'] = {
-                                "de": os.path.basename(file),
-                                "en": os.path.basename(file),
-                                "fr": os.path.basename(file),
-                                "it": os.path.basename(file)
-                            }
-                        resource_meta['description'] = {
-                                "de": "",
-                                "en": "",
-                                "fr": "",
-                                "it": ""
-                            }
-
-                        resource_meta['format'] = file_format
-                        resource_meta['mimetype'] = mimetype
-                        resource_meta['mimetype_inner'] = mimetype_inner
-                        resource_meta['url'] = 'dummy-value' # ignored, but required by ckan
-                        resource_meta['size'] = size
-                        # resource_meta['upload'] = fp
-
-                        # ckanapi
-                        # resource = ckan.action.resource_create(**resource_meta)
-
-                        log_msg = "Created new resource: %s"
-
-                    # -----------------------------------------------------
-                    # create the resource, but use the metadata of the old resource
-                    # -----------------------------------------------------
-                    else:
-
-                        # the resource should get a new id, so delete the old one
-                        if resource_meta.get('id'):
-                            del resource_meta['id']
-
-                        # the resource will get a new revision id
-                        if resource_meta.get('revision_id'):
-                            del resource_meta['revision_id']
-
-                        # resource_meta = self._convert_values_to_json_strings(resource_meta)
-
-                        # info for the new file to upload
-                        resource_meta['size'] = size
-                        resource_meta['url'] = 'dummy-value' # ignored, but required by ckan
-                        # resource_meta['upload'] = fp
-
-                        # ckanapi
-                        # resource = ckan.action.resource_create(**resource_meta)
-
-                        log_msg = "Created resource (with known metadata): %s"
-
-
-                    # log.debug('resource_meta: %s' % str(resource_meta))
-
-                    # execute the post request
-                    # log.debug("Posting to %s" % api_url)
-                    # try:
-
-                    log.debug("resource_meta: %s" % str(resource_meta))
-                    log.debug(request_headers)
-                    response = requests.post(api_url,
-                        data=resource_meta,
-                        headers=request_headers,
-                        files={'file': fp},
-                        allow_redirects=False
-                    )
-                    log.debug("POST repsonse: %s", str(response))
-
-                    # except requests.exceptions.ConnectionError:
-                    #     self._save_object_error('Could not save the resource %s' % str(resource_meta.get('name').get('en')), harvest_object, stage)
-                    #     continue
-
-                    # except requests.exceptions.HTTPError:
-                    #     self._save_object_error('Could not save the resource %s' % str(resource_meta.get('name').get('en')), harvest_object, stage)
-                    #     continue
-
-                    # except requests.exceptions.Timeout:
-                    #     self._save_object_error('Request to save the resource %s timed-out' % str(resource_meta.get('name').get('en')), harvest_object, stage)
-                    #     continue
-
-                    # if response.text:
-                    #     resource = response.text
-                    #     log.debug(log_msg % str(resource))
-                    #     # add the resource to the dataset dict
-                    #     dataset.setdefault('resources', []).append(json.loads(resource))
-
-                except Exception as e:
-                    log.error("Error adding resource: %s" % str(e))
-
-                finally:
-                    # close the file pointer
-                    if fp:
-                        fp.close()
-
-            # -----------------------------------------------------------------------
-            # return result
-            # -----------------------------------------------------------------------
-
-        except Exception, e:
-            self._save_object_error('%r' % e, harvest_object, stage)
+        site_url = ckanconf.get('ckan.site_url', None)
+        if not site_url:
+            self._save_object_error('Could not get site_url from CKAN config file', harvest_object, stage)
             return False
+
+        api_url = site_url + '/api/3/action/'
+
+
+        # connect to ckan with ckanapi
+        # ---------------------------
+        ckan = self.ckanapi_connect(site_url=site_url, apikey=model.User.get(context['user']).apikey.encode('utf8'))
+        if not ckan:
+            self._save_object_error('Could not connect to ckan', harvest_object, stage)
+            return False
+        # ---------------------------
+
+
+        # import the local files into CKAN
+        # ---------------------------
+        for file in dirlist:
+
+            log.debug("Adding %s to package with id %s" % (str(file), dataset['id']))
+
+            # set mimetypes of resource based on file extension
+            na, ext = os.path.splitext(file)
+            ext = ext.lstrip('.').upper()
+            # fallback to TXT mimetype for files that do not have an extension
+            if not ext:
+                file_format = self.default_format
+                mimetype = self.default_mimetype
+                mimetype_inner = self.default_mimetype_inner
+            # if file has an extension
+            else:
+                # set mime types
+                file_format = mimetype = mimetype_inner = ext
+                # TODO: find out what the inner mimetype is inside of archives
+                # if ext in ['ZIP', 'RAR', 'TAR', 'TAR.GZ', '7Z']:
+                    # mimetype_inner = 'TXT'
+                    # pass
+
+
+            resource_meta = None
+
+            # ------------------------------------------------------------
+            # CLEAN-UP the dataset:
+            # Before we upload this resource, we search for 
+            # an old resource by this (munged) filename.
+            # If a resource is found, we delete it.
+            # A revision of the resource will be kept.
+            if dataset.get('resources'):
+                # Find resource in the existing packages resource list
+                for res in dataset['resources']:
+                    # match the resource by its filename
+                    if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
+                        continue
+                    try:
+
+                        # store the resource's metadata for later use
+                        resource_meta = res
+
+                        # delete this resource
+                        get_action('resource_delete')(context, {'id': res.get('id')})
+                        log.debug("Deleted resource %s" % res.get('id'))
+
+                        # remove this resource from the data dict
+                        dataset['resources'].remove(res)
+
+                        # there should only be one file with the same name in each dataset
+                        break
+
+                    except Exception as e:
+                        log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
+                        pass
+            # ------------------------------------------------------------
+
+
+            # use remote API to upload the file
+            try:
+
+                try:
+                    size = int(os.path.getsize(file))
+                except:
+                    size = 0
+
+                fp = open(file, 'rb')
+
+                # -----------------------------------------------------
+                # create new resource, if it did not previously exist
+                # -----------------------------------------------------
+                if not resource_meta:
+
+                    # extra data per resource from the harvester
+                    if self.package_dict_meta:
+
+                        resource_meta = self.package_dict_meta
+
+                    else:
+                        resource_meta = {}
+
+                    resource_meta['package_id'] = dataset['id']
+                    resource_meta['name'] = {
+                            "de": os.path.basename(file),
+                            "en": os.path.basename(file),
+                            "fr": os.path.basename(file),
+                            "it": os.path.basename(file)
+                        }
+                    resource_meta['description'] = {
+                            "de": "",
+                            "en": "",
+                            "fr": "",
+                            "it": ""
+                        }
+
+                    resource_meta['format'] = file_format
+                    resource_meta['mimetype'] = mimetype
+                    resource_meta['mimetype_inner'] = mimetype_inner
+
+                    resource_meta['url'] = 'http://dummy-value' # ignored, but required by ckan
+
+                    # resource_meta = self._convert_values_to_json_strings(resource_meta)
+
+                    log_msg = "Created new resource: %s"
+
+                # -----------------------------------------------------
+                # create the resource, but use the metadata of the old resource
+                # -----------------------------------------------------
+                else:
+
+                    # the resource should get a new id, so delete the old one
+                    if resource_meta.get('id'):
+                        del resource_meta['id']
+
+                    # the resource will get a new revision id
+                    if resource_meta.get('revision_id'):
+                        del resource_meta['revision_id']
+
+                    if not resource_meta.get('url'):
+                        resource_meta['url'] = 'http://dummy-value' # ignored, but required by ckan
+
+                    # resource_meta = self._convert_values_to_json_strings(resource_meta)
+
+                    log_msg = "Created resource (with known metadata): %s"
+
+
+                log.debug('resource_meta: %r' % resource_meta)
+
+
+                # Split uploading into two ckanapi requests
+                # Reason: ckanapi tries to utf-8 encode all values in dict, if files present
+
+                # ckanapi - request 1: create the resource with the dict meta data
+                # ---------------------------------------------------------------------
+                log.debug('********req 1-pre')
+                resource = ckan.action.resource_create(**resource_meta)
+                # resource = ckan.call_action('resource_create', resource_meta)
+                if not resource or not resource.get('id'):
+                    raise Exception("failed ckan.action.resource_create: %s" % str(resource))
+                log.debug('********req 1-post')
+                # ---------------------------------------------------------------------
+
+                # ckanapi - request 2: upload the file to the resource
+                # ---------------------------------------------------------------------
+                # log.debug('********req 2-pre')
+                # resource_update = {}
+                # resource_update['id'] = resource['id']
+                # resource_update['size'] = size
+                # resource_update['url'] = 'http://dummy-value' # ignored, but required by ckan
+                # resource_update['upload'] = fp
+                # resource = ckan.action.resource_update(**resource_update)
+                # # resource = ckan.call_action('resource_update', resource_update, files={'upload': fp})
+                # log.debug('********req 2-post')
+                # ---------------------------------------------------------------------
+
+
+                log.debug(log_msg % str(resource))
+
+
+            # except CKANAPIError, e:
+            except Exception as e:
+                log.error("Error adding resource: %s" % str(e))
+                self._save_object_error('Error adding resource: %s' % str(e), harvest_object, stage)
+
+            finally:
+                # close the file pointer
+                if fp:
+                    fp.close()
 
 
         # =======================================================================
-        return dataset # True
+        return True
 
 
 class ContentFetchError(Exception):
