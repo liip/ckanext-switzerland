@@ -30,11 +30,12 @@ from pylons import config as ckanconf
 import traceback
 
 import os # , json
-from datetime import datetime
+from datetime import datetime, date
 import errno
 import subprocess
 import zipfile
 import ftplib
+import tempfile
 import time
 
 import ckanapi
@@ -825,11 +826,13 @@ class BaseFTPHarvester(HarvesterBase):
         for file in dirlist:
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
-            obj.content = json.dumps(file)
+            obj.content = file
             # save it for the next step
             obj.save()
             object_ids.append(obj.id)
 
+
+        # send the jobs to the gather queue
         return object_ids
 
 
@@ -969,120 +972,112 @@ class BaseFTPHarvester(HarvesterBase):
 
         if not harvest_object:
             log.error('No harvest object received')
-            return False
+            return None
         if not harvest_object.content:
             self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, stage)
-            return False
-
-        # try:
-
-        # file = json.loads(harvest_object.content)
-        file = harvest_object.content
-
-        # except JSONDecodeError,e:
-        #     self._save_object_error('Unable to decode dirlist from harvest_object: %s' % str(e), harvest_object, stage)
-        #     return None
-
-        if not len(dirlist):
-            self._save_object_error('Empty directory listing', harvest_object, stage)
             return None
+
+
+        # the file to harvest from the previous step
+        file = harvest_object.content
+        if not file:
+            self._save_object_error('No file to harvest: %s' % harvest_object.content, harvest_object, stage)
+            return None
+
+
+        remotefolder = self.get_remote_folder()
+        log.debug("Remotefolder: %s" % remotefolder)
+
 
         # return dict
         retobj = {}
 
-        try:
 
-            remotefolder = self.get_remote_folder()
-            log.debug("Remotefolder: %s" % remotefolder)
+        try:
 
             with FTPHelper(remotefolder) as ftph:
 
-                log.debug("Fetching: %s" % str(dirlist))
-
-                # log.debug('Localpath: %s' % ftph._config['localpath'])
-
                 # store some config for the next step
-                retobj['topfolder'] = ftph.get_top_folder() # 'ftp-secure.sbb.ch:990'
-                # log.debug('Topfolder: %s' % retobj['topfolder'])
+
+                # ftplib stores retrieved files in a folder, e.g. 'ftp-secure.sbb.ch:990'
+                retobj['ftplibfolder'] = ftph.get_top_folder()
+                # log.debug('Topfolder: %s' % retobj['ftplibfolder'])
+
+                # create tmp folder
+                tempfile.tempdir = os.path.join(ftph._config['localpath'], retobj['ftplibfolder'].strip('/'), remotefolder.lstrip('/'))
+                today = date.today()
+                prefix = today.strftime('%d%M%Y-')
+                retobj['tmpfolder'] = tempfile.mkdtemp(prefix=prefix)
 
                 # save the folder path where the files were downloaded
                 # all parts following the first one must be relative paths
-                retobj['workingdir'] = os.path.join(ftph._config['localpath'], retobj['topfolder'].strip('/'), remotefolder.lstrip('/'))
+                # retobj['workingdir'] = os.path.join(ftph._config['localpath'], retobj['ftplibfolder'].strip('/'), remotefolder.lstrip('/'))
+                retobj['workingdir'] = retobj['tmpfolder']
                 # log.debug("Workingdir: %s" % retobj['workingdir'])
 
-                # version 1:
+                # fetch file via ftplib
                 # -------------------------------------------------------------------
-                # fetch the files via wget
-                # cmdstatus = ftph.wget_fetch_all()
-                # log.debug("wget_fetch_all cmdstatus: %s" % str(cmdstatus))
-                # if cmdstatus > 0:
-                #     raise CmdError("WGet exited with status code %d" % cmdstatus)
 
-                # version 2: fetch each file separately via ftplib
-                # -------------------------------------------------------------------
-                for file in dirlist:
+                # target
+                targetfile = os.path.join(retobj['workingdir'], file)
+                # if file is in a subfolder, create the directory
+                # check if directory exists
+                basepath = os.path.dirname(targetfile)
+                log.debug('Basepath: %s' % basepath)
+                # create local directory, if necessary
+                if not os.path.exists(basepath):
+                    ftph.create_local_dir(basepath)
 
-                    log.debug('Fetching file: %s' % str(file))
+                log.debug('Fetching file: %s' % str(file))
 
-                    # target
-                    targetfile = os.path.join(retobj['workingdir'], file)
-                    # if file is in a subfolder, create the directory
-                    # check if directory exists
-                    basepath = os.path.dirname(targetfile)
-                    log.debug('=== Basepath: %s' % basepath)
-                    # create local directory, if necessary
-                    if not os.path.exists(basepath):
-                        ftph.create_local_dir(basepath)
-                    # some profiling for log
-                    start = time.time()
-                    # fetch the file with ftplib
+                # DEV-only: skip existing files
+                # if os.path.exists(targetfile):
+                #     continue
 
-                    # DEV-only: skip existing files
-                    if os.path.exists(targetfile):
-                        continue
+                start = time.time()
+                status = ftph.fetch(file, targetfile) # 226 Transfer complete
+                elapsed = time.time() - start
 
-                    status = ftph.fetch(file, targetfile)
-                    elapsed = time.time() - start
-                    log.debug("Fetched %s [%s] in %ds" % (file, str(status), elapsed)) # 226 Transfer complete
-                    if status != '226 Transfer complete':
-                        self._save_object_error('Download error for file %s: %s' % (file, str(status)), harvest_object, stage)
-                        continue
+                log.debug("Fetched %s [%s] in %ds" % (file, str(status), elapsed))
+
+                if status != '226 Transfer complete':
+                    self._save_object_error('Download error for file %s: %s' % (file, str(status)), harvest_object, stage)
+                    return None
+
+                # log.debug("Unzipping file")
+                if self.do_unzip:
+                    # dirlist = self._get_local_dirlist(retobj['workingdir'])
+                    # for file in dirlist:
+                    # if file is a zip, unzip
+                    na, file_extension = os.path.splitext(targetfile)
+                    if file_extension == '.zip':
+                        log.debug("Unzipping: %s" % targetfile)
+                        self._unzip(targetfile)
 
         except ftplib.all_errors as e:
             self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
             return None
 
-        except CmdError as e:
-            self._save_object_error('Cmd error: %s' % str(e), harvest_object, stage)
-            return None
-        except subprocess.CalledProcessError as e:
-            self._save_object_error('WGet Error [%d]: %s' % (e.returncode, e), harvest_object, stage)
-            return None
-
-        # except Exception as e:
-        #     self._save_object_error('An error occurred: %s' % e, harvest_object, 'Fetch')
+        # except CmdError as e:
+        #     self._save_object_error('Cmd error: %s' % str(e), harvest_object, stage)
+        #     return None
+        # except subprocess.CalledProcessError as e:
+        #     self._save_object_error('WGet Error [%d]: %s' % (e.returncode, e), harvest_object, stage)
         #     return None
 
-        if not len(dirlist):
-            self._save_object_error('No files found in local directory. Harvest aborted.', harvest_object, stage)
+        except Exception as e:
+            self._save_object_error('An error occurred: %s' % e, harvest_object, 'Fetch')
             return None
 
 
-        # log.debug("Unzipping files")
-        if self.do_unzip:
-            dirlist = self._get_local_dirlist(retobj['workingdir'])
-            for file in dirlist:
-                # if file is a zip, unzip
-                na, file_extension = os.path.splitext(file)
-                if file_extension == '.zip':
-                    log.debug("Unzipping: %s" % file)
-                    self._unzip(file)
-
         # get an updated list of all local files (extracted and zip)
-        dirlist = self._get_local_dirlist(retobj['workingdir'])
+        # dirlist = self._get_local_dirlist(retobj['workingdir'])
 
         # log.debug("Local dirlist: %s" % str(dirlist))
-        retobj['dirlist'] = dirlist
+        # retobj['dirlist'] = dirlist
+
+        # store the file path for the next step
+        retobj['file'] = targetfile
 
         # Save the directory listing and other info in the HarvestObject
         # serialise the dictionary
@@ -1118,12 +1113,21 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, stage)
             return False
 
-        obj = json.loads(harvest_object.content)
+        try:
+            obj = json.loads(harvest_object.content)
+        except JSONDecodeError as e:
+            self._save_gather_error('Unable to decode harvester info: %s' % str(e), harvest_job)
+            return None
 
-        # dirlist contains the absolute paths of files to be added to the CKAN package
-        dirlist = obj.get('dirlist')
-        if not dirlist:
-            self._save_object_error('Empty directory listing', harvest_object, stage)
+
+        file = obj.get('file')
+        if not file:
+            self._save_object_error('No file to import', harvest_object, stage)
+            return None
+
+        tmpfolder = obj.get('tmpfolder')
+        if not tmpfolder:
+            self._save_object_error('Could not get path of temporary folder: %s' % tmpfolder, harvest_object, stage)
             return None
 
 
@@ -1133,17 +1137,18 @@ class BaseFTPHarvester(HarvesterBase):
         # set harvester config
         self._set_config(harvest_object.job.source.config)
 
-        if not len(dirlist):
-            self._save_object_error('No files found to process for %s harvester (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, stage)
-            return False
 
 
+
+        # =======================================================================
+        # package
+        # =======================================================================
 
         dataset = None
 
         package_dict = {
             'name': self.harvester_name.lower(), # self.remotefolder # self._ensure_name_is_unique(os.path.basename(self.remotefolder))
-            'identifier': self.harvester_name.title() # DCAT
+            'identifier': self.harvester_name.title() # required by DCAT extension
         }
 
         try:
@@ -1243,7 +1248,7 @@ class BaseFTPHarvester(HarvesterBase):
         # resources
         # =======================================================================
 
-        log.debug('Importing files: %s' % str(dirlist))
+        log.debug('Importing file: %s' % str(file))
 
         site_url = ckanconf.get('ckan.site_url', None)
         if not site_url:
@@ -1260,178 +1265,182 @@ class BaseFTPHarvester(HarvesterBase):
         # ---------------------------
 
 
-        # import the local files into CKAN
+        # import the the file into CKAN
         # ---------------------------
-        for file in dirlist:
 
-            log.debug("Adding %s to package with id %s" % (str(file), dataset['id']))
+        log.debug("Adding %s to package with id %s" % (str(file), dataset['id']))
 
-            # set mimetypes of resource based on file extension
-            na, ext = os.path.splitext(file)
-            ext = ext.lstrip('.').upper()
-            # fallback to TXT mimetype for files that do not have an extension
-            if not ext:
-                file_format = self.default_format
-                mimetype = self.default_mimetype
-                mimetype_inner = self.default_mimetype_inner
-            # if file has an extension
-            else:
-                # set mime types
-                file_format = mimetype = mimetype_inner = ext
-                # TODO: find out what the inner mimetype is inside of archives
-                # if ext in ['ZIP', 'RAR', 'TAR', 'TAR.GZ', '7Z']:
-                    # mimetype_inner = 'TXT'
-                    # pass
-
-
-            resource_meta = None
-
-            # ------------------------------------------------------------
-            # CLEAN-UP the dataset:
-            # Before we upload this resource, we search for 
-            # an old resource by this (munged) filename.
-            # If a resource is found, we delete it.
-            # A revision of the resource will be kept.
-            if dataset.get('resources') and len(dataset['resources']):
-                # Find resource in the existing packages resource list
-                for res in dataset['resources']:
-                    # match the resource by its filename
-                    if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
-                        continue
-                    try:
-
-                        # store the resource's metadata for later use
-                        resource_meta = res
-
-                        # delete this resource
-                        get_action('resource_delete')(context, {'id': res.get('id')})
-                        log.debug("Deleted resource %s" % res.get('id'))
-
-                        # remove this resource from the data dict
-                        dataset['resources'].remove(res)
-
-                        # there should only be one file with the same name in each dataset
-                        break
-
-                    except Exception as e:
-                        log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
-                        pass
-            # ------------------------------------------------------------
+        # set mimetypes of resource based on file extension
+        na, ext = os.path.splitext(file)
+        ext = ext.lstrip('.').upper()
+        # fallback to TXT mimetype for files that do not have an extension
+        if not ext:
+            file_format = self.default_format
+            mimetype = self.default_mimetype
+            mimetype_inner = self.default_mimetype_inner
+        # if file has an extension
+        else:
+            # set mime types
+            file_format = mimetype = mimetype_inner = ext
+            # TODO: find out what the inner mimetype is inside of archives
+            # if ext in ['ZIP', 'RAR', 'TAR', 'TAR.GZ', '7Z']:
+                # mimetype_inner = 'TXT'
+                # pass
 
 
-            # use remote API to upload the file
-            try:
+        resource_meta = None
 
+        # ------------------------------------------------------------
+        # CLEAN-UP the dataset:
+        # Before we upload this resource, we search for 
+        # an old resource by this (munged) filename.
+        # If a resource is found, we delete it.
+        # A revision of the resource will be kept.
+        if dataset.get('resources') and len(dataset['resources']):
+            # Find resource in the existing packages resource list
+            for res in dataset['resources']:
+                # match the resource by its filename
+                if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
+                    continue
                 try:
-                    size = int(os.path.getsize(file))
-                except:
-                    size = None
 
-                fp = open(file, 'rb')
+                    # store the resource's metadata for later use
+                    resource_meta = res
 
-                # -----------------------------------------------------
-                # create new resource, if it did not previously exist
-                # -----------------------------------------------------
-                if not resource_meta:
+                    # delete this resource
+                    get_action('resource_delete')(context, {'id': res.get('id')})
+                    log.debug("Deleted resource %s" % res.get('id'))
 
-                    # extra data per resource from the harvester
-                    if self.package_dict_meta:
-                        resource_meta = self.package_dict_meta
-                    else:
-                        resource_meta = {}
+                    # remove this resource from the data dict
+                    dataset['resources'].remove(res)
 
-                    resource_meta['package_id'] = dataset['id']
-                    resource_meta['name'] = {
-                            "de": os.path.basename(file),
-                            "en": os.path.basename(file),
-                            "fr": os.path.basename(file),
-                            "it": os.path.basename(file)
-                        }
-                    resource_meta['description'] = {
-                            "de": "",
-                            "en": "",
-                            "fr": "",
-                            "it": ""
-                        }
+                    # there should only be one file with the same name in each dataset
+                    break
 
-                    resource_meta['format'] = file_format
-                    resource_meta['mimetype'] = mimetype
-                    resource_meta['mimetype_inner'] = mimetype_inner
+                except Exception as e:
+                    log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
+                    pass
+        # ------------------------------------------------------------
 
+
+        # use remote API to upload the file
+        try:
+
+            try:
+                size = int(os.path.getsize(file))
+            except:
+                size = None
+
+            fp = open(file, 'rb')
+
+            # -----------------------------------------------------
+            # create new resource, if it did not previously exist
+            # -----------------------------------------------------
+            if not resource_meta:
+
+                # extra data per resource from the harvester
+                if self.package_dict_meta:
+                    resource_meta = self.package_dict_meta
+                else:
+                    resource_meta = {}
+
+                resource_meta['package_id'] = dataset['id']
+                resource_meta['name'] = {
+                        "de": os.path.basename(file),
+                        "en": os.path.basename(file),
+                        "fr": os.path.basename(file),
+                        "it": os.path.basename(file)
+                    }
+                resource_meta['description'] = {
+                        "de": "",
+                        "en": "",
+                        "fr": "",
+                        "it": ""
+                    }
+
+                resource_meta['format'] = file_format
+                resource_meta['mimetype'] = mimetype
+                resource_meta['mimetype_inner'] = mimetype_inner
+
+                resource_meta['url'] = 'http://dummy-value' # ignored, but required by ckan
+
+                # resource_meta = self._convert_values_to_json_strings(resource_meta)
+
+                log_msg = "Created new resource: %s"
+
+            # -----------------------------------------------------
+            # create the resource, but use the metadata of the old resource
+            # -----------------------------------------------------
+            else:
+
+                # the resource should get a new id, so delete the old one
+                if resource_meta.get('id'):
+                    del resource_meta['id']
+
+                # the resource will get a new revision id
+                if resource_meta.get('revision_id'):
+                    del resource_meta['revision_id']
+
+                if not resource_meta.get('url'):
                     resource_meta['url'] = 'http://dummy-value' # ignored, but required by ckan
 
-                    # resource_meta = self._convert_values_to_json_strings(resource_meta)
+                # resource_meta = self._convert_values_to_json_strings(resource_meta)
 
-                    log_msg = "Created new resource: %s"
-
-                # -----------------------------------------------------
-                # create the resource, but use the metadata of the old resource
-                # -----------------------------------------------------
-                else:
-
-                    # the resource should get a new id, so delete the old one
-                    if resource_meta.get('id'):
-                        del resource_meta['id']
-
-                    # the resource will get a new revision id
-                    if resource_meta.get('revision_id'):
-                        del resource_meta['revision_id']
-
-                    if not resource_meta.get('url'):
-                        resource_meta['url'] = 'http://dummy-value' # ignored, but required by ckan
-
-                    # resource_meta = self._convert_values_to_json_strings(resource_meta)
-
-                    log_msg = "Created resource (with known metadata): %s"
+                log_msg = "Created resource (with known metadata): %s"
 
 
-                log.debug('resource_meta: %r' % resource_meta)
+            log.debug('resource_meta: %r' % resource_meta)
 
 
-                # Split uploading into two ckanapi requests
-                # Reason: ckanapi tries to utf-8 encode all values in dict, if files present
+            # Split uploading into two ckanapi requests
+            # Reason: ckanapi tries to utf-8 encode all values in dict, if files present
 
-                # ckanapi - request 1: create the resource with the dict meta data
-                # ---------------------------------------------------------------------
-                log.debug('********req 1-pre')
-                try:
-                    resource = ckan.action.resource_create(**resource_meta)
-                except Exception,e:
-                    log.error("CKANAPI exception: %s" % str(e))
-                    log.debug(traceback.format_exc())
-                    return False
-                # resource = ckan.call_action('resource_create', resource_meta)
-                if not resource or not resource.get('id'):
-                    raise Exception("failed ckan.action.resource_create: %s" % str(resource))
-                log.debug('********req 1-post')
-                # ---------------------------------------------------------------------
+            # ckanapi - request 1: create the resource with the dict meta data
+            # ---------------------------------------------------------------------
+            log.debug('********req 1-pre')
+            resource = ckan.action.resource_create(**resource_meta)
+            # resource = ckan.call_action('resource_create', resource_meta)
+            if not resource or not resource.get('id'):
+                raise Exception("failed ckan.action.resource_create: %s" % str(resource))
+            log.debug('********req 1-post')
+            # ---------------------------------------------------------------------
 
-                # ckanapi - request 2: upload the file to the resource
-                # ---------------------------------------------------------------------
-                # log.debug('********req 2-pre')
-                # resource_update = {}
-                # resource_update['id'] = resource['id']
-                # if size != None:
-                    # resource_update['size'] = size
-                # resource_update['url'] = 'http://dummy-value' # ignored, but required by ckan
-                # resource_update['upload'] = fp
-                # resource = ckan.action.resource_update(**resource_update)
-                # # resource = ckan.call_action('resource_update', resource_update, files={'upload': fp})
-                # log.debug('********req 2-post')
-                # ---------------------------------------------------------------------
+            # ckanapi - request 2: upload the file to the resource
+            # ---------------------------------------------------------------------
+            # log.debug('********req 2-pre')
+            # resource_update = {}
+            # resource_update['id'] = resource['id']
+            # if size != None:
+                # resource_update['size'] = size
+            # resource_update['url'] = 'http://dummy-value' # ignored, but required by ckan
+            # resource_update['upload'] = fp
+            # resource = ckan.action.resource_update(**resource_update)
+            # # resource = ckan.call_action('resource_update', resource_update, files={'upload': fp})
+            # log.debug('********req 2-post')
+            # ---------------------------------------------------------------------
 
-                log.debug(log_msg % str(resource))
+            log.debug(log_msg % str(resource))
 
 
-            # except CKANAPIError, e:
-            except Exception as e:
-                log.error("Error adding resource: %s" % str(e))
-                self._save_object_error('Error adding resource: %s' % str(e), harvest_object, stage)
+        # except CKANAPIError, e:
+        except Exception as e:
+            log.error("Error adding resource: %s" % str(e))
+            log.debug(traceback.format_exc())
+            self._save_object_error('Error adding resource: %s' % str(e), harvest_object, stage)
+            return False
 
-            finally:
-                # close the file pointer
-                if fp:
-                    fp.close()
+        finally:
+            # close the file pointer
+            if fp:
+                fp.close()
+
+
+
+        # TODO:
+        # the last harvest job needs to clean and remove the tmpfolder
+        # ---------------------------------------------------------------------
+        log.debug(harvest_object)
+        # ---------------------------------------------------------------------
 
 
         # =======================================================================
