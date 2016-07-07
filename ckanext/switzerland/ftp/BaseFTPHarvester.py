@@ -808,24 +808,29 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
             return None
 
+
         # version 1: create one harvest object for the package
-        harvest_object = HarvestObject(guid=self.harvester_name, job=harvest_job)
-        # serialise and store the dirlist
-        harvest_object.content = json.dumps(dirlist)
-        # save it for the next step
-        harvest_object.save()
-        return [ harvest_object.id ]
-
-
-
-        # version 2: create one harvest object for each resource in the package
-        # TODO
+        # -------------------------------------------------------------------------
         # harvest_object = HarvestObject(guid=self.harvester_name, job=harvest_job)
         # # serialise and store the dirlist
         # harvest_object.content = json.dumps(dirlist)
         # # save it for the next step
         # harvest_object.save()
         # return [ harvest_object.id ]
+
+
+        # version 2: create one harvest job for each resource in the package
+        # -------------------------------------------------------------------------
+        object_ids = []
+        for file in dirlist:
+            obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
+            # serialise and store the dirlist
+            obj.content = json.dumps(file)
+            # save it for the next step
+            obj.save()
+            object_ids.append(obj.id)
+
+        return object_ids
 
 
 
@@ -969,14 +974,14 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_object_error('Empty content for harvest object %s' % harvest_object.id, harvest_object, stage)
             return False
 
-        try:
+        # try:
 
-            # unserialize the dirlist stored in the harvest_object in the previous step
-            dirlist = json.loads(harvest_object.content)
+        # file = json.loads(harvest_object.content)
+        file = harvest_object.content
 
-        except JSONDecodeError,e:
-            self._save_object_error('Unable to decode dirlist from harvest_object: %s' % str(e), harvest_object, stage)
-            return None
+        # except JSONDecodeError,e:
+        #     self._save_object_error('Unable to decode dirlist from harvest_object: %s' % str(e), harvest_object, stage)
+        #     return None
 
         if not len(dirlist):
             self._save_object_error('Empty directory listing', harvest_object, stage)
