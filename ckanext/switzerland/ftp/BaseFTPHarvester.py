@@ -765,6 +765,9 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta[key] = json.dumps(value)
         return resource_meta
 
+    def clean_tmpfolder(self):
+        pass
+
     # =======================================================================
     # GATHER Stage
     # =======================================================================
@@ -1003,10 +1006,11 @@ class BaseFTPHarvester(HarvesterBase):
                 retobj['ftplibfolder'] = ftph.get_top_folder()
                 # log.debug('Topfolder: %s' % retobj['ftplibfolder'])
 
-                # create tmp folder
+                # set base for tmp folder
                 tempfile.tempdir = os.path.join(ftph._config['localpath'], retobj['ftplibfolder'].strip('/'), remotefolder.lstrip('/'))
                 today = date.today()
                 prefix = today.strftime('%d%M%Y-')
+                # create tmp folder
                 retobj['tmpfolder'] = tempfile.mkdtemp(prefix=prefix)
 
                 # save the folder path where the files were downloaded
@@ -1019,11 +1023,11 @@ class BaseFTPHarvester(HarvesterBase):
                 # -------------------------------------------------------------------
 
                 # target
-                targetfile = os.path.join(retobj['workingdir'], file)
+                targetfile = os.path.join(retobj['tmpfolder'], file)
                 # if file is in a subfolder, create the directory
                 # check if directory exists
                 basepath = os.path.dirname(targetfile)
-                log.debug('Basepath: %s' % basepath)
+                log.debug('Using directory: %s' % basepath)
                 # create local directory, if necessary
                 if not os.path.exists(basepath):
                     ftph.create_local_dir(basepath)
@@ -1056,6 +1060,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         except ftplib.all_errors as e:
             self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
+            self.clean_tmpfolder(retobj['tmpfolder'])
             return None
 
         # except CmdError as e:
@@ -1067,6 +1072,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         except Exception as e:
             self._save_object_error('An error occurred: %s' % e, harvest_object, 'Fetch')
+            self.clean_tmpfolder(retobj['tmpfolder'])
             return None
 
 
