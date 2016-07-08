@@ -559,16 +559,20 @@ class BaseFTPHarvester(HarvesterBase):
         if not 'tags' in package_dict:
             package_dict['tags'] = []
 
+        if not self.config:
+            self.config = {}
+
         default_tags = self.config.get('default_tags', [])
         if default_tags:
             package_dict['tags'].extend([t for t in default_tags if t not in package_dict['tags']])
 
         # add optional tags
-        for tag in self.package_dict_meta.get('tags'):
-            tag_dict = get_action('tag_show')(context, {'id': tag})
-            if tag_dict:
-                # add the found tag to the package's tags
-                package_dict['tags'].append(tag_dict)
+        if self.package_dict_meta.get('tags'):
+            for tag in self.package_dict_meta.get('tags'):
+                tag_dict = get_action('tag_show')(context, {'id': tag})
+                if tag_dict:
+                    # add the found tag to the package's tags
+                    package_dict['tags'].append(tag_dict)
         package_dict['num_tags'] = len(package_dict['tags'])
 
         return package_dict
@@ -622,6 +626,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         return package_dict
 
+    # TODO
     def _add_package_orgs(self, package_dict):
         """
         Create default organization(s)

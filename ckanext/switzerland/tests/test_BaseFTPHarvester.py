@@ -2,13 +2,23 @@
 
 '''Tests for the ckanext.switzerland.BaseFTPHarvester.py '''
 
-from nose.tools import assert_equal
-from mock import patch
+import unittest
+
+from nose.tools import assert_equal, raises
+from mock import patch, Mock
 
 import copy
 import json
 import os.path
 import shutil
+import ftplib
+
+from pylons import config as ckanconf
+
+from simplejson import JSONDecodeError
+
+import logging
+log = logging.getLogger(__name__)
 
 try:
     from ckan.tests.helpers import reset_db
@@ -23,20 +33,19 @@ from ckanext.harvest.tests.factories import (HarvestSourceObj, HarvestJobObj,
                                              HarvestObjectObj)
 
 # TODO
-from ckanext.harvest.tests.lib import run_harvest
+# from ckanext.harvest.tests.lib import run_harvest
 
 import ckanext.harvest.model as harvest_model
 
-
-# TODO
-from mock_ftp_server import FTPServer
+# not needed - mock ftplib instead
+# from mock_ftp_server import MockFTPServer
 
 from ckanext.switzerland.ftp.BaseFTPHarvester import BaseFTPHarvester
 from ckanext.switzerland.ftp.BaseFTPHarvester import FTPHelper
 
 
 
-class TestFTPHelper(object):
+class TestFTPHelper(unittest.TestCase):
 
     tmpfolder = '/tmp/ftpharvest/tests/'
     ftp = None
@@ -44,28 +53,30 @@ class TestFTPHelper(object):
     @classmethod
     def setup_class(cls):
 
-        # config for FTPServer as a tuble (host, port)
-        ftpconfig = ('', 990)
+        # config for FTPServer as a tuple (host, port)
+        # PORT = 1026 # http://stackoverflow.com/questions/24001147/python-bind-socket-error-errno-13-permission-denied
+        # ftpconfig = ('127.0.0.1', PORT) # 990
+        # mockuser = {
+        #     'username': 'user',
+        #     'password': '12345',
+        #     'homedir': '.',
+        #     'perm': 'elradfmw'
+        # }
+        # # Start FTP mock server
+        # cls.ftp = MockFTPServer(ftpconfig, mockuser)
 
-        mockuser = {
-            'username': 'user',
-            'password': '12345',
-            'homedir': '.',
-            'perm': 'elradfmw'
-        }
-
-        # Start FTP mock server
-        self.ftp = FTPServer(ftpconfig, user=mockuser)
-        self.ftp.setupFTPServer()
-
-    @classmethod
-    def setup(self):
         pass
 
     @classmethod
     def teardown_class(cls):
-        # Close FTP mock server
-        self.ftp.teardownFTPServer()
+        # close FTP server
+        # if cls.ftp:
+        #     cls.ftp.teardown()
+        #     cls.ftp = None
+        pass
+
+    def setup(self):
+        pass
 
     def teardown(self):
         model.repo.rebuild_db()
@@ -105,8 +116,46 @@ class TestFTPHelper(object):
         ftph.create_local_dir(self.tmpfolder)
         assert os.path.exists(self.tmpfolder)
 
+    # FTP tests -----------------------------------------------------------
 
-class TestBaseFTPHarvester(object):
+    @patch('ftplib.FTP_TLS', autospec=True)
+    # @patch('ftplib.FTP', autospec=True)
+    def test_connect(self, MockFTP_TLS):
+
+        # MockFTP.return_value = 'connected'
+        # def mock_connect_fn():
+        #     return "Connected"
+        # MockFTP_TLS.prot_p = mock_connect_fn
+
+        mock_ftp_obj = MockFTP_TLS()
+
+        ftph = FTPHelper('/')
+        ftph._connect()
+
+        host = ckanconf.get('ckan.ftp.host', '')
+        username = ckanconf.get('ckan.ftp.username', '')
+        password = ckanconf.get('ckan.ftp.password', '')
+
+        # TODO
+        # port was set on ftplib library
+        # assert MockFTP.port == 990
+
+        # TODO
+        # assert mock_ftp_obj.prot_p.called
+        # assert mock_ftp_obj.prot_p.called_with(host, username, password)
+
+
+
+    # @patch('open', autospec=True)
+
+
+
+
+
+
+# =========================================================================
+
+class TestBaseFTPHarvester(unittest.TestCase):
 
     @classmethod
     def setup_class(cls):
@@ -120,7 +169,6 @@ class TestBaseFTPHarvester(object):
     @classmethod
     def setup(self):
         reset_db()
-        # TODO
         # harvest_model.setup()
         pass
 
@@ -136,6 +184,158 @@ class TestBaseFTPHarvester(object):
         pass
 
     # BEGIN UNIT tests ----------------------------------------------------------------
+
+    def test__get_rest_api_offset(self):
+        bh = BaseFTPHarvester()
+        assert_equal(bh._get_rest_api_offset(), '/api/2/rest')
+    def test__get_action_api_offset(self):
+        bh = BaseFTPHarvester()
+        assert_equal(bh._get_action_api_offset(), '/api/3/action')
+    def test__get_search_api_offset(self):
+        bh = BaseFTPHarvester()
+        assert_equal(bh._get_search_api_offset(), '/api/2/search')
+
+    def test_get_remote_folder(self):
+        bh = BaseFTPHarvester()
+        assert_equal(bh.get_remote_folder(), '/test/')
+
+    def test_ckanapi_valid_connection(self):
+        bh = BaseFTPHarvester()
+        ckan = bh.ckanapi_connect('https://data.gov.uk', '<apikey>')
+        assert_equal(str(type(ckan)), "<class 'ckanapi.remoteckan.RemoteCKAN'>")
+
+    # TODO
+    # def test_ckanapi_invalid_connection(self):
+    #     bh = BaseFTPHarvester()
+    #     ckan = bh.ckanapi_connect('http://foo', '<apikey>')
+    #     assert_equal(ckan, False)
+
+    def test_get_local_dirlist(self):
+        bh = BaseFTPHarvester()
+        dirlist = bh._get_local_dirlist(localpath="./ckanext/switzerland/tests/fixtures/testdir")
+        assert_equal(type(dirlist), list)
+        assert_equal(len(dirlist), 3)
+
+    def test_set_config(self):
+        bh = BaseFTPHarvester()
+        bh._set_config('{"myvar":"test"}')
+        assert_equal(bh.config['myvar'], "test")
+
+    @raises(JSONDecodeError)
+    def test_set_invalid_config(self):
+        bh = BaseFTPHarvester()
+        bh._set_config('{"myvar":test"}')
+        assert_equal(bh.config['myvar'], "test")
+
+    def test_set_invalid_config(self):
+        bh = BaseFTPHarvester()
+        bh._set_config(None)
+        assert_equal(bh.config, {})
+        bh._set_config('')
+        assert_equal(bh.config, {})
+
+    # TODO
+    # def test_info(self):
+    #     bh = BaseFTPHarvester()
+    #     info = bh.info()
+    #     assert_equal(info['name'], '')
+    #     assert_equal(info['title'], '')
+    #     assert_equal(info['description'], '')
+    #     assert_equal(info['form_config_interface'], 'Text')
+
+    def test_add_harvester_metadata(self):
+        bh = BaseFTPHarvester()
+        bh.package_dict_meta = {
+            'foo': 'bar',
+            'hello': 'world'
+        }
+        package_dict = {}
+        context = {}
+        package_dict = bh._add_harvester_metadata(package_dict, context)
+        assert package_dict['foo']
+        assert package_dict['hello']
+        assert_equal(package_dict['foo'], 'bar')
+        assert_equal(package_dict['hello'], 'world')
+
+    def test_add_package_tags(self):
+        bh = BaseFTPHarvester()
+
+        package_dict = bh._add_package_tags({})
+        assert_equal(package_dict['tags'], [])
+        assert_equal(package_dict['num_tags'], 0)
+
+        tags = ['a', 'b', 'c']
+
+        bh = BaseFTPHarvester()
+        bh.config = {
+            'default_tags': tags
+        }
+        package_dict = bh._add_package_tags({})
+        assert_equal(package_dict['tags'], tags)
+        assert_equal(package_dict['num_tags'], 3)
+
+    def test_add_package_groups(self):
+        groups = ['groupA', 'groupB']
+        bh = BaseFTPHarvester()
+        bh.config = {
+            'default_groups': groups
+        }
+        package_dict = bh._add_package_groups({})
+        assert_equal(package_dict['groups'], groups)
+
+    # TODO
+    # def test_add_package_extras(self):
+    #     package_dict = {
+    #         'id': '123-456-789'
+    #     }
+    #     harvest_object = {
+    #         'id': 'my-harvestobject-id',
+    #         'job': {
+    #             'id': 'jobid',
+    #             'source':{
+    #                 'id': 'harvester_id',
+    #                 'title': 'MyHarvestObject',
+    #                 'url': '/test/'
+    #             }
+    #         }
+    #     }
+    #     extras = {'hello':'world','foo':'bar'}
+    #     bh = BaseFTPHarvester()
+    #     bh.config = {
+    #         'override_extras': extras
+    #     }
+    #     package_dict = bh._add_package_extras(package_dict, harvest_object)
+    #     assert_equal(package_dict['extras']['foo'], extras['foo'])
+    #     assert_equal(package_dict['extras']['hello'], extras['hello'])
+
+
+    def test_convert_values_to_json_strings(self, resource_meta=None):
+        test_package = {
+            'foo': 'bar',
+            'list': ['a', 'b', 'c'],
+            'dict': {'a':'b'}
+        }
+        bh = BaseFTPHarvester()
+        package_dict = bh._convert_values_to_json_strings(test_package)
+        assert_equal(package_dict['foo'],  'bar')
+        assert_equal(json.dumps(package_dict['list']), json.dumps(test_package['list']))
+        assert_equal(json.dumps(package_dict['dict']), json.dumps(test_package['dict']))
+
+    def test_remove_tmpfolder(self):
+        tmpfolder = ''
+        bh = BaseFTPHarvester()
+        ret = bh.remove_tmpfolder(None)
+        assert_equal(ret,  None)
+        ret = bh.remove_tmpfolder('')
+        assert_equal(ret,  None)
+
+        tmpfolder = '/tmp/test_remove_tmpfolder'
+        os.makedirs(tmpfolder, 0777)
+        ret = bh.remove_tmpfolder(tmpfolder)
+        assert not os.path.exists(tmpfolder)
+
+
+
 
     # def test_gather_unit(self):
     #     source = HarvestSourceObj(url='http://localhost:%s/' % mock_ckan.PORT)
@@ -278,3 +478,6 @@ class TestBaseFTPHarvester(object):
     #     assert_equal(result['errors'], [])
 
     # END INTEGRATION tests ---------------------------------------------------------
+
+
+

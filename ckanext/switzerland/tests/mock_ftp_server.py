@@ -1,40 +1,50 @@
 """ Mock CKAN server """
 
-PORT = 990
-HOST = ''
-
 import os
 
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import TLS_FTPHandler
+from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 
-CERTFILE = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                        "keycert.pem"))
+import logging
+log = logging.getLogger(__name__)
 
 
-class FTPServer(object):
+# CERTFILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "keycert.pem"))
+
+
+class MockFTPServer():
 
     server = None
 
-    def setupFTPServer(config, user=None):
+    def __init__(self, config, user=None):
+
+        log.debug("Starting FTP server: %s" % str(config))
+
+        if self.server:
+            self.teardown()
 
         authorizer = DummyAuthorizer()
-        authorizer.add_user(**user)
-        # authorizer.add_anonymous('.')
+        if user:
+            authorizer.add_user(**user)
+        else:
+            authorizer.add_anonymous('.')
 
-        handler = TLS_FTPHandler
+        handler = FTPHandler
+
         # handler.certfile = CERTFILE
         handler.authorizer = authorizer
         # requires SSL for both control and data channel
-        handler.tls_control_required = True
-        handler.tls_data_required = True
+        # handler.tls_control_required = True
+        # handler.tls_data_required = True
 
         self.server = FTPServer(config, handler)
-        self.server.serve_forever()
+        # self.server.serve_forever(blocking=False)
+        # raise Exception(str(self.server))
 
-
-    def teardownFTPServer():
+    def teardown(self):
 
         self.server.close_all()
+        self.server = None
 
