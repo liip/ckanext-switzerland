@@ -114,8 +114,8 @@ class FTPHelper(object):
         """
         Get the name of the top-most folder in /tmp
 
-        :returns: Directory listing (exclusing '.' and '..')
-        :rtype: list
+        :returns: The name of the folder created by ftplib, e.g. 'mydomain.com:21'
+        :rtype: string
         """
         return "%s:%d" % (self._config['host'], self._config['port'])
 
