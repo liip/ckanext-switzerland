@@ -119,41 +119,45 @@ class TestFTPHelper(unittest.TestCase):
     # FTP tests -----------------------------------------------------------
 
     @patch('ftplib.FTP_TLS', autospec=True)
-    def test_ftp_connection(self, MockFTP_TLS):
+    def test_ftp_connection(self, M):
 
-        # MockFTP.return_value = 'connected'
+        mockFTP_TLS = M.return_value
 
-        def mock_connect_fn(host, username, password):
-            return "Connected"
-        MockFTP_TLS.prot_p = mock_connect_fn
-
-        mock_ftp_obj = MockFTP_TLS()
+        # def mock_connect_fn(host, username, password):
+        #     return "Connected"
+        # MockFTP_TLS.prot_p = mock_connect_fn
 
         ftph = FTPHelper('/')
         ftph._connect()
 
-        assert mock_ftp_obj.prot_p.called
-        # TODO
-        # host = ckanconf.get('ckan.ftp.host', '')
-        # username = ckanconf.get('ckan.ftp.username', '')
-        # password = ckanconf.get('ckan.ftp.password', '')
-        # assert mock_ftp_obj.prot_p.called_with(host, username, password)
+        assert mockFTP_TLS.prot_p.called
+        vars = {
+            'host': ckanconf.get('ckan.ftp.host', ''),
+            'username': ckanconf.get('ckan.ftp.username', ''),
+            'password': ckanconf.get('ckan.ftp.password', ''),
+        }
+        assert mockFTP_TLS.prot_p.called_with(host, username, password)
 
 
-    # TODO
-    # @patch('ftplib.FTP', autospec=True)
     # @patch('ftplib.FTP_TLS', autospec=True)
-    # def test_ftp_port_setting(self, MockFTP, MockFTP_TLS):
+    # def test_ftp_port_setting(self, mockFTP_TLS):
+
+    #     mock_ftp = mockFTP_TLS.return_value
+
     #     def mock_connect_fn(host, username, password):
     #         return "Connected"
-    #     MockFTP_TLS.prot_p = mock_connect_fn
+    #     mock_ftp.prot_p = mock_connect_fn
 
     #     ftph = FTPHelper('/')
     #     ftph._connect()
 
-    #     # port was set on ftplib library
-    #     assert_equal(990, int(ckanconf.get('ckan.ftp.port')))
-    #     assert_equal(int(MockFTP.port), int(ckanconf.get('ckan.ftp.port')))
+
+
+
+
+        # # port was set on ftplib library
+        # assert_equal(990, int(ckanconf.get('ckan.ftp.port')))
+        # assert_equal(int(MockFTP.port), int(ckanconf.get('ckan.ftp.port')))
 
 
 
