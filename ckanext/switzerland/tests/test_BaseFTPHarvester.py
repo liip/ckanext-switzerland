@@ -119,30 +119,53 @@ class TestFTPHelper(unittest.TestCase):
     # FTP tests -----------------------------------------------------------
 
     @patch('ftplib.FTP_TLS', autospec=True)
-    # @patch('ftplib.FTP', autospec=True)
-    def test_connect(self, MockFTP_TLS):
+    def test_ftp_connection(self, MockFTP_TLS):
 
         # MockFTP.return_value = 'connected'
-        # def mock_connect_fn():
-        #     return "Connected"
-        # MockFTP_TLS.prot_p = mock_connect_fn
+
+        def mock_connect_fn(host, username, password):
+            return "Connected"
+        MockFTP_TLS.prot_p = mock_connect_fn
 
         mock_ftp_obj = MockFTP_TLS()
 
         ftph = FTPHelper('/')
         ftph._connect()
 
-        host = ckanconf.get('ckan.ftp.host', '')
-        username = ckanconf.get('ckan.ftp.username', '')
-        password = ckanconf.get('ckan.ftp.password', '')
-
+        assert mock_ftp_obj.prot_p.called
         # TODO
-        # port was set on ftplib library
-        # assert MockFTP.port == 990
-
-        # TODO
-        # assert mock_ftp_obj.prot_p.called
+        # host = ckanconf.get('ckan.ftp.host', '')
+        # username = ckanconf.get('ckan.ftp.username', '')
+        # password = ckanconf.get('ckan.ftp.password', '')
         # assert mock_ftp_obj.prot_p.called_with(host, username, password)
+
+
+    # TODO
+    # @patch('ftplib.FTP', autospec=True)
+    # @patch('ftplib.FTP_TLS', autospec=True)
+    # def test_ftp_port_setting(self, MockFTP, MockFTP_TLS):
+    #     def mock_connect_fn(host, username, password):
+    #         return "Connected"
+    #     MockFTP_TLS.prot_p = mock_connect_fn
+
+    #     ftph = FTPHelper('/')
+    #     ftph._connect()
+
+    #     # port was set on ftplib library
+    #     assert_equal(990, int(ckanconf.get('ckan.ftp.port')))
+    #     assert_equal(int(MockFTP.port), int(ckanconf.get('ckan.ftp.port')))
+
+
+
+    # TODO
+    # @patch('ftplib.FTP_TLS', autospec=True)
+    # def test_ftp_disconnect(self, MockFTP_TLS):
+
+    #     ftph = FTPHelper('/')
+    #     ftph._disconnect()
+
+    #     assert MockFTP_TLS.quit.called # '221 Goodbye.'
+
 
 
 
