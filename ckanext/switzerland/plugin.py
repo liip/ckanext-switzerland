@@ -12,7 +12,7 @@ from ckanext.switzerland.helpers import (
     get_frequency_name, get_terms_of_use_icon, get_dataset_terms_of_use,
     get_dataset_by_identifier, get_readable_file_size,
     simplify_terms_of_use, parse_json, get_piwik_config,
-    convert_post_data_to_dict
+    convert_post_data_to_dict, dataset_display_name, resource_display_name, group_link
 )
 
 import ckan.plugins as plugins
@@ -480,3 +480,8 @@ class LangToString(object):
             '%s - %s - %s - %s'
             % (lang['de'], lang['fr'], lang['it'], lang['en'])
         )
+
+# monkey patch template helpers to return translated names/titles
+h.dataset_display_name = dataset_display_name
+h.resource_display_name = resource_display_name
+h.group_link = group_link
