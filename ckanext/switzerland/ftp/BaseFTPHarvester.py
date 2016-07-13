@@ -1218,6 +1218,9 @@ class BaseFTPHarvester(HarvesterBase):
             # package_dict = self._add_package_orgs(package_dict)
             # package_dict = self._add_package_extras(package_dict, harvest_object)
 
+            if not package_dict.get('resources'):
+                package_dict['resources'] = []
+
             # -----------------------------------------------------------------------
             # create the package
             # -----------------------------------------------------------------------
@@ -1233,7 +1236,6 @@ class BaseFTPHarvester(HarvesterBase):
                 return False
 
             # create the dataset
-            result = check_access('package_create', context)
             dataset = get_action('package_create')(context, package_dict)
 
             log.info("Created package: %s" % str(dataset['name']))
