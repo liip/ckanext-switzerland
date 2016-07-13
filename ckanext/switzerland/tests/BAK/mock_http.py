@@ -1,3 +1,4 @@
+""" Mock CKAN server """
 import json
 import re
 import copy

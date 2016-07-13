@@ -66,27 +66,27 @@ class InfoplusHarvester(BaseFTPHarvester):
         #     "de": "...",
         #     "it": "..."
         # },
-        "language": ["en", "de", "fr", "it"],
+        # "language": ["en", "de", "fr", "it"],
         # relations
-        "relations": [{}],
-        "relationships_as_object": [], # ???
-        "relationships_as_subject": [], # ???
-        # publisher (TODO)
-        "publishers": [{
-            "label": "Publisher 1"
-        }],
-        # optional groups
-        'groups': [], # TODO
-        'tags': [], # TODO
-        'keywords': {}, # TODO
-        'contact_points': [{
-            "name": "Contact Name",
-            "email": "contact@example.com"
-        }],
-        "temporals": [{ # TODO
-            "start_date": "2014-03-21T00:00:00",
-            "end_date": "2019-03-21T00:00:00"
-        }],
+        # "relations": [{}],
+        # "relationships_as_object": [], # ???
+        # "relationships_as_subject": [], # ???
+        # # publisher (TODO)
+        # "publishers": [{
+        #     "label": "Publisher 1"
+        # }],
+        # # optional groups
+        # 'groups': [], # TODO
+        # 'tags': [], # TODO
+        # 'keywords': {}, # TODO
+        # 'contact_points': [{
+        #     "name": "Contact Name",
+        #     "email": "contact@example.com"
+        # }],
+        # "temporals": [{ # TODO
+        #     "start_date": "2014-03-21T00:00:00",
+        #     "end_date": "2019-03-21T00:00:00"
+        # }],
     }
 
     # whether or not to unzip the files found locally
