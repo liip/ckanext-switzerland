@@ -12,7 +12,7 @@ from ckanext.switzerland.helpers import (
     get_frequency_name, get_terms_of_use_icon, get_dataset_terms_of_use,
     get_dataset_by_identifier, get_readable_file_size,
     simplify_terms_of_use, parse_json, get_piwik_config,
-    convert_post_data_to_dict
+    convert_post_data_to_dict, dataset_display_name, resource_display_name, group_link
 )
 
 import ckan.plugins as plugins
@@ -155,8 +155,11 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
 
         try:
             # Do not change the resulting dict for API requests and form saves
+            # _package_reduce_to_requested_language removes all translation dicts needed to show the form
+            # on resource_edit, so we skip it here
             path = pylons.request.path
-            if path.startswith('/api') or pylons.request.method == 'POST':
+            if path.startswith('/api') or pylons.request.method == 'POST' or \
+                    pylons.request.urlvars['action'] == 'resource_edit':
                 return pkg_dict
         except TypeError:
             # we get here if there is no request (i.e. on the command line)
@@ -477,3 +480,8 @@ class LangToString(object):
             '%s - %s - %s - %s'
             % (lang['de'], lang['fr'], lang['it'], lang['en'])
         )
+
+# monkey patch template helpers to return translated names/titles
+h.dataset_display_name = dataset_display_name
+h.resource_display_name = resource_display_name
+h.group_link = group_link

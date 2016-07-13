@@ -29,19 +29,31 @@ def json_list_of_dicts_field(field, schema):
 
     field_type = {
         'temporals': {
-            'start_date': lambda date: datetime.datetime.strptime(date, '%d.%m.%Y').isoformat(),
-            'end_date': lambda date: datetime.datetime.strptime(date, '%d.%m.%Y').isoformat(),
+            'fields': {
+                'start_date': lambda date: datetime.datetime.strptime(date, '%d.%m.%Y').isoformat(),
+                'end_date': lambda date: datetime.datetime.strptime(date, '%d.%m.%Y').isoformat(),
+            },
+            'required': False,
         },
         'contact_points': {
-            'email': lambda text: text,
-            'name': lambda text: text,
+            'fields': {
+                'email': lambda text: text,
+                'name': lambda text: text,
+            },
+            'required': True,
         },
         'publishers': {
-            'label': lambda text: text,
+            'fields': {
+                'label': lambda text: text,
+            },
+            'required': True,
         },
         'relations': {
-            'url': lambda text: text,
-            'label': lambda text: text,
+            'fields': {
+                'url': lambda text: text,
+                'label': lambda text: text,
+            },
+            'required': True,
         },
     }[field['field_name']]
 
@@ -64,8 +76,6 @@ def json_list_of_dicts_field(field, schema):
             if not isinstance(value, dict):
                 errors[key].append(_('expecting JSON object'))
                 return
-
-            # TODO: validate value
 
             if not errors[key]:
                 data[key] = json.dumps(value)
@@ -91,19 +101,20 @@ def json_list_of_dicts_field(field, schema):
                 # field name example: temporals-1-start_date
                 counter, json_field_name = name.split('-')[1:]
                 counter = int(counter)
-                if json_field_name not in field_type.keys():
+                if json_field_name not in field_type['fields'].keys():
                     raise ValueError
             except ValueError:
                 errors[key].append(_('Invalid form data'))
                 continue
 
             if not text:
-                errors[(name,)] = [_('This field is required')]
+                if field_type['required']:
+                    errors[(name,)] = [_('This field is required')]
                 continue
 
             try:
                 # convert field value
-                values[counter][json_field_name] = field_type[json_field_name](text)
+                values[counter][json_field_name] = field_type['fields'][json_field_name](text)
             except ValueError:
                 errors[(name,)] = [_('Invalid date')]
 

@@ -5,7 +5,7 @@
 {% if not data[field.field_name] and not field.field_name + '-1-start_date' in data %}
     {% call form.input(
         field.field_name + '-1-start_date',
-        type='date',
+        type='text',
         id='field-' + field.field_name + '-1-start_date',
         label=_('Start date'),
         placeholder=h.scheming_language_text(field.form_placeholder),
@@ -19,7 +19,7 @@
 
     {% call form.input(
         field.field_name + '-1-end_date',
-        type='date',
+        type='text',
         id='field-' + field.field_name + '-1-end_date',
         label=_('End date'),
         placeholder=h.scheming_language_text(field.form_placeholder),
@@ -40,7 +40,7 @@
     {% for temporal in temporals %}
         {% call form.input(
             field.field_name + '-' + loop.index|string + '-start_date',
-            type='date',
+            type='text',
             id='field-' + field.field_name + '-' + loop.index|string + '-start_date',
             label=_('Start date'),
             placeholder=h.scheming_language_text(field.form_placeholder),
@@ -55,7 +55,7 @@
 
         {% call form.input(
             field.field_name + '-' + loop.index|string + '-end_date',
-            type='date',
+            type='text',
             id='field-' + field.field_name + '-' + loop.index|string + '-end_date',
             label=_('End date'),
             placeholder=h.scheming_language_text(field.form_placeholder),

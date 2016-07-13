@@ -2,13 +2,16 @@ from collections import defaultdict
 
 import ckan.plugins.toolkit as tk
 import ckan.logic as logic
-import datetime
 import requests
 import json
 import pylons
 from ckan.common import _
+from ckan.lib.helpers import link_to, url_for
+from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
 
 import logging
+
+
 log = logging.getLogger(__name__)
 
 
@@ -257,3 +260,44 @@ def convert_post_data_to_dict(field_name, data):
             counter, json_field_name = json_field_name.split('-')[1:]
             d[counter][json_field_name] = value
     return d.values()
+
+
+# monkey patched version of ckan.lib.helpers.dataset_display_name which extracts the correct translation of the dataset
+def dataset_display_name(package_or_package_dict):
+    name = dataset_display_name_orig(package_or_package_dict)
+    name = parse_json(name)
+    if isinstance(name, dict):
+        name = get_localized_value(name)
+    return name
+
+
+# monkey patched version of ckan.lib.helpers.resource_display_name which extracts the correct translation of the dataset
+def resource_display_name(resource_dict):
+    name = resource_dict.get('name', None)
+    description = resource_dict.get('description', None)
+    if name:
+        name = parse_json(name)
+        if isinstance(name, dict):
+            name = get_localized_value(name)
+        return name
+    elif description:
+        description = parse_json(description)
+        if isinstance(description, dict):
+            description = get_localized_value(description)
+        description = description.split('.')[0]
+        max_len = 60
+        if len(description) > max_len:
+            description = description[:max_len] + '...'
+        return description
+    else:
+        return _("Unnamed resource")
+
+
+# monkey patched version of ckan.lib.helpers.group_link which extracts the correct translation of the dataset
+def group_link(group):
+    url = url_for(controller='group', action='read', id=group['name'])
+    title = group['title']
+    title = parse_json(title)
+    if isinstance(title, dict):
+        title = get_localized_value(title)
+    return link_to(title, url)
