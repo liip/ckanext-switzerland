@@ -252,47 +252,45 @@ class FTPHelper(object):
         :rtype: int
         """
         # get dir listing of a specific directory
-        if folder:
-            num_files = len(self.get_remote_dirlist_all(folder))
+        if not folder:
+            folder=None
+        num_files = len(self.get_remote_dirlist_all(folder))
         return num_files
 
-    def wget_fetch_all(self):
-        """
-        Fetch all files in a folder from the remote server with wget
+    # def wget_fetch_all(self):
+    #     """
+    #     Fetch all files in a folder from the remote server with wget
+    #     :returns: Shell execution status
+    #     :rtype: int
+    #     """
+    #     # optional parameters:
+    #         # -nv: non-verbose
+    #         # --no-clobber: do not overwrite existing files
+    #     return subprocess.call(
+    #         "/usr/local/bin/wget -r --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (
+    #             self._config['username'],
+    #             self._config['password'],
+    #             self._config['host'],
+    #             int(self._config['port']),
+    #             os.path.join(self._config['remotedirectory'], self.remotefolder)
+    #         ), shell=True)
 
-        :returns: Shell execution status
-        :rtype: int
-        """
-        # optional parameters:
-            # -nv: non-verbose
-            # --no-clobber: do not overwrite existing files
-        return subprocess.call(
-            "/usr/local/bin/wget -r --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (
-                self._config['username'],
-                self._config['password'],
-                self._config['host'],
-                int(self._config['port']),
-                os.path.join(self._config['remotedirectory'], self.remotefolder)
-            ), shell=True)
-
-    def wget_fetch(self, file):
-        """
-        Fetch a single file from the remote server with wget
-
-        :param file: File to fetch
-        :type file: str or unicode
-
-        :returns: Shell execution status
-        :rtype: int
-        """
-        return subprocess.call(
-            "/usr/local/bin/wget --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (
-                self._config['username'],
-                self._config['password'],
-                self._config['host'],
-                int(self._config['port']),
-                file
-            ), shell=True)
+    # def wget_fetch(self, file):
+    #     """
+    #     Fetch a single file from the remote server with wget
+    #     :param file: File to fetch
+    #     :type file: str or unicode
+    #     :returns: Shell execution status
+    #     :rtype: int
+    #     """
+    #     return subprocess.call(
+    #         "/usr/local/bin/wget --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (
+    #             self._config['username'],
+    #             self._config['password'],
+    #             self._config['host'],
+    #             int(self._config['port']),
+    #             file
+    #         ), shell=True)
 
     def fetch(self, filename, localpath=None):
         """
@@ -1177,6 +1175,8 @@ class BaseFTPHarvester(HarvesterBase):
 
 
 
+        now = datetime.now().isoformat()
+
 
         # =======================================================================
         # package
@@ -1211,26 +1211,26 @@ class BaseFTPHarvester(HarvesterBase):
             # create the package dictionary instead
             # -----------------------------------------------------------------------
 
-            now = datetime.now().isoformat()
-
-            # version
-            package_dict['version'] = now
-
-            # title of the package
-            # package_dict['title'] = self.remotefolder.title()
-            package_dict['title'] = json.dumps({
-                "de": self.remotefolder.title(),
-                "en": self.remotefolder.title(),
-                "fr": self.remotefolder.title(),
-                "it": self.remotefolder.title()
-            })
-            # for DCAT schema - same info as in the title
-            package_dict['display_name'] = package_dict['title']
-
-            package_dict['creator_user_id'] = model.User.get(context['user']).id
-
             # add the metadata from the harvester
             package_dict = self._add_harvester_metadata(package_dict, context)
+
+            # version
+            if not package_dict.get('resources'):
+                package_dict['version'] = now
+
+            # title of the package
+            if not package_dict.get('title'):
+                package_dict['title'] = {
+                    "de": self.remotefolder.title(),
+                    "en": self.remotefolder.title(),
+                    "fr": self.remotefolder.title(),
+                    "it": self.remotefolder.title()
+                }
+            # for DCAT schema - same info as in the title
+            if not package_dict.get('display_name'):
+                package_dict['display_name'] = package_dict['title']
+
+            package_dict['creator_user_id'] = model.User.get(context['user']).id
 
             # configure default metadata (optionally provided via the harvester configuration as a json object)
             # TODO: make this compatible with multi-lang
@@ -1239,8 +1239,20 @@ class BaseFTPHarvester(HarvesterBase):
             # package_dict = self._add_package_orgs(package_dict)
             # package_dict = self._add_package_extras(package_dict, harvest_object)
 
-            if not package_dict.get('resources'):
-                package_dict['resources'] = []
+            # fill with defaults
+            for key in ['issued', 'modified', 'metadata_created', 'metadata_modified']:
+                if not package_dict.get(key):
+                    package_dict[key] = now
+            for key in ['resources', 'groups', 'tags', 'extras', 'contact_points', 'relations', 'relationships_as_object', 'relationships_as_subject', 'publishers', 'see_alsos', 'temporals']:
+                if not package_dict.get(key):
+                    package_dict[key] = []
+            for key in ['keywords']:
+                if not package_dict.get(key):
+                    package_dict[key] = {}
+
+            if not package_dict.get('language'):
+                package_dict['language'] = ["en", "de", "fr", "it"]
+
 
             # -----------------------------------------------------------------------
             # create the package
@@ -1384,25 +1396,43 @@ class BaseFTPHarvester(HarvesterBase):
             # -----------------------------------------------------
             if not resource_meta:
 
-                # extra data per resource from the harvester
-                if self.package_dict_meta:
-                    resource_meta = self.package_dict_meta
+                # take some globally defined default values for the resource from the harvester
+                if self.resource_dict_meta:
+                    resource_meta = self.resource_dict_meta
                 else:
                     resource_meta = {}
 
                 resource_meta['package_id'] = dataset['id']
+
+                resource_meta['identifier'] = os.path.basename(file)
+
                 resource_meta['name'] = {
                         "de": os.path.basename(file),
                         "en": os.path.basename(file),
                         "fr": os.path.basename(file),
                         "it": os.path.basename(file)
                     }
-                resource_meta['description'] = {
+                resource_meta['title'] = json.dumps(resource_meta['name'])
+
+                resource_meta['description'] = json.dumps({
                         "de": "",
                         "en": "",
                         "fr": "",
                         "it": ""
-                    }
+                    })
+
+                resource_meta['issued'] = now
+                resource_meta['modified'] = now
+
+                # TODO
+                resource_meta['language'] = 'en'
+                # TODO
+                if not resource_meta.get('rights'):
+                    resource_meta['rights'] = 'TODO'
+                if not resource_meta.get('license'):
+                    resource_meta['license'] = 'TODO'
+                if not resource_meta.get('coverage'):
+                    resource_meta['coverage'] = 'TODO'
 
                 resource_meta['format'] = file_format
                 resource_meta['mimetype'] = mimetype
@@ -1416,6 +1446,8 @@ class BaseFTPHarvester(HarvesterBase):
             # create the resource, but use the metadata of the old resource
             # -----------------------------------------------------
             else:
+
+                # a resource was found - use the existing metadata
 
                 # the resource should get a new id, so delete the old one
                 if resource_meta.get('id'):
@@ -1432,13 +1464,16 @@ class BaseFTPHarvester(HarvesterBase):
 
             # url parameter is ignored for resource uploads, but required by ckan
             resource_meta['url'] = 'http://dummy-value'
+            # TODO
+            resource_meta['download_url'] = 'http://dummy-value'
 
             # test
             # if resource_meta.get('description'):
             #     resource_meta['description'] = json.dumps(resource_meta['description'])
 
-            # if size != None:
-            #     resource_meta['size'] = size
+            if size != None:
+                resource_meta['size'] = size
+                resource_meta['byte_size'] = size / 8 # TODO
 
             # the file we are going to upload
             # resource_meta['upload'] = fp
@@ -1467,9 +1502,8 @@ class BaseFTPHarvester(HarvesterBase):
                 'user-agent': 'ftp-harvester/1.0.0'
                 # 'Content-Type': 'multipart/form-data', # http://stackoverflow.com/a/18590706/426266
             }
-            log.debug(headers)
             r = requests.post(api_url, data=resource_meta, files={'file': fp}, headers=headers)
-            log.debug(r.text)
+            log.debug('Response: %s' % r.text)
             if r.status_code != 200:
                 # raise Exception(str(resource_meta))
                 r.raise_for_status()

@@ -33,6 +33,7 @@ class InfoplusHarvester(BaseFTPHarvester):
         'private': False,
         'state': 'active',
         'isopen': False,
+        # --------------------------------------------------------------------------
         # author and maintainer
         'author': "Author name", # TODO
         'author_email': "author@example.com", # TODO
@@ -41,18 +42,19 @@ class InfoplusHarvester(BaseFTPHarvester):
         # license
         'license_id': "other-open", # TODO
         'license_title': "Other (Open)", # TODO
+        'rights': "Other (Open)", # TODO
         # owner organisation
         "owner_org": "7dbaad15-597f-499c-9a72-95de38b95cad", # TODO
-        # --------------------------------------------------------------------------
         # ckan multilang/switzerland custom required fields
         'coverage': "Coverage", # TODO
         'issued': "21.03.2015", # TODO
-        "metadata_created": "2016-07-05T07:41:28.741265", # TODO
-        "metadata_modified": "2016-07-05T07:43:30.079030", # TODO
-        #"modified": "21.03.2016",
+        # "modified": "21.03.2016", # TODO
+        # "metadata_created": "2016-07-05T07:41:28.741265", # TODO
+        # "metadata_modified": "2016-07-05T07:43:30.079030", # TODO
         "url": "https://catalog.data.gov/", # TODO
         "spatial": "Spatial", # TODO
         "accrual_periodicity": "", # TODO
+        # --------------------------------------------------------------------------
         "description": { # TODO
             "fr": "FR Description",
             "en": "EN Description",
@@ -60,34 +62,49 @@ class InfoplusHarvester(BaseFTPHarvester):
             "it": "IT Description"
         },
         # TODO - release notes could go in here - but where do they come from ?
-        # "notes": { # TODO
-        #     "fr": "...",
-        #     "en": "...",
-        #     "de": "...",
-        #     "it": "..."
-        # },
-        # "language": ["en", "de", "fr", "it"],
+        "notes": { # TODO
+            "fr": "...",
+            "en": "...",
+            "de": "...",
+            "it": "..."
+        },
+        "language": ["en", "de", "fr", "it"],
         # relations
-        # "relations": [{}],
-        # "relationships_as_object": [], # ???
-        # "relationships_as_subject": [], # ???
+        "relations": [{}],
+        "relationships_as_object": [], # ???
+        "relationships_as_subject": [], # ???
+        "see_alsos": [], # ???
         # # publisher (TODO)
-        # "publishers": [{
-        #     "label": "Publisher 1"
-        # }],
+        "publishers": [{
+            "label": "Publisher 1"
+        }],
         # # optional groups
-        # 'groups': [], # TODO
-        # 'tags': [], # TODO
-        # 'keywords': {}, # TODO
-        # 'contact_points': [{
-        #     "name": "Contact Name",
-        #     "email": "contact@example.com"
-        # }],
-        # "temporals": [{ # TODO
-        #     "start_date": "2014-03-21T00:00:00",
-        #     "end_date": "2019-03-21T00:00:00"
-        # }],
+        'groups': [], # TODO
+        'tags': [], # TODO
+        'keywords': { # TODO
+            "fr": "TODO",
+            "en": "TODO",
+            "de": "TODO",
+            "it": "TODO"
+        },
+        'extras': [], # TODO
+        'contact_points': [{
+            "name": "Contact Name",
+            "email": "contact@example.com"
+        }],
+        "temporals": [{ # TODO
+            "start_date": "2014-03-21T00:00:00",
+            "end_date": "2019-03-21T00:00:00"
+        }],
     }
+
+    resource_dict_meta = {
+        'state': 'active',
+        'rights': 'Other (Open)', # TODO
+        'license': 'Other (Open)', # TODO
+        'coverage': '...', # TODO
+    }
+
 
     # whether or not to unzip the files found locally
     do_unzip = False # PROD: set this to True

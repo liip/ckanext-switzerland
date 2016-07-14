@@ -4,21 +4,23 @@
 
 import unittest
 
-from nose.tools import assert_equal, raises
-from mock import patch, Mock
-
 import copy
 import json
 import os.path
 import shutil
 import ftplib
 
+import logging
+log = logging.getLogger(__name__)
+
+from nose.tools import assert_equal, raises
+from mock import patch, Mock
+from mock import MagicMock
+from mock import PropertyMock
+
 from pylons import config as ckanconf
 
 from simplejson import JSONDecodeError
-
-import logging
-log = logging.getLogger(__name__)
 
 try:
     from ckan.tests.helpers import reset_db
@@ -38,10 +40,15 @@ from ckanext.harvest.tests.factories import (HarvestSourceObj, HarvestJobObj,
 import ckanext.harvest.model as harvest_model
 
 # not needed - mock ftplib instead
-# from mock_ftp_server import MockFTPServer
+# from helpers.mock_ftp_server import MockFTPServer
 
+
+
+# The classes to test
+# -----------------------------------------------------------------------
 from ckanext.switzerland.ftp.BaseFTPHarvester import BaseFTPHarvester
 from ckanext.switzerland.ftp.BaseFTPHarvester import FTPHelper
+# -----------------------------------------------------------------------
 
 
 
@@ -116,64 +123,162 @@ class TestFTPHelper(unittest.TestCase):
         ftph.create_local_dir(self.tmpfolder)
         assert os.path.exists(self.tmpfolder)
 
+
     # FTP tests -----------------------------------------------------------
 
     @patch('ftplib.FTP_TLS', autospec=True)
-    def test_ftp_connection(self, M):
+    def test_connect(self, MockFTP_TLS):
 
-        mockFTP_TLS = M.return_value
+        # get ftplib instance
+        mock_ftp = MockFTP_TLS.return_value
 
-        # def mock_connect_fn(host, username, password):
-        #     return "Connected"
-        # MockFTP_TLS.prot_p = mock_connect_fn
-
+        # run
         ftph = FTPHelper('/')
         ftph._connect()
 
-        assert mockFTP_TLS.prot_p.called
+        # constructor was called
         vars = {
             'host': ckanconf.get('ckan.ftp.host', ''),
             'username': ckanconf.get('ckan.ftp.username', ''),
             'password': ckanconf.get('ckan.ftp.password', ''),
         }
-        assert mockFTP_TLS.prot_p.called_with(host, username, password)
+        MockFTP_TLS.assert_called_with(vars['host'], vars['username'], vars['password'])
 
+        # login method was called
+        # self.assertTrue(mock_ftp.login.called)
+        # prot_p method was called
+        self.assertTrue(mock_ftp.prot_p.called)
 
-    # @patch('ftplib.FTP_TLS', autospec=True)
-    # def test_ftp_port_setting(self, mockFTP_TLS):
+    @patch('ftplib.FTP', autospec=True)
+    @patch('ftplib.FTP_TLS', autospec=True)
+    def test_connect_sets_ftp_port(self, MockFTP_TLS, MockFTP):
+        # run
+        ftph = FTPHelper('/')
+        ftph._connect()
+        # the port was changed by the _connect method
+        assert_equal(MockFTP.port, int(ckanconf.get('ckan.ftp.port', False)))
 
-    #     mock_ftp = mockFTP_TLS.return_value
+    @patch('ftplib.FTP', autospec=True)
+    @patch('ftplib.FTP_TLS', autospec=True)
+    def test_disconnect(self, MockFTP_TLS, MockFTP):
+        # get ftplib instance
+        mock_ftp_tls = MockFTP_TLS.return_value
+        # connect
+        ftph = FTPHelper('/')
+        ftph._connect()
+        # disconnect
+        ftph._disconnect()
+        # quit was called
+        self.assertTrue(mock_ftp_tls.quit.called)
 
-    #     def mock_connect_fn(host, username, password):
-    #         return "Connected"
-    #     mock_ftp.prot_p = mock_connect_fn
+    @patch('ftplib.FTP', autospec=True)
+    @patch('ftplib.FTP_TLS', autospec=True)
+    def test_cdremote(self, MockFTP_TLS, MockFTP):
+        # get ftplib instance
+        mock_ftp_tls = MockFTP_TLS.return_value
+        # connect
+        ftph = FTPHelper('/')
+        ftph._connect()
+        ftph.cdremote('/foo/')
+        self.assertTrue(mock_ftp_tls.cwd.called)
+        mock_ftp_tls.cwd.assert_called_with('/foo/')
 
-    #     ftph = FTPHelper('/')
-    #     ftph._connect()
+    @patch('ftplib.FTP', autospec=True)
+    @patch('ftplib.FTP_TLS', autospec=True)
+    def test_cdremote_default_folder(self, MockFTP_TLS, MockFTP):
+        # get ftplib instance
+        mock_ftp_tls = MockFTP_TLS.return_value
+        # connect
+        ftph = FTPHelper('/')
+        ftph._connect()
+        ftph.cdremote()
+        self.assertTrue(mock_ftp_tls.cwd.called)
+        remotefolder = ckanconf.get('ckan.ftp.remotedirectory', False)
+        assert_equal(remotefolder, ftph._config['remotedirectory'])
+        mock_ftp_tls.cwd.assert_called_with('')
 
+    @patch('ftplib.FTP', autospec=True)
+    @patch('ftplib.FTP_TLS', autospec=True)
+    def test_with_ftphelper(self, MockFTP_TLS, MockFTP):
+        # get ftplib instance
+        mock_ftp_tls = MockFTP_TLS.return_value
+        # connect
+        with FTPHelper('/hello/') as ftph:
+            pass
+        self.assertTrue(mock_ftp_tls.cwd.called)
+        mock_ftp_tls.cwd.assert_called_with('/hello')
+        # class was instantiated with the correct values
+        vars = {
+            'host': ckanconf.get('ckan.ftp.host', ''),
+            'username': ckanconf.get('ckan.ftp.username', ''),
+            'password': ckanconf.get('ckan.ftp.password', ''),
+        }
+        MockFTP_TLS.assert_called_with(vars['host'], vars['username'], vars['password'])
+        # prot_p method was called
+        self.assertTrue(mock_ftp_tls.prot_p.called)
+        # quit was called
+        self.assertTrue(mock_ftp_tls.quit.called)
 
-
-
-
-        # # port was set on ftplib library
-        # assert_equal(990, int(ckanconf.get('ckan.ftp.port')))
-        # assert_equal(int(MockFTP.port), int(ckanconf.get('ckan.ftp.port')))
-
-
+    class FTP_TLS:
+        def prot_p(self):
+            return
+        def nlst(self, folder=None):
+            return ['.', '..', 'filea.txt', 'fileb.zip']
+        def cwd(self, folder=None):
+            return 'cwd into %s' % str(folder)
+        def quit(self):
+            return 'quitting'
+        def retrbinary(self, remotepath, filepointer):
+            return [remotepath, filepointer]
 
     # TODO
-    # @patch('ftplib.FTP_TLS', autospec=True)
-    # def test_ftp_disconnect(self, MockFTP_TLS):
-
+    # @patch('ftplib.FTP', autospec=True)
+    # @patch('ftplib.FTP_TLS', spec=FTP_TLS)
+    # def test_get_remote_dirlist(self, MockFTP_TLS, MockFTP):
+    #     # get ftplib instance
+    #     mock_ftp_tls = MockFTP_TLS.return_value
+    #     # connect
     #     ftph = FTPHelper('/')
-    #     ftph._disconnect()
+    #     ftph._connect()
+    #     # get directory listing
+    #     dirlist = ftph.get_remote_dirlist('/myfolder/')
+    #     # nlst was called
+    #     self.assertTrue(mock_ftp_tls.nlst.called)
+    #     mock_ftp_tls.nlst.assert_called_with('/myfolder/')
+    #     # a filtered directory list was returned
+    #     assert_equal(dirlist, ['filea.txt', 'fileb.zip'])
 
-    #     assert MockFTP_TLS.quit.called # '221 Goodbye.'
+    # TODO
+    # @patch('ftplib.FTP', autospec=True)
+    # @patch('ftplib.FTP_TLS', spec=FTP_TLS)
+    # def test_is_empty_dir(self, MockFTP_TLS, MockFTP):
+    #     # get ftplib instance
+    #     mock_ftp_tls = MockFTP_TLS.return_value
+    #     # connect
+    #     ftph = FTPHelper('/')
+    #     ftph._connect()
+    #     # run
+    #     num = ftph.is_empty_dir()
+    #     log.debug(num)
+    #     self.assertTrue(num > 0)
 
-
-
-
-    # @patch('open', autospec=True)
+    # TODO
+    # @patch('ftplib.FTP', autospec=True)
+    # @patch('ftplib.FTP_TLS', spec=FTP_TLS)
+    # def test_fetch(self, MockFTP_TLS, MockFTP):
+    #     filename = 'foo.txt'
+    #     testfile = '/tmp/foo.txt'
+    #     # get ftplib instance
+    #     mock_ftp_tls = MockFTP_TLS.return_value        
+    #     # connect
+    #     with FTPHelper('/') as ftph:
+    #         ftph._connect()
+    #         # fetch remote file
+    #         parameters = ftph.fetch(filename, localpath=testfile)
+    #     # tests
+    #     log.debug(parameters)
+    #     self.assertTrue(mock_ftp_tls.retrbinary.called)
+    #     assert_equal(parameters[0], filename)
 
 
 
