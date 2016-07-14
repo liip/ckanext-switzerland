@@ -12,7 +12,6 @@ from BaseFTPHarvester import ContentFetchError
 from BaseFTPHarvester import RemoteResourceError
 
 
-
 class InfoplusHarvester(BaseFTPHarvester):
     """
     An FTP Harvester for Infoplus data
@@ -68,6 +67,10 @@ class InfoplusHarvester(BaseFTPHarvester):
             "de": "...",
             "it": "..."
         },
+        # --------------------------------------------------------------------------
+        'groups': [],
+        'tags': [],
+        'extras': [],
         "language": ["en", "de", "fr", "it"],
         # relations
         "relations": [{}],
@@ -79,15 +82,12 @@ class InfoplusHarvester(BaseFTPHarvester):
             "label": "Publisher 1"
         }],
         # # optional groups
-        'groups': [], # TODO
-        'tags': [], # TODO
         'keywords': { # TODO
             "fr": "TODO",
             "en": "TODO",
             "de": "TODO",
             "it": "TODO"
         },
-        'extras': [], # TODO
         'contact_points': [{
             "name": "Contact Name",
             "email": "contact@example.com"
@@ -102,7 +102,7 @@ class InfoplusHarvester(BaseFTPHarvester):
         'state': 'active',
         'rights': 'Other (Open)', # TODO
         'license': 'Other (Open)', # TODO
-        'coverage': '...', # TODO
+        'coverage': 'Coverage', # TODO
     }
 
 
@@ -110,7 +110,6 @@ class InfoplusHarvester(BaseFTPHarvester):
     do_unzip = False # PROD: set this to True
 
     # -----------------------------------------------------------------------
-
     def gather_stage(self, harvest_object):
         """
         Gathers resources to fetch
@@ -118,41 +117,26 @@ class InfoplusHarvester(BaseFTPHarvester):
         :param harvest_object: Harvester job
         :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
         """
-
-        ret = super(InfoplusHarvester, self).gather_stage(harvest_object)
-
-        return ret
-
+        return super(InfoplusHarvester, self).gather_stage(harvest_object)
     # -----------------------------------------------------------------------
-
     def fetch_stage(self, harvest_object):
         """
-        Fetching of resources
+        Fetches resources
 
         :param harvest_object: HarvestObject
         :returns: True|None Whether HarvestObject was saved or not
         """
-
-        ret = super(InfoplusHarvester, self).fetch_stage(harvest_object)
-
-        return ret
-
+        return super(InfoplusHarvester, self).fetch_stage(harvest_object)
     # -----------------------------------------------------------------------
-
     def import_stage(self, harvest_object):
         """
         Importing the fetched files into CKAN storage
 
         :param harvest_object: HarvestObject
-        :returns: True|False boolean Whether the HarvestObject was imported or not
+        :returns: True|False boolean Whether the object was imported or not
         """
-
-        # harvest_api_key = model.User.get(context['user']).apikey.encode('utf8')
-
-        ret = super(InfoplusHarvester, self).import_stage(harvest_object)
-
-        return ret
-
+        return super(InfoplusHarvester, self).import_stage(harvest_object)
+    # -----------------------------------------------------------------------
 
 # =======================================================================
 
@@ -176,27 +160,84 @@ class DidokHarvester(BaseFTPHarvester):
         # package privacy
         'private': False,
         'state': 'active',
-        'isopen': True,
+        'isopen': False,
+        # --------------------------------------------------------------------------
         # author and maintainer
-        'author': "", # TODO
-        'author_email': "", # TODO
-        'maintainer': "", # TODO
-        'maintainer_email': "", # TODO
+        'author': "Author name", # TODO
+        'author_email': "author@example.com", # TODO
+        'maintainer': "Maintainer name", # TODO
+        'maintainer_email': "maintainer@example.com", # TODO
         # license
         'license_id': "other-open", # TODO
         'license_title': "Other (Open)", # TODO
+        'rights': "Other (Open)", # TODO
         # owner organisation
-        # 'owner_org': "<ckan-id>", # TODO
-        # optional groups
-        'groups': [], # TODO
-        'tags': [], # TODO
+        "owner_org": "7dbaad15-597f-499c-9a72-95de38b95cad", # TODO
+        # ckan multilang/switzerland custom required fields
+        'coverage': "Coverage", # TODO
+        'issued': "21.03.2015", # TODO
+        # "modified": "21.03.2016", # TODO
+        # "metadata_created": "2016-07-05T07:41:28.741265", # TODO
+        # "metadata_modified": "2016-07-05T07:43:30.079030", # TODO
+        "url": "https://catalog.data.gov/", # TODO
+        "spatial": "Spatial", # TODO
+        "accrual_periodicity": "", # TODO
+        # --------------------------------------------------------------------------
+        "description": { # TODO
+            "fr": "FR Description",
+            "en": "EN Description",
+            "de": "DE Description",
+            "it": "IT Description"
+        },
+        # TODO - release notes could go in here - but where do they come from ?
+        "notes": { # TODO
+            "fr": "...",
+            "en": "...",
+            "de": "...",
+            "it": "..."
+        },
+        # --------------------------------------------------------------------------
+        'groups': [],
+        'tags': [],
+        'extras': [],
+        "language": ["en", "de", "fr", "it"],
+        # relations
+        "relations": [{}],
+        "relationships_as_object": [], # ???
+        "relationships_as_subject": [], # ???
+        "see_alsos": [], # ???
+        # # publisher (TODO)
+        "publishers": [{
+            "label": "Publisher 1"
+        }],
+        # # optional groups
+        'keywords': { # TODO
+            "fr": "TODO",
+            "en": "TODO",
+            "de": "TODO",
+            "it": "TODO"
+        },
+        'contact_points': [{
+            "name": "Contact Name",
+            "email": "contact@example.com"
+        }],
+        "temporals": [{ # TODO
+            "start_date": "2014-03-21T00:00:00",
+            "end_date": "2019-03-21T00:00:00"
+        }],
+    }
+
+    resource_dict_meta = {
+        'state': 'active',
+        'rights': 'Other (Open)', # TODO
+        'license': 'Other (Open)', # TODO
+        'coverage': 'Coverage', # TODO
     }
 
     # whether or not to unzip the files found locally
     do_unzip = False # no zip files in the folder (so far)
 
     # -----------------------------------------------------------------------
-
     def gather_stage(self, harvest_object):
         """
         Gathers resources to fetch
@@ -204,37 +245,23 @@ class DidokHarvester(BaseFTPHarvester):
         :param harvest_object: Harvester job
         :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
         """
-
-        ret = super(InfoplusHarvester, self).gather_stage(harvest_object)
-
-        return ret
-
+        return super(InfoplusHarvester, self).gather_stage(harvest_object)
     # -----------------------------------------------------------------------
-
     def fetch_stage(self, harvest_object):
         """
-        Fetching of resources
+        Fetches resources
 
         :param harvest_object: HarvestObject
         :returns: True|None Whether HarvestObject was saved or not
         """
-
-        ret = super(InfoplusHarvester, self).fetch_stage(harvest_object)
-
-        return ret
-
+        return super(InfoplusHarvester, self).fetch_stage(harvest_object)
     # -----------------------------------------------------------------------
-
     def import_stage(self, harvest_object):
         """
         Imports the fetched files into CKAN storage
 
         :param harvest_object: HarvestObject
-        :returns: True|False boolean Whether the HarvestObject was imported or not
+        :returns: True|False boolean Whether the object was imported or not
         """
-
-        # harvest_api_key = model.User.get(context['user']).apikey.encode('utf8')
-
-        ret = super(InfoplusHarvester, self).import_stage(harvest_object)
-
-        return ret
+        return super(InfoplusHarvester, self).import_stage(harvest_object)
+    # -----------------------------------------------------------------------

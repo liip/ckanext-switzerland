@@ -13,7 +13,7 @@ import ftplib
 import logging
 log = logging.getLogger(__name__)
 
-from nose.tools import assert_equal, raises
+from nose.tools import assert_equal, raises, nottest, with_setup
 from mock import patch, Mock
 from mock import MagicMock
 from mock import PropertyMock
@@ -46,9 +46,49 @@ import ckanext.harvest.model as harvest_model
 
 # The classes to test
 # -----------------------------------------------------------------------
+from ckanext.switzerland.ftp.FTPHelper import FTPHelper
 from ckanext.switzerland.ftp.BaseFTPHarvester import BaseFTPHarvester
-from ckanext.switzerland.ftp.BaseFTPHarvester import FTPHelper
 # -----------------------------------------------------------------------
+
+
+
+class HarvestSource():
+    id = 'harvester_id'
+    title = 'MyHarvestObject'
+    url = '/test/'
+    def __init__(self, url=None):
+        if url:
+            self.url = url
+class HarvestJob():
+    _sa_instance_state = 'running'
+    def __init__(self, id=None, source=None):
+        if not id:
+            self.id = 'jobid'
+        else:
+            self.id = id
+        if not source:
+            self.source = HarvestSource()
+        else:
+            self.source = source
+class HarvestObject():
+    id = 'my-harvest-object-id'
+    url = 'my-url'
+    guid = '1234-5678-6789'
+    job__source__owner_org = 'g3298-23hg782-g8743g-348934'
+    def __init__(self, guid=None, job=None, content=None, job__source__owner_org=None):
+        if guid:
+            self.guid = guid
+        if content:
+            self.content = content
+        if job__source__owner_org:
+            self.job__source__owner_org = job__source__owner_org
+        if not job:
+            self.job = HarvestJob()
+        else:
+            self.job = job
+    def get(self, id):
+        return self
+
 
 
 
@@ -283,8 +323,6 @@ class TestFTPHelper(unittest.TestCase):
 
 
 
-
-
 # =========================================================================
 
 class TestBaseFTPHarvester(unittest.TestCase):
@@ -315,7 +353,9 @@ class TestBaseFTPHarvester(unittest.TestCase):
         # TODO
         pass
 
+    # -------------------------------------------------------------------------------
     # BEGIN UNIT tests ----------------------------------------------------------------
+    # -------------------------------------------------------------------------------
 
     def test__get_rest_api_offset(self):
         bh = BaseFTPHarvester()
@@ -330,17 +370,6 @@ class TestBaseFTPHarvester(unittest.TestCase):
     def test_get_remote_folder(self):
         bh = BaseFTPHarvester()
         assert_equal(bh.get_remote_folder(), '/test/')
-
-    def test_ckanapi_valid_connection(self):
-        bh = BaseFTPHarvester()
-        ckan = bh.ckanapi_connect('https://data.gov.uk', '<apikey>')
-        assert_equal(str(type(ckan)), "<class 'ckanapi.remoteckan.RemoteCKAN'>")
-
-    # TODO
-    # def test_ckanapi_invalid_connection(self):
-    #     bh = BaseFTPHarvester()
-    #     ckan = bh.ckanapi_connect('http://foo', '<apikey>')
-    #     assert_equal(ckan, False)
 
     def test_get_local_dirlist(self):
         bh = BaseFTPHarvester()
@@ -366,14 +395,25 @@ class TestBaseFTPHarvester(unittest.TestCase):
         bh._set_config('')
         assert_equal(bh.config, {})
 
-    # TODO
-    # def test_info(self):
-    #     bh = BaseFTPHarvester()
-    #     info = bh.info()
-    #     assert_equal(info['name'], '')
-    #     assert_equal(info['title'], '')
-    #     assert_equal(info['description'], '')
-    #     assert_equal(info['form_config_interface'], 'Text')
+    def test_info_defaults(self):
+        bh = BaseFTPHarvester()
+        info = bh.info()
+        assert_equal(info['name'], 'ckanftpharvest')
+        assert_equal(info['title'], 'CKAN FTP ckanftp Harvester')
+        assert_equal(info['description'], 'Fetches %s' % '/test/')
+        assert_equal(info['form_config_interface'], 'Text')
+
+    def test_info_instantiated(self):
+        class MyHarvester(BaseFTPHarvester):
+            harvester_name = 'InfoPlus'
+            def get_remote_folder(self):
+                return '/my/folder/'
+        harvester = MyHarvester()
+        info = harvester.info()
+        assert_equal(info['name'], 'infoplusharvest')
+        assert_equal(info['title'], 'CKAN FTP InfoPlus Harvester')
+        assert_equal(info['description'], 'Fetches %s' % '/my/folder/')
+        assert_equal(info['form_config_interface'], 'Text')
 
     def test_add_harvester_metadata(self):
         bh = BaseFTPHarvester()
@@ -381,9 +421,8 @@ class TestBaseFTPHarvester(unittest.TestCase):
             'foo': 'bar',
             'hello': 'world'
         }
-        package_dict = {}
         context = {}
-        package_dict = bh._add_harvester_metadata(package_dict, context)
+        package_dict = bh._add_harvester_metadata({}, context)
         assert package_dict['foo']
         assert package_dict['hello']
         assert_equal(package_dict['foo'], 'bar')
@@ -391,8 +430,8 @@ class TestBaseFTPHarvester(unittest.TestCase):
 
     def test_add_package_tags(self):
         bh = BaseFTPHarvester()
-
-        package_dict = bh._add_package_tags({})
+        context = {}
+        package_dict = bh._add_package_tags({}, context)
         assert_equal(package_dict['tags'], [])
         assert_equal(package_dict['num_tags'], 0)
 
@@ -402,56 +441,40 @@ class TestBaseFTPHarvester(unittest.TestCase):
         bh.config = {
             'default_tags': tags
         }
-        package_dict = bh._add_package_tags({})
+        package_dict = bh._add_package_tags({}, context)
         assert_equal(package_dict['tags'], tags)
         assert_equal(package_dict['num_tags'], 3)
 
-    def test_add_package_groups(self):
-        groups = ['groupA', 'groupB']
-        bh = BaseFTPHarvester()
-        bh.config = {
-            'default_groups': groups
-        }
-        package_dict = bh._add_package_groups({})
-        assert_equal(package_dict['groups'], groups)
-
     # TODO
-    # def test_add_package_extras(self):
-    #     package_dict = {
-    #         'id': '123-456-789'
-    #     }
-    #     harvest_object = {
-    #         'id': 'my-harvestobject-id',
-    #         'job': {
-    #             'id': 'jobid',
-    #             'source':{
-    #                 'id': 'harvester_id',
-    #                 'title': 'MyHarvestObject',
-    #                 'url': '/test/'
-    #             }
-    #         }
-    #     }
-    #     extras = {'hello':'world','foo':'bar'}
+    # @nottest
+    # def get_action_groups(context, group):
+    #     return group
+    # @patch('ckan.logic.get_action', spec=get_action_groups)
+    # def test_add_package_groups(self, get_action):
+    #     context = {}
+    #     groups = ['groupA', 'groupB']
     #     bh = BaseFTPHarvester()
     #     bh.config = {
-    #         'override_extras': extras
+    #         'default_groups': groups
     #     }
-    #     package_dict = bh._add_package_extras(package_dict, harvest_object)
-    #     assert_equal(package_dict['extras']['foo'], extras['foo'])
-    #     assert_equal(package_dict['extras']['hello'], extras['hello'])
+    #     package_dict = bh._add_package_groups({}, context)
+    #     assert_equal(package_dict['groups'], groups)
 
-
-    def test_convert_values_to_json_strings(self, resource_meta=None):
-        test_package = {
-            'foo': 'bar',
-            'list': ['a', 'b', 'c'],
-            'dict': {'a':'b'}
+    def test_add_package_extras(self):
+        package_dict = {
+            'id': '123-456-789'
         }
+        harvest_object = HarvestObject()
         bh = BaseFTPHarvester()
-        package_dict = bh._convert_values_to_json_strings(test_package)
-        assert_equal(package_dict['foo'],  'bar')
-        assert_equal(json.dumps(package_dict['list']), json.dumps(test_package['list']))
-        assert_equal(json.dumps(package_dict['dict']), json.dumps(test_package['dict']))
+        extras = {'hello':'world','foo':'bar'}
+        # fake a config given in the web interface
+        bh.config = {
+            'override_extras': True,
+            'default_extras': extras
+        }
+        package_dict = bh._add_package_extras(package_dict, harvest_object)
+        assert_equal(package_dict['extras']['foo'], extras['foo'])
+        assert_equal(package_dict['extras']['hello'], extras['hello'])
 
     def test_remove_tmpfolder(self):
         tmpfolder = ''
@@ -466,34 +489,53 @@ class TestBaseFTPHarvester(unittest.TestCase):
         ret = bh.remove_tmpfolder(tmpfolder)
         assert not os.path.exists(tmpfolder)
 
+    # ------------
+
+    def prereqs(self):
+        # cleanup before testing
+        shutil.rmtree('/tmp/mytestfolder', ignore_errors=True)
+    def outro(self):
+        # cleanup after testing
+        shutil.rmtree('/tmp/mytestfolder', ignore_errors=True)
+    class MockFTPHelper:
+        def __init__(self, remotefolder):
+            self.remotefolder = remotefolder
+        def get_remote_dirlist(self):
+            return ['hello.txt', 'WorlD.TXT', 'naughty.TMP', 'temporary.tmp']
+        def get_top_folder(self):
+            return 'mytestfolder'
+    class HarvestGatherError():
+        message = ''
+        def __init__(self, message, job):
+            self.message = message
+            self.job = job
+    @with_setup(prereqs, outro)
+    @patch('ftplib.FTP', autospec=True)
+    @patch('ftplib.FTP_TLS', autospec=True)
+    @patch('ckanext.switzerland.ftp.FTPHelper', spec=MockFTPHelper)
+    @patch('ckanext.harvest.model.HarvestObject', autospec=True)
+    @patch('ckanext.harvest.model.HarvestGatherError', spec=HarvestGatherError)
+    @patch('ckanext.harvest.model.HarvestObjectError', autospec=True)
+    def test_gather_stage(self, HarvestObjectError, HarvestGatherError, HarvestObject, MockFTPHelper, FTPLibTLS, FTPLib):
+        log.debug(MockFTPHelper)
+        # run the test
+        myjob = HarvestJob('1234')
+        bh = BaseFTPHarvester()
+        harvest_object_ids = bh.gather_stage(myjob)
+        # check the results
+        assert_equal(type(harvest_object_ids), list)
+        # there were two files to harvest defined in the MockFTPHelper
+        assert_equal(len(harvest_object_ids), 2)
 
 
 
-    # def test_gather_unit(self):
-    #     source = HarvestSourceObj(url='http://localhost:%s/' % mock_ckan.PORT)
-    #     job = HarvestJobObj(source=source)
-
-    #     harvester = BaseFTPHarvester()
-    #     obj_ids = harvester.gather_stage(job)
-
-    #     assert_equal(type(obj_ids), list)
-    #     assert_equal(len(obj_ids), 1)
-
-    #     harvest_object = harvest_model.HarvestObject.get(obj_ids[0])
-
-    #     assert_equal(harvest_object.guid, harvester.harvester_name)
 
     # def test_fetch_unit(self):
-
     #     source = HarvestSourceObj(url='http://localhost:%s/' % mock_ckan.PORT)
-
     #     job = HarvestJobObj(source=source)
-
     #     harvest_object = HarvestObjectObj(guid=mock_ckan.DATASETS[0]['id'], job=job)
-
     #     harvester = CKANHarvester()
     #     result = harvester.fetch_stage(harvest_object)
-
     #     assert_equal(result, True)
     #     assert_equal(
     #         harvest_object.content,
@@ -508,19 +550,22 @@ class TestBaseFTPHarvester(unittest.TestCase):
     #         content=json.dumps(mock_ckan.convert_dataset_to_restful_form(
     #                            mock_ckan.DATASETS[0])),
     #         job__source__owner_org=org['id'])
-
     #     harvester = CKANHarvester()
     #     result = harvester.import_stage(harvest_object)
-
     #     assert_equal(result, True)
     #     assert harvest_object.package_id
     #     dataset = model.Package.get(harvest_object.package_id)
     #     assert_equal(dataset.name, mock_ckan.DATASETS[0]['name'])
 
+    # -------------------------------------------------------------------------------
     # END UNIT tests ----------------------------------------------------------------
+    # -------------------------------------------------------------------------------
 
 
+
+    # -------------------------------------------------------------------------------
     # BEGIN INTEGRATION tests -------------------------------------------------------
+    # -------------------------------------------------------------------------------
 
     # def test_harvest(self):
     #     results_by_guid = run_harvest(

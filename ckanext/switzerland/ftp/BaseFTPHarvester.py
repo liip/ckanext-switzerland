@@ -1,319 +1,44 @@
 '''
 CKAN FTP Harvester
+==================
 
-A Harvesting Job is performed in two phases. In first place, the
-**gather** stage collects all the Ids and URLs that need to be fetched
+A Harvesting Job is performed in three phases.
+1) the **gather** stage collects all the files that need to be fetched
 from the harvest source. Errors occurring in this phase
 (``HarvestGatherError``) are stored in the ``harvest_gather_error``
 table.
-During the next phase, the **fetch** stage retrieves the
-``HarvestedObjects`` and, if necessary, the **import** stage stores
-them on the database. Errors occurring in this second stage
-(``HarvestObjectError``) are stored in the ``harvest_object_error``
-table.
+2) the **fetch** stage retrieves the ``HarvestedObjects``
+3) the **import** stage stores them in the database. Errors occurring in the second and third stages
+(``HarvestObjectError``) are stored in the ``harvest_object_error`` table.
 '''
 
+# import traceback
 import logging
 log = logging.getLogger(__name__)
 
-from ckan.lib.base import c
 from ckan import model
+from ckan.lib.base import c
 from ckan.model import Session, Package
 from ckan.logic import ValidationError, NotFound
 from ckan.logic import get_action, check_access
-from ckan.lib import helpers
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_name
 from simplejson.scanner import JSONDecodeError
 from pylons import config as ckanconf
 
-import traceback
-
-import os # , json
-from datetime import datetime, date
-import errno
-import subprocess
-import zipfile
-import ftplib
+import os
+import ftplib # for errors only
 import tempfile
 import time
+from datetime import datetime, date
 import shutil
-
-import ckanapi
-from ckanapi.errors import CKANAPIError
-    # NotAuthorized, NotFound, ValidationError,
-    # SearchQueryError, SearchError, SearchIndexError,
-    # ServerIncompatibleError
-
-# try:
-#     from urllib2 import Request, urlopen, HTTPError
-#     from urlparse import urlparse
-# except ImportError:
-#     from urllib.request import Request, urlopen, HTTPError
-#     from urllib.parse import urlparse
 import requests
 
 from base import HarvesterBase
 from ckanext.harvest.model import HarvestJob, HarvestObject, HarvestGatherError, \
                                     HarvestObjectError
 
-# package_patch action - nice to have
-
-
-
-
-class FTPHelper(object):
-    """ FTP Helper Class """
-
-    _config = None
-
-    ftps = None
-
-    remotefolder = ''
-
-    def __init__(self, remotefolder=''):
-        """
-        Load the ftp configuration from ckan config file
-
-        :param remotefolder: Remote folder path
-        :type remotefolder: str or unicode
-        """
-        ftpconfig = {}
-        for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
-            ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
-        ftpconfig['host'] = str(ftpconfig['host'])
-        ftpconfig['port'] = int(ftpconfig['port'])
-        self._config = ftpconfig
-
-        self.remotefolder = remotefolder.rstrip("/")
-
-        # create the local directory, if it does not exist
-        # TODO: use Python temp lib
-        self.create_local_dir()
-
-    def __enter__(self):
-        """
-        Establish an ftp connection
-
-        :returns: Instance of FTPHelper
-        :rtype: object
-        """
-        self._connect()
-        # cd into the remote directory
-        self.cdremote()
-        # return helper
-        return self
-
-    def __exit__(self, type, value, traceback):
-        """
-        Disconnect the ftp connection
-        """
-        self._disconnect()
-
-    def get_top_folder(self):
-        """
-        Get the name of the top-most folder in /tmp
-
-        :returns: The name of the folder created by ftplib, e.g. 'mydomain.com:21'
-        :rtype: string
-        """
-        return "%s:%d" % (self._config['host'], self._config['port'])
-
-    def _mkdir_p(self, path, perms=0777):
-        """
-        Recursively create local directories
-        Based on http://stackoverflow.com/a/600612/426266
-
-        :param path: Folder path
-        :type path: str or unicode
-        :param perms: Folder permissions
-        :type perms: octal
-        """
-        try:
-            os.makedirs(path, perms)
-        except OSError as exc:  # Python >2.5
-            if exc.errno == errno.EEXIST and os.path.isdir(path):
-                # path already exists
-                pass
-            else:
-                # something went wrong with the creation of the directories
-                raise
-
-    def create_local_dir(self, folder=None):
-        """
-        Create a local folder
-
-        :param folder: Folder path
-        :type folder: str or unicode
-
-        :returns: None
-        :rtype: None
-        """
-        if not folder:
-            folder = self._config['localpath']
-        # create the local directory if it does not exist
-
-        folder = folder.rstrip("/")
-
-        if not os.path.isdir(folder):
-            self._mkdir_p(folder)
-            log.debug("Created folder: %s" % str(folder))
-
-    def _connect(self):
-        """
-        Establish an FTP connection
-
-        :returns: None
-        :rtype: None
-        """
-        # overwrite the default port (21)
-        ftplib.FTP.port = int(self._config['port'])
-        # connect
-        self.ftps = ftplib.FTP_TLS(self._config['host'], self._config['username'], self._config['password'])
-        # switch to secure data connection
-        self.ftps.prot_p()
-
-    def _disconnect(self):
-        """
-        Close ftp connection
-
-        :returns: None
-        :rtype: None
-        """
-        self.ftps.quit() # '221 Goodbye.'
-
-    def cdremote(self, remotedir=None):
-        """
-        Change remote directory
-
-        :param remotedir: Full path on the remote server
-        :type remotedir: str or unicode
-
-        :returns: None
-        :rtype: None
-        """
-        if not remotedir:
-            remotedir = self.remotefolder
-        self.ftps.cwd(remotedir)
-
-    def get_remote_dirlist(self, folder=None):
-        """
-        List files and sub-directories in the current directory
-
-        :param folder: Full path on the remote server
-        :type folder: str or unicode
-
-        :returns: Directory listing (excluding '.' and '..')
-        :rtype: list
-        """
-        # get dir listing of a specific directory
-        if folder:
-            dirlist = self.ftps.nlst(folder)
-        # get dir listing of current directory
-        else:
-            dirlist = self.ftps.nlst()
-        # filter out '.' and '..' and return the list
-        return filter(lambda x: x not in ['.', '..'], dirlist)
-
-    # see: http://stackoverflow.com/a/31512228/426266
-    def get_remote_dirlist_all(self, folder=None):
-        """
-        Get a listing of all files (including subdirectories in a specific folder on the remote server
-
-        :param folder: Folder name or path
-        :type folder: str or unicode
-
-        :returns: Directory listing (excluding '.' and '..')
-        :rtype: list
-        """
-        if not folder:
-            folder = self.remotefolder
-        dirs = []
-        new_dirs = self.get_remote_dirlist(folder)
-        while len(new_dirs) > 0:
-            for dir in new_dirs:
-                dirs.append(dir)
-            old_dirs = new_dirs[:]
-            new_dirs = []
-            for dir in old_dirs:
-                for new_dir in self.get_remote_dirlist(dir):
-                    new_dirs.append(new_dir)
-        dirs.sort()
-        return dirs
-
-    def is_empty_dir(self, folder=None):
-        """
-        Check if a remote directory is empty
-
-        :param folder: Folder name or path
-        :type folder: str or unicode
-
-        :returns: Number of directories in remote folder
-        :rtype: int
-        """
-        # get dir listing of a specific directory
-        if not folder:
-            folder=None
-        num_files = len(self.get_remote_dirlist_all(folder))
-        return num_files
-
-    # def wget_fetch_all(self):
-    #     """
-    #     Fetch all files in a folder from the remote server with wget
-    #     :returns: Shell execution status
-    #     :rtype: int
-    #     """
-    #     # optional parameters:
-    #         # -nv: non-verbose
-    #         # --no-clobber: do not overwrite existing files
-    #     return subprocess.call(
-    #         "/usr/local/bin/wget -r --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (
-    #             self._config['username'],
-    #             self._config['password'],
-    #             self._config['host'],
-    #             int(self._config['port']),
-    #             os.path.join(self._config['remotedirectory'], self.remotefolder)
-    #         ), shell=True)
-
-    # def wget_fetch(self, file):
-    #     """
-    #     Fetch a single file from the remote server with wget
-    #     :param file: File to fetch
-    #     :type file: str or unicode
-    #     :returns: Shell execution status
-    #     :rtype: int
-    #     """
-    #     return subprocess.call(
-    #         "/usr/local/bin/wget --no-clobber --ftp-user='%s' --ftp-password='%s' -np --no-check-certificate ftps://%s:%d/%s" % (
-    #             self._config['username'],
-    #             self._config['password'],
-    #             self._config['host'],
-    #             int(self._config['port']),
-    #             file
-    #         ), shell=True)
-
-    def fetch(self, filename, localpath=None):
-        """
-        Fetch a single file from the remote server with ftplib
-
-        :param filename: File to fetch
-        :type filename: str or unicode
-        :param localpath: Local folder to store the file
-        :type localpath: str or unicode
-
-        :returns: Status of the FTP operation
-        :rtype: string
-        """
-        if not localpath:
-            localpath = os.path.join(self._config['localpath'], filename)
-
-        localfile = open(localpath, 'wb')
-        status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
-        localfile.close()
-        # TODO: check status
-        # TODO: verify download
-        return status
-
+from FTPHelper import FTPHelper
 
 
 
@@ -365,46 +90,6 @@ class BaseFTPHarvester(HarvesterBase):
 
     def get_remote_folder(self):
         return os.path.join('/', self.environment, self.remotefolder.lstrip('/')) # e.g. /test/DiDok or /prod/Info+
-
-    def ckanapi_connect(self, site_url, apikey):
-        try:
-            ckan = ckanapi.RemoteCKAN(site_url,
-                # api key of the harvester user
-                apikey=apikey,
-                user_agent='ckanapi/1.0 (+%s)' % site_url
-            )
-            log.debug("CKANAPI-Connected to %s" % site_url)
-        except ckanapi.NotAuthorized, e:
-            self._save_object_error('User not authorized or accessing a deleted item', harvest_object, stage)
-            return False
-        except ckanapi.CKANAPIError, e:
-            self._save_object_error('Could not connect to CKAN via API', harvest_object, stage)
-            return False
-        except ckanapi.ServerIncompatibleError, e:
-            self._save_object_error('Could not connect to CKAN via API (remote API is not a CKAN API)', harvest_object, stage)
-            return False
-        return ckan
-
-
-    def _unzip(self, filepath):
-        """
-        Extract a single zip file
-        E.g. will extract a file /tmp/somedir/myfile.zip into /tmp/somedir/
-
-        :param filepath: Path to a local file
-        :type filepath: str or unicode
-
-        :returns: Number of extracted files
-        :rtype: int
-        """
-        na, file_extension = os.path.splitext(filepath)
-        if file_extension.lower() == '.zip':
-            log.debug("Unzipping: %s" % filepath)
-            target_folder = os.path.dirname(filepath)
-            zfile = zipfile.ZipFile(filepath)
-            filelist = zfile.namelist()
-            zfile.extractall(target_folder)
-            return len(filelist)
 
     def _get_local_dirlist(self, localpath="."):
         """
@@ -475,11 +160,11 @@ class BaseFTPHarvester(HarvesterBase):
                     raise ValueError('api_version must be an integer')
 
             if 'default_tags' in config_obj:
-                if not isinstance(config_obj['default_tags'],list):
+                if not isinstance(config_obj['default_tags'], list):
                     raise ValueError('default_tags must be a list')
 
             if 'default_groups' in config_obj:
-                if not isinstance(config_obj['default_groups'],list):
+                if not isinstance(config_obj['default_groups'], list):
                     raise ValueError('default_groups must be a list')
 
                 # Check if default groups exist
@@ -491,7 +176,7 @@ class BaseFTPHarvester(HarvesterBase):
                         raise ValueError('Default group not found')
 
             if 'default_extras' in config_obj:
-                if not isinstance(config_obj['default_extras'],dict):
+                if not isinstance(config_obj['default_extras'], dict):
                     raise ValueError('default_extras must be a dictionary')
 
             if 'user' in config_obj:
@@ -504,7 +189,7 @@ class BaseFTPHarvester(HarvesterBase):
 
             for key in ('read_only','force_all'):
                 if key in config_obj:
-                    if not isinstance(config_obj[key],bool):
+                    if not isinstance(config_obj[key], bool):
                         raise ValueError('%s must be boolean' % key)
 
         except ValueError,e:
@@ -544,7 +229,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         return package_dict
 
-    def _add_package_tags(self, package_dict):
+    def _add_package_tags(self, package_dict, context):
         """
         Create tags
 
@@ -557,25 +242,24 @@ class BaseFTPHarvester(HarvesterBase):
         if not 'tags' in package_dict:
             package_dict['tags'] = []
 
-        if not self.config:
-            self.config = {}
-
+        # add the tags from the config object
         default_tags = self.config.get('default_tags', [])
         if default_tags:
             package_dict['tags'].extend([t for t in default_tags if t not in package_dict['tags']])
 
-        # add optional tags
-        if self.package_dict_meta.get('tags'):
-            for tag in self.package_dict_meta.get('tags'):
-                tag_dict = get_action('tag_show')(context, {'id': tag})
-                if tag_dict:
-                    # add the found tag to the package's tags
-                    package_dict['tags'].append(tag_dict)
+        # add optional tags, defined in the harvester
+        # if self.package_dict_meta.get('tags'):
+        #     for tag in self.package_dict_meta.get('tags'):
+        #         tag_dict = get_action('tag_show')(context, {'id': tag})
+        #         if tag_dict:
+        #             # add the found tag to the package's tags
+        #             package_dict['tags'].append(tag_dict)
+
         package_dict['num_tags'] = len(package_dict['tags'])
 
         return package_dict
 
-    def _add_package_groups(self, package_dict):
+    def _add_package_groups(self, package_dict, context):
         """
         Create (default) groups
 
@@ -585,47 +269,27 @@ class BaseFTPHarvester(HarvesterBase):
         :returns: Package dictionary
         :rtype: dict
         """
-        #     if not 'groups' in package_dict:
-        #         package_dict['groups'] = []
-        #     # check if remote groups exist locally, otherwise remove
-        #     validated_groups = []
-        #     for group_name in package_dict['groups']:
-        #         try:
-        #             data_dict = {'id': group_name}
-        #             group = get_action('group_show')(context, data_dict)
-        #             if self.api_version == 1:
-        #                 validated_groups.append(group['name'])
-        #             else:
-        #                 validated_groups.append(group['id'])
-        #         except NotFound, e:
-        #             log.info('Group %s is not available' % group_name)
-        #             if remote_groups == 'create':
-        #                 try:
-        #                     group = self._get_group(harvest_object.source.url, group_name)
-        #                 except RemoteResourceError:
-        #                     log.error('Could not get remote group %s' % group_name)
-        #                     continue
-        #                 for key in ['packages', 'created', 'users', 'groups', 'tags', 'extras', 'display_name']:
-        #                     group.pop(key, None)
-        #                 get_action('group_create')(context, group)
-        #                 log.info('Group %s has been newly created' % group_name)
-        #                 if self.api_version == 1:
-        #                     validated_groups.append(group['name'])
-        #                 else:
-        #                     validated_groups.append(group['id'])
-        #     package_dict['groups'] = validated_groups
+        if not 'groups' in package_dict:
+            package_dict['groups'] = []
 
         # Set default groups if needed
         default_groups = self.config.get('default_groups', [])
-        if default_groups:
-            if not 'groups' in package_dict:
-                package_dict['groups'] = []
-            package_dict['groups'].extend([g for g in default_groups if g not in package_dict['groups']])
+        # package_dict['groups'].extend([g for g in default_groups if g not in package_dict['groups']])
+        # check if groups exist locally, otherwise do not add them
+        for group_name in default_groups:
+            try:
+                group = get_action('group_show')(context, {'id': group_name})
+                if self.api_version == 1:
+                    package_dict['groups'].append(group['name'])
+                else:
+                    package_dict['groups'].append(group['id'])
+            except NotFound, e:
+                log.info('Group %s is not available' % group_name)
 
         return package_dict
 
     # TODO
-    def _add_package_orgs(self, package_dict):
+    def _add_package_orgs(self, package_dict, context):
         """
         Create default organization(s)
         
@@ -635,45 +299,17 @@ class BaseFTPHarvester(HarvesterBase):
         :returns: Package dictionary
         :rtype: dict
         """
-        # -----------------------------------------------------------------------
-        # organization creation
-        # -----------------------------------------------------------------------
-        #     # Local harvest source organization
-        #     source_dataset = get_action('package_show')(context, {'id': harvest_object.source.id})
-        #     local_org = source_dataset.get('owner_org')
-        #     remote_orgs = self.config.get('remote_orgs', None)
-        #     if not remote_orgs in ('only_local', 'create'):
-        #         # Assign dataset to the source organization
-        #         package_dict['owner_org'] = local_org
-        #     else:
-        #         if not 'owner_org' in package_dict:
-        #             package_dict['owner_org'] = None
-        #         # check if remote org exist locally, otherwise remove
-        #         validated_org = None
-        #         remote_org = package_dict['owner_org']
-        #         if remote_org:
-        #             try:
-        #                 data_dict = {'id': remote_org}
-        #                 org = get_action('organization_show')(context, data_dict)
-        #                 validated_org = org['id']
-        #             except NotFound, e:
-        #                 log.info('Organization %s is not available' % remote_org)
-        #                 if remote_orgs == 'create':
-        #                     try:
-        #                         try:
-        #                             org = self._get_organization(harvest_object.source.url, remote_org)
-        #                         except RemoteResourceError:
-        #                             # fallback if remote CKAN exposes organizations as groups
-        #                             # this especially targets older versions of CKAN
-        #                             org = self._get_group(harvest_object.source.url, remote_org)
-        #                         for key in ['packages', 'created', 'users', 'groups', 'tags', 'extras', 'display_name', 'type']:
-        #                             org.pop(key, None)
-        #                         get_action('organization_create')(context, org)
-        #                         log.info('Organization %s has been newly created' % remote_org)
-        #                         validated_org = org['id']
-        #                     except (RemoteResourceError, ValidationError):
-        #                         log.error('Could not get remote org %s' % remote_org)
-        #         package_dict['owner_org'] = validated_org or local_org
+
+        # add the organization from the config object
+        default_org = self.config.get('organization', False)
+        if not default_org:
+            return package_dict
+
+        # check if this organization exists
+        org_dict = get_action('organization_show')(context, {'id': org})
+        if org_dict:
+            package_dict['owner_org'] = default_org
+            package_dict['organization'] = org_dict
 
         return package_dict
 
@@ -690,22 +326,10 @@ class BaseFTPHarvester(HarvesterBase):
         :rtype: dict
         """
 
-        #     # Find any extras whose values are not strings and try to convert
-        #     # them to strings, as non-string extras are not allowed anymore in
-        #     # CKAN 2.0.
-        #     for key in package_dict['extras'].keys():
-        #         if not isinstance(package_dict['extras'][key], basestring):
-        #             try:
-        #                 package_dict['extras'][key] = json.dumps(
-        #                         package_dict['extras'][key])
-        #             except TypeError:
-        #                 # If converting to a string fails, just delete it.
-        #                 del package_dict['extras'][key]
-
         # Set default extras if needed
-        default_extras = self.config.get('default_extras',{})
+        default_extras = self.config.get('default_extras', {})
         if default_extras:
-            override_extras = self.config.get('override_extras',False)
+            override_extras = self.config.get('override_extras', False)
             if not 'extras' in package_dict:
                 package_dict['extras'] = {}
             for key,value in default_extras.iteritems():
@@ -722,62 +346,6 @@ class BaseFTPHarvester(HarvesterBase):
                     package_dict['extras'][key] = value
 
         return package_dict
-
-    def _set_package_permissions(self, dataset, context):
-        """
-        Set the permissions of a CKAN package (e.g. read-only)
-
-        :param dataset: Package dictionary
-        :type dataset: dict
-        :param context: Context
-        :type context: dict
-
-        :returns: Package dictionary
-        :rtype: dict
-        """
-
-        # TODO: The methods were all deprecated - is there something that replaces them?
-
-        # package = model.Package.get(dataset['id'])
-
-        # Clear default permissions
-        # --- deprecated ---
-        # model.clear_user_roles(package)
-
-        # Set harvest user as admin of this package
-        # --- deprecated ---
-        # user_name = self.config.get('user', u'harvest')
-        # user = model.User.get(user_name)
-        # pkg_role = model.PackageRole(package=package, user=user, role=model.Role.ADMIN)
-
-        # Set the package read-only
-        # --- deprecated ---
-        # if self.config.get('read_only', True) is True: # default is true -> read-only
-        #     # Other users can only read
-        #     for user_name in (u'visitor', u'logged_in'):
-        #         user = model.User.get(user_name)
-        #         pkg_role = model.PackageRole(package=package, user=user, role=model.Role.READER)
-
-        return dataset
-
-    def _convert_values_to_json_strings(self, resource_meta=None):
-        """
-        Convert all list and dict values of a dictionary into json-encoded strings
-
-        :param resource_meta: Package dictionary
-        :type resource_meta: dict
-
-        :returns: Package dictionary
-        :rtype: dict
-        """
-        if not resource_meta:
-            resource_meta = {}
-        # send all lists as json-encoded strings:
-        # https://github.com/ckan/ckanapi/blob/b4d109b2b3538f39340079ddd39532451868e32a/ckanapi/common.py#L73
-        for key,value in resource_meta.iteritems():
-            if isinstance(value, list) or isinstance(value, dict):
-                resource_meta[key] = json.dumps(value)
-        return resource_meta
 
     def remove_tmpfolder(self, tmpfolder):
         if not tmpfolder:
@@ -856,7 +424,6 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
             return None
 
-
         # version 1: create one harvest object for the package
         # -------------------------------------------------------------------------
         # harvest_object = HarvestObject(guid=self.harvester_name, job=harvest_job)
@@ -865,7 +432,6 @@ class BaseFTPHarvester(HarvesterBase):
         # # save it for the next step
         # harvest_object.save()
         # return [ harvest_object.id ]
-
 
         # version 2: create one harvest job for each resource in the package
         # -------------------------------------------------------------------------
@@ -888,8 +454,8 @@ class BaseFTPHarvester(HarvesterBase):
 
 
 
-
-        # old stuff
+        # -----
+        # TODO: implement a function with the below code that allows to resume downloads / only load changed resources
 
         # get_all_packages = True
         # package_ids = []
@@ -1078,12 +644,8 @@ class BaseFTPHarvester(HarvesterBase):
                     self._save_object_error('Download error for file %s: %s' % (file, str(status)), harvest_object, stage)
                     return None
 
-                # log.debug("Unzipping file")
                 if self.do_unzip:
-                    # dirlist = self._get_local_dirlist(workingdir)
-                    # for file in dirlist:
-                    # if file is a zip, unzip
-                    self._unzip(targetfile)
+                    ftph.unzip(targetfile)
 
         except ftplib.all_errors as e:
             self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
@@ -1232,13 +794,6 @@ class BaseFTPHarvester(HarvesterBase):
 
             package_dict['creator_user_id'] = model.User.get(context['user']).id
 
-            # configure default metadata (optionally provided via the harvester configuration as a json object)
-            # TODO: make this compatible with multi-lang
-            # package_dict = self._add_package_tags(package_dict)
-            # package_dict = self._add_package_groups(package_dict)
-            # package_dict = self._add_package_orgs(package_dict)
-            # package_dict = self._add_package_extras(package_dict, harvest_object)
-
             # fill with defaults
             for key in ['issued', 'modified', 'metadata_created', 'metadata_modified']:
                 if not package_dict.get(key):
@@ -1253,6 +808,15 @@ class BaseFTPHarvester(HarvesterBase):
             if not package_dict.get('language'):
                 package_dict['language'] = ["en", "de", "fr", "it"]
 
+            # In the harvester interface, certain options can be provided in the config field as a json object
+            # The following functions check and add these optional fields
+            # TODO: make the functions compatible with multi-lang
+            if not self.config:
+                self.config = {}
+            package_dict = self._add_package_tags(package_dict, context)
+            package_dict = self._add_package_groups(package_dict, context)
+            package_dict = self._add_package_orgs(package_dict, context)
+            package_dict = self._add_package_extras(package_dict, harvest_object)
 
             # -----------------------------------------------------------------------
             # create the package
@@ -1273,15 +837,6 @@ class BaseFTPHarvester(HarvesterBase):
 
             log.info("Created package: %s" % str(dataset['name']))
 
-            # TODO
-            # dataset = self._set_package_permissions(dataset, context)
-
-
-        # except ValidationError, e:
-        #     self._save_object_error('Invalid package with GUID %s: %r' % (harvest_object.guid, e.error_dict),
-        #             harvest_object, stage)
-        #     return False
-
         except Exception as e:
             # log.error("Error: Package dict: %s" % str(package_dict))
             self._save_object_error('Package update/creation error: %s' % str(e), harvest_object, stage)
@@ -1294,6 +849,7 @@ class BaseFTPHarvester(HarvesterBase):
             return False
 
 
+        # TODO
         # associate the harvester with the dataset
         harvest_object.guid = dataset['id']
         harvest_object.package_id = dataset['id']
@@ -1310,15 +866,6 @@ class BaseFTPHarvester(HarvesterBase):
         if not site_url:
             self._save_object_error('Could not get site_url from CKAN config file', harvest_object, stage)
             return False
-
-
-        # connect to ckan with ckanapi
-        # ---------------------------
-        # ckan = self.ckanapi_connect(site_url=site_url, apikey=model.User.get(context['user']).apikey.encode('utf8'))
-        # if not ckan:
-        #     self._save_object_error('Could not connect to ckan', harvest_object, stage)
-        #     return False
-        # ---------------------------
 
 
         # import the the file into CKAN
@@ -1406,21 +953,6 @@ class BaseFTPHarvester(HarvesterBase):
 
                 resource_meta['identifier'] = os.path.basename(file)
 
-                resource_meta['name'] = {
-                        "de": os.path.basename(file),
-                        "en": os.path.basename(file),
-                        "fr": os.path.basename(file),
-                        "it": os.path.basename(file)
-                    }
-                resource_meta['title'] = json.dumps(resource_meta['name'])
-
-                resource_meta['description'] = json.dumps({
-                        "de": "",
-                        "en": "",
-                        "fr": "",
-                        "it": ""
-                    })
-
                 resource_meta['issued'] = now
                 resource_meta['modified'] = now
 
@@ -1438,7 +970,22 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta['mimetype'] = mimetype
                 resource_meta['mimetype_inner'] = mimetype_inner
 
-                # resource_meta = self._convert_values_to_json_strings(resource_meta)
+                # ----------------------------------------------------
+
+                resource_meta['name'] = json.dumps({
+                        "de": os.path.basename(file),
+                        "en": os.path.basename(file),
+                        "fr": os.path.basename(file),
+                        "it": os.path.basename(file)
+                    })
+                resource_meta['title'] = resource_meta['name']
+
+                resource_meta['description'] = json.dumps({
+                        "de": "",
+                        "en": "",
+                        "fr": "",
+                        "it": ""
+                    })
 
                 log_msg = "Creating new resource: %s"
 
@@ -1450,46 +997,27 @@ class BaseFTPHarvester(HarvesterBase):
                 # a resource was found - use the existing metadata
 
                 # the resource should get a new id, so delete the old one
-                if resource_meta.get('id'):
-                    del resource_meta['id']
-
                 # the resource will get a new revision id
-                if resource_meta.get('revision_id'):
-                    del resource_meta['revision_id']
-
-                # resource_meta = self._convert_values_to_json_strings(resource_meta)
+                for key in ['id', 'revision_id']:
+                    try:
+                        del resource_meta[key]
+                    except KeyError as e:
+                        pass
 
                 log_msg = "Creating resource (with known metadata): %s"
 
 
             # url parameter is ignored for resource uploads, but required by ckan
             resource_meta['url'] = 'http://dummy-value'
+
             # TODO
             resource_meta['download_url'] = 'http://dummy-value'
-
-            # test
-            # if resource_meta.get('description'):
-            #     resource_meta['description'] = json.dumps(resource_meta['description'])
 
             if size != None:
                 resource_meta['size'] = size
                 resource_meta['byte_size'] = size / 8 # TODO
 
-            # the file we are going to upload
-            # resource_meta['upload'] = fp
-
-            log.debug(log_msg % str(resource_meta))
-
-            # ckanapi
-            # ---------------------------------------------------------------------
-            # log.debug('********req 1-pre')
-            # # resource = ckan.action.resource_create(**resource_meta)
-            # # resource = ckan.call_action('resource_create', resource_meta)
-            # resource = ckan.call_action('resource_create', resource_meta, files={'upload': fp})
-            # if not resource or not resource.get('id'):
-            #     raise Exception("failed ckan.action.resource_create: %s" % str(resource))
-            # log.debug('********req 1-post')
-            # ---------------------------------------------------------------------
+            log.info(log_msg % str(resource_meta))
 
             # upload with requests library to avoid ckanapi
             # ---------------------------------------------------------------------
@@ -1509,8 +1037,6 @@ class BaseFTPHarvester(HarvesterBase):
                 r.raise_for_status()
             # ---------------------------------------------------------------------
 
-
-        # except CKANAPIError, e:
         except Exception as e:
             log.error("Error adding resource: %s" % str(e))
             # log.debug(traceback.format_exc())
