@@ -29,6 +29,9 @@ class FTPHelper(object):
 
     remotefolder = ''
 
+    tmpfile_extension = '.TMP'
+
+    # tested
     def __init__(self, remotefolder=''):
         """
         Load the ftp configuration from ckan config file
@@ -47,6 +50,7 @@ class FTPHelper(object):
         # create the local directory, if it does not exist
         self.create_local_dir()
 
+    # tested
     def __enter__(self):
         """
         Establish an ftp connection and cd into the configured remote directory
@@ -60,12 +64,14 @@ class FTPHelper(object):
         # return helper instance
         return self
 
+    # tested
     def __exit__(self, type, value, traceback):
         """
         Disconnect the ftp connection
         """
         self._disconnect()
 
+    # tested
     def get_top_folder(self):
         """
         Get the name of the top-most folder in /tmp
@@ -75,6 +81,7 @@ class FTPHelper(object):
         """
         return "%s:%d" % (self._config['host'], self._config['port'])
 
+    # tested
     def _mkdir_p(self, path, perms=0777):
         """
         Recursively create local directories
@@ -95,6 +102,7 @@ class FTPHelper(object):
                 # something went wrong with the creation of the directories
                 raise
 
+    # tested
     def create_local_dir(self, folder=None):
         """
         Create a local folder
@@ -115,6 +123,7 @@ class FTPHelper(object):
             self._mkdir_p(folder)
             log.debug("Created folder: %s" % str(folder))
 
+    # tested
     def _connect(self):
         """
         Establish an FTP connection
@@ -129,6 +138,7 @@ class FTPHelper(object):
         # switch to secure data connection
         self.ftps.prot_p()
 
+    # tested
     def _disconnect(self):
         """
         Close ftp connection
@@ -139,6 +149,7 @@ class FTPHelper(object):
         if self.ftps:
             self.ftps.quit() # '221 Goodbye.'
 
+    # tested
     def cdremote(self, remotedir=None):
         """
         Change remote directory
@@ -153,6 +164,7 @@ class FTPHelper(object):
             remotedir = self.remotefolder
         self.ftps.cwd(remotedir)
 
+    # tested
     def get_remote_dirlist(self, folder=None):
         """
         List files and sub-directories in the current directory
@@ -169,8 +181,15 @@ class FTPHelper(object):
         # get dir listing of current directory
         else:
             dirlist = self.ftps.nlst()
+
         # filter out '.' and '..' and return the list
-        return filter(lambda x: x not in ['.', '..'], dirlist)
+        dirlist = filter(lambda x: x not in ['.', '..'], dirlist)
+
+        # .TMP must be ignored, as they are still being uploaded
+        dirlist = [ x for x in dirlist if not x.lower().endswith(self.tmpfile_extension.lower()) ]
+        # dirlist = filter(lambda x: x if not x.lower().endswith(self.tmpfile_extension.lower()), dirlist)
+
+        return dirlist
 
     # see: http://stackoverflow.com/a/31512228/426266
     def get_remote_dirlist_all(self, folder=None):
@@ -198,6 +217,7 @@ class FTPHelper(object):
         dirs.sort()
         return dirs
 
+    # tested (with empty dir)
     def is_empty_dir(self, folder=None):
         """
         Check if a remote directory is empty
@@ -213,6 +233,7 @@ class FTPHelper(object):
         num_files = len(self.get_remote_dirlist_all(folder))
         return num_files
 
+    # tested
     def fetch(self, filename, localpath=None):
         """
         Fetch a single file from the remote server with ftplib
@@ -235,6 +256,7 @@ class FTPHelper(object):
         # TODO: verify download
         return status
 
+    # tested
     def unzip(self, filepath):
         """
         Extract a single zip file

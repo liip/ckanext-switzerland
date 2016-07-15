@@ -3,3 +3,4 @@
 flake8==2.1.0
 # pyftpdlib==1.5.1
 # pyOpenSSL==16.0.0
+testfixtures==4.10.0

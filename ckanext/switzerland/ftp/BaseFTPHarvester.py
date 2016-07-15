@@ -62,8 +62,6 @@ class BaseFTPHarvester(HarvesterBase):
     # default harvester id, to be overwritten by child classes
     harvester_name = 'ckanftp'
 
-    tmpfile_extension = '.TMP'
-
     # default remote directory to harvest, to be overwritten by child classes
     # e.g. infodoc or didok
     remotefolder = ''
@@ -80,17 +78,21 @@ class BaseFTPHarvester(HarvesterBase):
     do_unzip = True
 
 
+    # tested
     def _get_rest_api_offset(self):
         return '/api/%d/rest' % self.api_version
+    # tested
     def _get_action_api_offset(self):
         return '/api/%d/action' % self.action_api_version
+    # tested
     def _get_search_api_offset(self):
         return '/api/%d/search' % self.api_version
 
-
+    # tested
     def get_remote_folder(self):
         return os.path.join('/', self.environment, self.remotefolder.lstrip('/')) # e.g. /test/DiDok or /prod/Info+
 
+    # tested
     def _get_local_dirlist(self, localpath="."):
         """
         Get directory listing, including all sub-folders
@@ -107,6 +109,7 @@ class BaseFTPHarvester(HarvesterBase):
                 dirlist.append(os.path.join(dirpath, filename))
         return dirlist
 
+    # tested
     def _set_config(self, config_str):
         """
         Set configuration value
@@ -122,6 +125,7 @@ class BaseFTPHarvester(HarvesterBase):
         else:
             self.config = {}
 
+    # tested
     def info(self):
         """
         Return basic information about the harvester
@@ -197,6 +201,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         return config
 
+    # tested
     def _add_harvester_metadata(self, package_dict, context):
         """
         Adds the metadata stored in the harvester class
@@ -229,6 +234,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         return package_dict
 
+    # tested
     def _add_package_tags(self, package_dict, context):
         """
         Create tags
@@ -288,7 +294,6 @@ class BaseFTPHarvester(HarvesterBase):
 
         return package_dict
 
-    # TODO
     def _add_package_orgs(self, package_dict, context):
         """
         Create default organization(s)
@@ -313,6 +318,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         return package_dict
 
+    # tested
     def _add_package_extras(self, package_dict, harvest_object):
         """
         Create default organization(s)
@@ -347,11 +353,13 @@ class BaseFTPHarvester(HarvesterBase):
 
         return package_dict
 
+    # tested
     def remove_tmpfolder(self, tmpfolder):
         if not tmpfolder:
             return
         shutil.rmtree(tmpfolder)
 
+    # tested
     def cleanup_after_error(self, retobj):
         if retobj and retobj.get('tmpfolder'):
             self.remove_tmpfolder(retobj['tmpfolder'])
@@ -387,9 +395,6 @@ class BaseFTPHarvester(HarvesterBase):
             with FTPHelper(remotefolder) as ftph:
 
                 dirlist = ftph.get_remote_dirlist()
-
-                # .TMP must be ignored, as they are still being uploaded
-                dirlist = filter(lambda x: not x.lower().endswith(self.tmpfile_extension), dirlist)
 
                 # store some config for the next step
 
