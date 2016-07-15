@@ -82,10 +82,10 @@ class InfoplusHarvester(BaseFTPHarvester):
         }],
         # # optional groups
         'keywords': { # TODO
-            "fr": "TODO",
-            "en": "TODO",
-            "de": "TODO",
-            "it": "TODO"
+            "fr": [],
+            "en": [],
+            "de": [],
+            "it": []
         },
         'contact_points': [{
             "name": "Contact Name",
@@ -98,7 +98,7 @@ class InfoplusHarvester(BaseFTPHarvester):
     }
 
     resource_dict_meta = {
-        'state': 'active',
+        # 'state': 'active',
         'rights': 'Other (Open)', # TODO
         'license': 'Other (Open)', # TODO
         'coverage': 'Coverage', # TODO
@@ -212,10 +212,10 @@ class DidokHarvester(BaseFTPHarvester):
         }],
         # # optional groups
         'keywords': { # TODO
-            "fr": "TODO",
-            "en": "TODO",
-            "de": "TODO",
-            "it": "TODO"
+            "fr": [],
+            "en": [],
+            "de": [],
+            "it": []
         },
         'contact_points': [{
             "name": "Contact Name",
@@ -228,7 +228,7 @@ class DidokHarvester(BaseFTPHarvester):
     }
 
     resource_dict_meta = {
-        'state': 'active',
+        # 'state': 'active',
         'rights': 'Other (Open)', # TODO
         'license': 'Other (Open)', # TODO
         'coverage': 'Coverage', # TODO
