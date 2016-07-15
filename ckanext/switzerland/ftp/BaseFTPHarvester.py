@@ -25,6 +25,7 @@ from ckan.lib.helpers import json
 from ckan.lib.munge import munge_name
 from simplejson.scanner import JSONDecodeError
 from pylons import config as ckanconf
+from testfixtures import Replace
 
 import os
 import ftplib # for errors only
@@ -395,6 +396,7 @@ class BaseFTPHarvester(HarvesterBase):
             with FTPHelper(remotefolder) as ftph:
 
                 dirlist = ftph.get_remote_dirlist()
+                log.debug("Remote dirlist: %s" % str(dirlist))
 
                 # store some config for the next step
 

@@ -17,6 +17,7 @@ from nose.tools import assert_equal, raises, nottest, with_setup
 from mock import patch, Mock
 from mock import MagicMock
 from mock import PropertyMock
+from testfixtures import Replace
 
 from pylons import config as ckanconf
 
@@ -330,35 +331,39 @@ class TestBaseFTPHarvester(unittest.TestCase):
 
     # ------------
 
-    # TODO
     # class MockFTPHelper:
+    #     remotefolder = None
     #     def __init__(self, remotefolder):
     #         self.remotefolder = remotefolder
     #     def get_remote_dirlist(self):
     #         return ['hello.txt', 'WorlD.TXT', 'naughty.TMP', 'temporary.tmp']
     #     def get_top_folder(self):
     #         return 'mytestfolder'
-    # class HarvestGatherError():
+    # class MockHarvestGatherError():
     #     message = ''
+    #     job = None
     #     def __init__(self, message, job):
     #         self.message = message
     #         self.job = job
+
     # @with_setup(prereqs, outro)
     # @patch('ftplib.FTP', autospec=True)
     # @patch('ftplib.FTP_TLS', autospec=True)
     # @patch('ckanext.switzerland.ftp.FTPHelper', spec=MockFTPHelper)
     # @patch('ckanext.harvest.model.HarvestObject', autospec=True)
-    # @patch('ckanext.harvest.model.HarvestGatherError', spec=HarvestGatherError)
+    # @patch('ckanext.harvest.model.HarvestGatherError', spec=MockHarvestGatherError)
     # @patch('ckanext.harvest.model.HarvestObjectError', autospec=True)
-    # def test_gather_stage(self, HarvestObjectError, HarvestGatherError, HarvestObject, MockFTPHelper, FTPLibTLS, FTPLib):
-    #     log.debug(HarvestGatherError)
-    #     # run the test
-    #     myjob = HarvestJob('1234')
-    #     bh = BaseFTPHarvester()
-    #     harvest_object_ids = bh.gather_stage(myjob)
+    # def test_gather_stage(self, HarvestObjectError, HarvestGatherError, HarvestObject, FTPHelper, FTPLibTLS, FTPLib):
+
+    #         # run the test
+    #         myjob = HarvestJob('1234')
+    #         log.debug(myjob)
+    #         bh = BaseFTPHarvester()
+    #         harvest_object_ids = bh.gather_stage(myjob)
+
     #     # check the results
     #     assert_equal(type(harvest_object_ids), list)
-    #     # there were two files to harvest defined in the MockFTPHelper
+    #     # there were two valid files to harvest defined in the MockFTPHelper
     #     assert_equal(len(harvest_object_ids), 2)
 
 

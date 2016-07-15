@@ -8,8 +8,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from BaseFTPHarvester import BaseFTPHarvester
-from BaseFTPHarvester import ContentFetchError
-from BaseFTPHarvester import RemoteResourceError
+from BaseFTPHarvester import ContentFetchError, RemoteResourceError
 
 
 class InfoplusHarvester(BaseFTPHarvester):
@@ -109,15 +108,16 @@ class InfoplusHarvester(BaseFTPHarvester):
     # whether or not to unzip the files found locally
     do_unzip = False # PROD: set this to True
 
+
     # -----------------------------------------------------------------------
-    def gather_stage(self, harvest_object):
+    def gather_stage(self, harvest_job):
         """
         Gathers resources to fetch
 
-        :param harvest_object: Harvester job
+        :param harvest_job: Harvester job
         :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
         """
-        return super(InfoplusHarvester, self).gather_stage(harvest_object)
+        return super(InfoplusHarvester, self).gather_stage(harvest_job)
     # -----------------------------------------------------------------------
     def fetch_stage(self, harvest_object):
         """
@@ -237,15 +237,16 @@ class DidokHarvester(BaseFTPHarvester):
     # whether or not to unzip the files found locally
     do_unzip = False # no zip files in the folder (so far)
 
+
     # -----------------------------------------------------------------------
-    def gather_stage(self, harvest_object):
+    def gather_stage(self, harvest_job):
         """
         Gathers resources to fetch
 
-        :param harvest_object: Harvester job
+        :param harvest_job: Harvester job
         :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
         """
-        return super(InfoplusHarvester, self).gather_stage(harvest_object)
+        return super(DidokHarvester, self).gather_stage(harvest_job)
     # -----------------------------------------------------------------------
     def fetch_stage(self, harvest_object):
         """
@@ -254,7 +255,7 @@ class DidokHarvester(BaseFTPHarvester):
         :param harvest_object: HarvestObject
         :returns: True|None Whether HarvestObject was saved or not
         """
-        return super(InfoplusHarvester, self).fetch_stage(harvest_object)
+        return super(DidokHarvester, self).fetch_stage(harvest_object)
     # -----------------------------------------------------------------------
     def import_stage(self, harvest_object):
         """
@@ -263,5 +264,5 @@ class DidokHarvester(BaseFTPHarvester):
         :param harvest_object: HarvestObject
         :returns: True|False boolean Whether the object was imported or not
         """
-        return super(InfoplusHarvester, self).import_stage(harvest_object)
+        return super(DidokHarvester, self).import_stage(harvest_object)
     # -----------------------------------------------------------------------
