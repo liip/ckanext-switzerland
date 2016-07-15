@@ -23,9 +23,8 @@ from ckan.logic import ValidationError, NotFound
 from ckan.logic import get_action, check_access
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_name
-from simplejson.scanner import JSONDecodeError
+from ckan.lib import helpers
 from pylons import config as ckanconf
-from testfixtures import Replace
 
 import os
 import ftplib # for errors only
@@ -38,6 +37,8 @@ import requests
 from base import HarvesterBase
 from ckanext.harvest.model import HarvestJob, HarvestObject, HarvestGatherError, \
                                     HarvestObjectError
+
+from simplejson.scanner import JSONDecodeError
 
 from FTPHelper import FTPHelper
 
@@ -812,6 +813,12 @@ class BaseFTPHarvester(HarvesterBase):
                 if not package_dict.get(key):
                     package_dict[key] = {}
 
+            # count keywords or tags
+            package_dict['num_tags'] = 0
+            tags = package_dict.get('keywords') if package_dict.get('keywords', {}) else package_dict.get('tags', {})
+            if tags and tags.get('en') and isinstance(tags['en'], list):
+                package_dict['num_tags'] = len(tags['en'])
+
             if not package_dict.get('language'):
                 package_dict['language'] = ["en", "de", "fr", "it"]
 
@@ -889,8 +896,14 @@ class BaseFTPHarvester(HarvesterBase):
             mimetype_inner = self.default_mimetype_inner
         # if file has an extension
         else:
-            # set mime types
-            file_format = mimetype = mimetype_inner = ext
+            # mimetype validation
+            # see https://github.com/ckan/ckan/blob/a28b95c0f027c59004cf450fe521f710e5b4470b/ckan/config/resource_formats.json
+            valid_formats = helpers.resource_formats()
+            if valid_formats.get(ext.lower()):
+                # set mime types
+                file_format = mimetype = mimetype_inner = ext
+            # if format is unknown, we don't set it
+
             # TODO: find out what the inner mimetype is inside of archives
             # if ext in ['ZIP', 'RAR', 'TAR', 'TAR.GZ', '7Z']:
                 # mimetype_inner = 'TXT'
@@ -922,13 +935,22 @@ class BaseFTPHarvester(HarvesterBase):
                     if not allowed:
                         self._save_object_error('%s not authorised to delete resource (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, stage)
                         return False
+
+                    # delete the resource from filestore (?)
+                    # https://github.com/ckan/ckanext-harvest/issues/256#issuecomment-230816214
+                    # delete the resource from datastore (?)
+                    # from ckanext.datastore.logic.action import datastore_delete
+                    # datastore_delete(context, res)
+
                     # delete the resource
                     get_action('resource_delete')(context, {'id': res.get('id')})
+
                     log.debug("Deleted resource %s" % res.get('id'))
                     # remove this resource from the data dict
                     dataset['resources'].remove(res)
                     # there should only be one file with the same name in each dataset
                     break
+
                 except Exception as e:
                     log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
                     pass
@@ -963,8 +985,9 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta['issued'] = now
                 resource_meta['modified'] = now
 
-                # TODO
-                resource_meta['language'] = 'en'
+                # TODO - it does not really make sense having to set this here
+                resource_meta['language'] = 'de'
+
                 # TODO
                 if not resource_meta.get('rights'):
                     resource_meta['rights'] = 'TODO'
@@ -985,7 +1008,12 @@ class BaseFTPHarvester(HarvesterBase):
                         "fr": os.path.basename(file),
                         "it": os.path.basename(file)
                     })
-                resource_meta['title'] = resource_meta['name']
+                resource_meta['title'] = json.dumps({
+                        "de": os.path.basename(file),
+                        "en": os.path.basename(file),
+                        "fr": os.path.basename(file),
+                        "it": os.path.basename(file)
+                    })
 
                 resource_meta['description'] = json.dumps({
                         "de": "",
@@ -1004,7 +1032,7 @@ class BaseFTPHarvester(HarvesterBase):
                 # a resource was found - use the existing metadata
 
                 # the resource should get a new id, so delete the old one
-                # the resource will get a new revision id
+                # the resource will get a new revision_id and id, so we delete those keys
                 for key in ['id', 'revision_id']:
                     try:
                         del resource_meta[key]
@@ -1017,7 +1045,8 @@ class BaseFTPHarvester(HarvesterBase):
             # url parameter is ignored for resource uploads, but required by ckan
             resource_meta['url'] = 'http://dummy-value'
 
-            # TODO
+            # TODO - fill this with the resource url
+            # this should really not be required here or filled out by the dcat extension
             resource_meta['download_url'] = 'http://dummy-value'
 
             if size != None:
@@ -1026,7 +1055,7 @@ class BaseFTPHarvester(HarvesterBase):
 
             log.info(log_msg % str(resource_meta))
 
-            # upload with requests library to avoid ckanapi
+            # upload with requests library to avoid ckanapi json_encode error
             # ---------------------------------------------------------------------
             api_url = site_url + self._get_action_api_offset() + '/resource_create'
             apikey = model.User.get(context['user']).apikey.encode('utf8')
@@ -1034,14 +1063,24 @@ class BaseFTPHarvester(HarvesterBase):
             headers = {
                 'Authorization': apikey,
                 'X-CKAN-API-Key': apikey,
-                'user-agent': 'ftp-harvester/1.0.0'
+                'user-agent': 'ftp-harvester/1.0.0',
+                'Accept': 'application/json;q=0.9,text/plain;q=0.8,*/*;q=0.7'
                 # 'Content-Type': 'multipart/form-data', # http://stackoverflow.com/a/18590706/426266
             }
+            # ---
             r = requests.post(api_url, data=resource_meta, files={'file': fp}, headers=headers)
-            log.debug('Response: %s' % r.text)
+            # log.debug('Response: %s' % r.text)
+            # ---
+            # check result
             if r.status_code != 200:
                 # raise Exception(str(resource_meta))
                 r.raise_for_status()
+            json_response = r.json()
+            if not json_response or not json_response['success']:
+                raise Exception("Upload not successful")
+
+
+
             # ---------------------------------------------------------------------
 
         except Exception as e:

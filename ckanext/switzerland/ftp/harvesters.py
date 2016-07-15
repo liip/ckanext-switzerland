@@ -49,7 +49,7 @@ class InfoplusHarvester(BaseFTPHarvester):
         # "modified": "21.03.2016", # TODO
         # "metadata_created": "2016-07-05T07:41:28.741265", # TODO
         # "metadata_modified": "2016-07-05T07:43:30.079030", # TODO
-        "url": "https://catalog.data.gov/", # TODO
+        # "url": "https://catalog.data.gov/", # TODO
         "spatial": "Spatial", # TODO
         "accrual_periodicity": "", # TODO
         # --------------------------------------------------------------------------
@@ -76,11 +76,11 @@ class InfoplusHarvester(BaseFTPHarvester):
         "relationships_as_object": [], # ???
         "relationships_as_subject": [], # ???
         "see_alsos": [], # ???
-        # # publisher (TODO)
+        # publisher (TODO)
         "publishers": [{
             "label": "Publisher 1"
         }],
-        # # optional groups
+        # keywords
         'keywords': { # TODO
             "fr": [],
             "en": [],
@@ -98,7 +98,7 @@ class InfoplusHarvester(BaseFTPHarvester):
     }
 
     resource_dict_meta = {
-        # 'state': 'active',
+        'state': 'active',
         'rights': 'Other (Open)', # TODO
         'license': 'Other (Open)', # TODO
         'coverage': 'Coverage', # TODO
@@ -179,7 +179,7 @@ class DidokHarvester(BaseFTPHarvester):
         # "modified": "21.03.2016", # TODO
         # "metadata_created": "2016-07-05T07:41:28.741265", # TODO
         # "metadata_modified": "2016-07-05T07:43:30.079030", # TODO
-        "url": "https://catalog.data.gov/", # TODO
+        # "url": "https://catalog.data.gov/", # TODO
         "spatial": "Spatial", # TODO
         "accrual_periodicity": "", # TODO
         # --------------------------------------------------------------------------
@@ -206,11 +206,11 @@ class DidokHarvester(BaseFTPHarvester):
         "relationships_as_object": [], # ???
         "relationships_as_subject": [], # ???
         "see_alsos": [], # ???
-        # # publisher (TODO)
+        # publisher (TODO)
         "publishers": [{
             "label": "Publisher 1"
         }],
-        # # optional groups
+        # keywords
         'keywords': { # TODO
             "fr": [],
             "en": [],
@@ -228,7 +228,7 @@ class DidokHarvester(BaseFTPHarvester):
     }
 
     resource_dict_meta = {
-        # 'state': 'active',
+        'state': 'active',
         'rights': 'Other (Open)', # TODO
         'license': 'Other (Open)', # TODO
         'coverage': 'Coverage', # TODO
