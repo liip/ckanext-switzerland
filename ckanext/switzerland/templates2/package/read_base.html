@@ -25,13 +25,9 @@
   {{ h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name) }}
 
   <!-- REVISION TAB -->
-  {#
   {% if (h.admin_only and h.check_access('sysadmin')) or not h.admin_only %}
-  #}
     {{ h.build_nav_icon('dataset_revision', _('Revisions'), id=pkg.name, icon='shield') }}
-  {#
   {% endif %}
-  #}
 
   {# {{ h.build_nav_icon('related_list', _('Related'), id=pkg.name) }} #}
 {% endblock %}
