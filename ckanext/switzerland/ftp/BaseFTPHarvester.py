@@ -630,7 +630,6 @@ class BaseFTPHarvester(HarvesterBase):
         log.debug("Local directory: %s"  % tmpfolder)
 
 
-
         try:
 
             with FTPHelper(remotefolder) as ftph:
@@ -660,24 +659,10 @@ class BaseFTPHarvester(HarvesterBase):
             self.cleanup_after_error(tmpfolder)
             return None
 
-        # except CmdError as e:
-        #     self._save_object_error('Cmd error: %s' % str(e), harvest_object, stage)
-        #     return None
-        # except subprocess.CalledProcessError as e:
-        #     self._save_object_error('WGet Error [%d]: %s' % (e.returncode, e), harvest_object, stage)
-        #     return None
-
         except Exception as e:
             self._save_object_error('An error occurred: %s' % e, harvest_object, 'Fetch')
             self.cleanup_after_error(tmpfolder)
             return None
-
-
-        # get an updated list of all local files (extracted and zip)
-        # dirlist = self._get_local_dirlist(workingdir)
-
-        # log.debug("Local dirlist: %s" % str(dirlist))
-        # retobj['dirlist'] = dirlist
 
         # store the info for the next step
         retobj = {
@@ -742,7 +727,6 @@ class BaseFTPHarvester(HarvesterBase):
 
         # set harvester config
         self._set_config(harvest_object.job.source.config)
-
 
 
         now = datetime.now().isoformat()
@@ -936,13 +920,7 @@ class BaseFTPHarvester(HarvesterBase):
                         self._save_object_error('%s not authorised to delete resource (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, stage)
                         return False
 
-                    # delete the resource from filestore (?)
-                    # https://github.com/ckan/ckanext-harvest/issues/256#issuecomment-230816214
-                    # delete the resource from datastore (?)
-                    # from ckanext.datastore.logic.action import datastore_delete
-                    # datastore_delete(context, res)
-
-                    # delete the resource
+                    # delete the resource - this should keep a full revision of the resource in the filestore
                     get_action('resource_delete')(context, {'id': res.get('id')})
 
                     log.debug("Deleted resource %s" % res.get('id'))
@@ -1002,12 +980,12 @@ class BaseFTPHarvester(HarvesterBase):
 
                 # ----------------------------------------------------
 
-                resource_meta['name'] = json.dumps({
-                        "de": os.path.basename(file),
-                        "en": os.path.basename(file),
-                        "fr": os.path.basename(file),
-                        "it": os.path.basename(file)
-                    })
+                # resource_meta['name'] = json.dumps({
+                #         "de": os.path.basename(file),
+                #         "en": os.path.basename(file),
+                #         "fr": os.path.basename(file),
+                #         "it": os.path.basename(file)
+                #     })
                 resource_meta['title'] = json.dumps({
                         "de": os.path.basename(file),
                         "en": os.path.basename(file),
@@ -1047,7 +1025,7 @@ class BaseFTPHarvester(HarvesterBase):
 
             # TODO - fill this with the resource url
             # this should really not be required here or filled out by the dcat extension
-            resource_meta['download_url'] = 'http://dummy-value'
+            # resource_meta['download_url'] = 'http://dummy-value'
 
             if size != None:
                 resource_meta['size'] = size
@@ -1065,7 +1043,7 @@ class BaseFTPHarvester(HarvesterBase):
                 'X-CKAN-API-Key': apikey,
                 'user-agent': 'ftp-harvester/1.0.0',
                 'Accept': 'application/json;q=0.9,text/plain;q=0.8,*/*;q=0.7'
-                # 'Content-Type': 'multipart/form-data', # http://stackoverflow.com/a/18590706/426266
+                # 'Content-Type': 'multipart/form-data',
             }
             # ---
             r = requests.post(api_url, data=resource_meta, files={'file': fp}, headers=headers)
@@ -1078,7 +1056,6 @@ class BaseFTPHarvester(HarvesterBase):
             json_response = r.json()
             if not json_response or not json_response['success']:
                 raise Exception("Upload not successful")
-
 
 
             # ---------------------------------------------------------------------
