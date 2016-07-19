@@ -363,8 +363,29 @@ class BaseFTPHarvester(HarvesterBase):
 
     # tested
     def cleanup_after_error(self, retobj):
-        if retobj and retobj.get('tmpfolder'):
+        if retobj and 'tmpfolder' in retobj:
             self.remove_tmpfolder(retobj['tmpfolder'])
+
+    def find_resource_in_package(self, dataset, filepath, harvest_object):
+        resource_meta = None
+        if 'resources' in dataset and len(dataset['resources']):
+            # Find resource in the existing packages resource list
+            for res in dataset['resources']:
+                # match the resource by its filename
+                if os.path.basename(res.get('url')) != munge_name(os.path.basename(filepath)):
+                    continue
+                # ignore deleted resources
+                if res.get('status') != 'active':
+                    continue
+                try:
+                    # store the resource's metadata for later use
+                    resource_meta = res
+                    # there should only be one file with the same name in each dataset
+                    break
+                except Exception as e:
+                    log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
+                    pass
+        return resource_meta
 
 
     # =======================================================================
@@ -737,6 +758,7 @@ class BaseFTPHarvester(HarvesterBase):
         # =======================================================================
 
         dataset = None
+        resource_meta = None
 
         package_dict = {
             'name': self.harvester_name.lower(), # self.remotefolder # self._ensure_name_is_unique(os.path.basename(self.remotefolder))
@@ -744,6 +766,7 @@ class BaseFTPHarvester(HarvesterBase):
         }
 
         try:
+
             # -----------------------------------------------------------------------
             # use the existing package dictionary (if it exists)
             # -----------------------------------------------------------------------
@@ -758,6 +781,11 @@ class BaseFTPHarvester(HarvesterBase):
                 log.debug("Package '%s' not found" % package_dict.get('name'))
                 raise NotFound("Package '%s' not found" % package_dict.get('name'))
 
+            # version
+            dataset['version'] = now
+
+            resource_meta = self.find_resource_in_package(dataset, file, harvest_object)
+
             log.debug("Using existing package with id %s" % str(dataset.get('id')))
 
         except NotFound as e:
@@ -769,11 +797,10 @@ class BaseFTPHarvester(HarvesterBase):
             package_dict = self._add_harvester_metadata(package_dict, context)
 
             # version
-            if not package_dict.get('resources'):
-                package_dict['version'] = now
+            package_dict['version'] = now
 
             # title of the package
-            if not package_dict.get('title'):
+            if not 'title' in package_dict:
                 package_dict['title'] = {
                     "de": self.remotefolder.title(),
                     "en": self.remotefolder.title(),
@@ -781,29 +808,33 @@ class BaseFTPHarvester(HarvesterBase):
                     "it": self.remotefolder.title()
                 }
             # for DCAT schema - same info as in the title
-            if not package_dict.get('display_name'):
+            if not 'display_name' in package_dict:
                 package_dict['display_name'] = package_dict['title']
 
             package_dict['creator_user_id'] = model.User.get(context['user']).id
 
-            # fill with defaults
+            # fill with empty defaults
             for key in ['issued', 'modified', 'metadata_created', 'metadata_modified']:
-                if not package_dict.get(key):
+                if not key in package_dict:
                     package_dict[key] = now
             for key in ['resources', 'groups', 'tags', 'extras', 'contact_points', 'relations', 'relationships_as_object', 'relationships_as_subject', 'publishers', 'see_alsos', 'temporals']:
-                if not package_dict.get(key):
+                if not key in package_dict:
                     package_dict[key] = []
             for key in ['keywords']:
-                if not package_dict.get(key):
+                if not key in package_dict:
                     package_dict[key] = {}
+
+            # TODO
+            package_dict['source_type'] = self.info()['name']
 
             # count keywords or tags
             package_dict['num_tags'] = 0
             tags = package_dict.get('keywords') if package_dict.get('keywords', {}) else package_dict.get('tags', {})
-            if tags and tags.get('en') and isinstance(tags['en'], list):
+            # count the english tags (if available)
+            if tags and 'en' in tags and isinstance(tags['en'], list):
                 package_dict['num_tags'] = len(tags['en'])
 
-            if not package_dict.get('language'):
+            if not 'language' in package_dict:
                 package_dict['language'] = ["en", "de", "fr", "it"]
 
             # In the harvester interface, certain options can be provided in the config field as a json object
@@ -825,8 +856,7 @@ class BaseFTPHarvester(HarvesterBase):
             # This logic action requires to call check_access to 
             # prevent the Exception: 'Action function package_show did not call its auth function'
             # Adds action name onto the __auth_audit stack
-            result = check_access('package_create', context)
-            if not result:
+            if not check_access('package_create', context):
                 self._save_object_error('%s not authorised to create packages (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, stage)
                 return False
 
@@ -855,7 +885,7 @@ class BaseFTPHarvester(HarvesterBase):
 
 
         # =======================================================================
-        # resources
+        # resource
         # =======================================================================
 
         log.debug('Importing file: %s' % str(file))
@@ -865,9 +895,6 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_object_error('Could not get site_url from CKAN config file', harvest_object, stage)
             return False
 
-
-        # import the the file into CKAN
-        # ---------------------------
         log.debug("Adding %s to package with id %s" % (str(file), dataset['id']))
 
         # set mimetypes of resource based on file extension
@@ -882,8 +909,7 @@ class BaseFTPHarvester(HarvesterBase):
         else:
             # mimetype validation
             # see https://github.com/ckan/ckan/blob/a28b95c0f027c59004cf450fe521f710e5b4470b/ckan/config/resource_formats.json
-            valid_formats = helpers.resource_formats()
-            if valid_formats.get(ext.lower()):
+            if ext.lower() in helpers.resource_formats():
                 # set mime types
                 file_format = mimetype = mimetype_inner = ext
             # if format is unknown, we don't set it
@@ -893,49 +919,6 @@ class BaseFTPHarvester(HarvesterBase):
                 # mimetype_inner = 'TXT'
                 # pass
 
-
-        resource_meta = None
-
-        # ------------------------------------------------------------
-        # CLEAN-UP the dataset:
-        # Before we upload this resource, we search for 
-        # an old resource by this (munged) filename.
-        # If a resource is found, we delete it.
-        # A revision of the resource will be kept by CKAN.
-        if dataset.get('resources') and len(dataset['resources']):
-            # Find resource in the existing packages resource list
-            for res in dataset['resources']:
-                # match the resource by its filename
-                if os.path.basename(res.get('url')) != munge_name(os.path.basename(file)):
-                    continue
-                # ignore deleted resources
-                if res.get('status') != 'active':
-                    continue
-                try:
-                    # store the resource's metadata for later use
-                    resource_meta = res
-                    # delete this resource
-                    allowed = check_access('resource_delete', context)
-                    if not allowed:
-                        self._save_object_error('%s not authorised to delete resource (object %s)' % (self.harvester_name, harvest_object.id), harvest_object, stage)
-                        return False
-
-                    # delete the resource - this should keep a full revision of the resource in the filestore
-                    get_action('resource_delete')(context, {'id': res.get('id')})
-
-                    log.debug("Deleted resource %s" % res.get('id'))
-                    # remove this resource from the data dict
-                    dataset['resources'].remove(res)
-                    # there should only be one file with the same name in each dataset
-                    break
-
-                except Exception as e:
-                    log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
-                    pass
-        # ------------------------------------------------------------
-
-
-        # use remote API to upload the file
         try:
 
             try:
@@ -950,21 +933,25 @@ class BaseFTPHarvester(HarvesterBase):
             # -----------------------------------------------------
             if not resource_meta:
 
-                # take some globally defined default values for the resource from the harvester
+                # globally defined default values for the resource from the harvester
                 if self.resource_dict_meta:
                     resource_meta = self.resource_dict_meta
                 else:
                     resource_meta = {}
 
-                resource_meta['package_id'] = dataset['id']
+                api_url = site_url + self._get_action_api_offset() + '/resource_create'
+
+                resource_meta = {}
 
                 resource_meta['identifier'] = os.path.basename(file)
 
                 resource_meta['issued'] = now
                 resource_meta['modified'] = now
 
+                resource_meta['version'] = now
+
                 # TODO - it does not really make sense having to set this here
-                resource_meta['language'] = 'de'
+                resource_meta['language'] = ['en','de','fr','it']
 
                 # TODO
                 if not resource_meta.get('rights'):
@@ -978,39 +965,41 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta['mimetype'] = mimetype
                 resource_meta['mimetype_inner'] = mimetype_inner
 
-                # ----------------------------------------------------
+                for key in ['relations']:
+                    resource_meta[key] = []
 
-                # resource_meta['name'] = json.dumps({
-                #         "de": os.path.basename(file),
-                #         "en": os.path.basename(file),
-                #         "fr": os.path.basename(file),
-                #         "it": os.path.basename(file)
-                #     })
-                resource_meta['title'] = json.dumps({
+                resource_meta['name'] = { # json.dumps(
                         "de": os.path.basename(file),
                         "en": os.path.basename(file),
                         "fr": os.path.basename(file),
                         "it": os.path.basename(file)
-                    })
-
-                resource_meta['description'] = json.dumps({
-                        "de": "",
-                        "en": "",
-                        "fr": "",
-                        "it": ""
-                    })
+                    }
+                resource_meta['title'] = {
+                        "de": os.path.basename(file),
+                        "en": os.path.basename(file),
+                        "fr": os.path.basename(file),
+                        "it": os.path.basename(file)
+                    }
+                resource_meta['description'] = {
+                        "de": "TODO",
+                        "en": "TODO",
+                        "fr": "TODO",
+                        "it": "TODO"
+                    }
 
                 log_msg = "Creating new resource: %s"
 
             # -----------------------------------------------------
-            # create the resource, but use the metadata of the old resource
+            # create the resource, but use the known metadata (of the old resource)
             # -----------------------------------------------------
             else:
 
-                # a resource was found - use the existing metadata
+                api_url = site_url + self._get_action_api_offset() + '/resource_update'
+
+                # a resource was found - use the existing metadata from this resource
 
                 # the resource should get a new id, so delete the old one
-                # the resource will get a new revision_id and id, so we delete those keys
+                # the resource will get a new revision_id, so we delete that key
                 for key in ['id', 'revision_id']:
                     try:
                         del resource_meta[key]
@@ -1019,6 +1008,8 @@ class BaseFTPHarvester(HarvesterBase):
 
                 log_msg = "Creating resource (with known metadata): %s"
 
+
+            resource_meta['package_id'] = dataset['id']
 
             # url parameter is ignored for resource uploads, but required by ckan
             resource_meta['url'] = 'http://dummy-value'
@@ -1029,26 +1020,38 @@ class BaseFTPHarvester(HarvesterBase):
 
             if size != None:
                 resource_meta['size'] = size
-                resource_meta['byte_size'] = size / 8 # TODO
+                resource_meta['byte_size'] = size / 8
 
             log.info(log_msg % str(resource_meta))
 
             # upload with requests library to avoid ckanapi json_encode error
             # ---------------------------------------------------------------------
-            api_url = site_url + self._get_action_api_offset() + '/resource_create'
             apikey = model.User.get(context['user']).apikey.encode('utf8')
             log.debug("Posting to api_url: %s" % str(api_url))
             headers = {
                 'Authorization': apikey,
                 'X-CKAN-API-Key': apikey,
                 'user-agent': 'ftp-harvester/1.0.0',
-                'Accept': 'application/json;q=0.9,text/plain;q=0.8,*/*;q=0.7'
+                'Accept': 'application/json;q=0.9,text/plain;q=0.8,*/*;q=0.7',
                 # 'Content-Type': 'multipart/form-data',
+                'Content-Type': 'application/json', # http://stackoverflow.com/a/18590706/426266
             }
-            # ---
-            r = requests.post(api_url, data=resource_meta, files={'file': fp}, headers=headers)
-            # log.debug('Response: %s' % r.text)
-            # ---
+            # ------
+            # ==1===
+            log.debug("Request 1: only resource_dict")
+            r = requests.post(api_url, data=json.dumps(resource_meta), headers=headers)
+            # log.debug('Response 1: %s' % r.text)
+            if r.status_code != 200:
+                # raise Exception(str(resource_meta))
+                r.raise_for_status()
+            # ------
+            # ==2===
+            log.debug("Request 2: file payload")
+            del headers['Content-Type']
+            data_dict = json.dumps({'package_id': dataset['id'], 'url': resource_meta['url']})
+            r = requests.post(api_url, data=data_dict, files={'file': fp}, headers=headers)
+            # log.debug('Response 2: %s' % r.text)
+            # ------
             # check result
             if r.status_code != 200:
                 # raise Exception(str(resource_meta))
@@ -1061,10 +1064,11 @@ class BaseFTPHarvester(HarvesterBase):
             # ---------------------------------------------------------------------
 
         except Exception as e:
-            log.error("Error adding resource: %s" % str(e))
-            # log.debug(traceback.format_exc())
-            self._save_object_error('Error adding resource: %s' % str(e), harvest_object, stage)
-            return False
+            raise
+            # log.error("Error adding resource: %s" % str(e))
+            # # log.debug(traceback.format_exc())
+            # self._save_object_error('Error adding resource: %s' % str(e), harvest_object, stage)
+            # return False
 
         finally:
             # close the file pointer
