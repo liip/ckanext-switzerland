@@ -413,12 +413,18 @@ class BaseFTPHarvester(HarvesterBase):
         remotefolder = self.get_remote_folder()
         log.debug("Getting listing from remotefolder: %s" % remotefolder)
 
+        # modified_dates = {}
+
         try:
 
             with FTPHelper(remotefolder) as ftph:
 
                 dirlist = ftph.get_remote_dirlist()
                 log.debug("Remote dirlist: %s" % str(dirlist))
+
+                # get last-modified date of each file
+                # for file in dirlist:
+                #     modified_dates[file] = ftph.get_modified_date(file)
 
                 # store some config for the next step
 
@@ -453,6 +459,7 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
             return None
 
+
         # version 1: create one harvest object for the package
         # -------------------------------------------------------------------------
         # harvest_object = HarvestObject(guid=self.harvester_name, job=harvest_job)
@@ -465,7 +472,36 @@ class BaseFTPHarvester(HarvesterBase):
         # version 2: create one harvest job for each resource in the package
         # -------------------------------------------------------------------------
         object_ids = []
+
+        # TODO
+        # ------------------------------------------------------
+        # 1: only download the resources that have been modified
+        # has there been a previous run and was it successful?
+        # previous_job = Session.query(HarvestJob) \
+        #                 .filter(HarvestJob.source==harvest_job.source) \
+        #                 .filter(HarvestJob.gather_finished!=None) \
+        #                 .filter(HarvestJob.id!=harvest_job.id) \
+        #                 .order_by(HarvestJob.gather_finished.desc()) \
+        #                 .limit(1).first()
+        # if previous_job and not previous_job.gather_errors and previous_job.objects and len(previous_job.objects):
+        #     # optional force_all config setting can be used to always download all files
+        #     if not self.config or not self.config.get('force_all', False):
+        #         # Request only the resources modified since last harvest job
+        #         last_time = previous_job.gather_finished.isoformat()
+        #         for file in dirlist:
+        #             # TODO: compare the modified date of the file with the harvester run
+        # run MDMT command for each file
+        #             pass
+        #             # else:
+        #             #     log.info('No packages have been updated on the remote CKAN instance since the last harvest job')
+        #             #     return []
+
+        # ------------------------------------------------------
+        # 2: download all resources
+        # else:
+
         for file in dirlist:
+
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
             obj.content = json.dumps({
@@ -478,121 +514,10 @@ class BaseFTPHarvester(HarvesterBase):
             object_ids.append(obj.id)
 
 
+        # ------------------------------------------------------
         # send the jobs to the gather queue
         return object_ids
 
-
-
-        # -----
-        # TODO: implement a function with the below code that allows to resume downloads / only load changed resources
-
-        # get_all_packages = True
-        # package_ids = []
-
-        # # Check if this source has been harvested before
-        # previous_job = Session.query(HarvestJob) \
-        #                 .filter(HarvestJob.source==harvest_job.source) \
-        #                 .filter(HarvestJob.gather_finished!=None) \
-        #                 .filter(HarvestJob.id!=harvest_job.id) \
-        #                 .order_by(HarvestJob.gather_finished.desc()) \
-        #                 .limit(1).first()
-
-        # # Get source URL
-        # base_url = harvest_job.source.url.rstrip('/')
-        # base_rest_url = base_url + self._get_rest_api_offset()
-        # base_search_url = base_url + self._get_search_api_offset()
-
-        # # Filter in/out datasets from particular organizations
-        # org_filter_include = self.config.get('organizations_filter_include', [])
-        # org_filter_exclude = self.config.get('organizations_filter_exclude', [])
-        # def get_pkg_ids_for_organizations(orgs):
-        #     pkg_ids = set()
-        #     for organization in orgs:
-        #         url = base_search_url + '/dataset?organization=%s' % organization
-        #         content = self._get_content(url)
-        #         content_json = json.loads(content)
-        #         result_count = int(content_json['count'])
-        #         pkg_ids |= set(content_json['results'])
-        #         while len(pkg_ids) < result_count or not content_json['results']:
-        #             url = base_search_url + '/dataset?organization=%s&offset=%s' % (organization, len(pkg_ids))
-        #             content = self._get_content(url)
-        #             content_json = json.loads(content)
-        #             pkg_ids |= set(content_json['results'])
-        #     return pkg_ids
-        # include_pkg_ids = get_pkg_ids_for_organizations(org_filter_include)
-        # exclude_pkg_ids = get_pkg_ids_for_organizations(org_filter_exclude)
-
-        # if (previous_job and not previous_job.gather_errors and not len(previous_job.objects) == 0):
-        #     if not self.config.get('force_all',False):
-        #         get_all_packages = False
-
-        #         # Request only the packages modified since last harvest job
-        #         last_time = previous_job.gather_finished.isoformat()
-        #         url = base_search_url + '/revision?since_time=%s' % last_time
-
-        #         try:
-        #             content = self._get_content(url)
-
-        #             revision_ids = json.loads(content)
-        #             if len(revision_ids):
-        #                 for revision_id in revision_ids:
-        #                     url = base_rest_url + '/revision/%s' % revision_id
-        #                     try:
-        #                         content = self._get_content(url)
-        #                     except ContentFetchError,e:
-        #                         self._save_gather_error('Unable to get content for URL: %s: %s' % (url, str(e)),harvest_job)
-        #                         continue
-
-        #                     revision = json.loads(content)
-        #                     package_ids = revision['packages']
-        #             else:
-        #                 log.info('No packages have been updated on the remote CKAN instance since the last harvest job')
-        #                 return []
-
-        #         except urllib2.HTTPError,e:
-        #             if e.getcode() == 400:
-        #                 log.info('CKAN instance %s does not suport revision filtering' % base_url)
-        #                 get_all_packages = True
-        #             else:
-        #                 self._save_gather_error('Unable to get content for URL: %s: %s' % (url, str(e)),harvest_job)
-        #                 return None
-
-        # if get_all_packages:
-        #     # Request all remote packages
-        #     url = base_rest_url + '/package'
-
-        #     try:
-        #         content = self._get_content(url)
-        #         package_ids = json.loads(content)
-        #     except ContentFetchError,e:
-        #         self._save_gather_error('Unable to get content for URL: %s: %s' % (url, str(e)),harvest_job)
-        #         return None
-        #     except JSONDecodeError,e:
-        #         self._save_gather_error('Unable to decode content for URL: %s: %s' % (url, str(e)),harvest_job)
-        #         return None
-
-        # if org_filter_include:
-        #     package_ids = set(package_ids) & include_pkg_ids
-        # elif org_filter_exclude:
-        #     package_ids = set(package_ids) - exclude_pkg_ids
-
-        # try:
-        #     object_ids = []
-        #     if len(package_ids):
-        #         for package_id in package_ids:
-        #             # Create a new HarvestObject for this identifier
-        #             obj = HarvestObject(guid = package_id, job = harvest_job)
-        #             obj.save()
-        #             object_ids.append(obj.id)
-
-        #         return object_ids
-
-        #     else:
-        #        self._save_gather_error('No packages received for URL: %s' % url,
-        #                harvest_job)
-        #        return None
-        # except Exception, e:
-        #     self._save_gather_error('%r'%e.message,harvest_job)
 
 
     # =======================================================================
@@ -900,8 +825,11 @@ class BaseFTPHarvester(HarvesterBase):
         if not site_url:
             self._save_object_error('Could not get site_url from CKAN config file', harvest_object, stage)
             return False
+        site_url = site_url.rstrip('/')
+
 
         log.debug("Adding %s to package with id %s" % (str(file), dataset['id']))
+
 
         # set mimetypes of resource based on file extension
         na, ext = os.path.splitext(file)
@@ -1020,6 +948,13 @@ class BaseFTPHarvester(HarvesterBase):
             # url parameter is ignored for resource uploads, but required by ckan
             if not 'url' in resource_meta:
                 resource_meta['url'] = 'http://dummy-value'
+                # TODO
+                # why is this required here? It should be filled out by the extension
+                resource_meta['download_url'] = 'http://dummy-value'
+
+
+            resource_meta['resource_type'] = 'file'
+
 
             # web interface complained about tracking_summary.total not being available in view
             # TODO: why is this not being created by default?
@@ -1028,10 +963,6 @@ class BaseFTPHarvester(HarvesterBase):
             #     resource_meta['tracking_summary'] = tracking_summary
             # else:
             #     resource_meta['tracking_summary'] = {'total' : 0, 'recent' : 0}
-
-            # TODO
-            # why is this required here? It should be filled out by the extension
-            resource_meta['download_url'] = site_url.rstrip('/') + '/dataset/' + dataset['name'] + '/resource/' + munge_name(os.path.basename(file))
 
             if size != None:
                 resource_meta['size'] = size
@@ -1057,13 +988,48 @@ class BaseFTPHarvester(HarvesterBase):
             # ------
             # check result
             if r.status_code != 200:
-                # raise Exception(str(resource_meta))
                 r.raise_for_status()
             json_response = r.json()
-            if not 'success' in json_response or not json_response['success']:
+            if not 'success' in json_response or not json_response['success'] or not 'result' in json_response:
+
                 raise Exception("Upload not successful")
+
             else:
+
+                # bug fix for the url: patch resource with a url value that will resolve
+                # log.debug('json_response: %s' % str(json_response))
+
+                # update the resource with a resolvable url
+                # ----------------------------------------------------
+
+                resource = json_response['result']
+
+                filename, file_extension = os.path.splitext(os.path.basename(file))
+                # CKAN insanity
+                file_name = munge_name(filename)
+                file_extension = file_extension.lower()
+
+                # minimal version to patch the resource
+                patch_url = '%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
+                patch_dict = {
+                    'id': resource['id'],
+                    u'url': patch_url,
+                    u'download_url': patch_url,
+                }
+                log.debug('Patching resource url/download_url')
+                # log.debug('patch_dict: %s' % patch_dict)
+                api_url = site_url + self._get_action_api_offset() + '/resource_patch'
+                log.debug('api_url: %s' % api_url)
+                headers['Content-Type'] = 'application/json'
+                r = requests.post(api_url, data=json.dumps(patch_dict), headers=headers)
+                if r.status_code != 200:
+                    r.raise_for_status()
+
+                json_response = r.json()
+                log.debug(json_response)
+
                 log.info("Successfully harvested resource %s" % file)
+
 
 
             # ---------------------------------------------------------------------
@@ -1086,7 +1052,7 @@ class BaseFTPHarvester(HarvesterBase):
             # remove the downloaded resource
             try:
                 os.remove(file)
-                log.info("Deleted %s" % file)
+                log.info("Deleted tmp file %s" % file)
             except:
                 pass
 

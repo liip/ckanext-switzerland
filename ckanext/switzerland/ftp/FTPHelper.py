@@ -217,6 +217,21 @@ class FTPHelper(object):
         dirs.sort()
         return dirs
 
+    def get_modified_date(self, file, folder=None):
+        """
+        Get the last modified date of a file
+
+        :param folder: filename
+        :type folder: str or unicode
+
+        :returns: Date
+        :rtype: TODO
+        """
+        if folder:
+            self.cdremote(folder)
+
+
+
     # tested (with empty dir)
     def is_empty_dir(self, folder=None):
         """
