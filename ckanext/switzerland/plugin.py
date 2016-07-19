@@ -138,14 +138,8 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
     Handles language dictionaries in data_dict (pkg_dict).
     """
 
-    pkg_dict = None
-
     def before_view(self, pkg_dict):
-        # caching so that this does not run multiple times
-        if not self.pkg_dict:
-            self.pkg_dict = self._prepare_package_json(pkg_dict)
-
-        return self.pkg_dict
+        return self._prepare_package_json(pkg_dict)
 
     def _ignore_field(self, key):
         return False

@@ -106,7 +106,7 @@ class InfoplusHarvester(BaseFTPHarvester):
 
 
     # whether or not to unzip the files found locally
-    do_unzip = False # PROD: set this to True
+    do_unzip = True # PROD: set this to True
 
 
     # -----------------------------------------------------------------------
@@ -235,7 +235,7 @@ class DidokHarvester(BaseFTPHarvester):
     }
 
     # whether or not to unzip the files found locally
-    do_unzip = False # no zip files in the folder (so far)
+    do_unzip = True # no zip files in the folder (so far)
 
 
     # -----------------------------------------------------------------------

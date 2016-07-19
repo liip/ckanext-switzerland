@@ -776,11 +776,15 @@ class BaseFTPHarvester(HarvesterBase):
             # dataset = get_action('package_show')(context, {'id': package_dict.get('name')})
             dataset = self._find_existing_package({'id': package_dict.get('name')})
 
-            if not dataset or not dataset.get('id'):
+            if not dataset or not 'id' in dataset:
                 # abort updating
                 log.debug("Package '%s' not found" % package_dict.get('name'))
                 raise NotFound("Package '%s' not found" % package_dict.get('name'))
 
+            # TODO: update version of package
+            dataset['version'] = now
+
+            # check if there is a resource matching the filename in the package
             resource_meta = self.find_resource_in_package(dataset, file, harvest_object)
 
             log.debug("Using existing package with id %s" % str(dataset.get('id')))
@@ -819,6 +823,10 @@ class BaseFTPHarvester(HarvesterBase):
                     package_dict[key] = {}
 
             # TODO
+            # package_dict['type'] = self.info()['name']
+            # package_dict['type'] = u'harvest'
+
+            # TODO
             package_dict['source_type'] = self.info()['name']
 
             # count keywords or tags
@@ -841,6 +849,9 @@ class BaseFTPHarvester(HarvesterBase):
             package_dict = self._add_package_orgs(package_dict, context)
             package_dict = self._add_package_extras(package_dict, harvest_object)
 
+            # version
+            package_dict['version'] = now
+
             # -----------------------------------------------------------------------
             # create the package
             # -----------------------------------------------------------------------
@@ -860,6 +871,7 @@ class BaseFTPHarvester(HarvesterBase):
             log.info("Created package: %s" % str(dataset['name']))
 
         except Exception as e:
+            raise # debug
             # log.error("Error: Package dict: %s" % str(package_dict))
             self._save_object_error('Package update/creation error: %s' % str(e), harvest_object, stage)
             return False
@@ -875,11 +887,6 @@ class BaseFTPHarvester(HarvesterBase):
         # associate the harvester with the dataset
         harvest_object.guid = dataset['id']
         harvest_object.package_id = dataset['id']
-
-
-
-        # version
-        dataset['version'] = now
 
 
 
@@ -967,24 +974,24 @@ class BaseFTPHarvester(HarvesterBase):
                 for key in ['relations']:
                     resource_meta[key] = []
 
-                resource_meta['name'] = { # json.dumps(
+                resource_meta['name'] = json.dumps({
                         "de": os.path.basename(file),
                         "en": os.path.basename(file),
                         "fr": os.path.basename(file),
                         "it": os.path.basename(file)
-                    }
-                resource_meta['title'] = {
+                    })
+                resource_meta['title'] = json.dumps({
                         "de": os.path.basename(file),
                         "en": os.path.basename(file),
                         "fr": os.path.basename(file),
                         "it": os.path.basename(file)
-                    }
-                resource_meta['description'] = {
+                    })
+                resource_meta['description'] = json.dumps({
                         "de": "TODO",
                         "en": "TODO",
                         "fr": "TODO",
                         "it": "TODO"
-                    }
+                    })
 
                 log_msg = "Creating new resource: %s"
 
@@ -1011,11 +1018,20 @@ class BaseFTPHarvester(HarvesterBase):
             resource_meta['package_id'] = dataset['id']
 
             # url parameter is ignored for resource uploads, but required by ckan
-            resource_meta['url'] = 'http://dummy-value'
+            if not 'url' in resource_meta:
+                resource_meta['url'] = 'http://dummy-value'
 
-            # TODO - fill this with the resource url
-            # this should really not be required here or filled out by the dcat extension
-            # resource_meta['download_url'] = 'http://dummy-value'
+            # web interface complained about tracking_summary.total not being available in view
+            # TODO: why is this not being created by default?
+            # tracking_summary = model.TrackingSummary.get_for_resource(resource_meta['url'])
+            # if tracking_summary:
+            #     resource_meta['tracking_summary'] = tracking_summary
+            # else:
+            #     resource_meta['tracking_summary'] = {'total' : 0, 'recent' : 0}
+
+            # TODO
+            # why is this required here? It should be filled out by the extension
+            resource_meta['download_url'] = site_url.rstrip('/') + '/dataset/' + dataset['name'] + '/resource/' + munge_name(os.path.basename(file))
 
             if size != None:
                 resource_meta['size'] = size
@@ -1032,51 +1048,53 @@ class BaseFTPHarvester(HarvesterBase):
                 'X-CKAN-API-Key': apikey,
                 'user-agent': 'ftp-harvester/1.0.0',
                 'Accept': 'application/json;q=0.9,text/plain;q=0.8,*/*;q=0.7',
-                # 'Content-Type': 'multipart/form-data',
-                'Content-Type': 'application/json', # http://stackoverflow.com/a/18590706/426266
+                # 'Content-Type': 'multipart/form-data', # http://stackoverflow.com/a/18590706/426266
+                # 'Content-Type': 'application/json',
             }
             # ------
-            # ==1===
-            log.debug("Request 1: only resource_dict")
-            r = requests.post(api_url, data=json.dumps(resource_meta), headers=headers)
-            # log.debug('Response 1: %s' % r.text)
-            if r.status_code != 200:
-                # raise Exception(str(resource_meta))
-                r.raise_for_status()
-            # ------
-            # ==2===
-            log.debug("Request 2: file payload")
-            del headers['Content-Type']
-            data_dict = json.dumps({'package_id': dataset['id'], 'url': resource_meta['url']})
-            r = requests.post(api_url, data=data_dict, files={'file': fp}, headers=headers)
-            # log.debug('Response 2: %s' % r.text)
+            r = requests.post(api_url, data=resource_meta, files={'file': fp}, headers=headers)
+            # log.debug('Response: %s' % r.text)
             # ------
             # check result
             if r.status_code != 200:
                 # raise Exception(str(resource_meta))
                 r.raise_for_status()
             json_response = r.json()
-            if not json_response or not json_response['success']:
+            if not 'success' in json_response or not json_response['success']:
                 raise Exception("Upload not successful")
+            else:
+                log.info("Successfully harvested resource %s" % file)
 
 
             # ---------------------------------------------------------------------
 
         except Exception as e:
-            raise
-            # log.error("Error adding resource: %s" % str(e))
-            # # log.debug(traceback.format_exc())
-            # self._save_object_error('Error adding resource: %s' % str(e), harvest_object, stage)
-            # return False
+            log.error("Error adding resource: %s" % str(e))
+            # log.debug(traceback.format_exc())
+            self._save_object_error('Error adding resource: %s' % str(e), harvest_object, stage)
+            return False
+
 
         finally:
+
             # close the file pointer
-            if fp:
+            try:
                 fp.close()
+            except:
+                pass
+
+            # remove the downloaded resource
+            try:
+                os.remove(file)
+                log.info("Deleted %s" % file)
+            except:
+                pass
 
 
+
+        # ---------------------------------------------------------------------
         # TODO:
-        # the last harvest job needs to clean and remove the tmpfolder
+        # the harvest job of the last resource needs to clean and remove the tmpfolder
         # ---------------------------------------------------------------------
         # do this somewhere else:
         # if harvest_object.get('import_finished') != None:
