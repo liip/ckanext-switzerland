@@ -781,9 +781,6 @@ class BaseFTPHarvester(HarvesterBase):
                 log.debug("Package '%s' not found" % package_dict.get('name'))
                 raise NotFound("Package '%s' not found" % package_dict.get('name'))
 
-            # version
-            dataset['version'] = now
-
             resource_meta = self.find_resource_in_package(dataset, file, harvest_object)
 
             log.debug("Using existing package with id %s" % str(dataset.get('id')))
@@ -795,9 +792,6 @@ class BaseFTPHarvester(HarvesterBase):
 
             # add the metadata from the harvester
             package_dict = self._add_harvester_metadata(package_dict, context)
-
-            # version
-            package_dict['version'] = now
 
             # title of the package
             if not 'title' in package_dict:
@@ -881,6 +875,11 @@ class BaseFTPHarvester(HarvesterBase):
         # associate the harvester with the dataset
         harvest_object.guid = dataset['id']
         harvest_object.package_id = dataset['id']
+
+
+
+        # version
+        dataset['version'] = now
 
 
 
