@@ -902,24 +902,24 @@ class BaseFTPHarvester(HarvesterBase):
                 for key in ['relations']:
                     resource_meta[key] = []
 
-                resource_meta['name'] = json.dumps({
+                resource_meta['name'] = { # json.dumps(
                         "de": os.path.basename(file),
                         "en": os.path.basename(file),
                         "fr": os.path.basename(file),
                         "it": os.path.basename(file)
-                    })
-                resource_meta['title'] = json.dumps({
+                    }
+                resource_meta['title'] = {
                         "de": os.path.basename(file),
                         "en": os.path.basename(file),
                         "fr": os.path.basename(file),
                         "it": os.path.basename(file)
-                    })
-                resource_meta['description'] = json.dumps({
+                    }
+                resource_meta['description'] = {
                         "de": "TODO",
                         "en": "TODO",
                         "fr": "TODO",
                         "it": "TODO"
-                    })
+                    }
 
                 log_msg = "Creating new resource: %s"
 
@@ -945,10 +945,10 @@ class BaseFTPHarvester(HarvesterBase):
 
             resource_meta['package_id'] = dataset['id']
 
+            # TODO
             # url parameter is ignored for resource uploads, but required by ckan
             if not 'url' in resource_meta:
                 resource_meta['url'] = 'http://dummy-value'
-                # TODO
                 # why is this required here? It should be filled out by the extension
                 resource_meta['download_url'] = 'http://dummy-value'
 
@@ -980,10 +980,10 @@ class BaseFTPHarvester(HarvesterBase):
                 'user-agent': 'ftp-harvester/1.0.0',
                 'Accept': 'application/json;q=0.9,text/plain;q=0.8,*/*;q=0.7',
                 # 'Content-Type': 'multipart/form-data', # http://stackoverflow.com/a/18590706/426266
-                # 'Content-Type': 'application/json',
+                'Content-Type': 'application/json',
             }
             # ------
-            r = requests.post(api_url, data=resource_meta, files={'file': fp}, headers=headers)
+            r = requests.post(api_url, data=json.dumps(resource_meta), headers=headers)
             # log.debug('Response: %s' % r.text)
             # ------
             # check result
@@ -995,6 +995,8 @@ class BaseFTPHarvester(HarvesterBase):
                 raise Exception("Upload not successful")
 
             else:
+
+                log.debug("Successfully created resource")
 
                 # bug fix for the url: patch resource with a url value that will resolve
                 # log.debug('json_response: %s' % str(json_response))
@@ -1013,23 +1015,27 @@ class BaseFTPHarvester(HarvesterBase):
                 patch_url = '%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
                 patch_dict = {
                     'id': resource['id'],
-                    # u'url': patch_url,
                     u'download_url': patch_url,
+                    # url this should be created automatically, because we are uploading a file
+                    # however, it will not be created during resource_create, only in resource_update or resource_patch
+                    # u'url': patch_url,
                 }
-                log.debug('Patching resource url/download_url')
-                # log.debug('patch_dict: %s' % patch_dict)
+                log.debug('Patching resource')
+                log.debug('patch_dict: %s' % patch_dict)
                 api_url = site_url + self._get_action_api_offset() + '/resource_patch'
-                log.debug('api_url: %s' % api_url)
-                headers['Content-Type'] = 'application/json'
-                r = requests.post(api_url, data=json.dumps(patch_dict), headers=headers)
+                # log.debug('api_url: %s' % api_url)
+                del headers['Content-Type']
+                r = requests.post(api_url, data=patch_dict, files={'file': fp}, headers=headers)
                 if r.status_code != 200:
                     r.raise_for_status()
 
                 json_response = r.json()
                 log.debug(json_response)
 
-                log.info("Successfully harvested resource %s" % file)
+                log.info("Successfully patched resource")
 
+
+                log.info("Successfully harvested file %s" % file)
 
 
             # ---------------------------------------------------------------------
