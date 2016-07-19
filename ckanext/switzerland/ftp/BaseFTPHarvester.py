@@ -999,8 +999,8 @@ class BaseFTPHarvester(HarvesterBase):
                 # bug fix for the url: patch resource with a url value that will resolve
                 # log.debug('json_response: %s' % str(json_response))
 
-                # update the resource with a resolvable url
-                # ----------------------------------------------------
+                # update the resource with a resolvable url and the correct download_url
+                # -----------------------------------------------------------------------
 
                 resource = json_response['result']
 
@@ -1009,11 +1009,11 @@ class BaseFTPHarvester(HarvesterBase):
                 file_name = munge_name(filename)
                 file_extension = file_extension.lower()
 
-                # minimal version to patch the resource
+                # patch the resource
                 patch_url = '%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
                 patch_dict = {
                     'id': resource['id'],
-                    u'url': patch_url,
+                    # u'url': patch_url,
                     u'download_url': patch_url,
                 }
                 log.debug('Patching resource url/download_url')
