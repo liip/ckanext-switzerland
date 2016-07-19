@@ -73,8 +73,8 @@ def json_list_of_dicts_field(field, schema):
                 except UnicodeDecodeError:
                     errors[key].append(_('Invalid encoding for JSON string'))
                     return
-            if not isinstance(value, dict):
-                errors[key].append(_('expecting JSON object'))
+            if not isinstance(value, list):
+                errors[key].append(_('expecting JSON list'))
                 return
 
             if not errors[key]:
