@@ -426,7 +426,7 @@ class BaseFTPHarvester(HarvesterBase):
         remotefolder = self.get_remote_folder()
         log.debug("Getting listing from remotefolder: %s" % remotefolder)
 
-        modified_dates = {}
+        # modified_dates = {}
 
         try:
 
@@ -436,8 +436,8 @@ class BaseFTPHarvester(HarvesterBase):
                 log.debug("Remote dirlist: %s" % str(dirlist))
 
                 # get last-modified date of each file
-                for file in dirlist:
-                    modified_dates[file] = ftph.get_modified_date(file)
+                # for file in dirlist:
+                #     modified_dates[file] = ftph.get_modified_date(file)
 
                 # store some config for the next step
 
@@ -503,7 +503,7 @@ class BaseFTPHarvester(HarvesterBase):
         #         # Request only the resources modified since last harvest job
         #         last_run_time = previous_job.gather_finished.isoformat()
         #         for file in dirlist:
-        #             # TODO: compare the modified date of the file with the harvester run
+        #             # compare the modified date of the file with the harvester run
         #             if modified_dates.get(file) and self.frequency:
         #                 # remove the file from the dirlist if it does not match the update interval
         #                 modified_date = modified_dates.get(file)
