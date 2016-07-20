@@ -315,7 +315,7 @@ class BaseFTPHarvester(HarvesterBase):
             return package_dict
 
         # check if this organization exists
-        org_dict = get_action('organization_show')(context, {'id': org})
+        org_dict = get_action('organization_show')(context, {'id': default_org})
         if org_dict:
             package_dict['owner_org'] = default_org
             package_dict['organization'] = org_dict
