@@ -38,7 +38,7 @@ import subprocess
 
 from base import HarvesterBase
 from ckanext.harvest.model import HarvestJob, HarvestObject, HarvestGatherError, \
-                                    HarvestObjectError
+                                    HarvestObjectError, HarvestSource
 
 from simplejson.scanner import JSONDecodeError
 
@@ -95,23 +95,6 @@ class BaseFTPHarvester(HarvesterBase):
     # tested
     def get_remote_folder(self):
         return os.path.join('/', self.environment, self.remotefolder.lstrip('/')) # e.g. /test/DiDok or /prod/Info+
-
-    # tested
-    def _get_local_dirlist(self, localpath="."):
-        """
-        Get directory listing, including all sub-folders
-
-        :param localpath: Path to a local folder
-        :type localpath: str or unicode
-
-        :returns: Directory listing
-        :rtype: list
-        """
-        dirlist = []
-        for dirpath, dirnames, filenames in os.walk(localpath):
-            for filename in [f for f in filenames]:
-                dirlist.append(os.path.join(dirpath, filename))
-        return dirlist
 
     # tested
     def _set_config(self, config_str):
@@ -415,6 +398,7 @@ class BaseFTPHarvester(HarvesterBase):
         log.debug('In %s FTPHarvester gather_stage' % self.harvester_name) # harvest_job.source.url
         stage = 'Gather'
 
+
         # set harvester config
         self._set_config(harvest_job.source.config)
 
@@ -615,8 +599,39 @@ class BaseFTPHarvester(HarvesterBase):
                     self._save_object_error('Download error for file %s: %s' % (file, str(status)), harvest_object, stage)
                     return None
 
-                if self.do_unzip:
-                    ftph.unzip(targetfile)
+
+                # TODO: UNZIP AND SPAWN JOBS ----------------------------------------
+                # if self.do_unzip:
+                #     # unzip the file
+                #     file_num = ftph.unzip(targetfile)
+                #     if file_num:
+                #         # process the new files
+                #         unzipped_dirlist = ftph.get_local_dirlist(tmpfolder)
+                #         for f in unzipped_dirlist:
+                #             # do not create a job for the zip file itself -> skip it
+                #             if os.path.basename(targetfile) == os.path.basename(f):
+                #                 continue
+                #             # TODO
+                #             job = HarvestJob()
+                #             job.source = self.harvester_name.lower()
+                #             job.save()
+                #             new_obj = HarvestObject(guid=self.harvester_name, job=job)
+                #             # serialise and store the dirlist
+                #             new_obj.content = json.dumps({
+                #                 'file': f,
+                #                 'tmpfolder': tmpfolder,
+                #             })
+                #             # save it
+                #             new_obj.save()
+                #             # log.info('Harvest object saved %s', job.id)
+                #             # run the harvest job
+                #             # get_action('harvest_send_job_to_gather_queue')(context, {'id': job.id})
+                #             ret = self.import_stage(new_obj)
+                #             if not ret:
+                #                 self._save_object_error('An error occurred when extracting the file %s from zip' % os.path.basename(f), new_obj, stage)
+                #                 # TODO: how should the error be handled?
+                # -------------------------------------------------------------------
+
 
         except ftplib.all_errors as e:
             self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
@@ -624,7 +639,7 @@ class BaseFTPHarvester(HarvesterBase):
             return None
 
         except Exception as e:
-            self._save_object_error('An error occurred: %s' % e, harvest_object, 'Fetch')
+            self._save_object_error('An error occurred: %s' % e, harvest_object, stage)
             self.cleanup_after_error(tmpfolder)
             return None
 
@@ -639,6 +654,7 @@ class BaseFTPHarvester(HarvesterBase):
         harvest_object.content = json.dumps(retobj)
         harvest_object.save()
         return True
+
 
 
     # =======================================================================
@@ -831,6 +847,7 @@ class BaseFTPHarvester(HarvesterBase):
         # associate the harvester with the dataset
         harvest_object.guid = dataset['id']
         harvest_object.package_id = dataset['id']
+        # TODO: set the source (?)
 
 
 

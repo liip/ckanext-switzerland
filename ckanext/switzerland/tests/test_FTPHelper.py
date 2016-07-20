@@ -211,6 +211,12 @@ class TestFTPHelper(unittest.TestCase):
         # a filtered directory list was returned
         assert_equal(dirlist, ['filea.txt', 'fileb.zip'])
 
+    def test_get_local_dirlist(self):
+        with FTPHelper('/') as ftph:
+            dirlist = ftph._get_local_dirlist(localpath="./ckanext/switzerland/tests/fixtures/testdir")
+        assert_equal(type(dirlist), list)
+        assert_equal(len(dirlist), 3)
+
     @patch('ftplib.FTP', autospec=True)
     def test_is_empty_dir(self, MockFTP):
         # mock ftplib.FTP_TLS

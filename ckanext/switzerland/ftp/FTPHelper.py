@@ -218,6 +218,23 @@ class FTPHelper(object):
         dirs.sort()
         return dirs
 
+    # tested
+    def get_local_dirlist(self, localpath="."):
+        """
+        Get directory listing, including all sub-folders
+
+        :param localpath: Path to a local folder
+        :type localpath: str or unicode
+
+        :returns: Directory listing
+        :rtype: list
+        """
+        dirlist = []
+        for dirpath, dirnames, filenames in os.walk(localpath):
+            for filename in [f for f in filenames]:
+                dirlist.append(os.path.join(dirpath, filename))
+        return dirlist
+
     def get_modified_date(self, filename, folder=None):
         """
         Get the last modified date of a remote file

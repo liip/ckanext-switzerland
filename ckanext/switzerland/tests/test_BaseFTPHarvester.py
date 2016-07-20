@@ -147,12 +147,6 @@ class TestBaseFTPHarvester(unittest.TestCase):
         bh = BaseFTPHarvester()
         assert_equal(bh.get_remote_folder(), '/test/')
 
-    def test_get_local_dirlist(self):
-        bh = BaseFTPHarvester()
-        dirlist = bh._get_local_dirlist(localpath="./ckanext/switzerland/tests/fixtures/testdir")
-        assert_equal(type(dirlist), list)
-        assert_equal(len(dirlist), 3)
-
     def test_set_config(self):
         bh = BaseFTPHarvester()
         bh._set_config('{"myvar":"test"}')
