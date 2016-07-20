@@ -18,6 +18,7 @@ from pylons import config as ckanconf
 import ftplib
 import zipfile
 import errno
+import datetime
 
 
 class FTPHelper(object):
@@ -217,20 +218,37 @@ class FTPHelper(object):
         dirs.sort()
         return dirs
 
-    def get_modified_date(self, file, folder=None):
+    def get_modified_date(self, filename, folder=None):
         """
-        Get the last modified date of a file
+        Get the last modified date of a remote file
 
-        :param folder: filename
+        :param filename: Filename of remote file to check
+        :type filename: str or unicode
+        :param folder: Remote folder
         :type folder: str or unicode
 
         :returns: Date
         :rtype: TODO
         """
+
+        modified_date = None
+
         if folder:
             self.cdremote(folder)
 
+        ret = self.ftps.sendcmd('MDTM %s' % filename)
 
+        if ret:
+
+            modified_date = ret.split(' ')[1]
+            # example: '20160621123722'
+
+            modified_date = datetime.datetime.strptime(modified_date, '%Y%m%d%H%M%S')
+
+        log.debug('modified date of %s: %s ' % (filename, str(modified_date)))
+
+        # TODO
+        pass
 
     # tested (with empty dir)
     def is_empty_dir(self, folder=None):

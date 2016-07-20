@@ -25,6 +25,9 @@ class InfoplusHarvester(BaseFTPHarvester):
     # parent folder of the data on the ftp server
     remotefolder = 'Info+'
 
+    # update frequency (in hours)
+    frequency = 24
+
     # package metadata
     package_dict_meta = {
         # package privacy
@@ -154,6 +157,9 @@ class DidokHarvester(BaseFTPHarvester):
 
     # folder of the data on the ftp server
     remotefolder = 'DiDok'
+
+    # update frequency (in hours)
+    frequency = 4
 
     # package metadata
     package_dict_meta = {

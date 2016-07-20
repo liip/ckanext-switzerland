@@ -269,6 +269,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         return package_dict
 
+    # tested
     def _add_package_groups(self, package_dict, context):
         """
         Create (default) groups
@@ -414,6 +415,10 @@ class BaseFTPHarvester(HarvesterBase):
         log.debug('In %s FTPHarvester gather_stage' % self.harvester_name) # harvest_job.source.url
         stage = 'Gather'
 
+        # set harvester config
+        self._set_config(harvest_job.source.config)
+
+
         dirlist = []
 
         # get a listing of all files in the target directory
@@ -421,7 +426,7 @@ class BaseFTPHarvester(HarvesterBase):
         remotefolder = self.get_remote_folder()
         log.debug("Getting listing from remotefolder: %s" % remotefolder)
 
-        # modified_dates = {}
+        modified_dates = {}
 
         try:
 
@@ -431,8 +436,8 @@ class BaseFTPHarvester(HarvesterBase):
                 log.debug("Remote dirlist: %s" % str(dirlist))
 
                 # get last-modified date of each file
-                # for file in dirlist:
-                #     modified_dates[file] = ftph.get_modified_date(file)
+                for file in dirlist:
+                    modified_dates[file] = ftph.get_modified_date(file)
 
                 # store some config for the next step
 
@@ -481,6 +486,7 @@ class BaseFTPHarvester(HarvesterBase):
         # -------------------------------------------------------------------------
         object_ids = []
 
+
         # TODO
         # ------------------------------------------------------
         # 1: only download the resources that have been modified
@@ -491,18 +497,22 @@ class BaseFTPHarvester(HarvesterBase):
         #                 .filter(HarvestJob.id!=harvest_job.id) \
         #                 .order_by(HarvestJob.gather_finished.desc()) \
         #                 .limit(1).first()
-        # if previous_job and not previous_job.gather_errors and previous_job.objects and len(previous_job.objects):
-        #     # optional force_all config setting can be used to always download all files
-        #     if not self.config or not self.config.get('force_all', False):
+        # if previous_job and not previous_job.gather_errors and len(previous_job.objects):
+        #     # optional 'force_all' config setting can be used to always download all files
+        #     if self.config and not self.config.get('force_all', False):
         #         # Request only the resources modified since last harvest job
-        #         last_time = previous_job.gather_finished.isoformat()
+        #         last_run_time = previous_job.gather_finished.isoformat()
         #         for file in dirlist:
         #             # TODO: compare the modified date of the file with the harvester run
-        # run MDMT command for each file
-        #             pass
-        #             # else:
-        #             #     log.info('No packages have been updated on the remote CKAN instance since the last harvest job')
-        #             #     return []
+        #             if modified_dates.get(file) and self.frequency:
+        #                 # remove the file from the dirlist if it does not match the update interval
+        #                 modified_date = modified_dates.get(file)
+        #                 if modified_date and modified_date > (last_run_time - datetime.timedelta(hours=self.frequency)):
+        #                     # do not run the harvest for this file
+        #                     dirlist.remove(file)
+        #         if not len(dirlist):
+        #             log.info('No packages have been updated on the remote CKAN instance since the last harvest job')
+        #             return [] # no files to harvest this time
 
         # ------------------------------------------------------
         # 2: download all resources
