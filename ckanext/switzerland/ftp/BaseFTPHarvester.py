@@ -315,7 +315,8 @@ class BaseFTPHarvester(HarvesterBase):
         """
 
         # add the organization from the config object
-        default_org = self.config.get('organization', False)
+        default_org = self.config.get('organization', False) or ckanconf.get('ckan.ftp.organization', False)
+
         if not default_org:
             return package_dict
 
