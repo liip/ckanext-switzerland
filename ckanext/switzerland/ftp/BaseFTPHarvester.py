@@ -953,7 +953,7 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta['download_url'] = 'http://dummy-value'
 
 
-            resource_meta['resource_type'] = 'file'
+            # resource_meta['resource_type'] = 'file'
 
 
             # web interface complained about tracking_summary.total not being available in view
@@ -1011,28 +1011,65 @@ class BaseFTPHarvester(HarvesterBase):
                 file_name = munge_name(filename)
                 file_extension = file_extension.lower()
 
+                # update the resource
+                # -------------------
+                # patch_url = u'%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
+                # resource[u'resource_type'] = u'file'
+                # resource[u'download_url'] = patch_url
+                # resource['title'] = json.dumps(resource[u'title'])
+                # resource['description'] = json.dumps(resource[u'description'])
+                # if 'url' in resource:
+                #     del resource['url'] # in hopes that it will auto-generate a url
+                # if 'file' in resource:
+                #     del resource['file']
+                # log.debug('Updating resource')
+                # log.debug('resource dict: %s' % resource)
+                # api_url = site_url + self._get_action_api_offset() + '/resource_update'
+                # # log.debug('api_url: %s' % api_url)
+                # del headers['Content-Type']
+                # r = requests.post(api_url, data=resource, files={'file': fp}, headers=headers)
+                # log.info("Successfully updated resource")
+                # -------------------
+
                 # patch the resource
-                patch_url = '%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
-                patch_dict = {
-                    'id': resource['id'],
-                    u'download_url': patch_url,
-                    # url this should be created automatically, because we are uploading a file
-                    # however, it will not be created during resource_create, only in resource_update or resource_patch
-                    # u'url': patch_url,
-                }
-                log.debug('Patching resource')
-                log.debug('patch_dict: %s' % patch_dict)
-                api_url = site_url + self._get_action_api_offset() + '/resource_patch'
+                # -------------------
+                # patch_url = u'%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
+                # patch_dict = {
+                #     'id': resource['id'],
+                #     # 'download_url': patch_url,
+                #     # u'url': patch_url,
+                #     # 'resource_type': u'file',
+                #     # 'file': fp,
+                # }
+                # log.debug('Patching resource')
+                # if 'Content-Type' in headers:
+                #     del headers['Content-Type']
+                # log.debug(headers)
+                # # headers['Content-Type'] = 'multipart/form-data'
+                # api_url = site_url + self._get_action_api_offset() + '/resource_patch'
                 # log.debug('api_url: %s' % api_url)
-                del headers['Content-Type']
-                r = requests.post(api_url, data=patch_dict, files={'file': fp}, headers=headers)
+                # r = requests.post(api_url, data=patch_dict, files={'file': fp}, headers=headers)
+                # log.info("Successfully patched resource")
+                # -------------------
+
+                # curl-patch resource
+                # -------------------
+                import subprocess
+                api_url = site_url + self._get_action_api_offset() + '/resource_patch'
+                try:
+                    cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s" % (headers['Authorization'], api_url, file, resource['id'])
+                    log.debug('Running cmd: %s' % cmd)
+                    subprocess.call(cmd, shell=True)
+                except CalledProcessError as e:
+                    self._save_object_error('Error patching resource: %s' % str(e), harvest_object, stage)
+                    return False
+                # -------------------
+
                 if r.status_code != 200:
                     r.raise_for_status()
 
                 json_response = r.json()
                 log.debug(json_response)
-
-                log.info("Successfully patched resource")
 
 
                 log.info("Successfully harvested file %s" % file)
