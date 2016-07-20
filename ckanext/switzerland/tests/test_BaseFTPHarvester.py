@@ -329,6 +329,27 @@ class TestBaseFTPHarvester(unittest.TestCase):
         bh.cleanup_after_error(retobj)
         assert not os.path.exists(tmpfolder)
 
+    def test_find_resource_in_package(self):
+        dataset = {
+            'resources': [
+                {'id': '123-456-789', 'url':'http://example.com/my/url/123.txt', 'status':'active'},
+                {'id': '123-456-789', 'url':'http://example.com/my/url/456.txt', 'status':'active'},
+                {'id': '123-456-789', 'url':'http://example.com/my/url/789.txt', 'status':'deleted'}
+            ]
+        }
+        harvest_object = HarvestObject()
+        # test
+        bh = BaseFTPHarvester()
+        # 1
+        filepath = '/tmp/ftpharvest/subdir/456.txt'
+        ret = bh.find_resource_in_package(dataset, filepath, harvest_object)
+        assert_equal(ret, dataset['resources'][1])
+        # 2
+        filepath = '/tmp/ftpharvest/subdir/789.txt'
+        ret = bh.find_resource_in_package(dataset, filepath, harvest_object)
+        assert_equal(ret, None)
+
+
     # ------------
 
     # class MockFTPHelper:

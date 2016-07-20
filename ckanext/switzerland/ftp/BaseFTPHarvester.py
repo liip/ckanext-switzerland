@@ -22,7 +22,7 @@ from ckan.model import Session, Package
 from ckan.logic import ValidationError, NotFound
 from ckan.logic import get_action, check_access
 from ckan.lib.helpers import json
-from ckan.lib.munge import munge_name
+from ckan.lib.munge import munge_filename
 from ckan.lib import helpers
 from pylons import config as ckanconf
 
@@ -368,26 +368,26 @@ class BaseFTPHarvester(HarvesterBase):
         if retobj and 'tmpfolder' in retobj:
             self.remove_tmpfolder(retobj['tmpfolder'])
 
+    # tested
     def find_resource_in_package(self, dataset, filepath, harvest_object):
         resource_meta = None
         if 'resources' in dataset and len(dataset['resources']):
             # Find resource in the existing packages resource list
             for res in dataset['resources']:
                 # match the resource by its filename
-                if os.path.basename(res.get('url')) != munge_name(os.path.basename(filepath)):
+                match_name = munge_filename(os.path.basename(filepath))
+                if os.path.basename(res.get('url')) != match_name:
+                    log.debug('skipping')
                     continue
-                # ignore deleted resources
-                if res.get('status') != 'active':
-                    continue
-                try:
-                    # store the resource's metadata for later use
-                    resource_meta = res
-                    # there should only be one file with the same name in each dataset
-                    break
-                except Exception as e:
-                    log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
-                    pass
+                # TODO: ignore deleted resources
+                resource_meta = res
+                # there should only be one file with the same name in each dataset
+                break
+                # except Exception as e:
+                #     # log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
+                #     pass
         return resource_meta
+
 
 
     # =======================================================================
@@ -713,6 +713,7 @@ class BaseFTPHarvester(HarvesterBase):
 
             # check if there is a resource matching the filename in the package
             resource_meta = self.find_resource_in_package(dataset, file, harvest_object)
+            log.debug('Found existing resource: %s' % str(resource_meta))
 
             log.debug("Using existing package with id %s" % str(dataset.get('id')))
 
@@ -934,15 +935,14 @@ class BaseFTPHarvester(HarvesterBase):
 
                 # a resource was found - use the existing metadata from this resource
 
-                # the resource should get a new id, so delete the old one
                 # the resource will get a new revision_id, so we delete that key
-                for key in ['id', 'revision_id']:
+                for key in ['revision_id']:
                     try:
                         del resource_meta[key]
                     except KeyError as e:
                         pass
 
-                log_msg = "Creating resource (with known metadata): %s"
+                log_msg = "Updating resource (with known metadata): %s"
 
 
             resource_meta['package_id'] = dataset['id']
@@ -1008,11 +1008,6 @@ class BaseFTPHarvester(HarvesterBase):
 
                 resource = json_response['result']
 
-                filename, file_extension = os.path.splitext(os.path.basename(file))
-                # CKAN insanity
-                file_name = munge_name(filename)
-                file_extension = file_extension.lower()
-
                 # update the resource
                 # -------------------
                 # patch_url = u'%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
@@ -1065,7 +1060,9 @@ class BaseFTPHarvester(HarvesterBase):
                 # curl-patch resource
                 # -------------------
                 log.debug('Patching resource')
-                patch_url = u'%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
+                filename = munge_filename(os.path.basename(file))
+                patch_url = u'%s/dataset/%s/resource/%s/download/%s' % (site_url, dataset['name'], resource['id'], filename)
+                # log.debug('patch_url: %s' % patch_url)
                 api_url = site_url + self._get_action_api_offset() + '/resource_patch'
                 try:
                     cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s --form download_url=%s" % (headers['Authorization'], api_url, file, resource['id'], patch_url)
