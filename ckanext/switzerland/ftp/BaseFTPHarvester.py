@@ -34,6 +34,8 @@ from datetime import datetime, date
 import shutil
 import requests
 
+import subprocess
+
 from base import HarvesterBase
 from ckanext.harvest.model import HarvestJob, HarvestObject, HarvestGatherError, \
                                     HarvestObjectError
@@ -1054,13 +1056,14 @@ class BaseFTPHarvester(HarvesterBase):
 
                 # curl-patch resource
                 # -------------------
-                import subprocess
+                log.debug('Patching resource')
                 api_url = site_url + self._get_action_api_offset() + '/resource_patch'
                 try:
                     cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s" % (headers['Authorization'], api_url, file, resource['id'])
-                    log.debug('Running cmd: %s' % cmd)
+                    # log.debug('Running cmd: %s' % cmd)
                     subprocess.call(cmd, shell=True)
-                except CalledProcessError as e:
+                    log.info("Successfully patched resource")
+                except subprocess.CalledProcessError as e:
                     self._save_object_error('Error patching resource: %s' % str(e), harvest_object, stage)
                     return False
                 # -------------------
