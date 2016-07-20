@@ -147,12 +147,6 @@ class TestBaseFTPHarvester(unittest.TestCase):
         bh = BaseFTPHarvester()
         assert_equal(bh.get_remote_folder(), '/test/')
 
-    def test_get_local_dirlist(self):
-        bh = BaseFTPHarvester()
-        dirlist = bh._get_local_dirlist(localpath="./ckanext/switzerland/tests/fixtures/testdir")
-        assert_equal(type(dirlist), list)
-        assert_equal(len(dirlist), 3)
-
     def test_set_config(self):
         bh = BaseFTPHarvester()
         bh._set_config('{"myvar":"test"}')
@@ -271,20 +265,48 @@ class TestBaseFTPHarvester(unittest.TestCase):
         assert_equal(package_dict['tags'], tags)
         assert_equal(package_dict['num_tags'], 3)
 
-    # TODO
-    # @nottest
-    # def get_action_groups(context, group):
-    #     return group
-    # @patch('ckan.logic.get_action', spec=get_action_groups)
-    # def test_add_package_groups(self, get_action):
+    def group_getaction(self):
+        # assume that group exists and is returned
+        return {
+            'id': '123-456-789',
+            'name': 'My Existing Group'
+        }
+    @patch('ckanext.switzerland.ftp.BaseFTPHarvester.get_action', spec=group_getaction)
+    def test_add_package_groups(self, get_action):
+        context = {}
+        bh = BaseFTPHarvester()
+        # 1
+        package_dict = bh._add_package_groups({}, context)
+        assert_equal(package_dict['groups'], [])
+        # 2
+        bh.config = {
+            'default_groups': [ 'mygroup', 'nothergroup' ]
+        }
+        package_dict = bh._add_package_groups({}, context)
+        log.debug(package_dict)
+        assert_equal(len(package_dict['groups']), 2)
+
+    # class org_conf():
+    #     def get(self, key, na):
+    #         return 'the-configured-org-id'
+    # def org_getaction(self, action):
+    #     def mock_func(context, search_dict):
+    #         # assume that group exists and is returned
+    #         return {
+    #             'id': search_dict['id'],
+    #             'name': 'My Existing Org'
+    #         }
+    #     return mock_func
+    # @patch('ckanext.switzerland.ftp.BaseFTPHarvester.ckanconf', spec=org_conf)
+    # @patch('ckanext.switzerland.ftp.BaseFTPHarvester.get_action', spec=org_getaction)
+    # def test_add_package_orgs(self, get_action, org_conf):
     #     context = {}
-    #     groups = ['groupA', 'groupB']
+    #     # 1
     #     bh = BaseFTPHarvester()
-    #     bh.config = {
-    #         'default_groups': groups
-    #     }
-    #     package_dict = bh._add_package_groups({}, context)
-    #     assert_equal(package_dict['groups'], groups)
+    #     package_dict = bh._add_package_orgs({}, context)
+    #     assert_equal(package_dict['owner_org'], 'the-configured-org-id')
+    #     assert_equal(package_dict['organization']['id'], 'the-configured-org-id')
+    #     assert_equal(package_dict['organization']['name'], 'My Existing Org')
 
     def test_add_package_extras(self):
         package_dict = {
@@ -347,7 +369,8 @@ class TestBaseFTPHarvester(unittest.TestCase):
         # 2
         filepath = '/tmp/ftpharvest/subdir/789.txt'
         ret = bh.find_resource_in_package(dataset, filepath, harvest_object)
-        assert_equal(ret, None)
+        # assert_equal(ret, None)
+        assert_equal(ret, dataset['resources'][2])
 
 
     # ------------

@@ -38,7 +38,7 @@ import subprocess
 
 from base import HarvesterBase
 from ckanext.harvest.model import HarvestJob, HarvestObject, HarvestGatherError, \
-                                    HarvestObjectError
+                                    HarvestObjectError, HarvestSource
 
 from simplejson.scanner import JSONDecodeError
 
@@ -95,23 +95,6 @@ class BaseFTPHarvester(HarvesterBase):
     # tested
     def get_remote_folder(self):
         return os.path.join('/', self.environment, self.remotefolder.lstrip('/')) # e.g. /test/DiDok or /prod/Info+
-
-    # tested
-    def _get_local_dirlist(self, localpath="."):
-        """
-        Get directory listing, including all sub-folders
-
-        :param localpath: Path to a local folder
-        :type localpath: str or unicode
-
-        :returns: Directory listing
-        :rtype: list
-        """
-        dirlist = []
-        for dirpath, dirnames, filenames in os.walk(localpath):
-            for filename in [f for f in filenames]:
-                dirlist.append(os.path.join(dirpath, filename))
-        return dirlist
 
     # tested
     def _set_config(self, config_str):
@@ -269,6 +252,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         return package_dict
 
+    # tested
     def _add_package_groups(self, package_dict, context):
         """
         Create (default) groups
@@ -284,6 +268,11 @@ class BaseFTPHarvester(HarvesterBase):
 
         # Set default groups if needed
         default_groups = self.config.get('default_groups', [])
+
+        # one might also enter just a string -> convert it to list
+        if not isinstance(default_groups, list):
+            default_groups = [ default_groups ]
+
         # package_dict['groups'].extend([g for g in default_groups if g not in package_dict['groups']])
         # check if groups exist locally, otherwise do not add them
         for group_name in default_groups:
@@ -310,7 +299,8 @@ class BaseFTPHarvester(HarvesterBase):
         """
 
         # add the organization from the config object
-        default_org = self.config.get('organization', False)
+        default_org = self.config.get('organization', False) or ckanconf.get('ckan.ftp.organization', False)
+
         if not default_org:
             return package_dict
 
@@ -408,6 +398,11 @@ class BaseFTPHarvester(HarvesterBase):
         log.debug('In %s FTPHarvester gather_stage' % self.harvester_name) # harvest_job.source.url
         stage = 'Gather'
 
+
+        # set harvester config
+        self._set_config(harvest_job.source.config)
+
+
         dirlist = []
 
         # get a listing of all files in the target directory
@@ -475,6 +470,7 @@ class BaseFTPHarvester(HarvesterBase):
         # -------------------------------------------------------------------------
         object_ids = []
 
+
         # TODO
         # ------------------------------------------------------
         # 1: only download the resources that have been modified
@@ -485,18 +481,22 @@ class BaseFTPHarvester(HarvesterBase):
         #                 .filter(HarvestJob.id!=harvest_job.id) \
         #                 .order_by(HarvestJob.gather_finished.desc()) \
         #                 .limit(1).first()
-        # if previous_job and not previous_job.gather_errors and previous_job.objects and len(previous_job.objects):
-        #     # optional force_all config setting can be used to always download all files
-        #     if not self.config or not self.config.get('force_all', False):
+        # if previous_job and not previous_job.gather_errors and len(previous_job.objects):
+        #     # optional 'force_all' config setting can be used to always download all files
+        #     if self.config and not self.config.get('force_all', False):
         #         # Request only the resources modified since last harvest job
-        #         last_time = previous_job.gather_finished.isoformat()
+        #         last_run_time = previous_job.gather_finished.isoformat()
         #         for file in dirlist:
-        #             # TODO: compare the modified date of the file with the harvester run
-        # run MDMT command for each file
-        #             pass
-        #             # else:
-        #             #     log.info('No packages have been updated on the remote CKAN instance since the last harvest job')
-        #             #     return []
+        #             # compare the modified date of the file with the harvester run
+        #             if modified_dates.get(file) and self.frequency:
+        #                 # remove the file from the dirlist if it does not match the update interval
+        #                 modified_date = modified_dates.get(file)
+        #                 if modified_date and modified_date > (last_run_time - datetime.timedelta(hours=self.frequency)):
+        #                     # do not run the harvest for this file
+        #                     dirlist.remove(file)
+        #         if not len(dirlist):
+        #             log.info('No packages have been updated on the remote CKAN instance since the last harvest job')
+        #             return [] # no files to harvest this time
 
         # ------------------------------------------------------
         # 2: download all resources
@@ -599,8 +599,39 @@ class BaseFTPHarvester(HarvesterBase):
                     self._save_object_error('Download error for file %s: %s' % (file, str(status)), harvest_object, stage)
                     return None
 
-                if self.do_unzip:
-                    ftph.unzip(targetfile)
+
+                # TODO: UNZIP AND SPAWN JOBS ----------------------------------------
+                # if self.do_unzip:
+                #     # unzip the file
+                #     file_num = ftph.unzip(targetfile)
+                #     if file_num:
+                #         # process the new files
+                #         unzipped_dirlist = ftph.get_local_dirlist(tmpfolder)
+                #         for f in unzipped_dirlist:
+                #             # do not create a job for the zip file itself -> skip it
+                #             if os.path.basename(targetfile) == os.path.basename(f):
+                #                 continue
+                #             # TODO
+                #             job = HarvestJob()
+                #             job.source = self.harvester_name.lower()
+                #             job.save()
+                #             new_obj = HarvestObject(guid=self.harvester_name, job=job)
+                #             # serialise and store the dirlist
+                #             new_obj.content = json.dumps({
+                #                 'file': f,
+                #                 'tmpfolder': tmpfolder,
+                #             })
+                #             # save it
+                #             new_obj.save()
+                #             # log.info('Harvest object saved %s', job.id)
+                #             # run the harvest job
+                #             # get_action('harvest_send_job_to_gather_queue')(context, {'id': job.id})
+                #             ret = self.import_stage(new_obj)
+                #             if not ret:
+                #                 self._save_object_error('An error occurred when extracting the file %s from zip' % os.path.basename(f), new_obj, stage)
+                #                 # TODO: how should the error be handled?
+                # -------------------------------------------------------------------
+
 
         except ftplib.all_errors as e:
             self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
@@ -608,7 +639,7 @@ class BaseFTPHarvester(HarvesterBase):
             return None
 
         except Exception as e:
-            self._save_object_error('An error occurred: %s' % e, harvest_object, 'Fetch')
+            self._save_object_error('An error occurred: %s' % e, harvest_object, stage)
             self.cleanup_after_error(tmpfolder)
             return None
 
@@ -623,6 +654,7 @@ class BaseFTPHarvester(HarvesterBase):
         harvest_object.content = json.dumps(retobj)
         harvest_object.save()
         return True
+
 
 
     # =======================================================================
@@ -815,6 +847,7 @@ class BaseFTPHarvester(HarvesterBase):
         # associate the harvester with the dataset
         harvest_object.guid = dataset['id']
         harvest_object.package_id = dataset['id']
+        # TODO: set the source (?)
 
 
 
