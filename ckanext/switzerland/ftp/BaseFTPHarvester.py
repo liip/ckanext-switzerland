@@ -284,6 +284,11 @@ class BaseFTPHarvester(HarvesterBase):
 
         # Set default groups if needed
         default_groups = self.config.get('default_groups', [])
+
+        # one might also enter just a string -> convert it to list
+        if not isinstance(default_groups, list):
+            default_groups = [ default_groups ]
+
         # package_dict['groups'].extend([g for g in default_groups if g not in package_dict['groups']])
         # check if groups exist locally, otherwise do not add them
         for group_name in default_groups:
