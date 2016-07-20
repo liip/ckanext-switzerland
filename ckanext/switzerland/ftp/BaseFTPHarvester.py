@@ -1030,6 +1030,10 @@ class BaseFTPHarvester(HarvesterBase):
                 # # log.debug('api_url: %s' % api_url)
                 # del headers['Content-Type']
                 # r = requests.post(api_url, data=resource, files={'file': fp}, headers=headers)
+                # if r.status_code != 200:
+                #     r.raise_for_status()
+                # json_response = r.json()
+                # log.debug(json_response)
                 # log.info("Successfully updated resource")
                 # -------------------
 
@@ -1051,6 +1055,10 @@ class BaseFTPHarvester(HarvesterBase):
                 # api_url = site_url + self._get_action_api_offset() + '/resource_patch'
                 # log.debug('api_url: %s' % api_url)
                 # r = requests.post(api_url, data=patch_dict, files={'file': fp}, headers=headers)
+                # if r.status_code != 200:
+                #     r.raise_for_status()
+                # json_response = r.json()
+                # log.debug(json_response)
                 # log.info("Successfully patched resource")
                 # -------------------
 
@@ -1068,12 +1076,6 @@ class BaseFTPHarvester(HarvesterBase):
                     self._save_object_error('Error patching resource: %s' % str(e), harvest_object, stage)
                     return False
                 # -------------------
-
-                if r.status_code != 200:
-                    r.raise_for_status()
-
-                json_response = r.json()
-                log.debug(json_response)
 
 
                 log.info("Successfully harvested file %s" % file)
