@@ -1057,9 +1057,10 @@ class BaseFTPHarvester(HarvesterBase):
                 # curl-patch resource
                 # -------------------
                 log.debug('Patching resource')
+                patch_url = u'%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
                 api_url = site_url + self._get_action_api_offset() + '/resource_patch'
                 try:
-                    cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s" % (headers['Authorization'], api_url, file, resource['id'])
+                    cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s --form download_url=%s" % (headers['Authorization'], api_url, file, resource['id'], patch_url)
                     # log.debug('Running cmd: %s' % cmd)
                     subprocess.call(cmd, shell=True)
                     log.info("Successfully patched resource")
