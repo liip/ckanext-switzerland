@@ -456,17 +456,7 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
             return None
 
-
-        # version 1: create one harvest object for the package
-        # -------------------------------------------------------------------------
-        # harvest_object = HarvestObject(guid=self.harvester_name, job=harvest_job)
-        # # serialise and store the dirlist
-        # harvest_object.content = json.dumps(dirlist)
-        # # save it for the next step
-        # harvest_object.save()
-        # return [ harvest_object.id ]
-
-        # version 2: create one harvest job for each resource in the package
+        # create one harvest job for each resource in the package
         # -------------------------------------------------------------------------
         object_ids = []
 
@@ -741,7 +731,7 @@ class BaseFTPHarvester(HarvesterBase):
                 log.debug("Package '%s' not found" % package_dict.get('name'))
                 raise NotFound("Package '%s' not found" % package_dict.get('name'))
 
-            # TODO: update version of package
+            # update version of package
             dataset['version'] = now
 
             # check if there is a resource matching the filename in the package
@@ -832,7 +822,6 @@ class BaseFTPHarvester(HarvesterBase):
             log.info("Created package: %s" % str(dataset['name']))
 
         except Exception as e:
-            raise # debug
             # log.error("Error: Package dict: %s" % str(package_dict))
             self._save_object_error('Package update/creation error: %s' % str(e), harvest_object, stage)
             return False
@@ -844,11 +833,14 @@ class BaseFTPHarvester(HarvesterBase):
             return False
 
 
+
         # TODO
+        # ---------------------------------------------
         # associate the harvester with the dataset
         harvest_object.guid = dataset['id']
         harvest_object.package_id = dataset['id']
         # TODO: set the source (?)
+        # ---------------------------------------------
 
 
 
@@ -918,7 +910,6 @@ class BaseFTPHarvester(HarvesterBase):
 
                 resource_meta['issued'] = now
                 resource_meta['modified'] = now
-
                 resource_meta['version'] = now
 
                 # TODO - it does not really make sense having to set this here
@@ -970,35 +961,21 @@ class BaseFTPHarvester(HarvesterBase):
                 # a resource was found - use the existing metadata from this resource
 
                 # the resource will get a new revision_id, so we delete that key
-                for key in ['revision_id']:
-                    try:
+                for key in ['revision_id']: # TODO: there may be other stuff to delete?
+                    if key in resource_meta:
                         del resource_meta[key]
-                    except KeyError as e:
-                        pass
 
                 log_msg = "Updating resource (with known metadata): %s"
 
 
             resource_meta['package_id'] = dataset['id']
 
-            # TODO
             # url parameter is ignored for resource uploads, but required by ckan
+            # this parameter will be replaced later by the resource patch with a link to the download file
             if not 'url' in resource_meta:
                 resource_meta['url'] = 'http://dummy-value'
                 # why is this required here? It should be filled out by the extension
                 resource_meta['download_url'] = 'http://dummy-value'
-
-
-            # resource_meta['resource_type'] = 'file'
-
-
-            # web interface complained about tracking_summary.total not being available in view
-            # TODO: why is this not being created by default?
-            # tracking_summary = model.TrackingSummary.get_for_resource(resource_meta['url'])
-            # if tracking_summary:
-            #     resource_meta['tracking_summary'] = tracking_summary
-            # else:
-            #     resource_meta['tracking_summary'] = {'total' : 0, 'recent' : 0}
 
             if size != None:
                 resource_meta['size'] = size
@@ -1015,7 +992,6 @@ class BaseFTPHarvester(HarvesterBase):
                 'X-CKAN-API-Key': apikey,
                 'user-agent': 'ftp-harvester/1.0.0',
                 'Accept': 'application/json;q=0.9,text/plain;q=0.8,*/*;q=0.7',
-                # 'Content-Type': 'multipart/form-data', # http://stackoverflow.com/a/18590706/426266
                 'Content-Type': 'application/json',
             }
             # ------
@@ -1034,62 +1010,10 @@ class BaseFTPHarvester(HarvesterBase):
 
                 log.debug("Successfully created resource")
 
-                # bug fix for the url: patch resource with a url value that will resolve
-                # log.debug('json_response: %s' % str(json_response))
-
                 # update the resource with a resolvable url and the correct download_url
                 # -----------------------------------------------------------------------
 
                 resource = json_response['result']
-
-                # update the resource
-                # -------------------
-                # patch_url = u'%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
-                # resource[u'resource_type'] = u'file'
-                # resource[u'download_url'] = patch_url
-                # resource['title'] = json.dumps(resource[u'title'])
-                # resource['description'] = json.dumps(resource[u'description'])
-                # if 'url' in resource:
-                #     del resource['url'] # in hopes that it will auto-generate a url
-                # if 'file' in resource:
-                #     del resource['file']
-                # log.debug('Updating resource')
-                # log.debug('resource dict: %s' % resource)
-                # api_url = site_url + self._get_action_api_offset() + '/resource_update'
-                # # log.debug('api_url: %s' % api_url)
-                # del headers['Content-Type']
-                # r = requests.post(api_url, data=resource, files={'file': fp}, headers=headers)
-                # if r.status_code != 200:
-                #     r.raise_for_status()
-                # json_response = r.json()
-                # log.debug(json_response)
-                # log.info("Successfully updated resource")
-                # -------------------
-
-                # patch the resource
-                # -------------------
-                # patch_url = u'%s/dataset/%s/resource/%s/download/%s%s' % (site_url, dataset['name'], resource['id'], file_name, file_extension)
-                # patch_dict = {
-                #     'id': resource['id'],
-                #     # 'download_url': patch_url,
-                #     # u'url': patch_url,
-                #     # 'resource_type': u'file',
-                #     # 'file': fp,
-                # }
-                # log.debug('Patching resource')
-                # if 'Content-Type' in headers:
-                #     del headers['Content-Type']
-                # log.debug(headers)
-                # # headers['Content-Type'] = 'multipart/form-data'
-                # api_url = site_url + self._get_action_api_offset() + '/resource_patch'
-                # log.debug('api_url: %s' % api_url)
-                # r = requests.post(api_url, data=patch_dict, files={'file': fp}, headers=headers)
-                # if r.status_code != 200:
-                #     r.raise_for_status()
-                # json_response = r.json()
-                # log.debug(json_response)
-                # log.info("Successfully patched resource")
-                # -------------------
 
                 # curl-patch resource
                 # -------------------
@@ -1100,7 +1024,6 @@ class BaseFTPHarvester(HarvesterBase):
                 api_url = site_url + self._get_action_api_offset() + '/resource_patch'
                 try:
                     cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s --form download_url=%s" % (headers['Authorization'], api_url, file, resource['id'], patch_url)
-                    # log.debug('Running cmd: %s' % cmd)
                     subprocess.call(cmd, shell=True)
                     log.info("Successfully patched resource")
                 except subprocess.CalledProcessError as e:
