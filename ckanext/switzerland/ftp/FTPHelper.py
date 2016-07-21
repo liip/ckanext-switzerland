@@ -256,6 +256,7 @@ class FTPHelper(object):
         ret = self.ftps.sendcmd('MDTM %s' % filename)
 
         if ret:
+            # example: '203 20160621123722'
 
             modified_date = ret.split(' ')[1]
             # example: '20160621123722'
@@ -264,8 +265,7 @@ class FTPHelper(object):
 
         log.debug('modified date of %s: %s ' % (filename, str(modified_date)))
 
-        # TODO
-        pass
+        return modified_date
 
     # tested (with empty dir)
     def is_empty_dir(self, folder=None):

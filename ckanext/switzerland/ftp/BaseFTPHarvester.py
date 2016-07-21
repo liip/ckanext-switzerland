@@ -404,13 +404,12 @@ class BaseFTPHarvester(HarvesterBase):
 
 
         dirlist = []
+        modified_dates = {}
 
         # get a listing of all files in the target directory
 
         remotefolder = self.get_remote_folder()
         log.debug("Getting listing from remotefolder: %s" % remotefolder)
-
-        # modified_dates = {}
 
         try:
 
@@ -420,8 +419,8 @@ class BaseFTPHarvester(HarvesterBase):
                 log.debug("Remote dirlist: %s" % str(dirlist))
 
                 # get last-modified date of each file
-                # for file in dirlist:
-                #     modified_dates[file] = ftph.get_modified_date(file)
+                for file in dirlist:
+                    modified_dates[file] = ftph.get_modified_date(file)
 
                 # store some config for the next step
 
@@ -456,6 +455,7 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
             return None
 
+
         # create one harvest job for each resource in the package
         # -------------------------------------------------------------------------
         object_ids = []
@@ -465,32 +465,33 @@ class BaseFTPHarvester(HarvesterBase):
         # ------------------------------------------------------
         # 1: only download the resources that have been modified
         # has there been a previous run and was it successful?
-        # previous_job = Session.query(HarvestJob) \
-        #                 .filter(HarvestJob.source==harvest_job.source) \
-        #                 .filter(HarvestJob.gather_finished!=None) \
-        #                 .filter(HarvestJob.id!=harvest_job.id) \
-        #                 .order_by(HarvestJob.gather_finished.desc()) \
-        #                 .limit(1).first()
-        # if previous_job and not previous_job.gather_errors and len(previous_job.objects):
-        #     # optional 'force_all' config setting can be used to always download all files
-        #     if self.config and not self.config.get('force_all', False):
-        #         # Request only the resources modified since last harvest job
-        #         last_run_time = previous_job.gather_finished.isoformat()
-        #         for file in dirlist:
-        #             # compare the modified date of the file with the harvester run
-        #             if modified_dates.get(file) and self.frequency:
-        #                 # remove the file from the dirlist if it does not match the update interval
-        #                 modified_date = modified_dates.get(file)
-        #                 if modified_date and modified_date > (last_run_time - datetime.timedelta(hours=self.frequency)):
-        #                     # do not run the harvest for this file
-        #                     dirlist.remove(file)
-        #         if not len(dirlist):
-        #             log.info('No packages have been updated on the remote CKAN instance since the last harvest job')
-        #             return [] # no files to harvest this time
+        previous_job = Session.query(HarvestJob) \
+                        .filter(HarvestJob.source==harvest_job.source) \
+                        .filter(HarvestJob.gather_finished!=None) \
+                        .filter(HarvestJob.id!=harvest_job.id) \
+                        .order_by(HarvestJob.gather_finished.desc()) \
+                        .limit(1).first()
+        if previous_job and not previous_job.gather_errors and len(previous_job.objects):
+            # optional 'force_all' config setting can be used to always download all files
+            if self.config and not self.config.get('force_all', False):
+                # Request only the resources modified since last harvest job
+                last_run_time = previous_job.gather_finished.isoformat()
+                for file in dirlist:
+                    # compare the modified date of the file with the harvester run
+                    if modified_dates.get(file) and self.frequency:
+                        # remove the file from the dirlist if it does not match the update interval
+                        modified_date = modified_dates.get(file)
+                        if modified_date and modified_date > (last_run_time - datetime.timedelta(hours=self.frequency)):
+                            # do not run the harvest for this file
+                            dirlist.remove(file)
+                if not len(dirlist):
+                    log.info('No files have been updated on the ftp server since the last harvest job')
+                    return [] # no files to harvest this time
+        # ------------------------------------------------------
+
 
         # ------------------------------------------------------
         # 2: download all resources
-        # else:
 
         for file in dirlist:
 
