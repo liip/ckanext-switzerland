@@ -721,6 +721,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         package_dict = {
             'name': self.harvester_name.lower(), # self.remotefolder # self._ensure_name_is_unique(os.path.basename(self.remotefolder))
+            # TODO: identifier should be the package's id (which is unknown at this point in time)
             'identifier': self.harvester_name.title() # required by DCAT extension
         }
 

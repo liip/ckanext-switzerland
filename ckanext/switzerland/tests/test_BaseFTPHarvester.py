@@ -155,8 +155,7 @@ class TestBaseFTPHarvester(unittest.TestCase):
     @raises(JSONDecodeError)
     def test_set_invalid_config(self):
         bh = BaseFTPHarvester()
-        bh._set_config('{"myvar":test"}')
-        assert_equal(bh.config['myvar'], "test")
+        bh._set_config('{"myvar":invalidjson"}')
 
     def test_set_config(self):
         bh = BaseFTPHarvester()
