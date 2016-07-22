@@ -69,7 +69,7 @@ Example:
     <div>
       <div>
         <h2>{{ _('Description') }}</h2>
-        <p>{{ pkg.description }}</p>
+        <p>{{ h.get_localized_value(h.parse_json(pkg.description)) }}</p>
       </div>
     </div>
   {% endif %}
