@@ -591,7 +591,7 @@ class BaseFTPHarvester(HarvesterBase):
                     return None
 
 
-                # TODO: UNZIP AND SPAWN JOBS ----------------------------------------
+                # TODO: UNZIP FILE AND SPAWN HARVESTER JOBS -------------------------
                 # if self.do_unzip:
                 #     # unzip the file
                 #     file_num = ftph.unzip(targetfile)

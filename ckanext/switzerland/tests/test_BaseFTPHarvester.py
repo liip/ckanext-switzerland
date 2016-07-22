@@ -40,14 +40,17 @@ from ckanext.harvest.tests.factories import (HarvestSourceObj, HarvestJobObj,
 
 import ckanext.harvest.model as harvest_model
 
-# not needed - mock ftplib instead
-# from helpers.mock_ftp_server import MockFTPServer
+
+# TODO: Start ftp server we can test harvesting against it
+from helpers.mock_ftp_server import MockFTPServer
 
 
 
 # The classes to test
 # -----------------------------------------------------------------------
 from ckanext.switzerland.ftp.BaseFTPHarvester import BaseFTPHarvester
+from ckanext.switzerland.ftp.harvesters import InfoplusHarvester
+from ckanext.switzerland.ftp.harvesters import DidokHarvester
 # -----------------------------------------------------------------------
 
 
@@ -106,7 +109,7 @@ class TestBaseFTPHarvester(unittest.TestCase):
     @classmethod
     def setup(self):
         reset_db()
-        # harvest_model.setup()
+        harvest_model.setup()
         pass
 
     @classmethod
@@ -374,73 +377,31 @@ class TestBaseFTPHarvester(unittest.TestCase):
 
     # ------------
 
-    # class MockFTPHelper:
-    #     remotefolder = None
-    #     def __init__(self, remotefolder):
-    #         self.remotefolder = remotefolder
-    #     def get_remote_dirlist(self):
-    #         return ['hello.txt', 'WorlD.TXT', 'naughty.TMP', 'temporary.tmp']
-    #     def get_top_folder(self):
-    #         return 'mytestfolder'
-    # class MockHarvestGatherError():
-    #     message = ''
-    #     job = None
-    #     def __init__(self, message, job):
-    #         self.message = message
-    #         self.job = job
 
-    # @with_setup(prereqs, outro)
-    # @patch('ftplib.FTP', autospec=True)
-    # @patch('ftplib.FTP_TLS', autospec=True)
-    # @patch('ckanext.switzerland.ftp.FTPHelper', spec=MockFTPHelper)
-    # @patch('ckanext.harvest.model.HarvestObject', autospec=True)
-    # @patch('ckanext.harvest.model.HarvestGatherError', spec=MockHarvestGatherError)
-    # @patch('ckanext.harvest.model.HarvestObjectError', autospec=True)
-    # def test_gather_stage(self, HarvestObjectError, HarvestGatherError, HarvestObject, FTPHelper, FTPLibTLS, FTPLib):
+    # def test_gather_normal(self):
 
-    #         # run the test
-    #         myjob = HarvestJob('1234')
-    #         log.debug(myjob)
-    #         bh = BaseFTPHarvester()
-    #         harvest_object_ids = bh.gather_stage(myjob)
+    #     user_dict = {'user': 'testuser', 'pass': 'testpass', 'folder': '/'}
+    #     mock_ftp = MockFTPServer(config=('127.0.0.1', 21), user=user_dict)
 
-    #     # check the results
-    #     assert_equal(type(harvest_object_ids), list)
-    #     # there were two valid files to harvest defined in the MockFTPHelper
-    #     assert_equal(len(harvest_object_ids), 2)
-
-
-
-
-    # def test_fetch_unit(self):
-    #     source = HarvestSourceObj(url='http://localhost:%s/' % mock_ckan.PORT)
+    #     # the source url is never used in the harvesters
+    #     source = HarvestSourceObj(url='http://localhost/')
     #     job = HarvestJobObj(source=source)
-    #     harvest_object = HarvestObjectObj(guid=mock_ckan.DATASETS[0]['id'], job=job)
-    #     harvester = CKANHarvester()
-    #     result = harvester.fetch_stage(harvest_object)
-    #     assert_equal(result, True)
-    #     assert_equal(
-    #         harvest_object.content,
-    #         json.dumps(
-    #             mock_ckan.convert_dataset_to_restful_form(
-    #                 mock_ckan.DATASETS[0])))
+    #     # run test
+    #     harvester = DidokHarvester()
+    #     obj_ids = harvester.gather_stage(job)
+    #     # check
+    #     assert_equal(job.gather_errors, [])
 
+    #     assert_equal(type(obj_ids), list)
 
+    #     assert_equal(len(obj_ids), len(mock_ftp.DATASETS))
 
+    #     harvest_object = harvest_model.HarvestObject.get(obj_ids[0])
 
-    # def test_import_unit(self):
-    #     org = Organization()
-    #     harvest_object = HarvestObjectObj(
-    #         guid=mock_ckan.DATASETS[0]['id'],
-    #         content=json.dumps(mock_ckan.convert_dataset_to_restful_form(
-    #                            mock_ckan.DATASETS[0])),
-    #         job__source__owner_org=org['id'])
-    #     harvester = CKANHarvester()
-    #     result = harvester.import_stage(harvest_object)
-    #     assert_equal(result, True)
-    #     assert harvest_object.package_id
-    #     dataset = model.Package.get(harvest_object.package_id)
-    #     assert_equal(dataset.name, mock_ckan.DATASETS[0]['name'])
+    #     assert_equal(harvest_object.guid, mock_ftp.DATASETS[0]['id'])
+
+    #     assert_equal(json.loads(harvest_object.content), mock_ftp.DATASETS[0])
+
 
     # -------------------------------------------------------------------------------
     # END UNIT tests ----------------------------------------------------------------

@@ -18,16 +18,23 @@ class MockFTPServer():
 
     server = None
 
-    def __init__(self, config, user=None):
+    def __init__(self, config=None, user=None):
 
         log.debug("Starting FTP server: %s" % str(config))
 
         if self.server:
             self.teardown()
 
+        if not config:
+            config = ("127.0.0.1", 21)
+
         authorizer = DummyAuthorizer()
         if user:
-            authorizer.add_user(**user)
+            if 'perm' in user:
+                perm = user['perm']
+            else:
+                perm = "elradfmw"
+            authorizer.add_user(user['user'], user['pass'], user['folder'], perm=perm)
         else:
             authorizer.add_anonymous('.')
 
@@ -42,6 +49,15 @@ class MockFTPServer():
         self.server = FTPServer(config, handler)
         # self.server.serve_forever(blocking=False)
         # raise Exception(str(self.server))
+
+    def __enter__(self):
+        return self.server
+
+    def __exit__(self, type, value, traceback):
+        """
+        Disconnect the ftp connection
+        """
+        self.teardown()
 
     def teardown(self):
 
