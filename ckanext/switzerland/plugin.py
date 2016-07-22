@@ -483,3 +483,28 @@ class LangToString(object):
 h.dataset_display_name = dataset_display_name
 h.resource_display_name = resource_display_name
 h.group_link = group_link
+
+# patch activity
+def resource_link(resource_dict, package_id):
+    # log.debug(resource_dict)
+    if 'name' in resource_dict:
+        resource_dict['name'] = get_localized_value(parse_json(resource_dict['name']))
+    # log.debug(resource_dict)
+    # TODO: issue: resource_dict['name'] is saved as str(dict), and therefore is invalid json -> parse_json just returns the string
+    # ---
+    text = resource_display_name(resource_dict)
+    url = h.url_for(controller='package',
+                  action='resource_read',
+                  id=package_id,
+                  resource_id=resource_dict['id'])
+    return h.link_to(text, url)
+h.resource_link = resource_link
+
+# TODO: patch the munge_title function
+# import ckan.lib.munge as munge
+# def strfriendly_munge_title_to_name(string_or_dict):
+#     if isinstance(string_or_dict, dict):
+#         return string_or_dict
+#     string_or_dict = get_localized_value(parse_json(string_or_dict))
+#     return munge_title_to_name(string_or_dict)
+# munge.munge_title_to_name = strfriendly_munge_title_to_name
