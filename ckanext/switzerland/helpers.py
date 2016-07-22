@@ -143,6 +143,7 @@ def get_frequency_name(identifier):
     frequencies = {
       'http://purl.org/cld/freq/completelyIrregular': _('Irregular'),  # noqa
       'http://purl.org/cld/freq/continuous': _('Continuous'),  # noqa
+      'http://purl.org/cld/freq/hourly': _('Hourly'),  # noqa
       'http://purl.org/cld/freq/daily': _('Daily'),  # noqa
       'http://purl.org/cld/freq/threeTimesAWeek': _('Three times a week'),  # noqa
       'http://purl.org/cld/freq/semiweekly': _('Semi weekly'),  # noqa
