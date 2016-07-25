@@ -495,8 +495,7 @@ def resource_link(resource_dict, package_id):
     # ---
 
     if 'name' in resource_dict:
-        resource_dict['name'] = ast.literal_eval(resource_dict['name'])
-        resource_dict['name'] = get_localized_value(resource_dict['name'])
+        resource_dict['name'] = get_localized_value(ast.literal_eval(resource_dict['name']))
 
     text = resource_display_name(resource_dict)
     url = h.url_for(controller='package',
@@ -505,4 +504,3 @@ def resource_link(resource_dict, package_id):
                   resource_id=resource_dict['id'])
     return h.link_to(text, url)
 h.resource_link = resource_link
-

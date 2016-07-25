@@ -9,6 +9,8 @@ from ckan.common import _
 from ckan.lib.helpers import link_to, url_for
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
 
+import ast
+
 import logging
 
 
@@ -299,6 +301,9 @@ def group_link(group):
     url = url_for(controller='group', action='read', id=group['name'])
     title = group['title']
     title = parse_json(title)
+    # the group creation message contains str(dict), so we must parse the string to fix it
+    if isinstance(title, basestring):
+        title = ast.literal_eval(title)
     if isinstance(title, dict):
         title = get_localized_value(title)
     return link_to(title, url)
