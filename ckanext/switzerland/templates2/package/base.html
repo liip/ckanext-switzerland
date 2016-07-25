@@ -11,7 +11,7 @@
   {% if pkg %}
     {% if organization %}
       <li>{% link_for _('Organizations'), controller='organization', action='index' %}</li>
-      <li>{% link_for organization.title|truncate(30), controller='organization', action='read', id=organization.name %}</li>
+      <li>{% link_for h.get_localized_value(organization.title)|truncate(30), controller='organization', action='read', id=organization.name %}</li>
     {% else %}
       <li>{% link_for _('Data'), controller='package', action='search' %}</li>
     {% endif %}
