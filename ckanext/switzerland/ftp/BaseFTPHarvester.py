@@ -481,7 +481,9 @@ class BaseFTPHarvester(HarvesterBase):
                     if modified_dates.get(file) and self.frequency:
                         # remove the file from the dirlist if it does not match the update interval
                         modified_date = modified_dates.get(file)
-                        if modified_date and modified_date > (last_run_time - datetime.timedelta(hours=self.frequency)):
+                        # TODO: check this logic
+                        # if modified_date and modified_date > (last_run_time - datetime.timedelta(hours=self.frequency)):
+                        if modified_date and (modified_date > last_run_time):
                             # do not run the harvest for this file
                             dirlist.remove(file)
                 if not len(dirlist):
