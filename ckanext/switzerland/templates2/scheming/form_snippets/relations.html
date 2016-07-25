@@ -43,7 +43,7 @@
         {% endif %}
 
         {% for relation in relations %}
-            <div class="relations-form" data-id="{{ liip.index|string }}">
+            <div class="relations-form" data-id="{{ loop.index|string }}">
             {% call form.input(
                 field.field_name + '-' + loop.index|string + '-label',
                 type='text',
