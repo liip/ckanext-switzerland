@@ -1,51 +1,19 @@
 {% import 'macros/form.html' as form %}
 
+{% resource 'switzerland/relations.js' %}
+
 <h3>{{ h.scheming_language_text(field.label) }}</h3>
 
-{% if not data[field.field_name] and not field.field_name + '-1-label' in data %}
-    {% call form.input(
-        field.field_name + '-1-label',
-        type='text',
-        id='field-' + field.field_name + '-1-label',
-        label=_('Title'),
-        placeholder=h.scheming_language_text(field.form_placeholder),
-        error=errors[field.field_name + '-1-label'],
-        classes=['control-medium'],
-        attrs=field.form_attrs if 'form_attrs' in field else {},
-        is_required=h.scheming_field_required(field)
-        )
-    %}
-    {% endcall %}
-
-    {% call form.input(
-        field.field_name + '-1-url',
-        type='url',
-        id='field-' + field.field_name + '-1-url',
-        label=_('URL'),
-        placeholder=h.scheming_language_text(field.form_placeholder),
-        error=errors[field.field_name + '-1-url'],
-        classes=['control-medium'],
-        attrs=field.form_attrs if 'form_attrs' in field else {},
-        is_required=h.scheming_field_required(field)
-        )
-    %}
-    {% endcall %}
-{% else %}
-    {% if field.field_name + '-1-label' in data %}
-        {% set relations =  h.convert_post_data_to_dict(field.field_name, data) %}
-    {% else %}
-        {% set relations = h.parse_json(data[field.field_name]) %}
-    {% endif %}
-
-    {% for relation in relations %}
+<div id="relations" data-module="switzerland_relations">
+    {% if not data[field.field_name] and not field.field_name + '-1-label' in data %}
+        <div class="relations-form" data-id="1">
         {% call form.input(
-            field.field_name + '-' + loop.index|string + '-label',
+            field.field_name + '-1-label',
             type='text',
-            id='field-' + field.field_name + '-' + loop.index|string + '-label',
+            id='field-' + field.field_name + '-1-label',
             label=_('Title'),
             placeholder=h.scheming_language_text(field.form_placeholder),
-            value=relation['label'],
-            error=errors[field.field_name + '-' + loop.index|string + '-label'],
+            error=errors[field.field_name + '-1-label'],
             classes=['control-medium'],
             attrs=field.form_attrs if 'form_attrs' in field else {},
             is_required=h.scheming_field_required(field)
@@ -54,18 +22,63 @@
         {% endcall %}
 
         {% call form.input(
-            field.field_name + '-' + loop.index|string + '-url',
+            field.field_name + '-1-url',
             type='url',
-            id='field-' + field.field_name + '-' + loop.index|string + '-url',
+            id='field-' + field.field_name + '-1-url',
             label=_('URL'),
             placeholder=h.scheming_language_text(field.form_placeholder),
-            value=relation['url'],
-            error=errors[field.field_name + '-' + loop.index|string + '-url'],
+            error=errors[field.field_name + '-1-url'],
             classes=['control-medium'],
             attrs=field.form_attrs if 'form_attrs' in field else {},
             is_required=h.scheming_field_required(field)
             )
         %}
         {% endcall %}
-    {% endfor %}
-{% endif %}
+        </div>
+    {% else %}
+        {% if field.field_name + '-1-label' in data %}
+            {% set relations =  h.convert_post_data_to_dict(field.field_name, data) %}
+        {% else %}
+            {% set relations = h.parse_json(data[field.field_name]) %}
+        {% endif %}
+
+        {% for relation in relations %}
+            <div class="relations-form" data-id="{{ liip.index|string }}">
+            {% call form.input(
+                field.field_name + '-' + loop.index|string + '-label',
+                type='text',
+                id='field-' + field.field_name + '-' + loop.index|string + '-label',
+                label=_('Title'),
+                placeholder=h.scheming_language_text(field.form_placeholder),
+                value=relation['label'],
+                error=errors[field.field_name + '-' + loop.index|string + '-label'],
+                classes=['control-medium'],
+                attrs=field.form_attrs if 'form_attrs' in field else {},
+                is_required=h.scheming_field_required(field)
+                )
+            %}
+            {% endcall %}
+
+            {% call form.input(
+                field.field_name + '-' + loop.index|string + '-url',
+                type='url',
+                id='field-' + field.field_name + '-' + loop.index|string + '-url',
+                label=_('URL'),
+                placeholder=h.scheming_language_text(field.form_placeholder),
+                value=relation['url'],
+                error=errors[field.field_name + '-' + loop.index|string + '-url'],
+                classes=['control-medium'],
+                attrs=field.form_attrs if 'form_attrs' in field else {},
+                is_required=h.scheming_field_required(field)
+                )
+            %}
+            {% endcall %}
+            </div>
+        {% endfor %}
+
+    {% endif %}
+
+    <div class="control-group control-medium">
+        <a class="btn btn-success add-button">Add</a>
+    </div>
+</div>
