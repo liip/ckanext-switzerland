@@ -34,6 +34,7 @@
             )
         %}
         {% endcall %}
+        <a class="btn btn-danger remove-button" style="display: none;">{{ _('Remove') }}</a>
         </div>
     {% else %}
         {% if field.field_name + '-1-label' in data %}
@@ -73,12 +74,15 @@
                 )
             %}
             {% endcall %}
+            <div class="control-group control-medium">
+                <a class="btn btn-danger remove-button" style="display: none; margin-left: 130px;">{{ _('Remove') }}</a>
+            </div>
             </div>
         {% endfor %}
 
     {% endif %}
 
     <div class="control-group control-medium">
-        <a class="btn btn-success add-button">Add</a>
+        <a class="btn btn-success add-button">{{ _('Add') }}</a>
     </div>
 </div>
