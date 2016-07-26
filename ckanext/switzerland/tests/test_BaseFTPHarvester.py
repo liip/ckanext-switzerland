@@ -288,7 +288,7 @@ class TestBaseFTPHarvester(unittest.TestCase):
         log.debug(package_dict)
         assert_equal(len(package_dict['groups']), 2)
 
-    # class org_conf():
+    # class org_conf(object):
     #     def get(self, key, na):
     #         return 'the-configured-org-id'
     # def org_getaction(self, action):
@@ -303,9 +303,11 @@ class TestBaseFTPHarvester(unittest.TestCase):
     # @patch('ckanext.switzerland.ftp.BaseFTPHarvester.get_action', spec=org_getaction)
     # def test_add_package_orgs(self, get_action, org_conf):
     #     context = {}
-    #     # 1
+    #     # run
     #     bh = BaseFTPHarvester()
     #     package_dict = bh._add_package_orgs({}, context)
+    #     log.debug(package_dict)
+    #     # check
     #     assert_equal(package_dict['owner_org'], 'the-configured-org-id')
     #     assert_equal(package_dict['organization']['id'], 'the-configured-org-id')
     #     assert_equal(package_dict['organization']['name'], 'My Existing Org')
