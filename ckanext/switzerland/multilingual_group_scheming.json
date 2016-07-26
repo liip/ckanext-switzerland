@@ -44,7 +44,7 @@
         "it": "URL d'immagine"
       },
       "form_placeholder": "http://example.com/my-image.jpg",
-      "form_snippet": "upload.html"
+      "form_snippet": "image_upload.html"
     }
   ]
 }
