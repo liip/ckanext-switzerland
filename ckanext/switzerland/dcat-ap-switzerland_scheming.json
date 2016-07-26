@@ -326,7 +326,7 @@
         "fr": "URL d'accès",
         "it": "URL d'accesso"
       },
-      "preset": "url",
+      "preset": "resource_url_upload",
       "validators": "scheming_required"
     },
     {
