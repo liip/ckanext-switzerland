@@ -188,7 +188,6 @@ class FTPHelper(object):
 
         # .TMP must be ignored, as they are still being uploaded
         dirlist = [ x for x in dirlist if not x.lower().endswith(self.tmpfile_extension.lower()) ]
-        # dirlist = filter(lambda x: x if not x.lower().endswith(self.tmpfile_extension.lower()), dirlist)
 
         return dirlist
 
@@ -254,9 +253,9 @@ class FTPHelper(object):
             self.cdremote(folder)
 
         ret = self.ftps.sendcmd('MDTM %s' % filename)
+        # example: '203 20160621123722'
 
         if ret:
-            # example: '203 20160621123722'
 
             modified_date = ret.split(' ')[1]
             # example: '20160621123722'
@@ -302,7 +301,7 @@ class FTPHelper(object):
         localfile = open(localpath, 'wb')
         status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
         localfile.close()
-        # TODO: check status
+        # TODO: check status of download (MD5 checksum?)
         # TODO: verify download
         return status
 
