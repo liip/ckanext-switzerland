@@ -73,6 +73,8 @@ class BaseFTPHarvester(HarvesterBase):
     # parent folder of the above remote folder
     environment = 'test'
 
+    # if a resource is uploaded with a format, it will show a tag on the dataset, e.g. XML or TXT
+    # the default setting is defined to be TXT for files with no extension
     default_format = 'TXT'
     default_mimetype = 'TXT'
     default_mimetype_inner = 'TXT'
