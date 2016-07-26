@@ -1074,10 +1074,9 @@ class BaseFTPHarvester(HarvesterBase):
 
 
 class ContentFetchError(Exception):
+    """ Exception that can be raised when something goes wrong during the fetch stage """
     pass
 
 class RemoteResourceError(Exception):
-    pass
-
-class CmdError(Exception):
+    """ Exception that can be raised when remote operations fail """
     pass
