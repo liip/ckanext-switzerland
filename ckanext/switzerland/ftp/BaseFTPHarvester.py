@@ -103,14 +103,13 @@ class BaseFTPHarvester(HarvesterBase):
         """
         Set configuration value
 
-        :param localpath: config_str
-        :type localpath: str or unicode
+        :param config_str: Configuration as serialised JSON object
+        :type config_str: str or unicode
         """
         if config_str:
             self.config = json.loads(config_str)
             if 'api_version' in self.config:
                 self.api_version = int(self.config['api_version'])
-            # log.debug('Using config: %r', self.config)
         else:
             self.config = {}
 
@@ -197,8 +196,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         :param package_dict: Package metadata
         :type package_dict: dict
-
-        :param context: Context
+        :param context: CKAN context
         :type context: dict
 
         :returns: Package dictionary
@@ -230,6 +228,8 @@ class BaseFTPHarvester(HarvesterBase):
 
         :param package_dict: Package metadata
         :type package_dict: dict
+        :param context: CKAN context
+        :type context: dict
 
         :returns: Package dictionary
         :rtype: dict
@@ -261,6 +261,8 @@ class BaseFTPHarvester(HarvesterBase):
 
         :param package_dict: Package metadata
         :type package_dict: dict
+        :param context: CKAN context
+        :type context: dict
 
         :returns: Package dictionary
         :rtype: dict
@@ -294,6 +296,8 @@ class BaseFTPHarvester(HarvesterBase):
         
         :param package_dict: Package metadata
         :type package_dict: dict
+        :param context: CKAN context
+        :type context: dict
 
         :returns: Package dictionary
         :rtype: dict
