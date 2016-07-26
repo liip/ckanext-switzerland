@@ -367,7 +367,19 @@ class BaseFTPHarvester(HarvesterBase):
 
     # tested
     def find_resource_in_package(self, dataset, filepath, harvest_object):
-        """ Identify a resource in a package by its (munged) filename """
+        """
+        Identify a resource in a package by its (munged) filename
+
+        :param dataset: dataset dictionary
+        :type dataset: dict
+        :param filepath: Local path to the downloaded file
+        :type filepath: str
+        :param harvest_object: Instance of the Harvester Object
+        :type harvest_object: object
+
+        :returns: Package dictionary
+        :rtype: dict
+        """
         resource_meta = None
         if 'resources' in dataset and len(dataset['resources']):
             # Find resource in the existing packages resource list
@@ -520,7 +532,7 @@ class BaseFTPHarvester(HarvesterBase):
 
     def fetch_stage(self, harvest_object):
         """
-        Fetching of resources
+        Fetching of resources. Runs once for each gathered resource.
 
         :param harvest_object: HarvesterObject instance
         :type harvest_object: object
@@ -655,7 +667,8 @@ class BaseFTPHarvester(HarvesterBase):
 
     def import_stage(self, harvest_object):
         """
-        Importing the fetched files into CKAN storage
+        Importing the fetched files into CKAN storage.
+        Runs once for each fetched resource.
 
         :param harvest_object: HarvesterObject instance
         :type harvest_object: object
@@ -666,7 +679,7 @@ class BaseFTPHarvester(HarvesterBase):
         :rtype: bool|string
         """
         log.info('=====================================================')
-        log.info('In %s FTPHarvester import_stage' % self.harvester_name) # harvest_job.source.url
+        log.info('In %s FTPHarvester import_stage' % self.harvester_name)
         stage = 'Import'
 
         if not harvest_object or not harvest_object.content:
@@ -712,7 +725,7 @@ class BaseFTPHarvester(HarvesterBase):
         resource_meta = None
 
         package_dict = {
-            'name': self.harvester_name.lower(), # self.remotefolder # self._ensure_name_is_unique(os.path.basename(self.remotefolder))
+            'name': self.harvester_name.lower(),
             # TODO: identifier should be the package's id (which is unknown at this point in time)
             'identifier': self.harvester_name.title() # required by DCAT extension
         }
@@ -724,8 +737,6 @@ class BaseFTPHarvester(HarvesterBase):
             # -----------------------------------------------------------------------
 
             # add package_show to the auth audit stack
-            # result = check_access('package_show', context)
-            # dataset = get_action('package_show')(context, {'id': package_dict.get('name')})
             dataset = self._find_existing_package({'id': package_dict.get('name')})
 
             if not dataset or not 'id' in dataset:
