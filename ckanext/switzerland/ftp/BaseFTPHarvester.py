@@ -108,7 +108,7 @@ class BaseFTPHarvester(HarvesterBase):
             self.config = json.loads(config_str)
             if 'api_version' in self.config:
                 self.api_version = int(self.config['api_version'])
-            log.debug('Using config: %r', self.config)
+            # log.debug('Using config: %r', self.config)
         else:
             self.config = {}
 
@@ -370,7 +370,6 @@ class BaseFTPHarvester(HarvesterBase):
                 # match the resource by its filename
                 match_name = munge_filename(os.path.basename(filepath))
                 if os.path.basename(res.get('url')) != match_name:
-                    log.debug('skipping')
                     continue
                 # TODO: ignore deleted resources
                 resource_meta = res
@@ -394,8 +393,8 @@ class BaseFTPHarvester(HarvesterBase):
         :returns: List of HarvestObject ids that are processed in the next stage (fetch_stage)
         :rtype: list
         """
-        log.debug('=====================================================')
-        log.debug('In %s FTPHarvester gather_stage' % self.harvester_name) # harvest_job.source.url
+        log.info('=====================================================')
+        log.info('In %s FTPHarvester gather_stage' % self.harvester_name) # harvest_job.source.url
         stage = 'Gather'
 
 
@@ -409,7 +408,7 @@ class BaseFTPHarvester(HarvesterBase):
         # get a listing of all files in the target directory
 
         remotefolder = self.get_remote_folder()
-        log.debug("Getting listing from remotefolder: %s" % remotefolder)
+        log.info("Getting listing from remotefolder: %s" % remotefolder)
 
         try:
 
@@ -441,14 +440,12 @@ class BaseFTPHarvester(HarvesterBase):
                 # all parts following the first one must be relative paths
 
                 workingdir = tempfile.mkdtemp(prefix=prefix)
-                log.debug("Created workingdir: %s" % workingdir)
+                log.info("Created workingdir: %s" % workingdir)
 
 
         except ftplib.all_errors as e:
             self._save_gather_error('Error getting remote directory listing: %s' % str(e), harvest_job)
             return None
-
-        log.debug("Remote dirlist: %s" % str(dirlist))
 
         if not len(dirlist):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
@@ -526,9 +523,9 @@ class BaseFTPHarvester(HarvesterBase):
         :returns: Whether HarvestObject was saved or not
         :rtype: mixed
         """
-        log.debug('=====================================================')
-        log.debug('In %s FTPHarvester fetch_stage' % self.harvester_name)
-        log.debug('Running harvest job %s' % harvest_object.id)
+        log.info('=====================================================')
+        log.info('In %s FTPHarvester fetch_stage' % self.harvester_name)
+        log.info('Running harvest job %s' % harvest_object.id)
         stage = 'Fetch'
 
         # self._set_config(harvest_job.source.config)
@@ -564,8 +561,8 @@ class BaseFTPHarvester(HarvesterBase):
             return None
 
 
-        log.debug("Remote directory: %s" % remotefolder)
-        log.debug("Local directory: %s"  % tmpfolder)
+        log.info("Remote directory: %s" % remotefolder)
+        log.info("Local directory: %s"  % tmpfolder)
 
 
         try:
@@ -577,13 +574,13 @@ class BaseFTPHarvester(HarvesterBase):
                 # full path of the destination file
                 targetfile = os.path.join(tmpfolder, file)
 
-                log.debug('Fetching file: %s' % str(file))
+                log.info('Fetching file: %s' % str(file))
 
                 start = time.time()
                 status = ftph.fetch(file, targetfile) # 226 Transfer complete
                 elapsed = time.time() - start
 
-                log.debug("Fetched %s [%s] in %ds" % (file, str(status), elapsed))
+                log.info("Fetched %s [%s] in %ds" % (file, str(status), elapsed))
 
                 if status != '226 Transfer complete':
                     self._save_object_error('Download error for file %s: %s' % (file, str(status)), harvest_object, stage)
@@ -663,8 +660,8 @@ class BaseFTPHarvester(HarvesterBase):
                   False if there were errors.
         :rtype: bool|string
         """
-        log.debug('=====================================================')
-        log.debug('In %s FTPHarvester import_stage' % self.harvester_name) # harvest_job.source.url
+        log.info('=====================================================')
+        log.info('In %s FTPHarvester import_stage' % self.harvester_name) # harvest_job.source.url
         stage = 'Import'
 
         if not harvest_object or not harvest_object.content:
@@ -728,7 +725,7 @@ class BaseFTPHarvester(HarvesterBase):
 
             if not dataset or not 'id' in dataset:
                 # abort updating
-                log.debug("Package '%s' not found" % package_dict.get('name'))
+                log.error("Package '%s' not found" % package_dict.get('name'))
                 raise NotFound("Package '%s' not found" % package_dict.get('name'))
 
             # update version of package
@@ -738,7 +735,7 @@ class BaseFTPHarvester(HarvesterBase):
             resource_meta = self.find_resource_in_package(dataset, file, harvest_object)
             log.debug('Found existing resource: %s' % str(resource_meta))
 
-            log.debug("Using existing package with id %s" % str(dataset.get('id')))
+            log.info("Using existing package with id %s" % str(dataset.get('id')))
 
         except NotFound as e:
             # -----------------------------------------------------------------------
@@ -857,7 +854,7 @@ class BaseFTPHarvester(HarvesterBase):
         site_url = site_url.rstrip('/')
 
 
-        log.debug("Adding %s to package with id %s" % (str(file), dataset['id']))
+        log.info("Adding %s to package with id %s" % (str(file), dataset['id']))
 
 
         # set mimetypes of resource based on file extension
@@ -982,10 +979,10 @@ class BaseFTPHarvester(HarvesterBase):
 
             log.info(log_msg % str(resource_meta))
 
-            # upload with requests library to avoid ckanapi json_encode error
+            # step 1: upload the resource's info with requests library to avoid ckanapi json_encode error
             # ---------------------------------------------------------------------
             apikey = model.User.get(context['user']).apikey.encode('utf8')
-            log.debug("Posting to api_url: %s" % str(api_url))
+            # log.debug("Posting to api_url: %s" % str(api_url))
             headers = {
                 'Authorization': apikey,
                 'X-CKAN-API-Key': apikey,
@@ -1000,37 +997,33 @@ class BaseFTPHarvester(HarvesterBase):
             if r.status_code != 200:
                 r.raise_for_status()
             json_response = r.json()
+
             if not 'success' in json_response or not json_response['success'] or not 'result' in json_response:
+                raise Exception("Resource creation unsuccessful")
 
-                raise Exception("Upload not successful")
+            log.info("Successfully created resource")
 
-            else:
+            # step 2: update the resource with a resolvable url and the correct download_url
+            # -----------------------------------------------------------------------
 
-                log.debug("Successfully created resource")
+            resource = json_response['result']
 
-                # update the resource with a resolvable url and the correct download_url
-                # -----------------------------------------------------------------------
+            # curl-patch resource
+            # -------------------
+            log.info('Patching resource')
+            filename = munge_filename(os.path.basename(file))
+            patch_url = u'%s/dataset/%s/resource/%s/download/%s' % (site_url, dataset['name'], resource['id'], filename)
+            api_url = site_url + self._get_action_api_offset() + '/resource_patch'
+            try:
+                cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s --form download_url=%s" % (headers['Authorization'], api_url, file, resource['id'], patch_url)
+                subprocess.call(cmd, shell=True)
+                log.info("Successfully patched resource")
+            except subprocess.CalledProcessError as e:
+                self._save_object_error('Error patching resource: %s' % str(e), harvest_object, stage)
+                return False
+            # -------------------
 
-                resource = json_response['result']
-
-                # curl-patch resource
-                # -------------------
-                log.debug('Patching resource')
-                filename = munge_filename(os.path.basename(file))
-                patch_url = u'%s/dataset/%s/resource/%s/download/%s' % (site_url, dataset['name'], resource['id'], filename)
-                api_url = site_url + self._get_action_api_offset() + '/resource_patch'
-                try:
-                    cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s --form download_url=%s" % (headers['Authorization'], api_url, file, resource['id'], patch_url)
-                    subprocess.call(cmd, shell=True)
-                    log.info("Successfully patched resource")
-                except subprocess.CalledProcessError as e:
-                    self._save_object_error('Error patching resource: %s' % str(e), harvest_object, stage)
-                    return False
-                # -------------------
-
-
-                log.info("Successfully harvested file %s" % file)
-
+            log.info("Successfully harvested file %s" % file)
 
             # ---------------------------------------------------------------------
 
