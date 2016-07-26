@@ -3,7 +3,7 @@ FTP Helper
 ==================
 
 Methods that help with dealing with remote ftp and local folders.
-The class is to be used with Python's with statement, e.g.
+The class is intended to be used with Python's `with` statement, e.g.
 `
     with FTPHelper('/remote-base-path/') as ftph:
         ...
