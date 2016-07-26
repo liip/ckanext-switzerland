@@ -349,17 +349,20 @@ class BaseFTPHarvester(HarvesterBase):
 
     # tested
     def remove_tmpfolder(self, tmpfolder):
+        """ Remove the tmp folder, if it exists """
         if not tmpfolder:
             return
         shutil.rmtree(tmpfolder)
 
     # tested
     def cleanup_after_error(self, retobj):
+        """ Do some clean-up tasks """
         if retobj and 'tmpfolder' in retobj:
             self.remove_tmpfolder(retobj['tmpfolder'])
 
     # tested
     def find_resource_in_package(self, dataset, filepath, harvest_object):
+        """ Identify a resource in a package by its (munged) filename """
         resource_meta = None
         if 'resources' in dataset and len(dataset['resources']):
             # Find resource in the existing packages resource list
@@ -373,9 +376,6 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta = res
                 # there should only be one file with the same name in each dataset
                 break
-                # except Exception as e:
-                #     # log.error("Error deleting the existing resource %s: %s" % (str(res.get('id'), str(e))))
-                #     pass
         return resource_meta
 
 
@@ -426,7 +426,6 @@ class BaseFTPHarvester(HarvesterBase):
 
                 # ftplib stores retrieved files in a folder, e.g. 'ftp-secure.sbb.ch:990'
                 ftplibfolder = ftph.get_top_folder()
-                # log.debug('Topfolder: %s' % ftplibfolder)
 
                 # set base directory of the tmp folder
                 tmpdirbase = os.path.join(ftph._config['localpath'], ftplibfolder.strip('/'), remotefolder.lstrip('/'))
@@ -494,9 +493,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         # ------------------------------------------------------
         # 2: download all resources
-
         for file in dirlist:
-
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
             obj.content = json.dumps({
@@ -977,7 +974,6 @@ class BaseFTPHarvester(HarvesterBase):
             # this parameter will be replaced later by the resource patch with a link to the download file
             if not 'url' in resource_meta:
                 resource_meta['url'] = 'http://dummy-value'
-                # why is this required here? It should be filled out by the extension
                 resource_meta['download_url'] = 'http://dummy-value'
 
             if size != None:
@@ -999,7 +995,6 @@ class BaseFTPHarvester(HarvesterBase):
             }
             # ------
             r = requests.post(api_url, data=json.dumps(resource_meta), headers=headers)
-            # log.debug('Response: %s' % r.text)
             # ------
             # check result
             if r.status_code != 200:
@@ -1023,7 +1018,6 @@ class BaseFTPHarvester(HarvesterBase):
                 log.debug('Patching resource')
                 filename = munge_filename(os.path.basename(file))
                 patch_url = u'%s/dataset/%s/resource/%s/download/%s' % (site_url, dataset['name'], resource['id'], filename)
-                # log.debug('patch_url: %s' % patch_url)
                 api_url = site_url + self._get_action_api_offset() + '/resource_patch'
                 try:
                     cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s --form download_url=%s" % (headers['Authorization'], api_url, file, resource['id'], patch_url)
@@ -1072,6 +1066,7 @@ class BaseFTPHarvester(HarvesterBase):
         # if harvest_object.get('import_finished') != None:
         #     self.remove_tmpfolder(harvest_object.content.get('tmpfolder'))
         # ---------------------------------------------------------------------
+
 
 
         # =======================================================================
