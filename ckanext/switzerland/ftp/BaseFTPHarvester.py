@@ -273,7 +273,6 @@ class BaseFTPHarvester(HarvesterBase):
         if not isinstance(default_groups, list):
             default_groups = [ default_groups ]
 
-        # package_dict['groups'].extend([g for g in default_groups if g not in package_dict['groups']])
         # check if groups exist locally, otherwise do not add them
         for group_name in default_groups:
             try:
@@ -373,7 +372,7 @@ class BaseFTPHarvester(HarvesterBase):
                     continue
                 # TODO: ignore deleted resources
                 resource_meta = res
-                # there should only be one file with the same name in each dataset
+                # there should only be one file with the same name in each dataset, so we can break
                 break
         return resource_meta
 
