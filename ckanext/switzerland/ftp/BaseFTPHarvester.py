@@ -23,6 +23,7 @@ from ckan.logic import get_action, check_access
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename
 from ckan.lib import helpers
+from ckanext.harvest.harvesters.base import HarvesterBase
 from pylons import config as ckanconf
 
 import os
@@ -35,7 +36,6 @@ import requests
 
 import subprocess
 
-from base import HarvesterBase
 from ckanext.harvest.model import HarvestJob, HarvestObject
 
 from simplejson.scanner import JSONDecodeError
