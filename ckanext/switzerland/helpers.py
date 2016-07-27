@@ -8,7 +8,6 @@ import pylons
 from ckan.common import _
 from ckan.lib.helpers import link_to, url_for
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
-
 import ast
 
 import logging
@@ -307,3 +306,21 @@ def group_link(group):
     if isinstance(title, dict):
         title = get_localized_value(title)
     return link_to(title, url)
+
+
+# patch activity
+def resource_link(resource_dict, package_id):
+    # ---
+    # issue: resource_dict['name'] is saved as str(dict), and therefore is invalid json
+    #   -> parse_json just returns the string
+    # resolutions: parse the invalid json string into a dict
+    # ---
+    if 'name' in resource_dict:
+        resource_dict['name'] = get_localized_value(ast.literal_eval(resource_dict['name']))
+
+    text = resource_display_name(resource_dict)
+    url = url_for(controller='package',
+                  action='resource_read',
+                  id=package_id,
+                  resource_id=resource_dict['id'])
+    return link_to(text, url)
