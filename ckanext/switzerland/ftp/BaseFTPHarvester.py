@@ -840,25 +840,13 @@ class BaseFTPHarvester(HarvesterBase):
         # set mimetypes of resource based on file extension
         na, ext = os.path.splitext(f)
         ext = ext.lstrip('.').upper()
-        # fallback to TXT mimetype for files that do not have an extension
-        if not ext:
-            file_format = self.default_format
-            mimetype = self.default_mimetype
-            mimetype_inner = self.default_mimetype_inner
-        # if file has an extension
-        else:
-            # mimetype validation
-            # see https://github.com/ckan/ckan/blob/a28b95c0f027c59004cf450fe521f710e5b4470b/
-            # ckan/config/resource_formats.json
-            if ext.lower() in helpers.resource_formats():
-                # set mime types
-                file_format = mimetype = mimetype_inner = ext
-            # if format is unknown, we don't set it
 
-            # TODO: find out what the inner mimetype is inside of archives
-            # if ext in ['ZIP', 'RAR', 'TAR', 'TAR.GZ', '7Z']:
-                # mimetype_inner = 'TXT'
-                # pass
+        file_format = self.default_format
+        mimetype = self.default_mimetype
+        mimetype_inner = self.default_mimetype_inner
+        if ext and ext.lower() in helpers.resource_formats():
+            # set mime types
+            file_format = mimetype = mimetype_inner = ext
 
         fp = None
         try:
@@ -873,16 +861,12 @@ class BaseFTPHarvester(HarvesterBase):
             # create new resource, if it did not previously exist
             # -----------------------------------------------------
             if not resource_meta:
-                # TODO: check if we need the global defaults
-                # globally defined default values for the resource from the harvester
-                # if self.resource_dict_meta:
-                #     resource_meta = self.resource_dict_meta
-                # else:
-                #     resource_meta = {}
+                if self.resource_dict_meta:
+                    resource_meta = self.resource_dict_meta
+                else:
+                    resource_meta = {}
 
                 api_url = site_url + self._get_action_api_offset() + '/resource_create'
-
-                resource_meta = {}
 
                 resource_meta['identifier'] = os.path.basename(f)
 
@@ -890,10 +874,6 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta['modified'] = now
                 resource_meta['version'] = now
 
-                # TODO - it does not really make sense having to set this here
-                resource_meta['language'] = ['en', 'de', 'fr', 'it']
-
-                # TODO
                 if not resource_meta.get('rights'):
                     resource_meta['rights'] = 'TODO'
                 if not resource_meta.get('license'):
