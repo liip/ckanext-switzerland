@@ -57,7 +57,7 @@ class FTPHelper(object):
         Establish an ftp connection and cd into the configured remote directory
 
         :returns: Instance of FTPHelper
-        :rtype: object
+        :rtype: FTPHelper
         """
         self._connect()
         # cd into the remote directory
@@ -265,6 +265,9 @@ class FTPHelper(object):
         log.debug('modified date of %s: %s ' % (filename, str(modified_date)))
 
         return modified_date
+
+    def get_local_path(self):
+        return self._config['localpath']
 
     # tested (with empty dir)
     def is_empty_dir(self, folder=None):
