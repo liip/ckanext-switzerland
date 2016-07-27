@@ -315,7 +315,7 @@ def resource_link(resource_dict, package_id):
     #   -> parse_json just returns the string
     # resolutions: parse the invalid json string into a dict
     # ---
-    if 'name' in resource_dict:
+    if 'name' in resource_dict and resource_dict['name']:
         resource_dict['name'] = get_localized_value(ast.literal_eval(resource_dict['name']))
 
     text = resource_display_name(resource_dict)
