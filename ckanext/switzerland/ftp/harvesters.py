@@ -1,14 +1,13 @@
-'''
+"""
 FTP Harvesters
-'''
+"""
 
-# from ckan.lib.munge import munge_name
 
 import logging
-log = logging.getLogger(__name__)
 
 from BaseFTPHarvester import BaseFTPHarvester
-from BaseFTPHarvester import ContentFetchError, RemoteResourceError
+
+log = logging.getLogger(__name__)
 
 
 class InfoplusHarvester(BaseFTPHarvester):
@@ -36,34 +35,34 @@ class InfoplusHarvester(BaseFTPHarvester):
         'isopen': False,
         # --------------------------------------------------------------------------
         # author and maintainer
-        'author': "Author name", # TODO
-        'author_email': "author@example.com", # TODO
-        'maintainer': "Maintainer name", # TODO
-        'maintainer_email': "maintainer@example.com", # TODO
+        'author': "Author name",
+        'author_email': "author@example.com",
+        'maintainer': "Maintainer name",
+        'maintainer_email': "maintainer@example.com",
         # license
-        'license_id': "other-open", # TODO
-        'license_title': "Other (Open)", # TODO
-        'rights': "Other (Open)", # TODO
+        'license_id': "other-open",
+        'license_title': "Other (Open)",
+        'rights': "Other (Open)",
         # owner organisation
-        "owner_org": "7dbaad15-597f-499c-9a72-95de38b95cad", # TODO
+        "owner_org": "7dbaad15-597f-499c-9a72-95de38b95cad",
         # ckan multilang/switzerland custom required fields
-        'coverage': "Coverage", # TODO
-        'issued': "21.03.2015", # TODO
-        # "modified": "21.03.2016", # TODO
-        # "metadata_created": "2016-07-05T07:41:28.741265", # TODO
-        # "metadata_modified": "2016-07-05T07:43:30.079030", # TODO
-        # "url": "https://catalog.data.gov/", # TODO
-        "spatial": "Spatial", # TODO
-        "accrual_periodicity": "", # TODO
+        'coverage': "Coverage",
+        'issued': "21.03.2015",
+        # "modified": "21.03.2016",
+        # "metadata_created": "2016-07-05T07:41:28.741265",
+        # "metadata_modified": "2016-07-05T07:43:30.079030",
+        # "url": "https://catalog.data.gov/",
+        "spatial": "Spatial",
+        "accrual_periodicity": "",
         # --------------------------------------------------------------------------
-        "description": { # TODO
+        "description": {
             "fr": "FR Description",
             "en": "EN Description",
             "de": "DE Description",
             "it": "IT Description"
         },
-        # TODO - release notes could go in here - but where do they come from ?
-        "notes": { # TODO
+
+        "notes": {
             "fr": "...",
             "en": "...",
             "de": "...",
@@ -76,15 +75,14 @@ class InfoplusHarvester(BaseFTPHarvester):
         "language": ["en", "de", "fr", "it"],
         # relations
         "relations": [{}],
-        "relationships_as_object": [], # ???
-        "relationships_as_subject": [], # ???
-        "see_alsos": [], # ???
-        # publisher (TODO)
+        "relationships_as_object": [],
+        "relationships_as_subject": [],
+        "see_alsos": [],
         "publishers": [{
             "label": "Publisher 1"
         }],
         # keywords
-        'keywords': { # TODO
+        'keywords': {
             "fr": [],
             "en": [],
             "de": [],
@@ -94,7 +92,7 @@ class InfoplusHarvester(BaseFTPHarvester):
             "name": "Contact Name",
             "email": "contact@example.com"
         }],
-        "temporals": [{ # TODO
+        "temporals": [{
             "start_date": "2014-03-21T00:00:00",
             "end_date": "2019-03-21T00:00:00"
         }],
@@ -102,46 +100,13 @@ class InfoplusHarvester(BaseFTPHarvester):
 
     resource_dict_meta = {
         'state': 'active',
-        'rights': 'Other (Open)', # TODO
-        'license': 'Other (Open)', # TODO
-        'coverage': 'Coverage', # TODO
+        'rights': 'Other (Open)',
+        'license': 'Other (Open)',
+        'coverage': 'Coverage',
     }
 
-
     # whether or not to unzip the files found locally
-    do_unzip = True # PROD: set this to True
-
-
-    # -----------------------------------------------------------------------
-    def gather_stage(self, harvest_job):
-        """
-        Gathers resources to fetch
-
-        :param harvest_job: Harvester job
-        :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
-        """
-        return super(InfoplusHarvester, self).gather_stage(harvest_job)
-    # -----------------------------------------------------------------------
-    def fetch_stage(self, harvest_object):
-        """
-        Fetches resources
-
-        :param harvest_object: HarvestObject
-        :returns: True|None Whether HarvestObject was saved or not
-        """
-        return super(InfoplusHarvester, self).fetch_stage(harvest_object)
-    # -----------------------------------------------------------------------
-    def import_stage(self, harvest_object):
-        """
-        Importing the fetched files into CKAN storage
-
-        :param harvest_object: HarvestObject
-        :returns: True|False boolean Whether the object was imported or not
-        """
-        return super(InfoplusHarvester, self).import_stage(harvest_object)
-    # -----------------------------------------------------------------------
-
-# =======================================================================
+    do_unzip = True  # PROD: set this to True
 
 
 class DidokHarvester(BaseFTPHarvester):
@@ -169,34 +134,33 @@ class DidokHarvester(BaseFTPHarvester):
         'isopen': False,
         # --------------------------------------------------------------------------
         # author and maintainer
-        'author': "Author name", # TODO
-        'author_email': "author@example.com", # TODO
-        'maintainer': "Maintainer name", # TODO
-        'maintainer_email': "maintainer@example.com", # TODO
+        'author': "Author name",
+        'author_email': "author@example.com",
+        'maintainer': "Maintainer name",
+        'maintainer_email': "maintainer@example.com",
         # license
-        'license_id': "other-open", # TODO
-        'license_title': "Other (Open)", # TODO
-        'rights': "Other (Open)", # TODO
+        'license_id': "other-open",
+        'license_title': "Other (Open)",
+        'rights': "Other (Open)",
         # owner organisation
-        "owner_org": "7dbaad15-597f-499c-9a72-95de38b95cad", # TODO
+        "owner_org": "7dbaad15-597f-499c-9a72-95de38b95cad",
         # ckan multilang/switzerland custom required fields
-        'coverage': "Coverage", # TODO
-        'issued': "21.03.2015", # TODO
-        # "modified": "21.03.2016", # TODO
-        # "metadata_created": "2016-07-05T07:41:28.741265", # TODO
-        # "metadata_modified": "2016-07-05T07:43:30.079030", # TODO
-        # "url": "https://catalog.data.gov/", # TODO
-        "spatial": "Spatial", # TODO
-        "accrual_periodicity": "", # TODO
+        'coverage': "Coverage",
+        'issued': "21.03.2015",
+        # "modified": "21.03.2016",
+        # "metadata_created": "2016-07-05T07:41:28.741265",
+        # "metadata_modified": "2016-07-05T07:43:30.079030",
+        # "url": "https://catalog.data.gov/",
+        "spatial": "Spatial",
+        "accrual_periodicity": "",
         # --------------------------------------------------------------------------
-        "description": { # TODO
+        "description": {
             "fr": "FR Description",
             "en": "EN Description",
             "de": "DE Description",
             "it": "IT Description"
         },
-        # TODO - release notes could go in here - but where do they come from ?
-        "notes": { # TODO
+        "notes": {
             "fr": "...",
             "en": "...",
             "de": "...",
@@ -209,15 +173,14 @@ class DidokHarvester(BaseFTPHarvester):
         "language": ["en", "de", "fr", "it"],
         # relations
         "relations": [{}],
-        "relationships_as_object": [], # ???
-        "relationships_as_subject": [], # ???
-        "see_alsos": [], # ???
-        # publisher (TODO)
+        "relationships_as_object": [],
+        "relationships_as_subject": [],
+        "see_alsos": [],
         "publishers": [{
             "label": "Publisher 1"
         }],
         # keywords
-        'keywords': { # TODO
+        'keywords': {
             "fr": [],
             "en": [],
             "de": [],
@@ -227,7 +190,7 @@ class DidokHarvester(BaseFTPHarvester):
             "name": "Contact Name",
             "email": "contact@example.com"
         }],
-        "temporals": [{ # TODO
+        "temporals": [{
             "start_date": "2014-03-21T00:00:00",
             "end_date": "2019-03-21T00:00:00"
         }],
@@ -235,40 +198,10 @@ class DidokHarvester(BaseFTPHarvester):
 
     resource_dict_meta = {
         'state': 'active',
-        'rights': 'Other (Open)', # TODO
-        'license': 'Other (Open)', # TODO
-        'coverage': 'Coverage', # TODO
+        'rights': 'Other (Open)',
+        'license': 'Other (Open)',
+        'coverage': 'Coverage',
     }
 
     # whether or not to unzip the files found locally
-    do_unzip = True # no zip files in the folder (so far)
-
-
-    # -----------------------------------------------------------------------
-    def gather_stage(self, harvest_job):
-        """
-        Gathers resources to fetch
-
-        :param harvest_job: Harvester job
-        :returns: object_ids list List of HarvestObject ids that are processed in the next stage (fetch_stage)
-        """
-        return super(DidokHarvester, self).gather_stage(harvest_job)
-    # -----------------------------------------------------------------------
-    def fetch_stage(self, harvest_object):
-        """
-        Fetches resources
-
-        :param harvest_object: HarvestObject
-        :returns: True|None Whether HarvestObject was saved or not
-        """
-        return super(DidokHarvester, self).fetch_stage(harvest_object)
-    # -----------------------------------------------------------------------
-    def import_stage(self, harvest_object):
-        """
-        Imports the fetched files into CKAN storage
-
-        :param harvest_object: HarvestObject
-        :returns: True|False boolean Whether the object was imported or not
-        """
-        return super(DidokHarvester, self).import_stage(harvest_object)
-    # -----------------------------------------------------------------------
+    do_unzip = True  # no zip files in the folder (so far)

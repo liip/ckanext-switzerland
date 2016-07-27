@@ -1,4 +1,4 @@
-'''
+"""
 FTP Helper
 ==================
 
@@ -8,10 +8,9 @@ The class is intended to be used with Python's `with` statement, e.g.
     with FTPHelper('/remote-base-path/') as ftph:
         ...
 `
-'''
+"""
 
 import logging
-log = logging.getLogger(__name__)
 
 import os
 from pylons import config as ckanconf
@@ -19,6 +18,8 @@ import ftplib
 import zipfile
 import errno
 import datetime
+
+log = logging.getLogger(__name__)
 
 
 class FTPHelper(object):
@@ -148,7 +149,7 @@ class FTPHelper(object):
         :rtype: None
         """
         if self.ftps:
-            self.ftps.quit() # '221 Goodbye.'
+            self.ftps.quit()  # '221 Goodbye.'
 
     # tested
     def cdremote(self, remotedir=None):
@@ -184,10 +185,10 @@ class FTPHelper(object):
             dirlist = self.ftps.nlst()
 
         # filter out '.' and '..' and return the list
-        dirlist = filter(lambda x: x not in ['.', '..'], dirlist)
+        dirlist = filter(lambda entry: entry not in ['.', '..'], dirlist)
 
         # .TMP must be ignored, as they are still being uploaded
-        dirlist = [ x for x in dirlist if not x.lower().endswith(self.tmpfile_extension.lower()) ]
+        dirlist = [x for x in dirlist if not x.lower().endswith(self.tmpfile_extension.lower())]
 
         return dirlist
 
@@ -207,12 +208,12 @@ class FTPHelper(object):
         dirs = []
         new_dirs = self.get_remote_dirlist(folder)
         while len(new_dirs) > 0:
-            for dir in new_dirs:
-                dirs.append(dir)
+            for directory in new_dirs:
+                dirs.append(directory)
             old_dirs = new_dirs[:]
             new_dirs = []
-            for dir in old_dirs:
-                for new_dir in self.get_remote_dirlist(dir):
+            for directory in old_dirs:
+                for new_dir in self.get_remote_dirlist(directory):
                     new_dirs.append(new_dir)
         dirs.sort()
         return dirs
@@ -281,7 +282,7 @@ class FTPHelper(object):
         :rtype: int
         """
         if not folder:
-            folder=None
+            folder = None
         num_files = len(self.get_remote_dirlist_all(folder))
         return num_files
 
@@ -304,8 +305,6 @@ class FTPHelper(object):
         localfile = open(localpath, 'wb')
         status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
         localfile.close()
-        # TODO: check status of download (MD5 checksum?)
-        # TODO: verify download
         return status
 
     # tested
@@ -327,6 +326,4 @@ class FTPHelper(object):
             zfile = zipfile.ZipFile(filepath)
             filelist = zfile.namelist()
             zfile.extractall(target_folder)
-            # TODO: verify that files were correctly unzipped
             return len(filelist)
-
