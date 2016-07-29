@@ -96,7 +96,12 @@ class BaseFTPHarvester(HarvesterBase):
 
     # tested
     def get_remote_folder(self):
-        return os.path.join('/', self.environment, self.remotefolder.lstrip('/'))  # e.g. /test/DiDok or /prod/Info+
+        environment = None
+        if self.config:
+            environment = self.config.get('environment')
+        if not environment:
+            environment = self.environment
+        return os.path.join('/', environment, self.remotefolder.lstrip('/'))  # e.g. /test/DiDok or /prod/Info+
 
     # tested
     def _set_config(self, config_str):
