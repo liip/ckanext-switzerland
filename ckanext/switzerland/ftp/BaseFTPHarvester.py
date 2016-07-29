@@ -473,19 +473,16 @@ class BaseFTPHarvester(HarvesterBase):
             .filter(HarvestJob.id != harvest_job.id) \
             .order_by(HarvestJob.gather_finished.desc()) \
             .limit(1).first()
-        if previous_job and not previous_job.gather_errors and len(previous_job.objects):
+        if previous_job and not previous_job.gather_errors and previous_job.gather_started:
             # optional 'force_all' config setting can be used to always download all files
             if self.config and not self.config.get('force_all', False):
                 # Request only the resources modified since last harvest job
-                last_run_time = previous_job.gather_finished.isoformat()
-                for f in dirlist:
-                    # compare the modified date of the file with the harvester run
-                    if modified_dates.get(f) and self.frequency:
-                        # remove the file from the dirlist if it does not match the update interval
-                        modified_date = modified_dates.get(f)
-                        if modified_date and (modified_date > last_run_time):
-                            # do not run the harvest for this file
-                            dirlist.remove(f)
+                for f in dirlist[:]:
+                    modified_date = modified_dates.get(f)
+                    if modified_date and modified_date < previous_job.gather_started:
+                        # do not run the harvest for this file
+                        dirlist.remove(f)
+
                 if not len(dirlist):
                     log.info('No files have been updated on the ftp server since the last harvest job')
                     return []  # no files to harvest this time
