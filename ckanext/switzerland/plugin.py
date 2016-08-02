@@ -447,7 +447,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         for lang in lang_set:
             query_fields += ' title_%s^2 text_%s' % (lang, lang)
 
-        search_params['qf'] = query_fields
+        search_params['qf'] = query_fields + ' res_name res_description'
 
         '''
         Unless the query is already being filtered by any type
