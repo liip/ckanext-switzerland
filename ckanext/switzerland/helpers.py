@@ -112,7 +112,7 @@ def get_localized_value(lang_dict, desired_lang_code=None, default_value=''):
     return original value
     """
     if not all(k in lang_dict for k in get_langs()):
-        return lang_dict
+        return ''
 
     # if no specific lang is requested, read from environment
     if desired_lang_code is None:
