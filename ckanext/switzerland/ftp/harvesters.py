@@ -43,8 +43,6 @@ class InfoplusHarvester(BaseFTPHarvester):
         'license_id': "other-open",
         'license_title': "Other (Open)",
         'rights': "Other (Open)",
-        # owner organisation
-        "owner_org": "7dbaad15-597f-499c-9a72-95de38b95cad",
         # ckan multilang/switzerland custom required fields
         'coverage': "Coverage",
         'issued': "21.03.2015",
@@ -142,8 +140,6 @@ class DidokHarvester(BaseFTPHarvester):
         'license_id': "other-open",
         'license_title': "Other (Open)",
         'rights': "Other (Open)",
-        # owner organisation
-        "owner_org": "7dbaad15-597f-499c-9a72-95de38b95cad",
         # ckan multilang/switzerland custom required fields
         'coverage': "Coverage",
         'issued': "21.03.2015",

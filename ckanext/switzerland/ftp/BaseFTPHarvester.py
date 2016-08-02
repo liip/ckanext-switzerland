@@ -245,14 +245,6 @@ class BaseFTPHarvester(HarvesterBase):
         if default_tags:
             package_dict['tags'].extend([t for t in default_tags if t not in package_dict['tags']])
 
-        # add optional tags, defined in the harvester
-        # if self.package_dict_meta.get('tags'):
-        #     for tag in self.package_dict_meta.get('tags'):
-        #         tag_dict = get_action('tag_show')(context, {'id': tag})
-        #         if tag_dict:
-        #             # add the found tag to the package's tags
-        #             package_dict['tags'].append(tag_dict)
-
         package_dict['num_tags'] = len(package_dict['tags'])
 
         return package_dict
@@ -293,9 +285,9 @@ class BaseFTPHarvester(HarvesterBase):
 
         return package_dict
 
-    def _add_package_orgs(self, package_dict, context):
+    def _add_package_orgs(self, package_dict, context, organization):
         """
-        Create default organization(s)
+        Fetch organization and set it on the package_dict
         
         :param package_dict: Package metadata
         :type package_dict: dict
@@ -306,16 +298,10 @@ class BaseFTPHarvester(HarvesterBase):
         :rtype: dict
         """
 
-        # add the organization from the config object
-        default_org = self.config.get('organization', False) or ckanconf.get('ckan.ftp.organization', False)
-
-        if not default_org:
-            return package_dict
-
         # check if this organization exists
-        org_dict = get_action('organization_show')(context, {'id': default_org})
+        org_dict = get_action('organization_show')(context, {'id': organization})
         if org_dict:
-            package_dict['owner_org'] = default_org
+            package_dict['owner_org'] = organization
             package_dict['organization'] = org_dict
 
         return package_dict
@@ -781,7 +767,10 @@ class BaseFTPHarvester(HarvesterBase):
                 self.config = {}
             package_dict = self._add_package_tags(package_dict)
             package_dict = self._add_package_groups(package_dict, context)
-            package_dict = self._add_package_orgs(package_dict, context)
+            source_org = model.Package.get(harvest_object.source.id).owner_org
+            self._save_object_error('Harvester Source %s need an organization set (object %s)' %
+                                    (self.harvester_name, harvest_object.id), harvest_object, stage)
+            package_dict = self._add_package_orgs(package_dict, context, source_org)
             package_dict = self._add_package_extras(package_dict, harvest_object)
 
             # version
