@@ -112,7 +112,7 @@ def get_localized_value(lang_dict, desired_lang_code=None, default_value=''):
     return original value
     """
     if not all(k in lang_dict for k in get_langs()):
-        return ''
+        return lang_dict
 
     # if no specific lang is requested, read from environment
     if desired_lang_code is None:
@@ -291,10 +291,11 @@ def resource_display_name(resource_dict):
         description = parse_json(description)
         if isinstance(description, dict):
             description = get_localized_value(description)
-        description = description.split('.')[0]
-        max_len = 60
-        if len(description) > max_len:
-            description = description[:max_len] + '...'
+        if isinstance(description, basestring):
+            description = description.split('.')[0]
+            max_len = 60
+            if len(description) > max_len:
+                description = description[:max_len] + '...'
         return description
     else:
         return _("Unnamed resource")
