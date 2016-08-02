@@ -128,6 +128,11 @@ def get_localized_value(lang_dict, desired_lang_code=None, default_value=''):
     return _lang_fallback(lang_dict, default_value)
 
 
+def parse_and_localize(string_lang_dict):
+    lang_dict = parse_json(string_lang_dict)
+    return get_localized_value(lang_dict)
+
+
 def _lang_fallback(lang_dict, default_value):
     # loop over languages in order of their priority for fallback
     for lang_code in get_langs():
