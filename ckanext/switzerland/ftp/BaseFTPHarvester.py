@@ -852,12 +852,12 @@ class BaseFTPHarvester(HarvesterBase):
             # create new resource, if it did not previously exist
             # -----------------------------------------------------
             if not resource_meta:
+                old_resource_id = None
+
                 if self.resource_dict_meta:
                     resource_meta = self.resource_dict_meta
                 else:
                     resource_meta = {}
-
-                api_url = site_url + self._get_action_api_offset() + '/resource_create'
 
                 resource_meta['identifier'] = os.path.basename(f)
 
@@ -904,7 +904,7 @@ class BaseFTPHarvester(HarvesterBase):
             # create the resource, but use the known metadata (of the old resource)
             # -----------------------------------------------------
             else:
-                api_url = site_url + self._get_action_api_offset() + '/resource_create'
+                old_resource_id = resource_meta['id']
 
                 # the resource will get a new revision_id, so we delete that key
                 for key in ['id', 'revision_id']:  # TODO: there may be other stuff to delete?
@@ -939,6 +939,7 @@ class BaseFTPHarvester(HarvesterBase):
                 'Content-Type': 'application/json',
             }
             # ------
+            api_url = site_url + self._get_action_api_offset() + '/resource_create'
             r = requests.post(api_url, data=json.dumps(resource_meta), headers=headers)
             # ------
             # check result
@@ -971,6 +972,11 @@ class BaseFTPHarvester(HarvesterBase):
                 self._save_object_error('Error patching resource: %s' % str(e), harvest_object, stage)
                 return False
             # -------------------
+
+            # delete the old version of the resource
+            if old_resource_id:
+                api_url = site_url + self._get_action_api_offset() + '/resource_delete'
+                requests.post(api_url, data=json.dumps({'id': old_resource_id}), headers=headers)
 
             log.info("Successfully harvested file %s" % f)
 
