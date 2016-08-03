@@ -16,6 +16,7 @@ from ckanext.switzerland.helpers import (
     parse_and_localize
 )
 
+from ckan.common import request
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckan.lib.helpers as h
@@ -309,6 +310,8 @@ class OgdchResourcePlugin(OgdchLanguagePlugin):
 
     # IResourceController
     def before_show(self, pkg_dict):
+        if request and request.GET.get('revision_date'):
+            pkg_dict['url'] = pkg_dict['url'] + '?revision_date=' + request.GET['revision_date']
         return super(OgdchResourcePlugin, self).before_view(pkg_dict)
 
     def _ignore_field(self, key):
