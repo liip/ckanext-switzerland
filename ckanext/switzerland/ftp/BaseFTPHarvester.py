@@ -904,13 +904,10 @@ class BaseFTPHarvester(HarvesterBase):
             # create the resource, but use the known metadata (of the old resource)
             # -----------------------------------------------------
             else:
-
-                api_url = site_url + self._get_action_api_offset() + '/resource_update'
-
-                # a resource was found - use the existing metadata from this resource
+                api_url = site_url + self._get_action_api_offset() + '/resource_create'
 
                 # the resource will get a new revision_id, so we delete that key
-                for key in ['revision_id']:  # TODO: there may be other stuff to delete?
+                for key in ['id', 'revision_id']:  # TODO: there may be other stuff to delete?
                     if key in resource_meta:
                         del resource_meta[key]
 
