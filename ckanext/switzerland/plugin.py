@@ -24,6 +24,9 @@ import pylons
 import json
 import collections
 import logging
+
+from routes.mapper import SubMapper
+
 log = logging.getLogger(__name__)
 
 
@@ -310,6 +313,21 @@ class OgdchResourcePlugin(OgdchLanguagePlugin):
 
     def _ignore_field(self, key):
         return key == 'tracking_summary'
+
+    plugins.implements(plugins.IRoutes, inherit=True)
+
+    def before_map(self, map):
+        """
+        Patch PackageController to accept the revision_date GET parameter on resource views.
+        """
+        with SubMapper(map, controller='ckanext.switzerland.controllers:RevisionPackageController') as m:
+            m.connect('/dataset/{id}/resource/{resource_id}/download',
+                      action='resource_download')
+            m.connect('/dataset/{id}/resource/{resource_id}/download/{filename}',
+                      action='resource_download')
+            m.connect('/dataset/{id}/resource/{resource_id}',
+                      action='resource_read')
+        return map
 
 
 class OgdchPackagePlugin(OgdchLanguagePlugin):
