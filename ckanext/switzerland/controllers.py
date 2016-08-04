@@ -50,6 +50,7 @@ class RevisionPackageController(PackageController):
         revision_date = request.GET.get('revision_date')
         if revision_date:
             context['revision_date'] = revision_date
+        c.revision_date = revision_date
 
         try:
             c.package = get_action('package_show')(context, {'id': id})
