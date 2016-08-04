@@ -312,6 +312,7 @@ class OgdchResourcePlugin(OgdchLanguagePlugin):
     # IResourceController
     def before_show(self, pkg_dict):
         pkg_dict['url'] = revision_url(pkg_dict['url'], request.GET.get('revision_date'))
+        pkg_dict['download_url'] = revision_url(pkg_dict['download_url'], request.GET.get('revision_date'))
         return super(OgdchResourcePlugin, self).before_view(pkg_dict)
 
     def _ignore_field(self, key):
