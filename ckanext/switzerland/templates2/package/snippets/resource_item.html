@@ -1,7 +1,6 @@
 {% set can_edit = h.check_access('package_update', {'id':pkg.id }) %}
 {% set url_action = 'resource_edit' if url_is_edit and can_edit else 'resource_read' %}
-{% set revision_date = '?revision_date=' + c.revision_date.isoformat() if c.revision_date else '' %}
-{% set url = h.url_for(controller='package', action=url_action, id=pkg.name, resource_id=res.id) + revision_date %}
+{% set url = h.revision_url(h.url_for(controller='package', action=url_action, id=pkg.name, resource_id=res.id), c.revision_date) %}
 
 <li class="resource-item" data-id="{{ res.id }}">
   {% block resource_item_title %}
@@ -40,7 +39,7 @@
       </li>
       {% if res.url and h.is_url(res.url) %}
       <li>
-        <a href="{{ res.url }}{% if c.revision_date %}?revision_date={{ c.revision_date.isoformat() }}{% endif %}" class="resource-url-analytics" target="_blank">
+        <a href="{{ h.revision_url(res.url, c.revision_date) }}" class="resource-url-analytics" target="_blank">
           {% if res.has_views %}
             <i class="icon-download"></i>
             {{ _('Download') }}

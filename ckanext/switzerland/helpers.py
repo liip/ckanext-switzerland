@@ -2,9 +2,11 @@ from collections import defaultdict
 
 import ckan.plugins.toolkit as tk
 import ckan.logic as logic
+import datetime
 import requests
 import json
 import pylons
+from pylons import config
 from ckan.common import _
 from ckan.lib.helpers import link_to, url_for
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
@@ -330,3 +332,11 @@ def resource_link(resource_dict, package_id):
                   id=package_id,
                   resource_id=resource_dict['id'])
     return link_to(text, url)
+
+
+def revision_url(url, revision_date):
+    if revision_date and (url.startswith('/') or url.startswith(config.get('ckan.site_url', ''))):
+        if isinstance(revision_date, datetime.datetime):
+            revision_date = revision_date.isoformat()
+        url += '?revision_date=' + revision_date
+    return url

@@ -13,7 +13,7 @@ from ckanext.switzerland.helpers import (
     get_dataset_by_identifier, get_readable_file_size,
     simplify_terms_of_use, parse_json, get_piwik_config,
     convert_post_data_to_dict, dataset_display_name, resource_display_name, group_link, resource_link,
-    parse_and_localize
+    parse_and_localize, revision_url
 )
 
 from ckan.common import request
@@ -131,6 +131,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'get_piwik_config': get_piwik_config,
             'parse_json': parse_json,
             'convert_post_data_to_dict': convert_post_data_to_dict,
+            'revision_url': revision_url,
         }
 
 
@@ -310,8 +311,7 @@ class OgdchResourcePlugin(OgdchLanguagePlugin):
 
     # IResourceController
     def before_show(self, pkg_dict):
-        if request and request.GET.get('revision_date'):
-            pkg_dict['url'] = pkg_dict['url'] + '?revision_date=' + request.GET['revision_date']
+        pkg_dict['url'] = revision_url(pkg_dict['url'], request.GET.get('revision_date'))
         return super(OgdchResourcePlugin, self).before_view(pkg_dict)
 
     def _ignore_field(self, key):
