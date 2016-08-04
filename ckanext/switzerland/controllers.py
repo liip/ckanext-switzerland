@@ -152,3 +152,23 @@ class RevisionPackageController(PackageController):
         elif not 'url' in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])
+
+    def resource_permalink(self, id, filename):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
+        data_dict = {'id': id, 'include_tracking': True}
+
+        try:
+            dataset = get_action('package_show')(context, data_dict)
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        for res in dataset['resources']:
+            print res['url']
+
+            #return redirect(res['url'])
+
+        abort(404, _('Resource not found'))

@@ -331,6 +331,9 @@ class OgdchResourcePlugin(OgdchLanguagePlugin):
                       action='resource_download')
             m.connect('/dataset/{id}/resource/{resource_id}',
                       action='resource_read')
+
+            m.connect('/dataset/{id}/resource_permalink/{filename}',
+                      action='resource_permalink')
         return map
 
 
