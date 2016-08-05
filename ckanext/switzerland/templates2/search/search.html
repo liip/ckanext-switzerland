@@ -11,18 +11,20 @@
     </form>
 
     {% raw %}
-    <h1>{{ pageResults.length }} pages found for "{{ currentSearchTerm }}"</h1>
-    <div v-for="result in pageResults">
-      <hr>
-      <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
-      <div>{{ result.description }}</div>
-    </div>
+    <div v-if="currentSearchTerm">
+      <h1>{{ pageResults.length }} pages found for "{{ currentSearchTerm }}"</h1>
+      <div v-for="result in pageResults">
+        <hr>
+        <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
+        <div>{{ result.description }}</div>
+      </div>
 
-    <h1>{{ datasetResults.length }} datasets found for "{{ currentSearchTerm }}"</h1>
-    <div v-for="result in datasetResults">
-      <hr>
-      <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
-      <div>{{ result.description }}</div>
+      <h1>{{ datasetResults.length }} datasets found for "{{ currentSearchTerm }}"</h1>
+      <div v-for="result in datasetResults">
+        <hr>
+        <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
+        <div>{{ result.description }}</div>
+      </div>
     </div>
     {% endraw %}
   </div>
