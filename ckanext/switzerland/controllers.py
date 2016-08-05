@@ -1,5 +1,6 @@
 import logging
 import mimetypes
+import os
 
 import ckan.lib.base as base
 import ckan.lib.plugins
@@ -11,6 +12,7 @@ import paste.fileapp
 from ckan.common import _, request, c, response
 from ckan.controllers.package import PackageController
 from pylons import config
+from ckanext.switzerland.helpers import resource_filename
 
 log = logging.getLogger(__name__)
 
@@ -167,8 +169,7 @@ class RevisionPackageController(PackageController):
             abort(401, _('Unauthorized to read package %s') % id)
 
         for res in dataset['resources']:
-            print res['url']
-
-            #return redirect(res['url'])
+            if resource_filename(res['url']) == filename:
+                return redirect(res['url'])
 
         abort(404, _('Resource not found'))
