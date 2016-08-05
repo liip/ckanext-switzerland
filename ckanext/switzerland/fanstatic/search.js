@@ -9,29 +9,27 @@ new Vue({
     language: ''
   },
   ready: function() {
-    var lang = document.getElementsByTagName('html')[0].getAttribute('lang');
+    var self = this
+    var lang = $('html').attr('lang')
     this.language = lang ? lang.split('-')[0] : 'en'
 
-    var queryString = window.location.search;
+    var queryString = window.location.search
     if (queryString) {
-      var queryString = queryString.substring(1).split('&')
-
-      for (var i = 0; i < queryString.length; i++) {
-        var pair = queryString[i].split('=')
+      $.each(queryString.substring(1).split('&'), function(index, param) {
+        var pair = param.split('=')
         if (pair[0] == 'q') {
-          this.searchTerm = pair[1]
-          this.search()
+          self.searchTerm = pair[1]
+          self.search()
         }
-      }
+      })
     }
   },
   methods: {
     search: function() {
-      var self = this;
-      self.currentSearchTerm = self.searchTerm;
+      var self = this
 
-      var ckanSearch = $.ajax('/api/3/action/package_search?q=' + this.searchTerm);
-      var wordPressSearch = $.ajax('/wp-json/wp/v2/search/' + this.searchTerm);
+      var ckanSearch = $.ajax('/api/3/action/package_search?q=' + this.searchTerm)
+      var wordPressSearch = $.ajax('/wp-json/wp/v2/search/' + this.searchTerm)
 
       $.when(ckanSearch, wordPressSearch).done(function(datasets, pages) {
         // ckan search results
@@ -54,6 +52,7 @@ new Vue({
           })
         })
 
+        self.currentSearchTerm = self.searchTerm
       })
     }
   }
