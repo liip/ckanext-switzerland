@@ -43,6 +43,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates2')
         toolkit.add_resource('fanstatic', 'switzerland')
+        toolkit.add_public_directory(config_, 'public')
 
     # IValidators
 
@@ -335,6 +336,9 @@ class OgdchResourcePlugin(OgdchLanguagePlugin):
 
             m.connect('/dataset/{id}/resource_permalink/{filename}',
                       action='resource_permalink')
+
+        map.connect('search', '/search', controller='ckanext.switzerland.controllers:SearchController', action='search')
+
         return map
 
 

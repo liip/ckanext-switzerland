@@ -173,3 +173,8 @@ class RevisionPackageController(PackageController):
                 return redirect(res['url'])
 
         abort(404, _('Resource not found'))
+
+
+class SearchController(base.BaseController):
+    def search(self):
+        return render('search/search.html')
