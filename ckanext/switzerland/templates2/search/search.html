@@ -16,7 +16,7 @@
       <div v-for="result in pageResults">
         <hr>
         <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
-        <div>{{ result.description }}</div>
+        <div>{{{ result.description }}}</div>
       </div>
 
       <h1>{{ datasetResults.length }} datasets found for "{{ currentSearchTerm }}"</h1>
