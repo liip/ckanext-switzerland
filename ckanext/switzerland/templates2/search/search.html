@@ -11,7 +11,7 @@
     </form>
 
     {% raw %}
-    <div v-if="currentSearchTerm">
+    <div v-show="currentSearchTerm" style="display: none">
       <h1>{{ pageResults.length }} pages found for "{{ currentSearchTerm }}"</h1>
       <div v-for="result in pageResults">
         <hr>
