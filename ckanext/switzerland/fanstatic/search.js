@@ -11,6 +11,19 @@ new Vue({
   ready: function() {
     var lang = document.getElementsByTagName('html')[0].getAttribute('lang');
     this.language = lang ? lang.split('-')[0] : 'en'
+
+    var queryString = window.location.search;
+    if (queryString) {
+      var queryString = queryString.substring(1).split('&')
+
+      for (var i = 0; i < queryString.length; i++) {
+        var pair = queryString[i].split('=')
+        if (pair[0] == 'q') {
+          this.searchTerm = pair[1]
+          this.search()
+        }
+      }
+    }
   },
   methods: {
     search: function() {

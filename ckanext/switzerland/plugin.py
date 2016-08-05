@@ -43,7 +43,6 @@ class OgdchPlugin(plugins.SingletonPlugin):
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates2')
         toolkit.add_resource('fanstatic', 'switzerland')
-        toolkit.add_public_directory(config_, 'public')
 
     # IValidators
 
