@@ -18,7 +18,7 @@ new Vue({
       $.each(queryString.substring(1).split('&'), function(index, param) {
         var pair = param.split('=')
         if (pair[0] == 'q') {
-          self.searchTerm = pair[1]
+          self.searchTerm = decodeURIComponent(pair[1])
           if (self.searchTerm.length >= 3) {
             self.search()
           }
