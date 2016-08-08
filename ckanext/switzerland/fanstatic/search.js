@@ -19,7 +19,9 @@ new Vue({
         var pair = param.split('=')
         if (pair[0] == 'q') {
           self.searchTerm = pair[1]
-          self.search()
+          if (self.searchTerm.length >= 3) {
+            self.search()
+          }
         }
       })
     }

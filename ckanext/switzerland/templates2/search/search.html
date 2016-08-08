@@ -3,18 +3,22 @@
 
 
 {% block primary_content_inner %}
-  {% resource 'switzerland/1_vue.js' %}
-  {% resource 'switzerland/2_search.js' %}
+  {% resource 'switzerland/vue.js' %}
+  {% resource 'switzerland/vue-validator.js' %}
+  {% resource 'switzerland/search.js' %}
 
   <h1>{{ _('Search') }}</h1>
 
   <div id="app">
+    {% raw %}
     <form class="form-inline" v-on:submit.prevent="search">
-      <input type="text" class="form-control" id="search" v-model="searchTerm">
-      <input type="submit" class="btn btn-default" value="{{ _('Search') }}">
+      <validator name="searchValidation">
+        <input type="text" class="form-control" id="search" v-model="searchTerm" v-validate:search="{minlength: 3}">
+        <input type="submit" class="btn btn-default" value="Search" :disabled="$searchValidation.search.minlength">
+        <span class="help-block" v-if="$searchValidation.search.minlength">Search term must be at least 3 characters long</span>
+      </validator>
     </form>
 
-    {% raw %}
     <div v-show="currentSearchTerm" style="display: none">
       <h1>{{ pageResults.length }} pages found for "{{ currentSearchTerm }}"</h1>
       <div v-for="result in pageResults">
