@@ -30,8 +30,8 @@ new Vue({
     search: function() {
       var self = this
 
-      var ckanSearch = $.ajax('/api/3/action/package_search?q=' + this.searchTerm)
-      var wordPressSearch = $.ajax('/wp-json/wp/v2/search/' + this.searchTerm)
+      var ckanSearch = $.ajax('/api/3/action/package_search?facet.limit=100&q=' + this.searchTerm)
+      var wordPressSearch = $.ajax('/wp-json/wp/v2/pages/?filter[s]=' + this.searchTerm + '&per_page=100')
 
       $.when(ckanSearch, wordPressSearch).done(function(datasets, pages) {
         // ckan search results
