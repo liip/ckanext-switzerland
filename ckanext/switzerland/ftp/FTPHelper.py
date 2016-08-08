@@ -188,7 +188,6 @@ class FTPHelper(object):
             data, filename = file_dir.split(' ', 1)
             for kv in filter(lambda x: x, data.split(';')):
                 key, value = kv.split('=')
-                print key, value
                 if key == 'type' and value == 'file':
                     files.append(filename)
         return files
