@@ -166,6 +166,33 @@ class FTPHelper(object):
             remotedir = self.remotefolder
         self.ftps.cwd(remotedir)
 
+    def get_remote_filelist(self, folder=None):
+        """
+        List files in the current directory
+
+        :param folder: Full path on the remote server
+        :type folder: str or unicode
+
+        :returns: Directory listing (excluding '.' and '..')
+        :rtype: list
+        """
+        cmd = 'MLSD'
+        if folder:
+            cmd += ' ' + folder
+
+        files_dirs = []
+        self.ftps.retrlines(cmd, files_dirs.append)
+
+        files = []
+        for file_dir in files_dirs:
+            data, filename = file_dir.split(' ', 1)
+            for kv in filter(lambda x: x, data.split(';')):
+                key, value = kv.split('=')
+                print key, value
+                if key == 'type' and value == 'file':
+                    files.append(filename)
+        return files
+
     # tested
     def get_remote_dirlist(self, folder=None):
         """

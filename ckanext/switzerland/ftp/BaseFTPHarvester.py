@@ -409,11 +409,11 @@ class BaseFTPHarvester(HarvesterBase):
 
         try:
             with FTPHelper(remotefolder) as ftph:
-                dirlist = ftph.get_remote_dirlist()
-                log.debug("Remote dirlist: %s" % str(dirlist))
+                filelist = ftph.get_remote_filelist()
+                log.debug("Remote dirlist: %s" % str(filelist))
 
                 # get last-modified date of each file
-                for f in dirlist:
+                for f in filelist:
                     modified_dates[f] = ftph.get_modified_date(f)
 
                 # store some config for the next step
@@ -441,7 +441,7 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_gather_error('Error getting remote directory listing: %s' % str(e), harvest_job)
             return None
 
-        if not len(dirlist):
+        if not len(filelist):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
             return None
 
@@ -463,20 +463,20 @@ class BaseFTPHarvester(HarvesterBase):
             # optional 'force_all' config setting can be used to always download all files
             if self.config and not self.config.get('force_all', False):
                 # Request only the resources modified since last harvest job
-                for f in dirlist[:]:
+                for f in filelist[:]:
                     modified_date = modified_dates.get(f)
                     if modified_date and modified_date < previous_job.gather_started:
                         # do not run the harvest for this file
-                        dirlist.remove(f)
+                        filelist.remove(f)
 
-                if not len(dirlist):
+                if not len(filelist):
                     log.info('No files have been updated on the ftp server since the last harvest job')
                     return []  # no files to harvest this time
         # ------------------------------------------------------
 
         # ------------------------------------------------------
         # 2: download all resources
-        for f in dirlist:
+        for f in filelist:
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
             obj.content = json.dumps({
