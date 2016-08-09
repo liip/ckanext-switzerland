@@ -45,10 +45,10 @@
   {% endcall %}
 
   {% block package_metadata_fields_visibility %}
-    <div class="control-group">
-      <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
-      <div class="controls">
-        <select id="field-private" name="private">
+    <div class="form-group">
+      <label for="field-private" class="control-label col-sm-3">{{ _('Visibility') }}</label>
+      <div class="col-sm-9 control-medium">
+        <select id="field-private" name="private" class="form-control">
           {% for option in [('True', _('Private')), ('False', _('Public'))] %}
           <option value="{{ option[0] }}" {% if option[0] == data.private|trim %}selected="selected"{% endif %}>{{ option[1] }}</option>
           {% endfor %}
