@@ -18,3 +18,8 @@
   <noscript><p><img src="//{{ piwik_config.url }}/piwik.php?idsite={{ piwik_config.site_id or 0 }}" style="border:0;" alt="" /></p></noscript>
   <!-- End Piwik Code -->
 {% endblock %}
+
+
+{% block styles %}
+  {% resource 'switzerland/main.css' %}
+{% endblock %}
