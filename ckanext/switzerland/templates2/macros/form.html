@@ -22,7 +22,7 @@ Examples:
   {%- set extra_html = caller() if caller -%}
 
   {% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %}
-    <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
+    <input id="{{ id or name }}" class="form-control" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
   {% endcall %}
 {% endmacro %}
 
@@ -261,9 +261,9 @@ Example:
 
 #}
 {% macro input_block(for, label="", error="", classes=[], control_classes=[], extra_html="", is_required=false) %}
-  <div class="control-group{{ " error" if error }}{{ " " ~ classes | join(' ') }}">
-    <label class="control-label" for="{{ for }}">{% if is_required %}<span title="{{ _("This field is required") }}" class="control-required">*</span> {% endif %}{{ label or _('Custom') }}</label>
-    <div class="controls{{ " " ~ control_classes | join(' ') }}">
+  <div class="form-group{{ " error" if error }}{{ " " ~ classes | join(' ') }}">
+    <label class="col-sm-3 control-label" for="{{ for }}">{% if is_required %}<span title="{{ _("This field is required") }}" class="control-required">*</span> {% endif %}{{ label or _('Custom') }}</label>
+    <div class="col-sm-9 {{ " " ~ control_classes | join(' ') }}">
       {{ caller() }}
       {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
       {{ extra_html }}

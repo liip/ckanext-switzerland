@@ -1,3 +1,7 @@
+//////////////////////////////////////////////////////
+//                     Bootstrap                    //
+//////////////////////////////////////////////////////
+
 // Core variables and mixins
 @import "variables.less";
 @import "../node_modules/bootstrap/less/mixins.less";
@@ -51,31 +55,10 @@
 
 
 
-// CKAN
-@import "twbs2-hacks.less";
-@import "../../../../../../ckan/ckan/public/base/less/ckan.less";
+//////////////////////////////////////////////////////
+//                     CKAN                         //
+//////////////////////////////////////////////////////
 
-// layout
-.wrapper {
-  background-image: none;
-}
-.primary {
-  border-left: 1px solid #dddddd;
-  padding: 0;
-}
-.secondary {
-  padding: 0;
-}
-
-// dataset list
-.dataset-list {
-  padding: 0;
-}
-.dataset-heading {
-  font-weight: bold;
-}
-
-
-.media-image {
-  max-width: 100%;
-}
+@import "ckan/twbs2-hacks.less";  // make ckan.less compile => add some mixins/variables from bootstrap 2
+@import "ckan/ckan.less";  // copied from ckan/ckan/public/base/less/ckan.less
+@import "ckan/ckan-fixes.less";  // overrides to fix some

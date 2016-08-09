@@ -1,0 +1,142 @@
+@import "../../../../../../../ckan/ckan/public/base/less/variables.less";
+@import "../../../../../../../ckan/ckan/public/base/less/custom.less";
+@import "../../../../../../../ckan/ckan/public/base/less/mixins.less";
+@import "../../../../../../../ckan/ckan/public/base/less/module.less";
+@import "../../../../../../../ckan/ckan/public/base/less/media.less";
+@import "../../../../../../../ckan/ckan/public/base/less/nav.less";
+@import "ckan/forms.less";
+@import "../../../../../../../ckan/ckan/public/base/less/dataset.less";
+@import "../../../../../../../ckan/ckan/public/base/less/search.less";
+@import "../../../../../../../ckan/ckan/public/base/less/group.less";
+@import "../../../../../../../ckan/ckan/public/base/less/toolbar.less";
+@import "../../../../../../../ckan/ckan/public/base/less/prose.less";
+@import "../../../../../../../ckan/ckan/public/base/less/icons.less";
+@import "../../../../../../../ckan/ckan/public/base/less/layout.less";
+@import "../../../../../../../ckan/ckan/public/base/less/homepage.less";
+@import "../../../../../../../ckan/ckan/public/base/less/masthead.less";
+@import "../../../../../../../ckan/ckan/public/base/less/footer.less";
+@import "../../../../../../../ckan/ckan/public/base/less/tables.less";
+@import "../../../../../../../ckan/ckan/public/base/less/profile.less";
+@import "../../../../../../../ckan/ckan/public/base/less/activity.less";
+@import "../../../../../../../ckan/ckan/public/base/less/dropdown.less";
+@import "../../../../../../../ckan/ckan/public/base/less/dashboard.less";
+@import "../../../../../../../ckan/ckan/public/base/less/resource-view.less";
+@import "../../../../../../../ckan/ckan/public/base/less/datapusher.less";
+
+body {
+  // Using the masthead/footer gradient prevents the color from changing
+  // at the bottom of the window on pages with little content.
+  background: @mastheadBackgroundColor url("@{bgPath}");
+}
+
+[hidden] {
+  display: none;
+}
+
+table {
+  table-layout: fixed;
+}
+
+thead th {
+  vertical-align: top;
+}
+
+td, th {
+  word-wrap: break-word;
+}
+
+table .metric {
+  width: 140px;
+}
+
+code {
+  color: @codeTextColor;
+  border: none;
+  background: none;
+  white-space: normal;
+}
+
+pre {
+  border: none;
+  background: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+mark {
+  background: @highlightBackground;
+}
+
+blockquote p {
+  font-size: 1em;
+}
+
+iframe {
+  border: none;
+}
+
+.embedded-content h1 {
+  font-size: 1.4em;
+}
+
+.embedded-content h2 {
+  font-size: 1.4em;
+}
+
+.embedded-content h3 {
+  font-size: 1.2em;
+}
+
+.popular {
+  text-indent: -999em;
+}
+
+.empty {
+  color: @emptyTextColor;
+  font-style: italic;
+}
+
+.page-heading {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.m-top {
+  margin-top: @gutterSmallX;
+}
+.m-left {
+  margin-left: @gutterSmallX;
+}
+.m-right {
+  margin-right: @gutterSmallX;
+}
+.m-bottom {
+  margin-bottom: @gutterSmallX;
+}
+.no-margin {
+  margin: 0;
+}
+.reduced-margin {
+  margin: 3px 5px;
+}
+
+.p-top {
+  padding-top: @gutterSmallX;
+}
+.p-left {
+  padding-left: @gutterSmallX;
+}
+.p-right {
+  padding-right: @gutterSmallX;
+}
+.p-bottom {
+  padding-bottom: @gutterSmallX;
+}
+.no-padding {
+  padding: 0;
+}
+.reduced-padding {
+  padding: 3px 5px;
+}
+
+@import "../../../../../../../ckan/ckan/public/base/less/iehacks.less";
