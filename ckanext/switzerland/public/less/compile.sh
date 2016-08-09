@@ -1,6 +1,6 @@
 #!/bin/bash
 while :
 do
-	inotifywait *.less
+	inotifywait -r .
 	lessc main.less ../../fanstatic/main.css
 done
