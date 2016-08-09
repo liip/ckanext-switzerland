@@ -10934,3 +10934,12 @@ iframe {
 .secondary {
   padding: 0;
 }
+.dataset-list {
+  padding: 0;
+}
+.dataset-heading {
+  font-weight: bold;
+}
+.media-image {
+  max-width: 100%;
+}
