@@ -5,6 +5,15 @@
 
 //== Colors
 //
+
+// odpch colors
+@color-primary: #05348B;
+@color-seconday: #2C66D1;
+@color-highlight: #FFCA36;
+@color-dark-gray: #3D3D3D;
+@color-gray: #C2C2C2;
+@color-light-gray: #F1F1F1;
+
 //## Gray and brand colors for use across Bootstrap.
 
 @gray-base:              #000;
@@ -358,19 +367,19 @@
 
 // Basics of a navbar
 @navbar-height:                    50px;
-@navbar-margin-bottom:             @line-height-computed;
+@navbar-margin-bottom:             0;
 @navbar-border-radius:             @border-radius-base;
 @navbar-padding-horizontal:        floor((@grid-gutter-width / 2));
 @navbar-padding-vertical:          ((@navbar-height - @line-height-computed) / 2);
 @navbar-collapse-max-height:       340px;
 
-@navbar-default-color:             #777;
-@navbar-default-bg:                #f8f8f8;
+@navbar-default-color:             @color-dark-gray;
+@navbar-default-bg:                @color-highlight;
 @navbar-default-border:            darken(@navbar-default-bg, 6.5%);
 
 // Navbar links
-@navbar-default-link-color:                #777;
-@navbar-default-link-hover-color:          #333;
+@navbar-default-link-color:                @color-dark-gray;
+@navbar-default-link-hover-color:          @color-dark-gray;
 @navbar-default-link-hover-bg:             transparent;
 @navbar-default-link-active-color:         #555;
 @navbar-default-link-active-bg:            darken(@navbar-default-bg, 6.5%);
