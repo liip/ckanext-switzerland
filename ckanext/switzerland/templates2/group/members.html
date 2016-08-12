@@ -7,6 +7,8 @@
 {% endblock %}
 
 {% block primary_content_inner %}
+  {% resource "switzerland/bs3-confirm-action.js" %}
+
   <h3 class="page-heading">{{ _('{0} members'.format(c.members|length)) }}</h3>
   <table class="table table-header table-hover table-bordered" id="member-table">
     <col width="70" />
@@ -32,7 +34,7 @@
             <a class="btn btn-sm" href="{% url_for controller='group', action='member_new', id=c.group_dict.id, user=user_id %}" title="{{ _('Edit') }}">
               <i class="icon-wrench"></i>
             </a>
-            <a class="btn btn-danger btn-sm" href="{% url_for controller='group', action='member_delete', id=c.group_dict.id, user=user_id %}" data-module="confirm-action" data-module-i18n="{{ locale }}" title="{{ _('Delete') }}">{% block delete_button_text %}<i class="icon-remove"></i>{% endblock %}</a>
+            <a class="btn btn-danger btn-sm" href="{% url_for controller='group', action='member_delete', id=c.group_dict.id, user=user_id %}" data-module="bs3-confirm-action" data-module-i18n="{{ locale }}" title="{{ _('Delete') }}">{% block delete_button_text %}<i class="icon-remove"></i>{% endblock %}</a>
           </div>
         </td>
       </tr>

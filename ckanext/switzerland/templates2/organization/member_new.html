@@ -7,6 +7,8 @@
 {% block subtitle %}{{ _('Edit Member') if user else _('Add Member') }} - {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
+  {% resource "switzerland/bs3-confirm-action.js" %}
+
   {% link_for _('Back to all members'), controller='organization', action='members', id=organization.name, class_='btn btn-default pull-right', icon='arrow-left' %}
   <h1 class="page-heading">
     {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
@@ -57,7 +59,7 @@
     <div class="form-actions">
       {% if user %}
         {% set locale = h.dump_json({'content': _('Are you sure you want to delete this member?')}) %}
-        <a href="{% url_for controller='organization', action='member_delete', id=c.group_dict.id, user=user.id %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-i18n="{{ locale }}">{{ _('Delete') }}</a>
+        <a href="{% url_for controller='organization', action='member_delete', id=c.group_dict.id, user=user.id %}" class="btn btn-danger pull-left" data-module="bs3-confirm-action" data-module-i18n="{{ locale }}">{{ _('Delete') }}</a>
         <button class="btn btn-primary" type="submit" name="submit" >
           {{ _('Update Member') }}
         </button>
