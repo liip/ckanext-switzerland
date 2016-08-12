@@ -13,7 +13,8 @@ Example:
 #}
 {% set url = h.url_for(organization.type ~ '_read', action='read', id=organization.name) %}
 {% block item %}
-<li class="media-item">
+<div class="col-sm-4 organization-item">
+  <div class=" organization-item-inner">
   {% block item_inner %}
   {% block image %}
     <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="media-image">
@@ -39,7 +40,8 @@ Example:
   </a>
   {% endblock %}
   {% endblock %}
-</li>
+  </div>
+</div>
 {% endblock %}
 {% if position is divisibleby 3 %}
   <li class="clearfix js-hide"></li>
