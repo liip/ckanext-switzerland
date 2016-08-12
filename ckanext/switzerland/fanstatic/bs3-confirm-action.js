@@ -10,15 +10,20 @@ this.ckan.module('bs3-confirm-action', function (jQuery, _) {
         cancel: _('Cancel')
       },
       template: [
-        '<div class="modal">',
+        '<div class="modal fade">',
+        '<div class="modal-dialog">',
+        '<div class="modal-content">',
         '<div class="modal-header">',
-        '<button type="button" class="close" data-dismiss="modal">×</button>',
-        '<h3></h3>',
+        '<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>',
+        '<h4 class="modal-title"></h4>',
         '</div>',
-        '<div class="modal-body"></div>',
+        '<div class="modal-body">',
+        '</div>',
         '<div class="modal-footer">',
-        '<button class="btn btn-cancel"></button>',
-        '<button class="btn btn-primary"></button>',
+        '<button type="button" class="btn btn-default" data-dismiss="modal"></button>',
+        '<button type="button" class="btn btn-primary">Save changes</button>',
+        '</div>',
+        '</div>',
         '</div>',
         '</div>'
       ].join('\n')
@@ -78,13 +83,12 @@ this.ckan.module('bs3-confirm-action', function (jQuery, _) {
       if (!this.modal) {
         var element = this.modal = jQuery(this.options.template);
         element.on('click', '.btn-primary', this._onConfirmSuccess);
-        element.on('click', '.btn-cancel', this._onConfirmCancel);
         element.modal({show: false});
 
-        element.find('h3').text(this.i18n('heading'));
+        element.find('h4').text(this.i18n('heading'));
         element.find('.modal-body').text(this.i18n('content'));
         element.find('.btn-primary').text(this.i18n('confirm'));
-        element.find('.btn-cancel').text(this.i18n('cancel'));
+        element.find('.btn-default').text(this.i18n('cancel'));
       }
       return this.modal;
     },
@@ -99,10 +103,5 @@ this.ckan.module('bs3-confirm-action', function (jQuery, _) {
     _onConfirmSuccess: function (event) {
       this.performAction();
     },
-
-    /* Event handler for the cancel event */
-    _onConfirmCancel: function (event) {
-      this.modal.modal('hide');
-    }
   };
 });
