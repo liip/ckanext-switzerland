@@ -7,7 +7,7 @@
 {% block subtitle %}{{ _('Edit Member') if user else _('Add Member') }} - {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
-  {% link_for _('Back to all members'), controller='organization', action='members', id=organization.name, class_='btn pull-right', icon='arrow-left' %}
+  {% link_for _('Back to all members'), controller='organization', action='members', id=organization.name, class_='btn btn-default pull-right', icon='arrow-left' %}
   <h1 class="page-heading">
     {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
   </h1>
