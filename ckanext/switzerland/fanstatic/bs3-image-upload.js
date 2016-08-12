@@ -35,15 +35,15 @@ this.ckan.module('bs3-image-upload', function($, _) {
       var field_clear = 'input[name="' + options.field_clear + '"]';
 
       this.input = $(field_upload, this.el);
-      this.field_url = $(field_url, this.el).parents('.control-group');
-      this.field_image = this.input.parents('.control-group');
+      this.field_url = $(field_url, this.el).parents('.form-group');
+      this.field_image = this.input.parents('.form-group');
       this.field_url_input = $('input', this.field_url);
 
       // Is there a clear checkbox on the form already?
       var checkbox = $(field_clear, this.el);
       if (checkbox.length > 0) {
         options.is_upload = true;
-        checkbox.parents('.control-group').remove();
+        checkbox.parents('.form-group').remove();
       }
 
       // Adds the hidden clear input to the form
@@ -61,10 +61,11 @@ this.ckan.module('bs3-image-upload', function($, _) {
         .insertAfter(this.input);
 
       // Button for resetting the form when there is a URL set
-      $('<a href="javascript:;" class="btn btn-danger btn-remove-url"><i class="icon-remove"></i></a>')
+      //$('<a href="javascript:;" class="btn btn-danger btn-remove-url"><i class="icon-remove"></i></a>')
+      $('<span class="input-group-btn"><button class="btn btn-default" type="button"><i class="icon-remove"></button></span>')
         .prop('title', this.i18n('remove'))
         .on('click', this._onRemove)
-        .insertBefore(this.field_url_input);
+        .insertAfter(this.field_url_input);
 
       // Update the main label
       $('label[for="field-image-upload"]').text(options.upload_label || this.i18n('upload_label'));
