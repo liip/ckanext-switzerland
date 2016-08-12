@@ -29,9 +29,13 @@
         <!-- search -->
         <div class="col-sm-6">
           <form action="/search" method="get">
-            <div class="form-group has-feedback">
-              <input type="text" class="form-control pull-right search" placeholder="Search" name="q"/>
-              <i class="icon-search form-control-feedback"></i>
+            <div class="input-group search">
+              <input type="text" class="form-control pull-right" placeholder="Search" name="q"/>
+              <div class="input-group-btn">
+                <button class="btn btn-info">
+                  <span class="icon-search"></span>
+                </button>
+              </div>
             </div>
           </form>
         </div>
