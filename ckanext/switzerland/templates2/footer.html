@@ -2,12 +2,7 @@
   <div class="col-xs-6 footer">
     <span class="text">&copy; Open Transport Data Platform 2016</span>
   </div>
-  <div class="col-xs-6 footer text-right">
-    <a href="/netiquette" class="btn btn-link text">{{ _('Netiquette') }}</a>
-    <a href="/terms-of-use" class="btn btn-link text">{{ _('Terms of Use') }}</a>
-    <a href="/contact" class="btn btn-link text">{{ _('Contact') }}</a>
-    <a href="/about" class="btn btn-link text">{{ _('About') }}</a>
-  </div>
+  {{ c.wordpress_footer|safe }}
 </div>
 
 <div class="row">

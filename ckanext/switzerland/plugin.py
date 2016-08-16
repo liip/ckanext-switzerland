@@ -13,7 +13,7 @@ from ckanext.switzerland.helpers import (
     get_dataset_by_identifier, get_readable_file_size,
     simplify_terms_of_use, parse_json, get_piwik_config,
     convert_post_data_to_dict, dataset_display_name, resource_display_name, group_link, resource_link,
-    parse_and_localize, revision_url, resource_filename
+    parse_and_localize, revision_url, resource_filename, load_wordpress_templates
 )
 
 from ckan.common import request
@@ -133,6 +133,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'convert_post_data_to_dict': convert_post_data_to_dict,
             'revision_url': revision_url,
             'resource_filename': resource_filename,
+            'load_wordpress_templates': load_wordpress_templates,
         }
 
 

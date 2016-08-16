@@ -13,6 +13,7 @@ from ckan.common import _
 from ckan.lib.helpers import link_to, url_for
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
 import ast
+from ckan.common import c
 
 import logging
 
@@ -352,3 +353,14 @@ def revision_url(url, revision_date):
 
 def resource_filename(resource_url):
     return munge_filename(os.path.basename(resource_url))
+
+
+def load_wordpress_templates():
+    data = {
+        "header": "<div class=\"col-xs-6 left\"> <a href=\"/dashboard\" class=\"btn btn-link\" title=\"Dashboard WordPress\"> <span class=\"username\">Fabio Anderegg</span> </a> <a href=\"/logout\" title=\"Log out\" class=\"btn btn-link\"> <span class=\"text\">Log out</span> </a> </div> <div class=\"col-xs-6 right text-right\"> <a href=\"#\" class=\"btn btn-link\">DE</a> <a href=\"#\" class=\"btn btn-link\">FR</a> <a href=\"#\" class=\"btn btn-link\">IT</a> <a href=\"#\" class=\"btn btn-link\">EN</a> </div>",
+        "navigation": "<ul class=\"nav navbar-nav\"> <li><a href=\"/dataset\">Datasets</a></li> <li><a href=\"/organization\">Organizations Wordpress</a></li> <li class=\"dropdown\"> <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">About the Portal <span class=\"caret\"></span></a> <ul class=\"dropdown-menu\"> <li><a href=\"/about\">About the Portal</a></li> <li><a href=\"/contact\">Contact</a></li> <li><a href=\"/terms-of-use\">Terms of Use</a></li> <li><a href=\"/netiquette\">Netiquette</a></li> </ul> </li> </ul>",
+        "footer": "<div class=\"col-xs-6 footer text-right\"> <a href=\"/netiquette\" class=\"btn btn-link text\">Netiquette WordPress</a> <a href=\"/terms-of-use\" class=\"btn btn-link text\">Terms of Use</a> <a href=\"/contact\" class=\"btn btn-link text\">Contact</a> <a href=\"/about\" class=\"btn btn-link text\">About</a> </div>"
+    }
+    c.wordpress_header = data['header']
+    c.wordpress_navigation = data['navigation']
+    c.wordpress_footer = data['footer']

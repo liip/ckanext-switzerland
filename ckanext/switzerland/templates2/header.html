@@ -3,31 +3,8 @@
   <div class="col-xs-12 header-top">
     <div class="container">
       <div class="row">
-        <div class="col-xs-6 left">
-          {% if c.userobj %}
-            {% if c.userobj.sysadmin %}
-              <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}"
-                 class="btn btn-link">
-                <span class="text">{{ _('Sysadmin settings') }}</span>
-              </a>
-            {% endif %}
-            <a href="/dashboard" class="btn btn-link" title="{{ _('Dashboard') }}">
-              <span class="username">{{ c.userobj.display_name }}</span>
-            </a>
-            <a href="/logout" title="{{ _('Log out') }}" class="btn btn-link">
-              <span class="text">{{ _('Log out') }}</span>
-            </a>
-          {% else %}
-            <a href="/log-in" class="btn btn-link">{{ _('Log in') }}</a>
-            <a href="/register" class="btn btn-link">{{ _('Register') }}</a>
-          {% endif %}
-        </div>
-        <div class="col-xs-6 right text-right">
-          <a href="#" class="btn btn-link">DE</a>
-          <a href="#" class="btn btn-link">FR</a>
-          <a href="#" class="btn btn-link">IT</a>
-          <a href="#" class="btn btn-link">EN</a>
-        </div>
+        {% set dummy=h.load_wordpress_templates() %}
+        {{ c.wordpress_header|safe }}
       </div>
     </div>
   </div>
