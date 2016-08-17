@@ -36,7 +36,7 @@
       "preset": "multilingual_text"
     },
     {
-      "field_name": "url",
+      "field_name": "website",
       "label": {
         "en": "URL",
         "de": "URL",
@@ -54,7 +54,8 @@
         "it": "URL d'immagine"
       },
       "form_placeholder": "http://example.com/my-image.jpg",
-      "form_snippet": "image_upload.html"
+      "form_snippet": "image_upload.html",
+      "url_field": "url"
     }
   ]
 }
