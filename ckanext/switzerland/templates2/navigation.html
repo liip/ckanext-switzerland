@@ -13,6 +13,7 @@
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="navbar-collapse">
+      {% set dummy=h.load_wordpress_templates() %}
       {{ c.wordpress_navigation|safe }}
     </div><!-- /.navbar-collapse -->
   </nav>
