@@ -367,8 +367,6 @@ def load_wordpress_templates():
     except (ValueError, KeyError):
         return
 
-    print data
-
     c.wordpress_user_navigation = data['user']
     c.wordpress_main_navigation = data['main']
     c.wordpress_footer = data['footer']
