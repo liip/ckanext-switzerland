@@ -66,10 +66,8 @@ class OgdchPlugin(plugins.SingletonPlugin):
     def dataset_facets(self, facets_dict, package_type):
         lang_code = pylons.request.environ['CKAN_LANG']
         facets_dict = collections.OrderedDict()
-        facets_dict['groups'] = plugins.toolkit._('Categories')
         facets_dict['keywords_' + lang_code] = plugins.toolkit._('Keywords')
         facets_dict['organization'] = plugins.toolkit._('Organizations')
-        facets_dict['res_rights'] = plugins.toolkit._('Terms of use')
         facets_dict['res_format'] = plugins.toolkit._('Formats')
         return facets_dict
 
@@ -80,7 +78,6 @@ class OgdchPlugin(plugins.SingletonPlugin):
         facets_dict.clear()
         facets_dict['keywords_' + lang_code] = plugins.toolkit._('Keywords')
         facets_dict['organization'] = plugins.toolkit._('Organizations')
-        facets_dict['res_rights'] = plugins.toolkit._('Terms of use')
         facets_dict['res_format'] = plugins.toolkit._('Formats')
 
     def organization_facets(self, facets_dict, organization_type,
@@ -89,9 +86,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
         # the IFacets implementation of CKAN 2.4 is broken,
         # clear the dict instead and change the passed in argument
         facets_dict.clear()
-        facets_dict['groups'] = plugins.toolkit._('Categories')
         facets_dict['keywords_' + lang_code] = plugins.toolkit._('Keywords')
-        facets_dict['res_rights'] = plugins.toolkit._('Terms of use')
         facets_dict['res_format'] = plugins.toolkit._('Formats')
 
     # IActions
