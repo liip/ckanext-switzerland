@@ -25,3 +25,10 @@
   <link rel="stylesheet"
         href="{{ g.site_url }}/content/themes/odpch-wp-theme/css/notosans-fontface.min.css">
 {% endblock %}
+
+{% block title %}
+  {% set dummy=h.load_wordpress_templates() %}
+  {%- block subtitle %}{% endblock -%}
+  {%- if self.subtitle()|trim %} | {% endif -%}
+  {{ c.wordpress_title }}
+{% endblock %}
