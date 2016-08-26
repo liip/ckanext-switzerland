@@ -370,3 +370,4 @@ def load_wordpress_templates():
     c.wordpress_user_navigation = data['user']
     c.wordpress_main_navigation = data['main']
     c.wordpress_footer = data['footer']
+    c.wordpress_title = data['title']
