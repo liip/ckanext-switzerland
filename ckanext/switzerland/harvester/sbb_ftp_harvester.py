@@ -483,7 +483,6 @@ class SBBFTPHarvester(HarvesterBase):
 
         # ------------------------------------------------------
         # 2: download all resources
-        filelist = ['2016-09-13_Fabio_Testdaten.csv']
         for f in filelist:
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
@@ -758,7 +757,6 @@ class SBBFTPHarvester(HarvesterBase):
                 return False
 
             # create the dataset
-            print package_dict
             dataset = get_action('package_create')(context, package_dict)
 
             log.info("Created package: %s" % str(dataset['name']))
