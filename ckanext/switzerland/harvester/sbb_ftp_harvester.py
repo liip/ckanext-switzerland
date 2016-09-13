@@ -16,7 +16,6 @@ table.
 import logging
 
 from ckan import model
-from ckan.lib.base import c
 from ckan.model import Session
 from ckan.logic import NotFound
 from ckan.logic import get_action, check_access
@@ -162,27 +161,7 @@ class SBBFTPHarvester(HarvesterBase):
 
     # tested
     def get_remote_folder(self):
-        environment = None
-        if self.config:
-            environment = self.config.get('environment')
-        if not environment:
-            environment = self.environment
-        return os.path.join('/', environment, self.remotefolder.lstrip('/'))  # e.g. /test/DiDok or /prod/Info+
-
-    # tested
-    def _set_config(self, config_str):
-        """
-        Set configuration value
-
-        :param config_str: Configuration as serialised JSON object
-        :type config_str: str or unicode
-        """
-        if config_str:
-            self.config = json.loads(config_str)
-            if 'api_version' in self.config:
-                self.api_version = int(self.config['api_version'])
-        else:
-            raise ValueError('Harvester Configuration is required')
+        return os.path.join('/', self.config['environment'], self.config['folder'])
 
     # tested
     def info(self):
@@ -199,66 +178,30 @@ class SBBFTPHarvester(HarvesterBase):
             'form_config_interface': 'Text'
         }
 
-    def validate_config(self, config):
+    def validate_config(self, config_str):
         """
         Validates the configuration that can be pasted into the harvester web interface
 
-        :param config: Configuration (JSON-encoded object)
-        :type config: dict
+        :param config_str: Configuration (JSON-encoded string)
+        :type config_str: str
 
         :returns: Configuration dictionary
         :rtype: dict
         """
+        if not config_str:
+            raise ValueError('Harvester Configuration is required')
 
-        if not config:
-            return config
+        config_obj = json.loads(config_str)
 
-        try:
-            config_obj = json.loads(config)
+        if 'force_all' in config_obj and not isinstance(config_obj['force_all'], bool):
+            raise ValueError('force_all must be boolean')
 
-            if 'api_version' in config_obj:
-                try:
-                    int(config_obj['api_version'])
-                except ValueError:
-                    raise ValueError('api_version must be an integer')
-
-            if 'default_tags' in config_obj:
-                if not isinstance(config_obj['default_tags'], list):
-                    raise ValueError('default_tags must be a list')
-
-            if 'default_groups' in config_obj:
-                if not isinstance(config_obj['default_groups'], list):
-                    raise ValueError('default_groups must be a list')
-
-                # Check if default groups exist
-                context = {'model': model, 'user': c.user}
-                for group_name in config_obj['default_groups']:
-                    try:
-                        get_action('group_show')(context, {'id': group_name})
-                    except NotFound:
-                        raise ValueError('Default group not found')
-
-            if 'default_extras' in config_obj:
-                if not isinstance(config_obj['default_extras'], dict):
-                    raise ValueError('default_extras must be a dictionary')
-
-            if 'user' in config_obj:
-                # Check if user exists
-                context = {'model': model, 'user': c.user}
-                try:
-                    get_action('user_show')(context, {'id': config_obj.get('user')})
-                except NotFound:
-                    raise ValueError('User not found')
-
-            for key in ('read_only', 'force_all'):
-                if key in config_obj:
-                    if not isinstance(config_obj[key], bool):
-                        raise ValueError('%s must be boolean' % key)
-
-        except ValueError as e:
-            raise e
-
-        return config
+        for key in ('environment', 'folder', 'dataset'):
+            if key not in config_obj:
+                raise ValueError('Configuration option {} if required'.format(key))
+            if not isinstance(config_obj[key], basestring):
+                raise ValueError('Configuration option {} must be a string'.format(key))
+        return config_str
 
     # tested
     def _add_harvester_metadata(self, package_dict, context):
@@ -441,7 +384,6 @@ class SBBFTPHarvester(HarvesterBase):
                 match_name = munge_filename(os.path.basename(filepath))
                 if os.path.basename(res.get('url')) != match_name:
                     continue
-                # TODO: ignore deleted resources
                 resource_meta = res
                 # there should only be one file with the same name in each dataset, so we can break
                 break
@@ -464,7 +406,7 @@ class SBBFTPHarvester(HarvesterBase):
         log.info('In %s FTPHarvester gather_stage' % self.harvester_name)  # harvest_job.source.url
 
         # set harvester config
-        self._set_config(harvest_job.source.config)
+        self.config = json.loads(harvest_job.source.config)
 
         modified_dates = {}
 
@@ -515,7 +457,6 @@ class SBBFTPHarvester(HarvesterBase):
         # -------------------------------------------------------------------------
         object_ids = []
 
-        # TODO
         # ------------------------------------------------------
         # 1: only download the resources that have been modified
         # has there been a previous run and was it successful?
@@ -576,8 +517,6 @@ class SBBFTPHarvester(HarvesterBase):
         log.info('Running harvest job %s' % harvest_object.id)
         stage = 'Fetch'
 
-        # self._set_config(harvest_job.source.config)
-
         if not harvest_object or not harvest_object.content:
             log.error('No harvest object received')
             self._save_object_error('No harvest object received', harvest_object, stage)
@@ -633,39 +572,6 @@ class SBBFTPHarvester(HarvesterBase):
                 if status != '226 Transfer complete':
                     self._save_object_error('Download error for file %s: %s' % (f, str(status)), harvest_object, stage)
                     return None
-
-                # TODO: UNZIP FILE AND SPAWN HARVESTER JOBS -------------------------
-                # if self.do_unzip:
-                #     # unzip the file
-                #     file_num = ftph.unzip(targetfile)
-                #     if file_num:
-                #         # process the new files
-                #         unzipped_dirlist = ftph.get_local_dirlist(tmpfolder)
-                #         for f in unzipped_dirlist:
-                #             # do not create a job for the zip file itself -> skip it
-                #             if os.path.basename(targetfile) == os.path.basename(f):
-                #                 continue
-                #             # TODO
-                #             job = HarvestJob()
-                #             job.source = self.harvester_name.lower()
-                #             job.save()
-                #             new_obj = HarvestObject(guid=self.harvester_name, job=job)
-                #             # serialise and store the dirlist
-                #             new_obj.content = json.dumps({
-                #                 'file': f,
-                #                 'tmpfolder': tmpfolder,
-                #             })
-                #             # save it
-                #             new_obj.save()
-                #             # log.info('Harvest object saved %s', job.id)
-                #             # run the harvest job
-                #             # get_action('harvest_send_job_to_gather_queue')(context, {'id': job.id})
-                #             ret = self.import_stage(new_obj)
-                #             if not ret:
-                #                 self._save_object_error('An error occurred when extracting the file %s from zip' % \
-                #                      os.path.basename(f), new_obj, stage)
-                #                 # TODO: how should the error be handled?
-                # -------------------------------------------------------------------
 
         except ftplib.all_errors as e:
             self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
@@ -736,7 +642,7 @@ class SBBFTPHarvester(HarvesterBase):
         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
 
         # set harvester config
-        self._set_config(harvest_object.job.source.config)
+        self.config = json.loads(harvest_object.job.source.config)
 
         now = datetime.now().isoformat()
 
@@ -748,8 +654,7 @@ class SBBFTPHarvester(HarvesterBase):
 
         package_dict = {
             'name': self.harvester_name.lower(),
-            # TODO: identifier should be the package's id (which is unknown at this point in time)
-            'identifier': self.harvester_name.title()  # required by DCAT extension
+            'identifier': self.config['dataset']  # required by DCAT extension
         }
 
         try:
@@ -809,11 +714,6 @@ class SBBFTPHarvester(HarvesterBase):
                 if key not in package_dict:
                     package_dict[key] = {}
 
-            # TODO
-            # package_dict['type'] = self.info()['name']
-            # package_dict['type'] = u'harvest'
-
-            # TODO
             package_dict['source_type'] = self.info()['name']
 
             # count keywords or tags
