@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-'''Tests for the ckanext.switzerland.BaseFTPHarvester.py '''
+'''Tests for the ckanext.switzerland.ftp_harvester.py '''
 
 import unittest
 

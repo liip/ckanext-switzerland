@@ -40,37 +40,29 @@ from ckanext.harvest.model import HarvestJob, HarvestObject
 
 from simplejson.scanner import JSONDecodeError
 
-from FTPHelper import FTPHelper
+from ftp_helper import FTPHelper
 
 
 log = logging.getLogger(__name__)
 
 
-class BaseFTPHarvester(HarvesterBase):
+class SBBFTPHarvester(HarvesterBase):
     """
-    A FTP Harvester for ftp data
-    The class can operate on its own.
-    However, usually one would create a specific class
-    for a harvester and overwrite the base class attributes.
+    A FTP Harvester for the SBB ftp server. This is a generic harvester
+    which can be configured for specif datasets using the ckan harvester webinterface.
     """
 
     config = None  # ckan harvester config, not ftp config
-
-    # package metadata - each harvester should overwrite this with meta data fields
-    package_dict_meta = {}
 
     api_version = 2
     action_api_version = 3
 
     # default harvester id, to be overwritten by child classes
-    harvester_name = 'ckanftp'
+    harvester_name = 'SBB FTP Harvester'
 
     # default remote directory to harvest, to be overwritten by child classes
     # e.g. infodoc or didok
     remotefolder = ''
-
-    # parent folder of the above remote folder
-    environment = 'test'
 
     # if a resource is uploaded with a format, it will show a tag on the dataset, e.g. XML or TXT
     # the default setting is defined to be TXT for files with no extension
@@ -80,7 +72,81 @@ class BaseFTPHarvester(HarvesterBase):
 
     tmpfolder_prefix = "%d%m%Y-%H%M-"
 
-    do_unzip = True
+    # default package metadata
+    package_dict_meta = {
+        # package privacy
+        'private': False,
+        'state': 'active',
+        'isopen': False,
+        # --------------------------------------------------------------------------
+        # author and maintainer
+        'author': "Author name",
+        'author_email': "author@example.com",
+        'maintainer': "Maintainer name",
+        'maintainer_email': "maintainer@example.com",
+        # license
+        'license_id': "other-open",
+        'license_title': "Other (Open)",
+        'rights': "Other (Open)",
+        # ckan multilang/switzerland custom required fields
+        'coverage': "Coverage",
+        'issued': "21.03.2015",
+        # "modified": "21.03.2016",
+        # "metadata_created": "2016-07-05T07:41:28.741265",
+        # "metadata_modified": "2016-07-05T07:43:30.079030",
+        # "url": "https://catalog.data.gov/",
+        "spatial": "Spatial",
+        "accrual_periodicity": "",
+        # --------------------------------------------------------------------------
+        "description": {
+            "fr": "FR Description",
+            "en": "EN Description",
+            "de": "DE Description",
+            "it": "IT Description"
+        },
+
+        "notes": {
+            "fr": "...",
+            "en": "...",
+            "de": "...",
+            "it": "..."
+        },
+        # --------------------------------------------------------------------------
+        'groups': [],
+        'tags': [],
+        'extras': [],
+        "language": ["en", "de", "fr", "it"],
+        # relations
+        "relations": [{}],
+        "relationships_as_object": [],
+        "relationships_as_subject": [],
+        "see_alsos": [],
+        "publishers": [{
+            "label": "Publisher 1"
+        }],
+        # keywords
+        'keywords': {
+            "fr": [],
+            "en": [],
+            "de": [],
+            "it": []
+        },
+        'contact_points': [{
+            "name": "Contact Name",
+            "email": "contact@example.com"
+        }],
+        "temporals": [{
+            "start_date": "2014-03-21T00:00:00",
+            "end_date": "2019-03-21T00:00:00"
+        }],
+    }
+
+    resource_dict_meta = {
+        'state': 'active',
+        'rights': 'Other (Open)',
+        'license': 'Other (Open)',
+        'coverage': 'Coverage',
+    }
 
     # tested
     def _get_rest_api_offset(self):
@@ -116,7 +182,7 @@ class BaseFTPHarvester(HarvesterBase):
             if 'api_version' in self.config:
                 self.api_version = int(self.config['api_version'])
         else:
-            self.config = {}
+            raise ValueError('Harvester Configuration is required')
 
     # tested
     def info(self):
@@ -127,9 +193,9 @@ class BaseFTPHarvester(HarvesterBase):
         :rtype: dict
         """
         return {
-            'name': '%sharvest' % self.harvester_name.lower(),  # 'ckanftp'
-            'title': 'CKAN FTP %s Harvester' % self.harvester_name,
-            'description': 'Fetches %s' % self.get_remote_folder(),
+            'name': '%sharvest' % self.harvester_name.lower(),
+            'title': self.harvester_name,
+            'description': 'Fetches data from the SBB FTP Server',
             'form_config_interface': 'Text'
         }
 
