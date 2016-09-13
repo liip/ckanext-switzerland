@@ -105,10 +105,10 @@ class SBBFTPHarvester(HarvesterBase):
         },
 
         "notes": {
-            "fr": "...",
-            "en": "...",
-            "de": "...",
-            "it": "..."
+            "fr": "",
+            "en": "",
+            "de": "",
+            "it": ""
         },
         # --------------------------------------------------------------------------
         'groups': [],
@@ -483,6 +483,7 @@ class SBBFTPHarvester(HarvesterBase):
 
         # ------------------------------------------------------
         # 2: download all resources
+        filelist = ['2016-09-13_Fabio_Testdaten.csv']
         for f in filelist:
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
@@ -653,7 +654,7 @@ class SBBFTPHarvester(HarvesterBase):
         resource_meta = None
 
         package_dict = {
-            'name': self.harvester_name.lower(),
+            'name': self.config['dataset'].lower(),
             'identifier': self.config['dataset']  # required by DCAT extension
         }
 
@@ -691,10 +692,10 @@ class SBBFTPHarvester(HarvesterBase):
             # title of the package
             if 'title' not in package_dict:
                 package_dict['title'] = {
-                    "de": self.remotefolder.title(),
-                    "en": self.remotefolder.title(),
-                    "fr": self.remotefolder.title(),
-                    "it": self.remotefolder.title()
+                    "de": self.config['dataset'],
+                    "en": self.config['dataset'],
+                    "fr": self.config['dataset'],
+                    "it": self.config['dataset']
                 }
             # for DCAT schema - same info as in the title
             if 'display_name' not in package_dict:
@@ -749,7 +750,7 @@ class SBBFTPHarvester(HarvesterBase):
             log.debug("Package dict (pre-creation): %s" % str(package_dict))
 
             # This logic action requires to call check_access to 
-            # prevent the Exception: 'Action function package_show did not call its auth function'
+            # prevent the Exception: 'Action function package_show  did not call its auth function'
             # Adds action name onto the __auth_audit stack
             if not check_access('package_create', context):
                 self._save_object_error('%s not authorised to create packages (object %s)' %
@@ -757,6 +758,7 @@ class SBBFTPHarvester(HarvesterBase):
                 return False
 
             # create the dataset
+            print package_dict
             dataset = get_action('package_create')(context, package_dict)
 
             log.info("Created package: %s" % str(dataset['name']))
