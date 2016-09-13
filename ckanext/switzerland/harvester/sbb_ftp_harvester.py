@@ -219,16 +219,6 @@ class SBBFTPHarvester(HarvesterBase):
 
         # is there a package meta configuration in the harvester?
         if self.package_dict_meta:
-            # get organization dictionary based on the owner_org id
-            if self.package_dict_meta.get('owner_org'):
-                # get the organisation and add it to the package
-                result = check_access('organization_show', context)
-                if result:
-                    org_dict = get_action('organization_show')(context, {'id': self.package_dict_meta['owner_org']})
-                    if org_dict:
-                        package_dict['organization'] = org_dict
-                    else:
-                        package_dict['owner_org'] = None
             # add each key/value from the meta data of the harvester
             for key, val in self.package_dict_meta.iteritems():
                 package_dict[key] = val
@@ -726,11 +716,6 @@ class SBBFTPHarvester(HarvesterBase):
             if 'language' not in package_dict:
                 package_dict['language'] = ["en", "de", "fr", "it"]
 
-            # In the harvester interface, certain options can be provided in the config field as a json object
-            # The following functions check and add these optional fields
-            # TODO: make the functions compatible with multi-lang
-            if not self.config:
-                self.config = {}
             package_dict = self._add_package_tags(package_dict)
             package_dict = self._add_package_groups(package_dict, context)
             source_org = model.Package.get(harvest_object.source.id).owner_org
