@@ -20,7 +20,7 @@ from ckan.model import Session
 from ckan.logic import NotFound
 from ckan.logic import get_action, check_access
 from ckan.lib.helpers import json
-from ckan.lib.munge import munge_filename
+from ckan.lib.munge import munge_filename, munge_name
 from ckan.lib import helpers
 from ckanext.harvest.harvesters.base import HarvesterBase
 from pylons import config as ckanconf
@@ -660,7 +660,7 @@ class SBBFTPHarvester(HarvesterBase):
         resource_meta = None
 
         package_dict = {
-            'name': self.config['dataset'].lower(),
+            'name': munge_name(self.config['dataset']),
             'identifier': self.config['dataset']  # required by DCAT extension
         }
 
