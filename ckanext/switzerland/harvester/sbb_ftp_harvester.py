@@ -982,13 +982,15 @@ class SBBFTPHarvester(HarvesterBase):
             log.info('Found %s Resources, max resources is %s, deleting %s resources', resources_count, max_resources,
                      resources_count - max_resources)
 
-            for package in package['resources'][max_resources:]:
+            for resource in package['resources'][max_resources:]:
                 # delete the file from the filestore
-                get_action('resource_patch')({}, {'id': package['id'], 'clear_upload': True, })
-                # delete the resource itself
-                get_action('resource_delete')({}, {'id': package['id']})
+                get_action('resource_patch')({}, {'id': resource['id'], 'clear_upload': True, })
 
-                # TODO: do we have to delete it from the datastore too?
+                # delete the datastore table
+                get_action('datastore_delete')({}, {'resource_id': resource['id'], 'force': True})
+
+                # delete the resource itself
+                get_action('resource_delete')({}, {'id': resource['id']})
 
         # ----------------------------------------------------------------------------
         # generate permalink
