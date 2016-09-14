@@ -357,7 +357,7 @@ def resource_filename(resource_url):
 
 def load_wordpress_templates():
     site_url = config.get('ckan.site_url', '')
-    url = '{}/cms/wp-admin/admin-post.php?action=get_nav&language={}'.format(site_url, lang())
+    url = '{}/cms/wp-admin/admin-post.php?action=get_nav&lang={}'.format(site_url, lang())
     resp = requests.get(url, cookies=request.cookies)
     if resp.status_code != 200:
         return
