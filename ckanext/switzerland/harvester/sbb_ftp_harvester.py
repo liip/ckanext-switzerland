@@ -895,20 +895,26 @@ class SBBFTPHarvester(HarvesterBase):
 
             log.info(log_msg % str(resource_meta))
 
-            # step 1: upload the resource's info with requests library to avoid ckanapi json_encode error
-            # ---------------------------------------------------------------------
             apikey = model.User.get(context['user']).apikey.encode('utf8')
-            # log.debug("Posting to api_url: %s" % str(api_url))
+
             headers = {
                 'Authorization': apikey,
                 'X-CKAN-API-Key': apikey,
                 'user-agent': 'ftp-harvester/1.0.0',
                 'Accept': 'application/json;q=0.9,text/plain;q=0.8,*/*;q=0.7',
-                'Content-Type': 'application/json',
             }
-            # ------
+
             api_url = site_url + self._get_action_api_offset() + '/resource_create'
-            r = requests.post(api_url, data=json.dumps(resource_meta), headers=headers)
+
+            data = {}
+            for key, value in resource_meta.items():
+                if isinstance(value, dict):
+                    data[key] = json.dumps(value)
+                else:
+                    data[key] = value
+
+            r = requests.post(api_url, data=data, headers=headers, files=[('upload', open(f, 'rb'))])
+
             # ------
             # check result
             if r.status_code != 200:
@@ -919,27 +925,6 @@ class SBBFTPHarvester(HarvesterBase):
                 raise Exception("Resource creation unsuccessful")
 
             log.info("Successfully created resource")
-
-            # step 2: update the resource with a resolvable url and the correct download_url
-            # -----------------------------------------------------------------------
-
-            resource = json_response['result']
-
-            # curl-patch resource
-            # -------------------
-            log.info('Patching resource')
-            filename = munge_filename(os.path.basename(f))
-            patch_url = u'%s/dataset/%s/resource/%s/download/%s' % (site_url, dataset['name'], resource['id'], filename)
-            api_url = site_url + self._get_action_api_offset() + '/resource_patch'
-            try:
-                cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s --form download_url=%s" % \
-                      (headers['Authorization'], api_url, f, resource['id'], patch_url)
-                subprocess.call(cmd, shell=True)
-                log.info("Successfully patched resource")
-            except subprocess.CalledProcessError as e:
-                self._save_object_error('Error patching resource: %s' % str(e), harvest_object, stage)
-                return False
-            # -------------------
 
             # delete the old version of the resource
             if old_resource_id:
