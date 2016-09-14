@@ -973,10 +973,21 @@ class SBBFTPHarvester(HarvesterBase):
     def finalize(self, tempdir):
         log.info('Running finalizing tasks:')
 
+        # delete ftp temp directory
         log.info('Deleting temp directory')
         self.remove_tmpfolder(tempdir)
 
+        # reorder resources
         log.info('Ordering resources')
+        dataset_slug = munge_name(self.config['dataset'])
+        package = get_action('package_show')({}, {'id': dataset_slug})
+
+        # order resource by file name to show newest resource first
+        package['resources'].sort(key=lambda r: r['identifier'], reverse=True)
+
+        get_action('package_update')({}, package)
+
+        # generate permalink
         log.info('Generating permalink')
 
 
