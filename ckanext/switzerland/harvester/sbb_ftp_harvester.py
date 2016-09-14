@@ -973,10 +973,12 @@ class SBBFTPHarvester(HarvesterBase):
     def finalize(self, tempdir):
         log.info('Running finalizing tasks:')
 
+        # ----------------------------------------------------------------------------
         # delete ftp temp directory
         log.info('Deleting temp directory')
         self.remove_tmpfolder(tempdir)
 
+        # ----------------------------------------------------------------------------
         # reorder resources
         log.info('Ordering resources')
         dataset_slug = munge_name(self.config['dataset'])
@@ -984,11 +986,29 @@ class SBBFTPHarvester(HarvesterBase):
 
         # order resource by file name to show newest resource first
         package['resources'].sort(key=lambda r: r['identifier'], reverse=True)
-
         get_action('package_update')({}, package)
 
+        # ----------------------------------------------------------------------------
+        # delete old resources
+        max_resources = self.config.get('max_resources')
+        resources_count = len(package['resources'])
+
+        if max_resources and resources_count > max_resources:
+            log.info('Found %s Resources, max resources is %s, deleting %s resources', resources_count, max_resources,
+                     resources_count - max_resources)
+
+            for package in package['resources'][max_resources:]:
+                # delete the file from the filestore
+                get_action('resource_patch')({}, {'id': package['id'], 'clear_upload': True, })
+                # delete the resource itself
+                get_action('resource_delete')({}, {'id': package['id']})
+
+                # TODO: do we have to delete it from the datastore too?
+
+        # ----------------------------------------------------------------------------
         # generate permalink
         log.info('Generating permalink')
+        # TODO: implement permalink generation
 
 
 class ContentFetchError(Exception):
