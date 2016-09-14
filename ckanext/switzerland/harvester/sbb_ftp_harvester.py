@@ -420,6 +420,7 @@ class SBBFTPHarvester(HarvesterBase):
                 ftplibfolder = ftph.get_top_folder()
 
                 # set base directory of the tmp folder
+                local_path = ftph.get_local_path()
                 tmpdirbase = os.path.join(ftph.get_local_path(), ftplibfolder.strip('/'), remotefolder.lstrip('/'))
                 tempfile.tempdir = tmpdirbase
 
@@ -477,6 +478,7 @@ class SBBFTPHarvester(HarvesterBase):
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
             obj.content = json.dumps({
+                'type': 'file',
                 'file': f,
                 'workingdir': workingdir,
                 'remotefolder': remotefolder
@@ -484,6 +486,13 @@ class SBBFTPHarvester(HarvesterBase):
             # save it for the next step
             obj.save()
             object_ids.append(obj.id)
+
+        # ------------------------------------------------------
+        # 3: Add finalizer task to queue
+        obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
+        obj.content = json.dumps({'type': 'finalizer', 'tempdir': local_path})
+        obj.save()
+        object_ids.append(obj.id)
 
         # ------------------------------------------------------
         # send the jobs to the gather queue
@@ -518,6 +527,9 @@ class SBBFTPHarvester(HarvesterBase):
             log.error('Invalid harvest object: %s', harvest_object.content)
             self._save_object_error('Unable to decode harvester info: %s' % str(e), harvest_object.content, stage)
             return None
+
+        if obj['type'] != 'file':
+            return True
 
         # the file to harvest from the previous step
         f = obj.get('file')
@@ -575,6 +587,7 @@ class SBBFTPHarvester(HarvesterBase):
 
         # store the info for the next step
         retobj = {
+            'type': 'file',
             'file': targetfile,
             'tmpfolder': tmpfolder
         }
@@ -617,6 +630,13 @@ class SBBFTPHarvester(HarvesterBase):
             self._save_object_error('Unable to decode harvester info: %s' % str(e), harvest_object, stage)
             return None
 
+        # set harvester config
+        self.config = json.loads(harvest_object.job.source.config)
+
+        if obj['type'] == 'finalizer':
+            self.finalize(obj['tempdir'])
+            return True
+
         f = obj.get('file')
         if not f:
             log.error('Invalid file key in harvest object: %s' % obj)
@@ -630,9 +650,6 @@ class SBBFTPHarvester(HarvesterBase):
             return None
 
         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
-
-        # set harvester config
-        self.config = json.loads(harvest_object.job.source.config)
 
         now = datetime.now().isoformat()
 
@@ -951,17 +968,16 @@ class SBBFTPHarvester(HarvesterBase):
                 log.info("Deleted tmp file %s" % f)
             except OSError:
                 pass
-
-        # ---------------------------------------------------------------------
-        # TODO:
-        # the harvest job of the last resource needs to clean and remove the tmpfolder
-        # ---------------------------------------------------------------------
-        # do this somewhere else:
-        # if harvest_object.get('import_finished') != None:
-        #     self.remove_tmpfolder(harvest_object.content.get('tmpfolder'))
-        # ---------------------------------------------------------------------
-        # =======================================================================
         return True
+
+    def finalize(self, tempdir):
+        log.info('Running finalizing tasks:')
+
+        log.info('Deleting temp directory')
+        self.remove_tmpfolder(tempdir)
+
+        log.info('Ordering resources')
+        log.info('Generating permalink')
 
 
 class ContentFetchError(Exception):
