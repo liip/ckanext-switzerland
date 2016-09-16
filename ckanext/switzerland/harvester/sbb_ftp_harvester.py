@@ -32,6 +32,7 @@ import time
 from datetime import datetime
 import shutil
 import requests
+import re
 
 import subprocess
 
@@ -994,8 +995,26 @@ class SBBFTPHarvester(HarvesterBase):
 
         # ----------------------------------------------------------------------------
         # generate permalink
+        # we do this by matching a regex, defined in the `permalink_regex` key of the harvester json config,
+        # against the identifier (filename) of the resources of the dataset. the ones that matched are thrown in a list
+        # and sorted by name, descending. the top one makes the cut, which, when named correctly, is the one with the
+        # latest date in the name, e.g. 2016-09-15_my_test_resource.csv
         log.info('Generating permalink')
-        # TODO: implement permalink generation
+        permalink_resources = []
+        # get filename regex for permalink from harvester config or fallback to a catch-all
+        identifier_regex = self.config.get('permalink_regex', '.*')
+        for resource in package['resources']:
+            log.info('Testing filename: %s', resource['identifier'])
+            if re.match(identifier_regex, resource['identifier'], re.IGNORECASE):
+                log.info('Filename %s matches regex %s', resource['identifier'], identifier_regex)
+                permalink_resources.append(resource)
+
+        # we don't actually need to do this as package['resources'] was already sorted further up
+        # but let's not depend on that being the case
+        permalink_resources.sort(key=lambda r: r['identifier'], reverse=True)
+        package['permalink'] = permalink_resources[0]['url']
+        log.info('Permalink for dataset %s is %s', package['name'], package['permalink'])
+        get_action('package_update')({}, package)
 
 
 class ContentFetchError(Exception):
