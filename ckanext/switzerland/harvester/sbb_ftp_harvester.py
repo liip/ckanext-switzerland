@@ -16,12 +16,11 @@ table.
 import logging
 
 from ckan import model
-from ckan.lib.base import c
 from ckan.model import Session
 from ckan.logic import NotFound
 from ckan.logic import get_action, check_access
 from ckan.lib.helpers import json
-from ckan.lib.munge import munge_filename
+from ckan.lib.munge import munge_filename, munge_name
 from ckan.lib import helpers
 from ckanext.harvest.harvesters.base import HarvesterBase
 from pylons import config as ckanconf
@@ -33,6 +32,7 @@ import time
 from datetime import datetime
 import shutil
 import requests
+import re
 
 import subprocess
 
@@ -40,37 +40,29 @@ from ckanext.harvest.model import HarvestJob, HarvestObject
 
 from simplejson.scanner import JSONDecodeError
 
-from FTPHelper import FTPHelper
+from ftp_helper import FTPHelper
 
 
 log = logging.getLogger(__name__)
 
 
-class BaseFTPHarvester(HarvesterBase):
+class SBBFTPHarvester(HarvesterBase):
     """
-    A FTP Harvester for ftp data
-    The class can operate on its own.
-    However, usually one would create a specific class
-    for a harvester and overwrite the base class attributes.
+    A FTP Harvester for the SBB ftp server. This is a generic harvester
+    which can be configured for specif datasets using the ckan harvester webinterface.
     """
 
     config = None  # ckan harvester config, not ftp config
-
-    # package metadata - each harvester should overwrite this with meta data fields
-    package_dict_meta = {}
 
     api_version = 2
     action_api_version = 3
 
     # default harvester id, to be overwritten by child classes
-    harvester_name = 'ckanftp'
+    harvester_name = 'SBB FTP Harvester'
 
     # default remote directory to harvest, to be overwritten by child classes
     # e.g. infodoc or didok
     remotefolder = ''
-
-    # parent folder of the above remote folder
-    environment = 'test'
 
     # if a resource is uploaded with a format, it will show a tag on the dataset, e.g. XML or TXT
     # the default setting is defined to be TXT for files with no extension
@@ -80,7 +72,81 @@ class BaseFTPHarvester(HarvesterBase):
 
     tmpfolder_prefix = "%d%m%Y-%H%M-"
 
-    do_unzip = True
+    # default package metadata
+    package_dict_meta = {
+        # package privacy
+        'private': False,
+        'state': 'active',
+        'isopen': False,
+        # --------------------------------------------------------------------------
+        # author and maintainer
+        'author': "Author name",
+        'author_email': "author@example.com",
+        'maintainer': "Maintainer name",
+        'maintainer_email': "maintainer@example.com",
+        # license
+        'license_id': "other-open",
+        'license_title': "Other (Open)",
+        'rights': "Other (Open)",
+        # ckan multilang/switzerland custom required fields
+        'coverage': "Coverage",
+        'issued': "21.03.2015",
+        # "modified": "21.03.2016",
+        # "metadata_created": "2016-07-05T07:41:28.741265",
+        # "metadata_modified": "2016-07-05T07:43:30.079030",
+        # "url": "https://catalog.data.gov/",
+        "spatial": "Spatial",
+        "accrual_periodicity": "",
+        # --------------------------------------------------------------------------
+        "description": {
+            "fr": "FR Description",
+            "en": "EN Description",
+            "de": "DE Description",
+            "it": "IT Description"
+        },
+
+        "notes": {
+            "fr": "",
+            "en": "",
+            "de": "",
+            "it": ""
+        },
+        # --------------------------------------------------------------------------
+        'groups': [],
+        'tags': [],
+        'extras': [],
+        "language": ["en", "de", "fr", "it"],
+        # relations
+        "relations": [{}],
+        "relationships_as_object": [],
+        "relationships_as_subject": [],
+        "see_alsos": [],
+        "publishers": [{
+            "label": "Publisher 1"
+        }],
+        # keywords
+        'keywords': {
+            "fr": [],
+            "en": [],
+            "de": [],
+            "it": []
+        },
+        'contact_points': [{
+            "name": "Contact Name",
+            "email": "contact@example.com"
+        }],
+        "temporals": [{
+            "start_date": "2014-03-21T00:00:00",
+            "end_date": "2019-03-21T00:00:00"
+        }],
+    }
+
+    resource_dict_meta = {
+        'state': 'active',
+        'rights': 'Other (Open)',
+        'license': 'Other (Open)',
+        'coverage': 'Coverage',
+    }
 
     # tested
     def _get_rest_api_offset(self):
@@ -96,27 +162,7 @@ class BaseFTPHarvester(HarvesterBase):
 
     # tested
     def get_remote_folder(self):
-        environment = None
-        if self.config:
-            environment = self.config.get('environment')
-        if not environment:
-            environment = self.environment
-        return os.path.join('/', environment, self.remotefolder.lstrip('/'))  # e.g. /test/DiDok or /prod/Info+
-
-    # tested
-    def _set_config(self, config_str):
-        """
-        Set configuration value
-
-        :param config_str: Configuration as serialised JSON object
-        :type config_str: str or unicode
-        """
-        if config_str:
-            self.config = json.loads(config_str)
-            if 'api_version' in self.config:
-                self.api_version = int(self.config['api_version'])
-        else:
-            self.config = {}
+        return os.path.join('/', self.config['environment'], self.config['folder'])
 
     # tested
     def info(self):
@@ -127,72 +173,36 @@ class BaseFTPHarvester(HarvesterBase):
         :rtype: dict
         """
         return {
-            'name': '%sharvest' % self.harvester_name.lower(),  # 'ckanftp'
-            'title': 'CKAN FTP %s Harvester' % self.harvester_name,
-            'description': 'Fetches %s' % self.get_remote_folder(),
+            'name': '%sharvest' % self.harvester_name.lower(),
+            'title': self.harvester_name,
+            'description': 'Fetches data from the SBB FTP Server',
             'form_config_interface': 'Text'
         }
 
-    def validate_config(self, config):
+    def validate_config(self, config_str):
         """
         Validates the configuration that can be pasted into the harvester web interface
 
-        :param config: Configuration (JSON-encoded object)
-        :type config: dict
+        :param config_str: Configuration (JSON-encoded string)
+        :type config_str: str
 
         :returns: Configuration dictionary
         :rtype: dict
         """
+        if not config_str:
+            raise ValueError('Harvester Configuration is required')
 
-        if not config:
-            return config
+        config_obj = json.loads(config_str)
 
-        try:
-            config_obj = json.loads(config)
+        if 'force_all' in config_obj and not isinstance(config_obj['force_all'], bool):
+            raise ValueError('force_all must be boolean')
 
-            if 'api_version' in config_obj:
-                try:
-                    int(config_obj['api_version'])
-                except ValueError:
-                    raise ValueError('api_version must be an integer')
-
-            if 'default_tags' in config_obj:
-                if not isinstance(config_obj['default_tags'], list):
-                    raise ValueError('default_tags must be a list')
-
-            if 'default_groups' in config_obj:
-                if not isinstance(config_obj['default_groups'], list):
-                    raise ValueError('default_groups must be a list')
-
-                # Check if default groups exist
-                context = {'model': model, 'user': c.user}
-                for group_name in config_obj['default_groups']:
-                    try:
-                        get_action('group_show')(context, {'id': group_name})
-                    except NotFound:
-                        raise ValueError('Default group not found')
-
-            if 'default_extras' in config_obj:
-                if not isinstance(config_obj['default_extras'], dict):
-                    raise ValueError('default_extras must be a dictionary')
-
-            if 'user' in config_obj:
-                # Check if user exists
-                context = {'model': model, 'user': c.user}
-                try:
-                    get_action('user_show')(context, {'id': config_obj.get('user')})
-                except NotFound:
-                    raise ValueError('User not found')
-
-            for key in ('read_only', 'force_all'):
-                if key in config_obj:
-                    if not isinstance(config_obj[key], bool):
-                        raise ValueError('%s must be boolean' % key)
-
-        except ValueError as e:
-            raise e
-
-        return config
+        for key in ('environment', 'folder', 'dataset'):
+            if key not in config_obj:
+                raise ValueError('Configuration option {} if required'.format(key))
+            if not isinstance(config_obj[key], basestring):
+                raise ValueError('Configuration option {} must be a string'.format(key))
+        return config_str
 
     # tested
     def _add_harvester_metadata(self, package_dict, context):
@@ -210,16 +220,6 @@ class BaseFTPHarvester(HarvesterBase):
 
         # is there a package meta configuration in the harvester?
         if self.package_dict_meta:
-            # get organization dictionary based on the owner_org id
-            if self.package_dict_meta.get('owner_org'):
-                # get the organisation and add it to the package
-                result = check_access('organization_show', context)
-                if result:
-                    org_dict = get_action('organization_show')(context, {'id': self.package_dict_meta['owner_org']})
-                    if org_dict:
-                        package_dict['organization'] = org_dict
-                    else:
-                        package_dict['owner_org'] = None
             # add each key/value from the meta data of the harvester
             for key, val in self.package_dict_meta.iteritems():
                 package_dict[key] = val
@@ -375,7 +375,6 @@ class BaseFTPHarvester(HarvesterBase):
                 match_name = munge_filename(os.path.basename(filepath))
                 if os.path.basename(res.get('url')) != match_name:
                     continue
-                # TODO: ignore deleted resources
                 resource_meta = res
                 # there should only be one file with the same name in each dataset, so we can break
                 break
@@ -398,7 +397,7 @@ class BaseFTPHarvester(HarvesterBase):
         log.info('In %s FTPHarvester gather_stage' % self.harvester_name)  # harvest_job.source.url
 
         # set harvester config
-        self._set_config(harvest_job.source.config)
+        self.config = json.loads(harvest_job.source.config)
 
         modified_dates = {}
 
@@ -422,6 +421,7 @@ class BaseFTPHarvester(HarvesterBase):
                 ftplibfolder = ftph.get_top_folder()
 
                 # set base directory of the tmp folder
+                local_path = ftph.get_local_path()
                 tmpdirbase = os.path.join(ftph.get_local_path(), ftplibfolder.strip('/'), remotefolder.lstrip('/'))
                 tempfile.tempdir = tmpdirbase
 
@@ -449,7 +449,6 @@ class BaseFTPHarvester(HarvesterBase):
         # -------------------------------------------------------------------------
         object_ids = []
 
-        # TODO
         # ------------------------------------------------------
         # 1: only download the resources that have been modified
         # has there been a previous run and was it successful?
@@ -480,6 +479,7 @@ class BaseFTPHarvester(HarvesterBase):
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
             obj.content = json.dumps({
+                'type': 'file',
                 'file': f,
                 'workingdir': workingdir,
                 'remotefolder': remotefolder
@@ -487,6 +487,13 @@ class BaseFTPHarvester(HarvesterBase):
             # save it for the next step
             obj.save()
             object_ids.append(obj.id)
+
+        # ------------------------------------------------------
+        # 3: Add finalizer task to queue
+        obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
+        obj.content = json.dumps({'type': 'finalizer', 'tempdir': local_path})
+        obj.save()
+        object_ids.append(obj.id)
 
         # ------------------------------------------------------
         # send the jobs to the gather queue
@@ -510,8 +517,6 @@ class BaseFTPHarvester(HarvesterBase):
         log.info('Running harvest job %s' % harvest_object.id)
         stage = 'Fetch'
 
-        # self._set_config(harvest_job.source.config)
-
         if not harvest_object or not harvest_object.content:
             log.error('No harvest object received')
             self._save_object_error('No harvest object received', harvest_object, stage)
@@ -523,6 +528,9 @@ class BaseFTPHarvester(HarvesterBase):
             log.error('Invalid harvest object: %s', harvest_object.content)
             self._save_object_error('Unable to decode harvester info: %s' % str(e), harvest_object.content, stage)
             return None
+
+        if obj['type'] != 'file':
+            return True
 
         # the file to harvest from the previous step
         f = obj.get('file')
@@ -568,39 +576,6 @@ class BaseFTPHarvester(HarvesterBase):
                     self._save_object_error('Download error for file %s: %s' % (f, str(status)), harvest_object, stage)
                     return None
 
-                # TODO: UNZIP FILE AND SPAWN HARVESTER JOBS -------------------------
-                # if self.do_unzip:
-                #     # unzip the file
-                #     file_num = ftph.unzip(targetfile)
-                #     if file_num:
-                #         # process the new files
-                #         unzipped_dirlist = ftph.get_local_dirlist(tmpfolder)
-                #         for f in unzipped_dirlist:
-                #             # do not create a job for the zip file itself -> skip it
-                #             if os.path.basename(targetfile) == os.path.basename(f):
-                #                 continue
-                #             # TODO
-                #             job = HarvestJob()
-                #             job.source = self.harvester_name.lower()
-                #             job.save()
-                #             new_obj = HarvestObject(guid=self.harvester_name, job=job)
-                #             # serialise and store the dirlist
-                #             new_obj.content = json.dumps({
-                #                 'file': f,
-                #                 'tmpfolder': tmpfolder,
-                #             })
-                #             # save it
-                #             new_obj.save()
-                #             # log.info('Harvest object saved %s', job.id)
-                #             # run the harvest job
-                #             # get_action('harvest_send_job_to_gather_queue')(context, {'id': job.id})
-                #             ret = self.import_stage(new_obj)
-                #             if not ret:
-                #                 self._save_object_error('An error occurred when extracting the file %s from zip' % \
-                #                      os.path.basename(f), new_obj, stage)
-                #                 # TODO: how should the error be handled?
-                # -------------------------------------------------------------------
-
         except ftplib.all_errors as e:
             self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
             self.cleanup_after_error(tmpfolder)
@@ -613,6 +588,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         # store the info for the next step
         retobj = {
+            'type': 'file',
             'file': targetfile,
             'tmpfolder': tmpfolder
         }
@@ -655,6 +631,13 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_object_error('Unable to decode harvester info: %s' % str(e), harvest_object, stage)
             return None
 
+        # set harvester config
+        self.config = json.loads(harvest_object.job.source.config)
+
+        if obj['type'] == 'finalizer':
+            self.finalize(obj['tempdir'])
+            return True
+
         f = obj.get('file')
         if not f:
             log.error('Invalid file key in harvest object: %s' % obj)
@@ -669,9 +652,6 @@ class BaseFTPHarvester(HarvesterBase):
 
         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
 
-        # set harvester config
-        self._set_config(harvest_object.job.source.config)
-
         now = datetime.now().isoformat()
 
         # =======================================================================
@@ -681,9 +661,8 @@ class BaseFTPHarvester(HarvesterBase):
         resource_meta = None
 
         package_dict = {
-            'name': self.harvester_name.lower(),
-            # TODO: identifier should be the package's id (which is unknown at this point in time)
-            'identifier': self.harvester_name.title()  # required by DCAT extension
+            'name': munge_name(self.config['dataset']),
+            'identifier': self.config['dataset']  # required by DCAT extension
         }
 
         try:
@@ -720,10 +699,10 @@ class BaseFTPHarvester(HarvesterBase):
             # title of the package
             if 'title' not in package_dict:
                 package_dict['title'] = {
-                    "de": self.remotefolder.title(),
-                    "en": self.remotefolder.title(),
-                    "fr": self.remotefolder.title(),
-                    "it": self.remotefolder.title()
+                    "de": self.config['dataset'],
+                    "en": self.config['dataset'],
+                    "fr": self.config['dataset'],
+                    "it": self.config['dataset']
                 }
             # for DCAT schema - same info as in the title
             if 'display_name' not in package_dict:
@@ -743,11 +722,6 @@ class BaseFTPHarvester(HarvesterBase):
                 if key not in package_dict:
                     package_dict[key] = {}
 
-            # TODO
-            # package_dict['type'] = self.info()['name']
-            # package_dict['type'] = u'harvest'
-
-            # TODO
             package_dict['source_type'] = self.info()['name']
 
             # count keywords or tags
@@ -760,16 +734,9 @@ class BaseFTPHarvester(HarvesterBase):
             if 'language' not in package_dict:
                 package_dict['language'] = ["en", "de", "fr", "it"]
 
-            # In the harvester interface, certain options can be provided in the config field as a json object
-            # The following functions check and add these optional fields
-            # TODO: make the functions compatible with multi-lang
-            if not self.config:
-                self.config = {}
             package_dict = self._add_package_tags(package_dict)
             package_dict = self._add_package_groups(package_dict, context)
             source_org = model.Package.get(harvest_object.source.id).owner_org
-            self._save_object_error('Harvester Source %s need an organization set (object %s)' %
-                                    (self.harvester_name, harvest_object.id), harvest_object, stage)
             package_dict = self._add_package_orgs(package_dict, context, source_org)
             package_dict = self._add_package_extras(package_dict, harvest_object)
 
@@ -783,7 +750,7 @@ class BaseFTPHarvester(HarvesterBase):
             log.debug("Package dict (pre-creation): %s" % str(package_dict))
 
             # This logic action requires to call check_access to 
-            # prevent the Exception: 'Action function package_show did not call its auth function'
+            # prevent the Exception: 'Action function package_show  did not call its auth function'
             # Adds action name onto the __auth_audit stack
             if not check_access('package_create', context):
                 self._save_object_error('%s not authorised to create packages (object %s)' %
@@ -791,6 +758,7 @@ class BaseFTPHarvester(HarvesterBase):
                 return False
 
             # create the dataset
+            print package_dict
             dataset = get_action('package_create')(context, package_dict)
 
             log.info("Created package: %s" % str(dataset['name']))
@@ -927,20 +895,26 @@ class BaseFTPHarvester(HarvesterBase):
 
             log.info(log_msg % str(resource_meta))
 
-            # step 1: upload the resource's info with requests library to avoid ckanapi json_encode error
-            # ---------------------------------------------------------------------
             apikey = model.User.get(context['user']).apikey.encode('utf8')
-            # log.debug("Posting to api_url: %s" % str(api_url))
+
             headers = {
                 'Authorization': apikey,
                 'X-CKAN-API-Key': apikey,
                 'user-agent': 'ftp-harvester/1.0.0',
                 'Accept': 'application/json;q=0.9,text/plain;q=0.8,*/*;q=0.7',
-                'Content-Type': 'application/json',
             }
-            # ------
+
             api_url = site_url + self._get_action_api_offset() + '/resource_create'
-            r = requests.post(api_url, data=json.dumps(resource_meta), headers=headers)
+
+            data = {}
+            for key, value in resource_meta.items():
+                if isinstance(value, dict):
+                    data[key] = json.dumps(value)
+                else:
+                    data[key] = value
+
+            r = requests.post(api_url, data=data, headers=headers, files=[('upload', open(f, 'rb'))])
+
             # ------
             # check result
             if r.status_code != 200:
@@ -951,27 +925,6 @@ class BaseFTPHarvester(HarvesterBase):
                 raise Exception("Resource creation unsuccessful")
 
             log.info("Successfully created resource")
-
-            # step 2: update the resource with a resolvable url and the correct download_url
-            # -----------------------------------------------------------------------
-
-            resource = json_response['result']
-
-            # curl-patch resource
-            # -------------------
-            log.info('Patching resource')
-            filename = munge_filename(os.path.basename(f))
-            patch_url = u'%s/dataset/%s/resource/%s/download/%s' % (site_url, dataset['name'], resource['id'], filename)
-            api_url = site_url + self._get_action_api_offset() + '/resource_patch'
-            try:
-                cmd = "curl -H'Authorization: %s' '%s' --form upload=@\"%s\" --form id=%s --form download_url=%s" % \
-                      (headers['Authorization'], api_url, f, resource['id'], patch_url)
-                subprocess.call(cmd, shell=True)
-                log.info("Successfully patched resource")
-            except subprocess.CalledProcessError as e:
-                self._save_object_error('Error patching resource: %s' % str(e), harvest_object, stage)
-                return False
-            # -------------------
 
             # delete the old version of the resource
             if old_resource_id:
@@ -1000,17 +953,74 @@ class BaseFTPHarvester(HarvesterBase):
                 log.info("Deleted tmp file %s" % f)
             except OSError:
                 pass
-
-        # ---------------------------------------------------------------------
-        # TODO:
-        # the harvest job of the last resource needs to clean and remove the tmpfolder
-        # ---------------------------------------------------------------------
-        # do this somewhere else:
-        # if harvest_object.get('import_finished') != None:
-        #     self.remove_tmpfolder(harvest_object.content.get('tmpfolder'))
-        # ---------------------------------------------------------------------
-        # =======================================================================
         return True
+
+    def finalize(self, tempdir):
+        log.info('Running finalizing tasks:')
+
+        # ----------------------------------------------------------------------------
+        # delete ftp temp directory
+        log.info('Deleting temp directory')
+        self.remove_tmpfolder(tempdir)
+
+        # ----------------------------------------------------------------------------
+        # Deleting old resources, generate permalink, order resources:
+        # We do this by matching a regex, defined in the `resource_regex` key of the harvester json config,
+        # against the identifier (filename) of the resources of the dataset. The ones that matched are thrown in a list
+        # and sorted by name, descending. This makes the newest file appear first when the filesnames have the correct
+        # format (YYYY-MM-DD-*).
+        # The oldest files of this list get deleted if there are more than harvester_config.max_resources in the list.
+        # The newest file is set as a permalink on the dataset.
+        # The sorted list of resources get set on the dataset, with not matched resources appearing first.
+
+        # ----------------------------------------------------------------------------
+        # reorder resources
+        dataset_slug = munge_name(self.config['dataset'])
+        package = get_action('package_show')({}, {'id': dataset_slug})
+
+        ordered_resources = []
+        unmatched_resources = []
+
+        # get filename regex for permalink from harvester config or fallback to a catch-all
+        identifier_regex = self.config.get('resource_regex', '.*')
+        for resource in package['resources']:
+            log.info('Testing filename: %s', resource['identifier'])
+            if re.match(identifier_regex, resource['identifier'], re.IGNORECASE):
+                log.info('Filename %s matches regex %s', resource['identifier'], identifier_regex)
+                ordered_resources.append(resource)
+            else:
+                unmatched_resources.append(resource)
+
+        ordered_resources.sort(key=lambda r: r['identifier'], reverse=True)
+
+        # ----------------------------------------------------------------------------
+        # delete old resources
+        max_resources = self.config.get('max_resources')
+        resources_count = len(ordered_resources)
+
+        if max_resources and resources_count > max_resources:
+            log.info('Found %s Resources, max resources is %s, deleting %s resources', resources_count, max_resources,
+                     resources_count - max_resources)
+
+            for resource in ordered_resources[max_resources:]:
+                # delete the file from the filestore
+                get_action('resource_patch')({}, {'id': resource['id'], 'clear_upload': True, })
+
+                # delete the datastore table
+                get_action('datastore_delete')({}, {'resource_id': resource['id'], 'force': True})
+
+                # delete the resource itself
+                get_action('resource_delete')({}, {'id': resource['id']})
+
+            ordered_resources = ordered_resources[:max_resources]
+
+        package['permalink'] = ordered_resources[0]['url']
+        log.info('Permalink for dataset %s is %s', package['name'], package['permalink'])
+
+        # not matched resources come first in the list, then the ordered
+        package['resources'] = unmatched_resources + ordered_resources
+
+        get_action('package_update')({}, package)
 
 
 class ContentFetchError(Exception):

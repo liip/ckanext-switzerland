@@ -46,6 +46,17 @@
       "preset": "multilingual_text"
     },
     {
+      "field_name": "permalink",
+      "label": {
+        "en": "Permalink",
+        "de": "Permalink",
+        "fr": "Permalink",
+        "it": "Permalink"
+      },
+      "required": false,
+      "preset": "url"
+    },
+    {
       "field_name": "issued",
       "label": {
         "en": "Issued date",
