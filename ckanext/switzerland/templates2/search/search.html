@@ -1,39 +1,71 @@
 {% extends "page.html" %}
 
+{# 
+	we want the search page to be full-width. since the col classes are on element outside of the primary_content_inner block,
+	I had to override the secondary block with <nothing> and the whole primary block with the same code that's in base.html,
+	except with .col-md-12
+#}
+{% block secondary %}{% endblock %}
+{% block primary %}
+  <div class="col-md-12">
+    {% block primary_content %}
+      <article class="module">
+        {% block page_header %}
+          <header class="module-content page-header">
+            {% if self.content_action() | trim %}
+              <div class="content_action">
+                {% block content_action %}{% endblock %}
+              </div>
+            {% endif %}
+            <ul class="nav nav-tabs">
+              {% block content_primary_nav %}{% endblock %}
+            </ul>
+          </header>
+        {% endblock %}
+        <div class="module-content">
+          {% if self.page_primary_action() | trim %}
+            <div class="page_primary_action">
+              {% block page_primary_action %}{% endblock %}
+            </div>
+          {% endif %}
+          {% block primary_content_inner %}
+            {% resource 'switzerland/a_vue.js' %}
+            {% resource 'switzerland/b_vuevalidator.js' %}
+            {% resource 'switzerland/c_search.js' %}
 
+            <h1>{{ _('Search') }}</h1>
 
-{% block primary_content_inner %}
-  {% resource 'switzerland/a_vue.js' %}
-  {% resource 'switzerland/b_vuevalidator.js' %}
-  {% resource 'switzerland/c_search.js' %}
+            <div id="app">
 
-  <h1>{{ _('Search') }}</h1>
+              {% raw %}
+              <form class="form-inline" v-on:submit.prevent="search">
+                <validator name="searchValidation">
+                  <input type="text" class="form-control" id="search" v-model="searchTerm" v-validate:search="{minlength: 3}">
+                  <input type="submit" class="btn btn-default" value="Search" :disabled="$searchValidation.search.minlength">
+                  <span class="help-block" v-if="$searchValidation.search.minlength">Search term must be at least 3 characters long</span>
+                </validator>
+              </form>
 
-  <div id="app">
-    {% raw %}
-    <form class="form-inline" v-on:submit.prevent="search">
-      <validator name="searchValidation">
-        <input type="text" class="form-control" id="search" v-model="searchTerm" v-validate:search="{minlength: 3}">
-        <input type="submit" class="btn btn-default" value="Search" :disabled="$searchValidation.search.minlength">
-        <span class="help-block" v-if="$searchValidation.search.minlength">Search term must be at least 3 characters long</span>
-      </validator>
-    </form>
+              <div v-show="currentSearchTerm" style="display: none">
+                <h1>{{ pageResults.length }} pages found for "{{ currentSearchTerm }}"</h1>
+                <div v-for="result in pageResults">
+                  <hr>
+                  <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
+                  <div>{{{ result.description }}}</div>
+                </div>
 
-    <div v-show="currentSearchTerm" style="display: none">
-      <h1>{{ pageResults.length }} pages found for "{{ currentSearchTerm }}"</h1>
-      <div v-for="result in pageResults">
-        <hr>
-        <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
-        <div>{{{ result.description }}}</div>
-      </div>
-
-      <h1>{{ datasetResults.length }} datasets found for "{{ currentSearchTerm }}"</h1>
-      <div v-for="result in datasetResults">
-        <hr>
-        <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
-        <div>{{ result.description }}</div>
-      </div>
-    </div>
-    {% endraw %}
+                <h1>{{ datasetResults.length }} datasets found for "{{ currentSearchTerm }}"</h1>
+                <div v-for="result in datasetResults">
+                  <hr>
+                  <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
+                  <div>{{ result.description }}</div>
+                </div>
+              </div>
+              {% endraw %}
+            </div>
+          {% endblock %}
+        </div>
+      </article>
+    {% endblock %}
   </div>
 {% endblock %}
