@@ -760,6 +760,7 @@ class SBBFTPHarvester(HarvesterBase):
                 return False
 
             # create the dataset
+            print package_dict
             dataset = get_action('package_create')(context, package_dict)
 
             log.info("Created package: %s" % str(dataset['name']))
@@ -965,25 +966,45 @@ class SBBFTPHarvester(HarvesterBase):
         self.remove_tmpfolder(tempdir)
 
         # ----------------------------------------------------------------------------
+        # Deleting old resources, generate permalink, order resources:
+        # We do this by matching a regex, defined in the `resource_regex` key of the harvester json config,
+        # against the identifier (filename) of the resources of the dataset. The ones that matched are thrown in a list
+        # and sorted by name, descending. This makes the newest file appear first when the filesnames have the correct
+        # format (YYYY-MM-DD-*).
+        # The oldest files of this list get deleted if there are more than harvester_config.max_resources in the list.
+        # The newest file is set as a permalink on the dataset.
+        # The sorted list of resources get set on the dataset, with not matched resources appearing first.
+
+        # ----------------------------------------------------------------------------
         # reorder resources
-        log.info('Ordering resources')
         dataset_slug = munge_name(self.config['dataset'])
         package = get_action('package_show')({}, {'id': dataset_slug})
 
-        # order resource by file name to show newest resource first
-        package['resources'].sort(key=lambda r: r['identifier'], reverse=True)
-        get_action('package_update')({}, package)
+        ordered_resources = []
+        unmatched_resources = []
+
+        # get filename regex for permalink from harvester config or fallback to a catch-all
+        identifier_regex = self.config.get('resource_regex', '.*')
+        for resource in package['resources']:
+            log.info('Testing filename: %s', resource['identifier'])
+            if re.match(identifier_regex, resource['identifier'], re.IGNORECASE):
+                log.info('Filename %s matches regex %s', resource['identifier'], identifier_regex)
+                ordered_resources.append(resource)
+            else:
+                unmatched_resources.append(resource)
+
+        ordered_resources.sort(key=lambda r: r['identifier'], reverse=True)
 
         # ----------------------------------------------------------------------------
         # delete old resources
         max_resources = self.config.get('max_resources')
-        resources_count = len(package['resources'])
+        resources_count = len(ordered_resources)
 
         if max_resources and resources_count > max_resources:
             log.info('Found %s Resources, max resources is %s, deleting %s resources', resources_count, max_resources,
                      resources_count - max_resources)
 
-            for resource in package['resources'][max_resources:]:
+            for resource in ordered_resources[max_resources:]:
                 # delete the file from the filestore
                 get_action('resource_patch')({}, {'id': resource['id'], 'clear_upload': True, })
 
@@ -993,27 +1014,14 @@ class SBBFTPHarvester(HarvesterBase):
                 # delete the resource itself
                 get_action('resource_delete')({}, {'id': resource['id']})
 
-        # ----------------------------------------------------------------------------
-        # generate permalink
-        # we do this by matching a regex, defined in the `permalink_regex` key of the harvester json config,
-        # against the identifier (filename) of the resources of the dataset. the ones that matched are thrown in a list
-        # and sorted by name, descending. the top one makes the cut, which, when named correctly, is the one with the
-        # latest date in the name, e.g. 2016-09-15_my_test_resource.csv
-        log.info('Generating permalink')
-        permalink_resources = []
-        # get filename regex for permalink from harvester config or fallback to a catch-all
-        identifier_regex = self.config.get('permalink_regex', '.*')
-        for resource in package['resources']:
-            log.info('Testing filename: %s', resource['identifier'])
-            if re.match(identifier_regex, resource['identifier'], re.IGNORECASE):
-                log.info('Filename %s matches regex %s', resource['identifier'], identifier_regex)
-                permalink_resources.append(resource)
+            ordered_resources = ordered_resources[:max_resources]
 
-        # we don't actually need to do this as package['resources'] was already sorted further up
-        # but let's not depend on that being the case
-        permalink_resources.sort(key=lambda r: r['identifier'], reverse=True)
-        package['permalink'] = permalink_resources[0]['url']
+        package['permalink'] = ordered_resources[0]['url']
         log.info('Permalink for dataset %s is %s', package['name'], package['permalink'])
+
+        # not matched resources come first in the list, then the ordered
+        package['resources'] = unmatched_resources + ordered_resources
+
         get_action('package_update')({}, package)
 
 
