@@ -737,8 +737,6 @@ class SBBFTPHarvester(HarvesterBase):
             package_dict = self._add_package_tags(package_dict)
             package_dict = self._add_package_groups(package_dict, context)
             source_org = model.Package.get(harvest_object.source.id).owner_org
-            self._save_object_error('Harvester Source %s need an organization set (object %s)' %
-                                    (self.harvester_name, harvest_object.id), harvest_object, stage)
             package_dict = self._add_package_orgs(package_dict, context, source_org)
             package_dict = self._add_package_extras(package_dict, harvest_object)
 
