@@ -378,8 +378,25 @@ class SBBFTPHarvester(HarvesterBase):
                 break
         return resource_meta
 
-    def get_dataset(self):
+    def _get_dataset(self):
         return get_action('ogdch_dataset_by_identifier')({}, {'identifier': self.config['dataset']})
+
+    def _get_mimetypes(self, filename):
+        na, ext = os.path.splitext(filename)
+        ext = ext.lstrip('.').upper()
+
+        file_format = self.default_format
+        mimetype = self.default_mimetype
+        mimetype_inner = self.default_mimetype_inner
+        if ext and ext.lower() in helpers.resource_formats():
+            # set mime types
+            file_format = mimetype = mimetype_inner = ext
+        return file_format, mimetype, mimetype_inner
+
+    def _reset_resource(self, resource):
+        for key in ['id', 'revision_id']:
+            if key in resource:
+                del resource[key]
 
     # =======================================================================
     # GATHER Stage
@@ -665,7 +682,7 @@ class SBBFTPHarvester(HarvesterBase):
             # use the existing package dictionary (if it exists)
             # -----------------------------------------------------------------------
 
-            dataset = self.get_dataset()
+            dataset = self._get_dataset()
 
             # update version of package
             dataset['version'] = now
@@ -752,7 +769,6 @@ class SBBFTPHarvester(HarvesterBase):
                 return False
 
             # create the dataset
-            print package_dict
             dataset = get_action('package_create')(context, package_dict)
 
             log.info("Created package: %s" % str(dataset['name']))
@@ -790,17 +806,6 @@ class SBBFTPHarvester(HarvesterBase):
 
         log.info("Adding %s to package with id %s", str(f), dataset['id'])
 
-        # set mimetypes of resource based on file extension
-        na, ext = os.path.splitext(f)
-        ext = ext.lstrip('.').upper()
-
-        file_format = self.default_format
-        mimetype = self.default_mimetype
-        mimetype_inner = self.default_mimetype_inner
-        if ext and ext.lower() in helpers.resource_formats():
-            # set mime types
-            file_format = mimetype = mimetype_inner = ext
-
         fp = None
         try:
             try:
@@ -811,54 +816,60 @@ class SBBFTPHarvester(HarvesterBase):
             fp = open(f, 'rb')
 
             # -----------------------------------------------------
-            # create new resource, if it did not previously exist
+            # create new resource, if there was no resource with the same filename (aka identifier)
             # -----------------------------------------------------
             if not resource_meta:
                 old_resource_id = None
 
-                if self.resource_dict_meta:
-                    resource_meta = self.resource_dict_meta
-                else:
-                    resource_meta = {}
+                # we already checked if there is a resource with the same filename, we now
+                # check if there is a resource another resource inside the dataset we could use as a template
+                # if we find one, we copy the metadata and set some of the fields, if not we use the metadata
+                # defined in this class (self.resource_dict_meta)
 
+                old_resources, _ = self._get_ordered_resources(dataset)
+                if len(old_resources):
+                    resource_meta = old_resources[0]
+                    self._reset_resource(resource_meta)
+                else:
+                    resource_meta = self.resource_dict_meta
+
+                # we always set this fields, even when there is and older version of this resource
                 resource_meta['identifier'] = os.path.basename(f)
+
+                # always overwrite this metadata
+                file_format, mimetype, mimetype_inner = self._get_mimetypes(f)
+                resource_meta['format'] = file_format
+                resource_meta['mimetype'] = mimetype
+                resource_meta['mimetype_inner'] = mimetype_inner
+
+                resource_meta['name'] = {
+                    "de": os.path.basename(f),
+                    "en": os.path.basename(f),
+                    "fr": os.path.basename(f),
+                    "it": os.path.basename(f)
+                }
+                resource_meta['title'] = {
+                    "de": os.path.basename(f),
+                    "en": os.path.basename(f),
+                    "fr": os.path.basename(f),
+                    "it": os.path.basename(f)
+                }
 
                 resource_meta['issued'] = now
                 resource_meta['modified'] = now
                 resource_meta['version'] = now
 
-                if not resource_meta.get('rights'):
-                    resource_meta['rights'] = 'TODO'
-                if not resource_meta.get('license'):
-                    resource_meta['license'] = 'TODO'
-                if not resource_meta.get('coverage'):
-                    resource_meta['coverage'] = 'TODO'
-
-                resource_meta['format'] = file_format
-                resource_meta['mimetype'] = mimetype
-                resource_meta['mimetype_inner'] = mimetype_inner
-
-                for key in ['relations']:
-                    resource_meta[key] = []
-
-                resource_meta['name'] = {  # json.dumps(
-                        "de": os.path.basename(f),
-                        "en": os.path.basename(f),
-                        "fr": os.path.basename(f),
-                        "it": os.path.basename(f)
-                    }
-                resource_meta['title'] = {
-                        "de": os.path.basename(f),
-                        "en": os.path.basename(f),
-                        "fr": os.path.basename(f),
-                        "it": os.path.basename(f)
-                    }
-                resource_meta['description'] = {
+                # take this metadata from the old version if available
+                resource_meta['rights'] = resource_meta.get('rights', 'TODO')
+                resource_meta['license'] = resource_meta.get('license', 'TODO')
+                resource_meta['coverage'] = resource_meta.get('coverage', 'TODO')
+                resource_meta['description'] = resource_meta.get('description', {
                         "de": "TODO",
                         "en": "TODO",
                         "fr": "TODO",
                         "it": "TODO"
-                    }
+                    })
+                resource_meta['relations'] = resource_meta.get('relations', [])
 
                 log_msg = "Creating new resource: %s"
 
@@ -868,10 +879,7 @@ class SBBFTPHarvester(HarvesterBase):
             else:
                 old_resource_id = resource_meta['id']
 
-                # the resource will get a new revision_id, so we delete that key
-                for key in ['id', 'revision_id']:  # TODO: there may be other stuff to delete?
-                    if key in resource_meta:
-                        del resource_meta[key]
+                self._reset_resource(resource_meta)
 
                 log_msg = "Updating resource (with known metadata): %s"
 
@@ -949,6 +957,23 @@ class SBBFTPHarvester(HarvesterBase):
                 pass
         return True
 
+    def _get_ordered_resources(self, package):
+        ordered_resources = []
+        unmatched_resources = []
+
+        # get filename regex for permalink from harvester config or fallback to a catch-all
+        identifier_regex = self.config.get('resource_regex', '.*')
+        for resource in package['resources']:
+            log.info('Testing filename: %s', resource['identifier'])
+            if re.match(identifier_regex, resource['identifier'], re.IGNORECASE):
+                log.info('Filename %s matches regex %s', resource['identifier'], identifier_regex)
+                ordered_resources.append(resource)
+            else:
+                unmatched_resources.append(resource)
+
+        ordered_resources.sort(key=lambda r: r['identifier'], reverse=True)
+        return ordered_resources, unmatched_resources
+
     def finalize(self, tempdir):
         log.info('Running finalizing tasks:')
 
@@ -969,22 +994,9 @@ class SBBFTPHarvester(HarvesterBase):
 
         # ----------------------------------------------------------------------------
         # reorder resources
-        package = self.get_dataset()
+        package = self._get_dataset()
 
-        ordered_resources = []
-        unmatched_resources = []
-
-        # get filename regex for permalink from harvester config or fallback to a catch-all
-        identifier_regex = self.config.get('resource_regex', '.*')
-        for resource in package['resources']:
-            log.info('Testing filename: %s', resource['identifier'])
-            if re.match(identifier_regex, resource['identifier'], re.IGNORECASE):
-                log.info('Filename %s matches regex %s', resource['identifier'], identifier_regex)
-                ordered_resources.append(resource)
-            else:
-                unmatched_resources.append(resource)
-
-        ordered_resources.sort(key=lambda r: r['identifier'], reverse=True)
+        ordered_resources, unmatched_resources = self._get_ordered_resources(package)
 
         # ----------------------------------------------------------------------------
         # delete old resources
