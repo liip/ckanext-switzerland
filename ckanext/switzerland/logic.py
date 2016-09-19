@@ -94,7 +94,7 @@ def ogdch_dataset_by_identifier(context, data_dict):
     context.update({'user': user['name']})
     identifier = get_or_bust(data_dict, 'identifier')
 
-    param = 'identifier:%s' % identifier
+    param = 'identifier:"%s"' % identifier
     result = tk.get_action('package_search')(context, {'fq': param})
     try:
         return result['results'][0]
