@@ -34,8 +34,6 @@ import shutil
 import requests
 import re
 
-import subprocess
-
 from ckanext.harvest.model import HarvestJob, HarvestObject
 
 from simplejson.scanner import JSONDecodeError
@@ -380,6 +378,9 @@ class SBBFTPHarvester(HarvesterBase):
                 break
         return resource_meta
 
+    def get_dataset(self):
+        return get_action('ogdch_dataset_by_identifier')({}, {'identifier': self.config['dataset']})
+
     # =======================================================================
     # GATHER Stage
     # =======================================================================
@@ -657,27 +658,14 @@ class SBBFTPHarvester(HarvesterBase):
         # =======================================================================
         # package
         # =======================================================================
-
         resource_meta = None
 
-        package_dict = {
-            'name': munge_name(self.config['dataset']),
-            'identifier': self.config['dataset']  # required by DCAT extension
-        }
-
         try:
-
             # -----------------------------------------------------------------------
             # use the existing package dictionary (if it exists)
             # -----------------------------------------------------------------------
 
-            # add package_show to the auth audit stack
-            dataset = self._find_existing_package({'id': package_dict.get('name')})
-
-            if not dataset or 'id' not in dataset:
-                # abort updating
-                log.error("Package '%s' not found" % package_dict.get('name'))
-                raise NotFound("Package '%s' not found" % package_dict.get('name'))
+            dataset = self.get_dataset()
 
             # update version of package
             dataset['version'] = now
@@ -694,6 +682,12 @@ class SBBFTPHarvester(HarvesterBase):
             # -----------------------------------------------------------------------
 
             # add the metadata from the harvester
+
+            package_dict = {
+                'name': munge_name(self.config['dataset']),
+                'identifier': self.config['dataset']
+            }
+
             package_dict = self._add_harvester_metadata(package_dict, context)
 
             # title of the package
@@ -975,8 +969,7 @@ class SBBFTPHarvester(HarvesterBase):
 
         # ----------------------------------------------------------------------------
         # reorder resources
-        dataset_slug = munge_name(self.config['dataset'])
-        package = get_action('package_show')({}, {'id': dataset_slug})
+        package = self.get_dataset()
 
         ordered_resources = []
         unmatched_resources = []
