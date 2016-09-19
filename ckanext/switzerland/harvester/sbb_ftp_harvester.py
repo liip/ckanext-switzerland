@@ -878,6 +878,7 @@ class SBBFTPHarvester(HarvesterBase):
             # -----------------------------------------------------
             else:
                 old_resource_id = resource_meta['id']
+                print 'old resource id', resource_meta['id']
 
                 self._reset_resource(resource_meta)
 
@@ -930,8 +931,7 @@ class SBBFTPHarvester(HarvesterBase):
 
             # delete the old version of the resource
             if old_resource_id:
-                api_url = site_url + self._get_action_api_offset() + '/resource_delete'
-                requests.post(api_url, data=json.dumps({'id': old_resource_id}), headers=headers)
+                get_action('resource_delete')({}, {'id': old_resource_id})
 
             log.info("Successfully harvested file %s" % f)
 
