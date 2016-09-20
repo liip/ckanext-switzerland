@@ -67,7 +67,10 @@ class TestSBBFTPHarvester(unittest.TestCase):
     def test_simple(self):
         MockFTPHelper.filesystem = self.get_filesystem()
         self.run_harvester()
-        assert_equal(len(self.dataset['resources']), 1)
+
+        dataset = self.get_dataset(self.dataset_name)
+
+        assert_equal(len(dataset['resources']), 1)
         # TODO: check filename
         # TODO: check file content
 
