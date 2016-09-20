@@ -13,6 +13,7 @@ table.
 """
 
 # import traceback
+import cgi
 import logging
 
 from ckan import model
@@ -31,7 +32,6 @@ import tempfile
 import time
 from datetime import datetime
 import shutil
-import requests
 import re
 
 from ckanext.harvest.model import HarvestJob, HarvestObject
@@ -898,34 +898,12 @@ class SBBFTPHarvester(HarvesterBase):
 
             log.info(log_msg % str(resource_meta))
 
-            apikey = model.User.get(context['user']).apikey.encode('utf8')
+            upload = cgi.FieldStorage()
+            upload.file = open(f, 'rb')
+            upload.filename = os.path.basename(f)
+            resource_meta['upload'] = upload
 
-            headers = {
-                'Authorization': apikey,
-                'X-CKAN-API-Key': apikey,
-                'user-agent': 'ftp-harvester/1.0.0',
-                'Accept': 'application/json;q=0.9,text/plain;q=0.8,*/*;q=0.7',
-            }
-
-            api_url = site_url + self._get_action_api_offset() + '/resource_create'
-
-            data = {}
-            for key, value in resource_meta.items():
-                if isinstance(value, dict):
-                    data[key] = json.dumps(value)
-                else:
-                    data[key] = value
-
-            r = requests.post(api_url, data=data, headers=headers, files=[('upload', open(f, 'rb'))])
-
-            # ------
-            # check result
-            if r.status_code != 200:
-                r.raise_for_status()
-            json_response = r.json()
-
-            if 'success' not in json_response or not json_response['success'] or 'result' not in json_response:
-                raise Exception("Resource creation unsuccessful")
+            get_action('resource_create')({}, resource_meta)
 
             log.info("Successfully created resource")
 
