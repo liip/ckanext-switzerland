@@ -902,13 +902,13 @@ class SBBFTPHarvester(HarvesterBase):
             upload.filename = os.path.basename(f)
             resource_meta['upload'] = upload
 
-            get_action('resource_create')({}, resource_meta)
+            get_action('resource_create')(context, resource_meta)
 
             log.info("Successfully created resource")
 
             # delete the old version of the resource
             if old_resource_id:
-                get_action('resource_delete')({}, {'id': old_resource_id})
+                get_action('resource_delete')(context, {'id': old_resource_id})
 
             log.info("Successfully harvested file %s" % f)
 
@@ -952,6 +952,8 @@ class SBBFTPHarvester(HarvesterBase):
         return ordered_resources, unmatched_resources
 
     def finalize(self, tempdir):
+        context = {'model': model, 'session': Session, 'user': self._get_user_name()}
+
         log.info('Running finalizing tasks:')
 
         # ----------------------------------------------------------------------------
@@ -986,13 +988,13 @@ class SBBFTPHarvester(HarvesterBase):
 
             for resource in ordered_resources[max_resources:]:
                 # delete the file from the filestore
-                get_action('resource_patch')({}, {'id': resource['id'], 'clear_upload': True, })
+                get_action('resource_patch')(context, {'id': resource['id'], 'clear_upload': True, })
 
                 # delete the datastore table
-                get_action('datastore_delete')({}, {'resource_id': resource['id'], 'force': True})
+                get_action('datastore_delete')(context, {'resource_id': resource['id'], 'force': True})
 
                 # delete the resource itself
-                get_action('resource_delete')({}, {'id': resource['id']})
+                get_action('resource_delete')(context, {'id': resource['id']})
 
             ordered_resources = ordered_resources[:max_resources]
 
@@ -1002,7 +1004,7 @@ class SBBFTPHarvester(HarvesterBase):
         # not matched resources come first in the list, then the ordered
         package['resources'] = unmatched_resources + ordered_resources
 
-        get_action('package_update')({}, package)
+        get_action('package_update')(context, package)
 
 
 class ContentFetchError(Exception):
