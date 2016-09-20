@@ -802,7 +802,6 @@ class SBBFTPHarvester(HarvesterBase):
         if not site_url:
             self._save_object_error('Could not get site_url from CKAN config file', harvest_object, stage)
             return False
-        site_url = site_url.rstrip('/')
 
         log.info("Adding %s to package with id %s", str(f), dataset['id'])
 
