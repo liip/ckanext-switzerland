@@ -1,3 +1,5 @@
+import shutil
+
 import os
 import json
 import unittest
@@ -78,7 +80,9 @@ class TestSBBFTPHarvester(unittest.TestCase):
     def setUp(self):
         model.repo.rebuild_db()  # clear database
         search.clear_all()  # clear solr search index
+        shutil.rmtree('/tmp/ckan_storage_path/')
 
     def teardown(self):
         model.repo.rebuild_db()  # clear database
         search.clear_all()  # clear solr search index
+        shutil.rmtree('/tmp/ckan_storage_path/')
