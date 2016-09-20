@@ -7,6 +7,7 @@ from mock import patch
 from nose.tools import assert_equal
 
 from ckan.logic import get_action
+from ckan.lib import search
 from ckan.tests import factories
 import ckan.model as model
 
@@ -75,11 +76,9 @@ class TestSBBFTPHarvester(unittest.TestCase):
         pass
 
     def setUp(self):
-        # Rebuild CKAN's database after each test method, so that each test
-        # method runs with a clean slate.
-        model.repo.rebuild_db()
+        model.repo.rebuild_db()  # clear database
+        search.clear_all()  # clear solr search index
 
     def teardown(self):
-        # Rebuild CKAN's database after each test method, so that each test
-        # method runs with a clean slate.
-        model.repo.rebuild_db()
+        model.repo.rebuild_db()  # clear database
+        search.clear_all()  # clear solr search index
