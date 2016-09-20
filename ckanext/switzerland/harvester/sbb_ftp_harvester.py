@@ -203,7 +203,7 @@ class SBBFTPHarvester(HarvesterBase):
         return config_str
 
     # tested
-    def _add_harvester_metadata(self, package_dict, context):
+    def _add_harvester_metadata(self, package_dict):
         """
         Adds the metadata stored in the harvester class
 
@@ -705,7 +705,7 @@ class SBBFTPHarvester(HarvesterBase):
                 'identifier': self.config['dataset']
             }
 
-            package_dict = self._add_harvester_metadata(package_dict, context)
+            package_dict = self._add_harvester_metadata(package_dict)
 
             # title of the package
             if 'title' not in package_dict:
