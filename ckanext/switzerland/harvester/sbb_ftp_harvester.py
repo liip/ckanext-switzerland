@@ -683,15 +683,15 @@ class SBBFTPHarvester(HarvesterBase):
             # -----------------------------------------------------------------------
 
             dataset = self._get_dataset()
+            log.info("Using existing package with id %s", str(dataset.get('id')))
 
             # update version of package
             dataset['version'] = now
 
             # check if there is a resource matching the filename in the package
             resource_meta = self.find_resource_in_package(dataset, f)
-            log.debug('Found existing resource: %s' % str(resource_meta))
-
-            log.info("Using existing package with id %s" % str(dataset.get('id')))
+            if resource_meta:
+                log.info('Found existing resource: %s' % str(resource_meta))
 
         except NotFound:
             # -----------------------------------------------------------------------
