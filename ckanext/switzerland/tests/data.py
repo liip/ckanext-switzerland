@@ -1,4 +1,4 @@
-from ckan.lib.munge import munge_name
+from ckan.lib.munge import munge_name, munge_filename
 from ckan.tests import factories
 
 environment = 'Test'
@@ -31,7 +31,7 @@ def dataset(slug=None):
                              publishers=[{'label': 'Publisher 1'}])
 
 
-def resource(dataset):
+def resource(dataset, filename='filenamethatshouldnotmatch.csv'):
     factories.Resource(package_id=dataset['id'],
                        identifier='AAAResource',
                        title={'de': 'AAAResource', 'en': 'AAAResource', 'fr': 'AAAResource',
@@ -42,4 +42,4 @@ def resource(dataset):
                        rights='Other (Open)',
                        license='Other (Open)',
                        coverage='Coverage',
-                       url='http://ogdch.dev/dataset/testdataset/resource/download/testresourcefile.csv')
+                       url='http://ogdch.dev/dataset/testdataset/resource/download/{}'.format(munge_filename(filename)))

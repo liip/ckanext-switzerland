@@ -78,6 +78,10 @@ class TestSBBFTPHarvester(object):
             get_action('package_show')({}, {'id': munge_name(data.dataset_name)})
 
     def test_existing_resource(self):
+        """
+        Tests harvesting a new file which was not harvested before. Should create a new resource
+        and copy some data from the existing one.
+        """
         dataset = data.dataset()
         data.resource(dataset=dataset)
 
@@ -97,6 +101,45 @@ class TestSBBFTPHarvester(object):
         # the new resource copies the description from the existing resource
         assert_equal(r1['description']['de'], 'AAAResource Desc')
         assert_equal(r2['description']['de'], 'AAAResource Desc')
+
+    def test_existing_resource_same_filename(self):
+        """
+        Tests harvesting a new file which was not harvested before but manually uploaded to ckan.
+        Should copy the data from the old resource and delete the old resource.
+        """
+        dataset = data.dataset()
+        data.resource(dataset=dataset, filename=data.filename)
+
+        MockFTPHelper.filesystem = self.get_filesystem()
+        self.run_harvester()
+
+        dataset = self.get_dataset(data.dataset_name)
+
+        assert_equal(len(dataset['resources']), 1)
+        resource = dataset['resources'][0]
+
+        assert_equal(resource['title']['de'], 'AAAResource')
+        assert_equal(resource['description']['de'], 'AAAResource Desc')
+
+    def test_update_version(self):
+        pass
+
+    def test_update_revision(self):
+        # test if resource was deleted, but file and datastore table still exists
+        pass
+
+    def test_update_version_regex(self):
+        pass
+
+    def test_update_revision_regex(self):
+        pass
+
+    # cleanup tests
+    def test_max_resources(self):
+        pass
+
+    def test_max_revisions(self):
+        pass
 
     def _cleanup(self):
         model.repo.rebuild_db()  # clear database
