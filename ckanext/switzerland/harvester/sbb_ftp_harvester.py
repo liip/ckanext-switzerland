@@ -522,7 +522,7 @@ class SBBFTPHarvester(HarvesterBase):
         # ------------------------------------------------------
         # 3: Add finalizer task to queue
         obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
-        obj.content = json.dumps({'type': 'finalizer', 'tempdir': local_path})
+        obj.content = json.dumps({'type': 'finalizer', 'tempdir': tmpdirbase})
         obj.save()
         object_ids.append(obj.id)
 
