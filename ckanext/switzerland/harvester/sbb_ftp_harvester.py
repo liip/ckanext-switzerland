@@ -480,18 +480,29 @@ class SBBFTPHarvester(HarvesterBase):
             .limit(1).first()
         if previous_job and not previous_job.gather_errors and previous_job.gather_started:
             # optional 'force_all' config setting can be used to always download all files
-            if self.config and not self.config.get('force_all', False):
-                # Request only the resources modified since last harvest job
-                for f in filelist[:]:
-                    modified_date = modified_dates.get(f)
-                    if modified_date and modified_date < previous_job.gather_started:
-                        # do not run the harvest for this file
-                        filelist.remove(f)
+            force_all = self.config.get('force_all', False)
 
-                if not len(filelist):
-                    log.info('No files have been updated on the ftp server since the last harvest job')
-                    return []  # no files to harvest this time
-        # ------------------------------------------------------
+            if not force_all:
+                try:
+                    existing_dataset = self._get_dataset()
+                    existing_resources = map(lambda r: os.path.basename(r['url']), existing_dataset['resources'])
+                    # Request only the resources modified since last harvest job
+                    for f in filelist[:]:
+                        modified_date = modified_dates.get(f)
+                        # skip file if its older than last harvester run date and it actually exists on the dataset
+                        # only skip when file was already downloaded once
+                        if modified_date and modified_date < previous_job.gather_started and \
+                                munge_name(os.path.basename(f)) in existing_resources:
+                            # do not run the harvest for this file
+                            filelist.remove(f)
+
+                    if not len(filelist):
+                        log.info('No files have been updated on the ftp server since the last harvest job')
+                        return []  # no files to harvest this time
+                except NotFound:  # dataset does not exist yet, download all files
+                    pass
+
+            # ------------------------------------------------------
 
         # ------------------------------------------------------
         # 2: download all resources
