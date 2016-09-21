@@ -77,17 +77,12 @@ class TestSBBFTPHarvester(object):
         with assert_raises(NotFound):
             get_action('package_show')({}, {'id': munge_name(data.dataset_name)})
 
-
-
-    """
     def test_existing_resource(self):
         dataset = data.dataset()
         data.resource(dataset=dataset)
-        factories.Resource(dataset=dataset['id'], identifier='AAAResource',
-                           title={'de': 'AAAResource', 'en': 'AAAResource', 'fr': 'AAAResource',
-                                  'it': 'AAAResource'},
-                           description={'de': 'AAAResource Desc', 'en': 'AAAResource Desc',
-                                        'fr': 'AAAResource Desc', 'it': 'AAAResource Desc'})
+
+        MockFTPHelper.filesystem = self.get_filesystem()
+        self.run_harvester()
 
         dataset = self.get_dataset(data.dataset_name)
 
@@ -95,17 +90,13 @@ class TestSBBFTPHarvester(object):
         r1 = dataset['resources'][0]
         r2 = dataset['resources'][1]
 
-        assert_equal(r1['title']['de'], 'AAAResource')
-        assert_equal(r2['title']['de'], data.filename)
+        # resources are sorted in descending order
+        assert_equal(r1['title']['de'], data.filename)  # the new resource gets a new name
+        assert_equal(r2['title']['de'], 'AAAResource')
+
+        # the new resource copies the description from the existing resource
         assert_equal(r1['description']['de'], 'AAAResource Desc')
         assert_equal(r2['description']['de'], 'AAAResource Desc')
-    """
-
-    def test_update_revision(self):
-        pass
-
-    def test_update_version(self):
-        pass
 
     def _cleanup(self):
         model.repo.rebuild_db()  # clear database

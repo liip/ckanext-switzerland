@@ -32,4 +32,14 @@ def dataset(slug=None):
 
 
 def resource(dataset):
-    pass
+    factories.Resource(package_id=dataset['id'],
+                       identifier='AAAResource',
+                       title={'de': 'AAAResource', 'en': 'AAAResource', 'fr': 'AAAResource',
+                              'it': 'AAAResource'},
+                       description={'de': 'AAAResource Desc', 'en': 'AAAResource Desc',
+                                    'fr': 'AAAResource Desc', 'it': 'AAAResource Desc'},
+                       state='active',
+                       rights='Other (Open)',
+                       license='Other (Open)',
+                       coverage='Coverage',
+                       url='http://ogdch.dev/dataset/testdataset/resource/download/testresourcefile.csv')
