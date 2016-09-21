@@ -121,6 +121,24 @@ class TestSBBFTPHarvester(object):
         assert_equal(resource['title']['de'], 'AAAResource')
         assert_equal(resource['description']['de'], 'AAAResource Desc')
 
+    def test_updated_file_before_last_harvester_run(self):
+        """
+        When modified date of file is older than the last harvester run date, the file should not be harvested again,
+        except when the file is missing in the dataset, that is what we are testing here.
+        """
+        filesystem = self.get_filesystem()
+        MockFTPHelper.filesystem = filesystem
+        self.run_harvester()
+
+        path = os.path.join(data.environment, data.folder, 'NewFile')
+        filesystem.setcontents(path, data.dataset_data)
+        filesystem.settimes(path, modified_time=datetime(2000, 1, 1))
+        self.run_harvester()
+
+        dataset = self.get_dataset(data.dataset_name)
+
+        assert_equal(len(dataset['resources']), 2)
+
     def test_update_version(self):
         pass
 
