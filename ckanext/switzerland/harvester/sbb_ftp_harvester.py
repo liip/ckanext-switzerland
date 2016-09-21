@@ -908,6 +908,7 @@ class SBBFTPHarvester(HarvesterBase):
 
             # delete the old version of the resource
             if old_resource_id:
+                log.info('Deleting old resource: %s', old_resource_id)
                 get_action('resource_delete')(context, {'id': old_resource_id})
 
             log.info("Successfully harvested file %s" % f)
