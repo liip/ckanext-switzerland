@@ -15,6 +15,14 @@ table.
 # import traceback
 import cgi
 import logging
+import os
+import ftplib  # for errors only
+import tempfile
+import time
+from datetime import datetime
+import shutil
+import re
+from simplejson.scanner import JSONDecodeError
 
 from ckan import model
 from ckan.model import Session
@@ -23,20 +31,14 @@ from ckan.logic import get_action, check_access
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename, munge_name
 from ckan.lib import helpers
-from ckanext.harvest.harvesters.base import HarvesterBase
+
 from pylons import config as ckanconf
+from sqlalchemy.sql import update, bindparam
 
-import os
-import ftplib  # for errors only
-import tempfile
-import time
-from datetime import datetime
-import shutil
-import re
-
+from ckanext.harvest.harvesters.base import HarvesterBase
+from ckanext.harvest.model import harvest_object_table
 from ckanext.harvest.model import HarvestJob, HarvestObject
 
-from simplejson.scanner import JSONDecodeError
 
 from ftp_helper import FTPHelper
 
@@ -783,14 +785,6 @@ class SBBFTPHarvester(HarvesterBase):
             self._save_object_error('Could not update or create package: %s' % self.harvester_name, harvest_object,
                                     stage)
             return False
-
-        # TODO
-        # ---------------------------------------------
-        # associate the harvester with the dataset
-        harvest_object.guid = dataset['id']
-        harvest_object.package_id = dataset['id']
-        # TODO: set the source (?)
-        # ---------------------------------------------
 
         # =======================================================================
         # resource
