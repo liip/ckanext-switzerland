@@ -666,7 +666,12 @@ class SBBFTPHarvester(HarvesterBase):
         self.config = json.loads(harvest_object.job.source.config)
 
         if obj['type'] == 'finalizer':
-            self.finalize(obj['tempdir'])
+            try:
+                self.finalize(obj['tempdir'])
+            except Exception as ex:
+                log.error('Failed to run finalize task: %s', unicode(ex))
+                self._save_object_error('Failed to run finalize task: {}'.format(unicode(ex)))
+                return False
             return True
 
         f = obj.get('file')
