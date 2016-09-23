@@ -18,7 +18,7 @@ from pylons import config as ckanconf
 
 # The classes to test
 # -----------------------------------------------------------------------
-from ckanext.switzerland.ftp.FTPHelper import FTPHelper
+from ckanext.switzerland.harvester.ftp_helper import FTPHelper
 # -----------------------------------------------------------------------
 
 
