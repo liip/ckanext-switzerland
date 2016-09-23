@@ -13,6 +13,8 @@ table.
 """
 
 # import traceback
+import traceback
+
 import cgi
 import logging
 import os
@@ -33,10 +35,8 @@ from ckan.lib.munge import munge_filename, munge_name
 from ckan.lib import helpers
 
 from pylons import config as ckanconf
-from sqlalchemy.sql import update, bindparam
 
 from ckanext.harvest.harvesters.base import HarvesterBase
-from ckanext.harvest.model import harvest_object_table
 from ckanext.harvest.model import HarvestJob, HarvestObject
 
 
@@ -405,6 +405,13 @@ class SBBFTPHarvester(HarvesterBase):
     # =======================================================================
 
     def gather_stage(self, harvest_job):
+        try:
+            return self._gather_stage(harvest_job)
+        except:
+            self._save_gather_error('Gather stage failed: {}'.format(traceback.format_exc()), harvest_job)
+            return []
+
+    def _gather_stage(self, harvest_job):
         """
         Dummy stage that launches the next phase
 
@@ -535,6 +542,13 @@ class SBBFTPHarvester(HarvesterBase):
     # =======================================================================
 
     def fetch_stage(self, harvest_object):
+        try:
+            return self._fetch_stage(harvest_object)
+        except:
+            self._save_object_error('Fetch stage failed: {}'.format(traceback.format_exc()), harvest_object, 'Fetch')
+            return False
+
+    def _fetch_stage(self, harvest_object):
         """
         Fetching of resources. Runs once for each gathered resource.
 
@@ -551,14 +565,14 @@ class SBBFTPHarvester(HarvesterBase):
         if not harvest_object or not harvest_object.content:
             log.error('No harvest object received')
             self._save_object_error('No harvest object received', harvest_object, stage)
-            return None
+            return False
 
         try:
             obj = json.loads(harvest_object.content)
         except JSONDecodeError as e:
             log.error('Invalid harvest object: %s', harvest_object.content)
             self._save_object_error('Unable to decode harvester info: %s' % str(e), harvest_object.content, stage)
-            return None
+            return False
 
         if obj['type'] != 'file':
             return True
@@ -567,21 +581,21 @@ class SBBFTPHarvester(HarvesterBase):
         f = obj.get('file')
         if not f:
             self._save_object_error('No file to harvest: %s' % harvest_object.content, harvest_object, stage)
-            return None
+            return False
 
         # the folder where the file is to be stored
         tmpfolder = obj.get('workingdir')
         if not tmpfolder:
             self._save_object_error('No tmpfolder received from gather step: %s' % harvest_object.content,
                                     harvest_object, stage)
-            return None
+            return False
 
         # the folder where the file is to be stored
         remotefolder = obj.get('remotefolder')
         if not remotefolder:
             self._save_object_error('No remotefolder received from gather step: %s' % harvest_object.content,
                                     harvest_object, stage)
-            return None
+            return False
 
         log.info("Remote directory: %s", remotefolder)
         log.info("Local directory: %s", tmpfolder)
@@ -605,17 +619,17 @@ class SBBFTPHarvester(HarvesterBase):
 
                 if status != '226 Transfer complete':
                     self._save_object_error('Download error for file %s: %s' % (f, str(status)), harvest_object, stage)
-                    return None
+                    return False
 
         except ftplib.all_errors as e:
             self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
             self.cleanup_after_error(tmpfolder)
-            return None
+            return False
 
         except Exception as e:
             self._save_object_error('An error occurred: %s' % e, harvest_object, stage)
             self.cleanup_after_error(tmpfolder)
-            return None
+            return False
 
         # store the info for the next step
         retobj = {
@@ -635,6 +649,13 @@ class SBBFTPHarvester(HarvesterBase):
     # =======================================================================
 
     def import_stage(self, harvest_object):
+        try:
+            return self._import_stage(harvest_object)
+        except:
+            self._save_object_error('Import stage failed: {}'.format(traceback.format_exc()), harvest_object, 'Import')
+            return False
+
+    def _import_stage(self, harvest_object):
         """
         Importing the fetched files into CKAN storage.
         Runs once for each fetched resource.
@@ -660,31 +681,26 @@ class SBBFTPHarvester(HarvesterBase):
         except JSONDecodeError as e:
             log.error('Invalid harvest object: %s', harvest_object)
             self._save_object_error('Unable to decode harvester info: %s' % str(e), harvest_object, stage)
-            return None
+            return False
 
         # set harvester config
         self.config = json.loads(harvest_object.job.source.config)
 
         if obj['type'] == 'finalizer':
-            try:
-                self.finalize(obj['tempdir'])
-            except Exception as ex:
-                log.error('Failed to run finalize task: %s', unicode(ex))
-                self._save_object_error('Failed to run finalize task: {}'.format(unicode(ex)))
-                return False
+            self.finalize(obj['tempdir'])
             return True
 
         f = obj.get('file')
         if not f:
             log.error('Invalid file key in harvest object: %s' % obj)
             self._save_object_error('No file to import', harvest_object, stage)
-            return None
+            return False
 
         tmpfolder = obj.get('tmpfolder')
         if not tmpfolder:
             log.error('invalid tmpfolder in harvest object: %s' % obj)
             self._save_object_error('Could not get path of temporary folder: %s' % tmpfolder, harvest_object, stage)
-            return None
+            return False
 
         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
 
