@@ -15,6 +15,7 @@ import ckan.model as model
 
 from ckanext.harvest.tests.factories import HarvestSourceObj, HarvestJobObj
 from ckanext.harvest.tests.lib import run_harvest_job
+from ckanext.harvest import model as harvester_model
 
 from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
 from ckanext.switzerland.tests.helpers.mock_ftphelper import MockFTPHelper
@@ -28,23 +29,31 @@ class TestSBBFTPHarvester(object):
     """
     Integration test for SBBFTPHarvester
     """
-    def run_harvester(self):
+    def run_harvester(self, force_all=False):
         self.user = data.user()
         self.organization = data.organization(self.user)
 
         harvester = SBBFTPHarvester()
 
-        source = HarvestSourceObj(url='http://example.com/harvest', config=json.dumps({
+        config = {
             'dataset': data.dataset_name,
             'environment': data.environment,
             'folder': data.folder,
-        }), source_type=harvester.info()['name'], owner_org=self.organization['id'])
+        }
+        if force_all:
+            config['force_all'] = True
+
+        source = HarvestSourceObj(url='http://example.com/harvest', config=json.dumps(config),
+                                  source_type=harvester.info()['name'], owner_org=self.organization['id'])
 
         job = HarvestJobObj(source=source, run=False)
         run_harvest_job(job, harvester)
 
     def get_dataset(self, name):
         return get_action('ogdch_dataset_by_identifier')({}, {'identifier': name})
+
+    def get_package(self, name):
+        return model.Package.get(self.get_dataset(name)['id'])
 
     def get_filesystem(self):
         fs = MemoryFS()
@@ -120,6 +129,39 @@ class TestSBBFTPHarvester(object):
 
         assert_equal(resource['title']['de'], 'AAAResource')
         assert_equal(resource['description']['de'], 'AAAResource Desc')
+
+    def test_skip_already_harvested_file(self):
+        """
+        When modified date of file is older than the last harvester run date, the file should not be harvested again
+        """
+        MockFTPHelper.filesystem = self.get_filesystem()
+        self.run_harvester()
+        self.run_harvester()
+
+        assert_equal(harvester_model.HarvestSource.count(), 1)
+        assert_equal(harvester_model.HarvestJob.count(), 2)
+
+        package = self.get_package(data.dataset_name)
+
+        assert_equal(len(package.resources), 1)
+        assert_equal(len(package.resources_all), 1)
+
+    def test_force_all(self):
+        """
+        When modified date of file is older than the last harvester run date, the file should not be harvested again
+        force_all overrides this mechanism and reharvests all files on the ftp server.
+        """
+        MockFTPHelper.filesystem = self.get_filesystem()
+        self.run_harvester(force_all=True)
+        self.run_harvester(force_all=True)
+
+        assert_equal(harvester_model.HarvestSource.count(), 1)
+        assert_equal(harvester_model.HarvestJob.count(), 2)
+
+        package = self.get_package(data.dataset_name)
+
+        assert_equal(len(package.resources), 1)
+        assert_equal(len(package.resources_all), 2)
 
     def test_updated_file_before_last_harvester_run(self):
         """
