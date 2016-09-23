@@ -211,8 +211,6 @@ class SBBFTPHarvester(HarvesterBase):
 
         :param package_dict: Package metadata
         :type package_dict: dict
-        :param context: CKAN context
-        :type context: dict
 
         :returns: Package dictionary
         :rtype: dict
@@ -448,7 +446,6 @@ class SBBFTPHarvester(HarvesterBase):
                 ftplibfolder = ftph.get_top_folder()
 
                 # set base directory of the tmp folder
-                local_path = ftph.get_local_path()
                 tmpdirbase = os.path.join(ftph.get_local_path(), ftplibfolder.strip('/'), remotefolder.lstrip('/'))
                 tempfile.tempdir = tmpdirbase
 
