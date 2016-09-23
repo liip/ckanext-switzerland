@@ -496,7 +496,7 @@ class SBBFTPHarvester(HarvesterBase):
                         # skip file if its older than last harvester run date and it actually exists on the dataset
                         # only skip when file was already downloaded once
                         if modified_date and modified_date < previous_job.gather_started and \
-                                munge_name(os.path.basename(f)) in existing_resources:
+                                munge_filename(os.path.basename(f)) in existing_resources:
                             # do not run the harvest for this file
                             filelist.remove(f)
 
