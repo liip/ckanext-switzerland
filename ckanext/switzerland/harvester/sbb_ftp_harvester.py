@@ -405,7 +405,7 @@ class SBBFTPHarvester(HarvesterBase):
     def gather_stage(self, harvest_job):
         try:
             return self._gather_stage(harvest_job)
-        except:
+        except Exception:
             self._save_gather_error('Gather stage failed: {}'.format(traceback.format_exc()), harvest_job)
             return []
 
@@ -541,7 +541,7 @@ class SBBFTPHarvester(HarvesterBase):
     def fetch_stage(self, harvest_object):
         try:
             return self._fetch_stage(harvest_object)
-        except:
+        except Exception:
             self._save_object_error('Fetch stage failed: {}'.format(traceback.format_exc()), harvest_object, 'Fetch')
             return False
 
@@ -648,7 +648,7 @@ class SBBFTPHarvester(HarvesterBase):
     def import_stage(self, harvest_object):
         try:
             return self._import_stage(harvest_object)
-        except:
+        except Exception:
             self._save_object_error('Import stage failed: {}'.format(traceback.format_exc()), harvest_object, 'Import')
             return False
 
