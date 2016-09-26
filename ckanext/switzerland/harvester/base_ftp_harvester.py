@@ -371,8 +371,8 @@ class BaseFTPHarvester(HarvesterBase):
                 break
         return resource_meta
 
-    def _get_dataset(self):
-        return get_action('ogdch_dataset_by_identifier')({}, {'identifier': self.config['dataset']})
+    def _get_dataset(self, dataset):
+        return get_action('ogdch_dataset_by_identifier')({}, {'identifier': dataset})
 
     def _get_mimetypes(self, filename):
         na, ext = os.path.splitext(filename)
@@ -503,7 +503,8 @@ class BaseFTPHarvester(HarvesterBase):
         retobj = {
             'type': 'file',
             'file': targetfile,
-            'tmpfolder': tmpfolder
+            'tmpfolder': tmpfolder,
+            'dataset': obj['dataset'],
         }
 
         # Save the directory listing and other info in the HarvestObject
@@ -555,7 +556,7 @@ class BaseFTPHarvester(HarvesterBase):
         self.config = json.loads(harvest_object.job.source.config)
 
         if obj['type'] == 'finalizer':
-            self.finalize(obj['tempdir'])
+            self.finalize(obj)
             return True
 
         f = obj.get('file')
@@ -584,7 +585,7 @@ class BaseFTPHarvester(HarvesterBase):
             # use the existing package dictionary (if it exists)
             # -----------------------------------------------------------------------
 
-            dataset = self._get_dataset()
+            dataset = self._get_dataset(obj['dataset'])
             log.info("Using existing package with id %s", str(dataset.get('id')))
 
             # update version of package
@@ -603,8 +604,8 @@ class BaseFTPHarvester(HarvesterBase):
             # add the metadata from the harvester
 
             package_dict = {
-                'name': munge_name(self.config['dataset']),
-                'identifier': self.config['dataset']
+                'name': munge_name(obj['dataset']),
+                'identifier': obj['dataset']
             }
 
             package_dict = self._add_harvester_metadata(package_dict)
@@ -612,10 +613,10 @@ class BaseFTPHarvester(HarvesterBase):
             # title of the package
             if 'title' not in package_dict:
                 package_dict['title'] = {
-                    "de": self.config['dataset'],
-                    "en": self.config['dataset'],
-                    "fr": self.config['dataset'],
-                    "it": self.config['dataset']
+                    "de": obj['dataset'],
+                    "en": obj['dataset'],
+                    "fr": obj['dataset'],
+                    "it": obj['dataset']
                 }
             # for DCAT schema - same info as in the title
             if 'display_name' not in package_dict:
@@ -846,7 +847,7 @@ class BaseFTPHarvester(HarvesterBase):
         ordered_resources.sort(key=lambda r: r['identifier'], reverse=True)
         return ordered_resources, unmatched_resources
 
-    def finalize(self, tempdir):
+    def finalize(self, harvest_object):
         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
 
         log.info('Running finalizing tasks:')
@@ -854,7 +855,7 @@ class BaseFTPHarvester(HarvesterBase):
         # ----------------------------------------------------------------------------
         # delete ftp temp directory
         log.info('Deleting temp directory')
-        self.remove_tmpfolder(tempdir)
+        self.remove_tmpfolder(harvest_object['tempdir'])
 
         # ----------------------------------------------------------------------------
         # Deleting old resources, generate permalink, order resources:
@@ -868,7 +869,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         # ----------------------------------------------------------------------------
         # reorder resources
-        package = self._get_dataset()
+        package = self._get_dataset(harvest_object['dataset'])
 
         ordered_resources, unmatched_resources = self._get_ordered_resources(package)
 

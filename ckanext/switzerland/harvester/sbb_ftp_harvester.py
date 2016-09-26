@@ -96,7 +96,7 @@ class SBBFTPHarvester(BaseFTPHarvester):
 
             if not force_all:
                 try:
-                    existing_dataset = self._get_dataset()
+                    existing_dataset = self._get_dataset(self.config['dataset'])
                     existing_resources = map(lambda r: os.path.basename(r['url']), existing_dataset['resources'])
                     # Request only the resources modified since last harvest job
                     for f in filelist[:]:
@@ -125,7 +125,8 @@ class SBBFTPHarvester(BaseFTPHarvester):
                 'type': 'file',
                 'file': f,
                 'workingdir': workingdir,
-                'remotefolder': remotefolder
+                'remotefolder': remotefolder,
+                'dataset': self.config['dataset'],
             })
             # save it for the next step
             obj.save()
@@ -134,7 +135,7 @@ class SBBFTPHarvester(BaseFTPHarvester):
         # ------------------------------------------------------
         # 3: Add finalizer task to queue
         obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
-        obj.content = json.dumps({'type': 'finalizer', 'tempdir': tmpdirbase})
+        obj.content = json.dumps({'type': 'finalizer', 'tempdir': tmpdirbase, 'dataset': self.config['dataset']})
         obj.save()
         object_ids.append(obj.id)
 
