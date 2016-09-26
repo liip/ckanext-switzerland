@@ -1,4 +1,5 @@
 import shutil
+from unittest import expectedFailure
 
 import os
 import json
@@ -81,10 +82,16 @@ class TestSBBFTPHarvester(object):
         with open(path) as f:
             assert_equal(f.read(), resource_data)
 
-    def assert_resource_deleted(self, resource_obj):
+    def assert_resource(self, resource_obj, exists):
         resource = resource_dictize(resource_obj, {'model': model})
         path = uploader.ResourceUpload(resource).get_path(resource_obj.id)
-        assert_equal(os.path.exists(path), False)
+        assert_equal(os.path.exists(path), exists)
+
+    def assert_resource_exists(self, resource_obj):
+        self.assert_resource(resource_obj, True)
+
+    def assert_resource_deleted(self, resource_obj):
+        self.assert_resource(resource_obj, False)
 
     def test_simple(self):
         MockFTPHelper.filesystem = self.get_filesystem()
@@ -363,6 +370,44 @@ class TestSBBFTPHarvester(object):
         for resource in package.resources_all:
             if resource.extras['identifier'] == '20160901.csv':
                 self.assert_resource_deleted(resource)
+            else:
+                self.assert_resource_exists(resource)
+
+    @expectedFailure
+    def test_max_resources_revisions(self):
+        """
+        there are multiple revisions of file 20160901.csv, all of them should be deleted
+        """
+        filesystem = self.get_filesystem(filename='20160901.csv')
+        MockFTPHelper.filesystem = filesystem
+        self.run_harvester(max_resources=3)
+
+        path = os.path.join(data.environment, data.folder, '20160901.csv')
+        filesystem.setcontents(path, data.dataset_content_2)
+        filesystem.settimes(path, modified_time=datetime.now())
+        path = os.path.join(data.environment, data.folder, '20160902.csv')
+        filesystem.setcontents(path, data.dataset_content_3)
+        path = os.path.join(data.environment, data.folder, '20160903.csv')
+        filesystem.setcontents(path, data.dataset_content_3)
+        self.run_harvester(max_resources=3)
+
+        package = self.get_package()
+        assert_equal(len(package.resources), 3)
+        assert_equal(len(package.resources_all), 4)
+
+        path = os.path.join(data.environment, data.folder, '20160904.csv')
+        filesystem.setcontents(path, data.dataset_content_3)
+        self.run_harvester(max_resources=3)
+
+        package = self.get_package()
+        assert_equal(len(package.resources), 3)
+        assert_equal(len(package.resources_all), 5)
+
+        for resource in package.resources_all:
+            if resource.extras['identifier'] == '20160901.csv':
+                self.assert_resource_deleted(resource)
+            else:
+                self.assert_resource_exists(resource)
 
     def test_max_revisions(self):
         pass
