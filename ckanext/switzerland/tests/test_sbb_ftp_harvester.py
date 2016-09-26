@@ -32,6 +32,7 @@ class TestSBBFTPHarvester(object):
     Integration test for SBBFTPHarvester
     """
     def run_harvester(self, force_all=False, resource_regex=None):
+        data.harvest_user()
         self.user = data.user()
         self.organization = data.organization(self.user)
 

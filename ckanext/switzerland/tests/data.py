@@ -1,3 +1,5 @@
+from paste.registry import Registry
+from ckan import model
 from ckan.lib.munge import munge_name, munge_filename
 from ckan.tests import factories
 
@@ -12,6 +14,19 @@ dataset_content_3 = 'Year;Data\n2013;1\n2014;2;2015;3\n'
 
 def user():
     return factories.User()
+
+
+def harvest_user():
+    factories.User(id='harvest', sysadmin=True)
+
+    # setup the pylons context object c, required by datapusher
+    registry = Registry()
+    registry.prepare()
+    import pylons
+    c = pylons.util.AttribSafeContextObj()
+    registry.register(pylons.c, c)
+    pylons.c.user = 'harvest'
+    pylons.c.userobj = model.User.get('harvest')
 
 
 def organization(user):
