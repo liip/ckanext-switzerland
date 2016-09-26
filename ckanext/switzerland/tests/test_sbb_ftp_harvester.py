@@ -29,6 +29,7 @@ from fs.memoryfs import MemoryFS
 
 
 @patch('ckanext.switzerland.harvester.sbb_ftp_harvester.FTPHelper', MockFTPHelper)
+@patch('ckanext.switzerland.harvester.base_ftp_harvester.FTPHelper', MockFTPHelper)
 class TestSBBFTPHarvester(object):
     """
     Integration test for SBBFTPHarvester
