@@ -51,10 +51,10 @@ class TestSBBFTPHarvester(object):
         job = HarvestJobObj(source=source, run=False)
         run_harvest_job(job, harvester)
 
-    def get_dataset(self, name):
+    def get_dataset(self, name=data.dataset_name):
         return get_action('ogdch_dataset_by_identifier')({}, {'identifier': name})
 
-    def get_package(self, name):
+    def get_package(self, name=data.dataset_name):
         return model.Package.get(self.get_dataset(name)['id'])
 
     def get_filesystem(self, filename=data.filename):
@@ -76,7 +76,7 @@ class TestSBBFTPHarvester(object):
         MockFTPHelper.filesystem = self.get_filesystem()
         self.run_harvester()
 
-        dataset = self.get_dataset(data.dataset_name)
+        dataset = self.get_dataset()
 
         assert_equal(len(dataset['resources']), 1)
         assert_equal(dataset['resources'][0]['identifier'], data.filename)
@@ -87,7 +87,7 @@ class TestSBBFTPHarvester(object):
         MockFTPHelper.filesystem = self.get_filesystem()
         self.run_harvester()
 
-        dataset1 = self.get_dataset(data.dataset_name)
+        dataset1 = self.get_dataset()
         dataset2 = get_action('package_show')({}, {'id': 'testslug-other-than-munge-name'})
 
         assert_equal(dataset1['id'], dataset2['id'])
@@ -105,7 +105,7 @@ class TestSBBFTPHarvester(object):
         MockFTPHelper.filesystem = self.get_filesystem()
         self.run_harvester()
 
-        dataset = self.get_dataset(data.dataset_name)
+        dataset = self.get_dataset()
 
         assert_equal(len(dataset['resources']), 2)
         r1 = dataset['resources'][0]
@@ -130,7 +130,7 @@ class TestSBBFTPHarvester(object):
         MockFTPHelper.filesystem = self.get_filesystem()
         self.run_harvester()
 
-        dataset = self.get_dataset(data.dataset_name)
+        dataset = self.get_dataset()
 
         assert_equal(len(dataset['resources']), 1)
         resource = dataset['resources'][0]
@@ -149,7 +149,7 @@ class TestSBBFTPHarvester(object):
         assert_equal(harvester_model.HarvestSource.count(), 1)
         assert_equal(harvester_model.HarvestJob.count(), 2)
 
-        package = self.get_package(data.dataset_name)
+        package = self.get_package()
 
         assert_equal(len(package.resources), 1)
         assert_equal(len(package.resources_all), 1)
@@ -166,7 +166,7 @@ class TestSBBFTPHarvester(object):
         assert_equal(harvester_model.HarvestSource.count(), 1)
         assert_equal(harvester_model.HarvestJob.count(), 2)
 
-        package = self.get_package(data.dataset_name)
+        package = self.get_package()
 
         assert_equal(len(package.resources), 1)
         assert_equal(len(package.resources_all), 2)
@@ -185,7 +185,7 @@ class TestSBBFTPHarvester(object):
         filesystem.settimes(path, modified_time=datetime(2000, 1, 1))
         self.run_harvester()
 
-        dataset = self.get_dataset(data.dataset_name)
+        dataset = self.get_dataset()
 
         assert_equal(len(dataset['resources']), 2)
 
@@ -194,7 +194,7 @@ class TestSBBFTPHarvester(object):
         MockFTPHelper.filesystem = filesystem
         self.run_harvester()
 
-        package = self.get_package(data.dataset_name)
+        package = self.get_package()
         assert_equal(len(package.resources), 1)
         assert_equal(len(package.resources_all), 1)
 
@@ -203,7 +203,7 @@ class TestSBBFTPHarvester(object):
 
         self.run_harvester()
 
-        package = self.get_package(data.dataset_name)
+        package = self.get_package()
 
         # none of the resources should be deleted
         assert_equal(len(package.resources), 2)
@@ -244,7 +244,7 @@ class TestSBBFTPHarvester(object):
 
         self.run_harvester()
 
-        package = self.get_package(data.dataset_name)
+        package = self.get_package()
 
         # there should be 3 resources now, 1 of them deleted
         assert_equal(len(package.resources), 2)
@@ -269,6 +269,7 @@ class TestSBBFTPHarvester(object):
         changed state:
         20160901.csv: content 1
         20160902.csv: content 3
+        => updated file should be on top including permalink pointing to it
         """
         filesystem = self.get_filesystem(filename='20160901.csv')
         MockFTPHelper.filesystem = filesystem
@@ -282,7 +283,7 @@ class TestSBBFTPHarvester(object):
 
         self.run_harvester()
 
-        package = self.get_package(data.dataset_name)
+        package = self.get_package()
 
         # there should be 3 resources now, 1 of them deleted
         assert_equal(len(package.resources), 2)
