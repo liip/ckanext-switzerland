@@ -1,98 +1,27 @@
-import shutil
+from datetime import datetime
 from unittest import expectedFailure
 
 import os
-import json
-
-from datetime import datetime
-
-from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.lib.munge import munge_name
+from ckan.logic import get_action, NotFound
+from ckanext.harvest import model as harvester_model
+from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
+from ckanext.switzerland.tests.helpers.mock_ftphelper import MockFTPHelper
 from mock import patch
 from nose.tools import assert_equal, assert_raises
 
-from ckan.logic import get_action, NotFound
-from ckan.lib import search
-import ckan.model as model
-import ckan.lib.uploader as uploader
-
-from ckanext.harvest.tests.factories import HarvestSourceObj, HarvestJobObj
-from ckanext.harvest.tests.lib import run_harvest_job
-from ckanext.harvest import model as harvester_model
-
-from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
-from ckanext.switzerland.tests.helpers.mock_ftphelper import MockFTPHelper
 from . import data
-
-
-from fs.memoryfs import MemoryFS
+from .base_ftp_harvester_tests import BaseFTPHarvesterTests
 
 
 @patch('ckanext.switzerland.harvester.sbb_ftp_harvester.FTPHelper', MockFTPHelper)
 @patch('ckanext.switzerland.harvester.base_ftp_harvester.FTPHelper', MockFTPHelper)
-class TestSBBFTPHarvester(object):
+class TestSBBFTPHarvester(BaseFTPHarvesterTests):
     """
     Integration test for SBBFTPHarvester
     """
-    def run_harvester(self, force_all=False, resource_regex=None, max_resources=None):
-        data.harvest_user()
-        self.user = data.user()
-        self.organization = data.organization(self.user)
 
-        harvester = SBBFTPHarvester()
-
-        config = {
-            'dataset': data.dataset_name,
-            'environment': data.environment,
-            'folder': data.folder,
-        }
-        if force_all:
-            config['force_all'] = True
-        if resource_regex:
-            config['resource_regex'] = resource_regex
-        if max_resources:
-            config['max_resources'] = max_resources
-
-        source = HarvestSourceObj(url='http://example.com/harvest', config=json.dumps(config),
-                                  source_type=harvester.info()['name'], owner_org=self.organization['id'])
-
-        job = HarvestJobObj(source=source, run=False)
-        run_harvest_job(job, harvester)
-
-        assert_equal(harvester_model.HarvestGatherError.count(), 0)
-        assert_equal(harvester_model.HarvestObjectError.count(), 0)
-
-    def get_dataset(self, name=data.dataset_name):
-        return get_action('ogdch_dataset_by_identifier')({}, {'identifier': name})
-
-    def get_package(self, name=data.dataset_name):
-        return model.Package.get(self.get_dataset(name)['id'])
-
-    def get_filesystem(self, filename=data.filename):
-        fs = MemoryFS()
-        fs.makedir(data.environment)
-        fs.makedir(os.path.join(data.environment, data.folder))
-        path = os.path.join(data.environment, data.folder, filename)
-        fs.setcontents(path, data.dataset_content_1)
-        fs.settimes(path, modified_time=datetime(2000, 1, 1))
-        return fs
-
-    def assert_resource_data(self, resource_id, resource_data):
-        resource = get_action('resource_show')({}, {'id': resource_id})
-        path = uploader.ResourceUpload(resource).get_path(resource_id)
-        with open(path) as f:
-            assert_equal(f.read(), resource_data)
-
-    def assert_resource(self, resource_obj, exists):
-        resource = resource_dictize(resource_obj, {'model': model})
-        path = uploader.ResourceUpload(resource).get_path(resource_obj.id)
-        assert_equal(os.path.exists(path), exists)
-
-    def assert_resource_exists(self, resource_obj):
-        self.assert_resource(resource_obj, True)
-
-    def assert_resource_deleted(self, resource_obj):
-        self.assert_resource(resource_obj, False)
+    harvester_class = SBBFTPHarvester
 
     def test_simple(self):
         MockFTPHelper.filesystem = self.get_filesystem()
@@ -412,15 +341,3 @@ class TestSBBFTPHarvester(object):
 
     def test_max_revisions(self):
         pass
-
-    def _cleanup(self):
-        model.repo.rebuild_db()  # clear database
-        search.clear_all()  # clear solr search index
-        if os.path.exists('/tmp/ckan_storage_path/'):
-            shutil.rmtree('/tmp/ckan_storage_path/')
-
-    def setUp(self):
-        self._cleanup()
-
-    def teardown(self):
-        self._cleanup()
