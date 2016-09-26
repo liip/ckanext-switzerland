@@ -559,6 +559,10 @@ class BaseFTPHarvester(HarvesterBase):
             self.finalize(obj)
             return True
 
+        if obj['type'] == 'remove_tempdir':
+            self.remove_tmpfolder(obj['tempdir'])
+            return True
+
         f = obj.get('file')
         if not f:
             log.error('Invalid file key in harvest object: %s' % obj)
@@ -851,12 +855,6 @@ class BaseFTPHarvester(HarvesterBase):
         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
 
         log.info('Running finalizing tasks:')
-
-        # ----------------------------------------------------------------------------
-        # delete ftp temp directory
-        log.info('Deleting temp directory')
-        self.remove_tmpfolder(harvest_object['tempdir'])
-
         # ----------------------------------------------------------------------------
         # Deleting old resources, generate permalink, order resources:
         # We do this by matching a regex, defined in the `resource_regex` key of the harvester json config,

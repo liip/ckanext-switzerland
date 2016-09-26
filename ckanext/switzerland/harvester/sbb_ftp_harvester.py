@@ -133,12 +133,16 @@ class SBBFTPHarvester(BaseFTPHarvester):
             object_ids.append(obj.id)
 
         # ------------------------------------------------------
-        # 3: Add finalizer task to queue
+        # 3: Add finalizer tasks to queue
         obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
-        obj.content = json.dumps({'type': 'finalizer', 'tempdir': tmpdirbase, 'dataset': self.config['dataset']})
+        obj.content = json.dumps({'type': 'remove_tempdir', 'tempdir': tmpdirbase})
         obj.save()
         object_ids.append(obj.id)
 
+        obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
+        obj.content = json.dumps({'type': 'finalizer', 'dataset': self.config['dataset']})
+        obj.save()
+        object_ids.append(obj.id)
         # ------------------------------------------------------
         # send the jobs to the gather queue
         return object_ids
