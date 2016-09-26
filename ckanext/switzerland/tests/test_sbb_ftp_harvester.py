@@ -31,7 +31,7 @@ class TestSBBFTPHarvester(object):
     """
     Integration test for SBBFTPHarvester
     """
-    def run_harvester(self, force_all=False):
+    def run_harvester(self, force_all=False, resource_regex=None):
         self.user = data.user()
         self.organization = data.organization(self.user)
 
@@ -44,6 +44,8 @@ class TestSBBFTPHarvester(object):
         }
         if force_all:
             config['force_all'] = True
+        if resource_regex:
+            config['resource_regex'] = resource_regex
 
         source = HarvestSourceObj(url='http://example.com/harvest', config=json.dumps(config),
                                   source_type=harvester.info()['name'], owner_org=self.organization['id'])
@@ -299,11 +301,28 @@ class TestSBBFTPHarvester(object):
         self.assert_resource_data(package.resources[0].id, data.dataset_content_3)
         self.assert_resource_data(package.resources[1].id, data.dataset_content_1)
 
-    def test_update_version_regex(self):
-        pass
+    def test_order_permalink_regex(self):
+        filesystem = self.get_filesystem(filename='20160901.csv')
+        MockFTPHelper.filesystem = filesystem
+        path = os.path.join(data.environment, data.folder, '20160902.csv')
+        filesystem.setcontents(path, data.dataset_content_2)
+        path = os.path.join(data.environment, data.folder, '1111Resource.csv')
+        filesystem.setcontents(path, data.dataset_content_3)
+        path = os.path.join(data.environment, data.folder, '9999Resource.csv')
+        filesystem.setcontents(path, data.dataset_content_3)
+        self.run_harvester(resource_regex='\d{8}.csv')
 
-    def test_update_revision_regex(self):
-        pass
+        package = self.get_package()
+
+        assert_equal(len(package.resources), 4)
+
+        assert_equal(package.resources[0].extras['identifier'], '9999Resource.csv')
+        assert_equal(package.resources[1].extras['identifier'], '1111Resource.csv')
+        assert_equal(package.resources[2].extras['identifier'], '20160902.csv')
+        assert_equal(package.resources[3].extras['identifier'], '20160901.csv')
+
+        assert_equal(package.permalink, 'http://ogdch.dev/dataset/{}/resource/{}/download/20160902.csv'.format(
+            package.id, package.resources[2].id))
 
     # cleanup tests
     def test_max_resources(self):
