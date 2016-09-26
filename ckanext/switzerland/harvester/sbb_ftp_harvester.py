@@ -1015,7 +1015,10 @@ class SBBFTPHarvester(HarvesterBase):
                 get_action('resource_patch')(context, {'id': resource['id'], 'clear_upload': True, })
 
                 # delete the datastore table
-                get_action('datastore_delete')(context, {'resource_id': resource['id'], 'force': True})
+                try:
+                    get_action('datastore_delete')(context, {'resource_id': resource['id'], 'force': True})
+                except NotFound:
+                    pass  # Sometimes importing the data into the datastore fails
 
                 # delete the resource itself
                 get_action('resource_delete')(context, {'id': resource['id']})
