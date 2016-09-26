@@ -260,9 +260,43 @@ class TestSBBFTPHarvester(object):
         self.assert_resource_data(package.resources[0].id, data.dataset_content_2)
         self.assert_resource_data(package.resources[1].id, data.dataset_content_3)
 
-    def test_update_revision(self):
-        # test if resource was deleted, but file and datastore table still exists
-        pass
+    def test_update_file_of_newest_version(self):
+        """
+        initial state:
+        20160901.csv: content 1
+        20160902.csv: content 2
+
+        changed state:
+        20160901.csv: content 1
+        20160902.csv: content 3
+        """
+        filesystem = self.get_filesystem(filename='20160901.csv')
+        MockFTPHelper.filesystem = filesystem
+        path = os.path.join(data.environment, data.folder, '20160902.csv')
+        filesystem.setcontents(path, data.dataset_content_2)
+        self.run_harvester()
+
+        path = os.path.join(data.environment, data.folder, '20160902.csv')
+        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.settimes(path, modified_time=datetime.now())
+
+        self.run_harvester()
+
+        package = self.get_package(data.dataset_name)
+
+        # there should be 3 resources now, 1 of them deleted
+        assert_equal(len(package.resources), 2)
+        assert_equal(len(package.resources_all), 3)
+
+        # order should be: newest file first
+        assert_equal(package.resources[0].extras['identifier'], '20160902.csv')
+        assert_equal(package.resources[1].extras['identifier'], '20160901.csv')
+
+        assert_equal(package.permalink, 'http://ogdch.dev/dataset/{}/resource/{}/download/20160902.csv'.format(
+            package.id, package.resources[0].id))
+
+        self.assert_resource_data(package.resources[0].id, data.dataset_content_3)
+        self.assert_resource_data(package.resources[1].id, data.dataset_content_1)
 
     def test_update_version_regex(self):
         pass
