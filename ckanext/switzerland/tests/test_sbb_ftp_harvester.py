@@ -5,6 +5,7 @@ import json
 
 from datetime import datetime
 
+from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.lib.munge import munge_name
 from mock import patch
 from nose.tools import assert_equal, assert_raises
@@ -31,7 +32,7 @@ class TestSBBFTPHarvester(object):
     """
     Integration test for SBBFTPHarvester
     """
-    def run_harvester(self, force_all=False, resource_regex=None):
+    def run_harvester(self, force_all=False, resource_regex=None, max_resources=None):
         data.harvest_user()
         self.user = data.user()
         self.organization = data.organization(self.user)
@@ -47,6 +48,8 @@ class TestSBBFTPHarvester(object):
             config['force_all'] = True
         if resource_regex:
             config['resource_regex'] = resource_regex
+        if max_resources:
+            config['max_resources'] = max_resources
 
         source = HarvestSourceObj(url='http://example.com/harvest', config=json.dumps(config),
                                   source_type=harvester.info()['name'], owner_org=self.organization['id'])
@@ -77,6 +80,11 @@ class TestSBBFTPHarvester(object):
         path = uploader.ResourceUpload(resource).get_path(resource_id)
         with open(path) as f:
             assert_equal(f.read(), resource_data)
+
+    def assert_resource_deleted(self, resource_obj):
+        resource = resource_dictize(resource_obj, {'model': model})
+        path = uploader.ResourceUpload(resource).get_path(resource_obj.id)
+        assert_equal(os.path.exists(path), False)
 
     def test_simple(self):
         MockFTPHelper.filesystem = self.get_filesystem()
@@ -330,7 +338,31 @@ class TestSBBFTPHarvester(object):
 
     # cleanup tests
     def test_max_resources(self):
-        pass
+        filesystem = self.get_filesystem(filename='20160901.csv')
+        MockFTPHelper.filesystem = filesystem
+        path = os.path.join(data.environment, data.folder, '20160902.csv')
+        filesystem.setcontents(path, data.dataset_content_2)
+        path = os.path.join(data.environment, data.folder, '20160903.csv')
+        filesystem.setcontents(path, data.dataset_content_3)
+        self.run_harvester(max_resources=3)
+
+        path = os.path.join(data.environment, data.folder, '20160904.csv')
+        filesystem.setcontents(path, data.dataset_content_3)
+
+        self.run_harvester(max_resources=3)
+
+        package = self.get_package()
+
+        assert_equal(len(package.resources), 3)
+        assert_equal(len(package.resources_all), 4)
+
+        assert_equal(package.resources[0].extras['identifier'], '20160904.csv')
+        assert_equal(package.resources[1].extras['identifier'], '20160903.csv')
+        assert_equal(package.resources[2].extras['identifier'], '20160902.csv')
+
+        for resource in package.resources_all:
+            if resource.extras['identifier'] == '20160901.csv':
+                self.assert_resource_deleted(resource)
 
     def test_max_revisions(self):
         pass
