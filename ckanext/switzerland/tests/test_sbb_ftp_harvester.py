@@ -53,6 +53,9 @@ class TestSBBFTPHarvester(object):
         job = HarvestJobObj(source=source, run=False)
         run_harvest_job(job, harvester)
 
+        assert_equal(harvester_model.HarvestGatherError.count(), 0)
+        assert_equal(harvester_model.HarvestObjectError.count(), 0)
+
     def get_dataset(self, name=data.dataset_name):
         return get_action('ogdch_dataset_by_identifier')({}, {'identifier': name})
 
