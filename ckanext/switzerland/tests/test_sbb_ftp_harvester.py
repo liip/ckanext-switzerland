@@ -12,6 +12,7 @@ from nose.tools import assert_equal, assert_raises
 from ckan.logic import get_action, NotFound
 from ckan.lib import search
 import ckan.model as model
+import ckan.lib.uploader as uploader
 
 from ckanext.harvest.tests.factories import HarvestSourceObj, HarvestJobObj
 from ckanext.harvest.tests.lib import run_harvest_job
@@ -20,6 +21,7 @@ from ckanext.harvest import model as harvester_model
 from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
 from ckanext.switzerland.tests.helpers.mock_ftphelper import MockFTPHelper
 from . import data
+
 
 from fs.memoryfs import MemoryFS
 
@@ -60,9 +62,15 @@ class TestSBBFTPHarvester(object):
         fs.makedir(data.environment)
         fs.makedir(os.path.join(data.environment, data.folder))
         path = os.path.join(data.environment, data.folder, filename)
-        fs.setcontents(path, data.dataset_data)
+        fs.setcontents(path, data.dataset_content_1)
         fs.settimes(path, modified_time=datetime(2000, 1, 1))
         return fs
+
+    def assert_resource_data(self, resource_id, resource_data):
+        resource = get_action('resource_show')({}, {'id': resource_id})
+        path = uploader.ResourceUpload(resource).get_path(resource_id)
+        with open(path) as f:
+            assert_equal(f.read(), resource_data)
 
     def test_simple(self):
         MockFTPHelper.filesystem = self.get_filesystem()
@@ -173,7 +181,7 @@ class TestSBBFTPHarvester(object):
         self.run_harvester()
 
         path = os.path.join(data.environment, data.folder, 'NewFile')
-        filesystem.setcontents(path, data.dataset_data)
+        filesystem.setcontents(path, data.dataset_content_1)
         filesystem.settimes(path, modified_time=datetime(2000, 1, 1))
         self.run_harvester()
 
@@ -182,7 +190,7 @@ class TestSBBFTPHarvester(object):
         assert_equal(len(dataset['resources']), 2)
 
     def test_update_version(self):
-        filesystem = self.get_filesystem('20160901.csv')
+        filesystem = self.get_filesystem(filename='20160901.csv')
         MockFTPHelper.filesystem = filesystem
         self.run_harvester()
 
@@ -191,7 +199,7 @@ class TestSBBFTPHarvester(object):
         assert_equal(len(package.resources_all), 1)
 
         path = os.path.join(data.environment, data.folder, '20160902.csv')
-        filesystem.setcontents(path, data.dataset_data)
+        filesystem.setcontents(path, data.dataset_content_2)
 
         self.run_harvester()
 
@@ -208,6 +216,9 @@ class TestSBBFTPHarvester(object):
         # permalink
         assert_equal(package.permalink, 'http://ogdch.dev/dataset/{}/resource/{}/download/20160902.csv'.format(
             package.id, package.resources[0].id))
+
+        self.assert_resource_data(package.resources[0].id, data.dataset_content_2)
+        self.assert_resource_data(package.resources[1].id, data.dataset_content_1)
 
     def test_update_versioned_revision(self):
         pass

@@ -5,7 +5,9 @@ environment = 'Test'
 folder = 'Dataset'
 filename = 'Didok.csv'
 dataset_name = 'Dataset'
-dataset_data = 'Year;data\n2013;1\n2014;2\n2015;3\n'
+dataset_content_1 = 'Year;data\n2013;1\n'
+dataset_content_2 = 'Year;Data\n2013;1\n2014;2\n'
+dataset_content_3 = 'Year;Data\n2013;1\n2014;2;2015;3\n'
 
 
 def user():
