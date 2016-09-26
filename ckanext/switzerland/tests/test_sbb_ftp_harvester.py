@@ -55,11 +55,11 @@ class TestSBBFTPHarvester(object):
     def get_package(self, name):
         return model.Package.get(self.get_dataset(name)['id'])
 
-    def get_filesystem(self):
+    def get_filesystem(self, filename=data.filename):
         fs = MemoryFS()
         fs.makedir(data.environment)
         fs.makedir(os.path.join(data.environment, data.folder))
-        path = os.path.join(data.environment, data.folder, data.filename)
+        path = os.path.join(data.environment, data.folder, filename)
         fs.setcontents(path, data.dataset_data)
         fs.settimes(path, modified_time=datetime(2000, 1, 1))
         return fs
@@ -182,6 +182,34 @@ class TestSBBFTPHarvester(object):
         assert_equal(len(dataset['resources']), 2)
 
     def test_update_version(self):
+        filesystem = self.get_filesystem('20160901.csv')
+        MockFTPHelper.filesystem = filesystem
+        self.run_harvester()
+
+        package = self.get_package(data.dataset_name)
+        assert_equal(len(package.resources), 1)
+        assert_equal(len(package.resources_all), 1)
+
+        path = os.path.join(data.environment, data.folder, '20160902.csv')
+        filesystem.setcontents(path, data.dataset_data)
+
+        self.run_harvester()
+
+        package = self.get_package(data.dataset_name)
+
+        # none of the resources should be deleted
+        assert_equal(len(package.resources), 2)
+        assert_equal(len(package.resources_all), 2)
+
+        # order should be: newest file first
+        assert_equal(package.resources[0].extras['identifier'], '20160902.csv')
+        assert_equal(package.resources[1].extras['identifier'], '20160901.csv')
+
+        # permalink
+        assert_equal(package.permalink, 'http://ogdch.dev/dataset/{}/resource/{}/download/20160902.csv'.format(
+            package.id, package.resources[0].id))
+
+    def test_update_versioned_revision(self):
         pass
 
     def test_update_revision(self):
