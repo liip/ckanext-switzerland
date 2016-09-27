@@ -30,7 +30,7 @@ class SBBFTPHarvester(BaseFTPHarvester):
         log.info('In %s FTPHarvester gather_stage' % self.harvester_name)  # harvest_job.source.url
 
         # set harvester config
-        self.config = json.loads(harvest_job.source.config)
+        self.config = self.load_config(harvest_job.source.config)
 
         modified_dates = {}
 
@@ -92,7 +92,7 @@ class SBBFTPHarvester(BaseFTPHarvester):
             .limit(1).first()
         if previous_job and not previous_job.gather_errors and previous_job.gather_started:
             # optional 'force_all' config setting can be used to always download all files
-            force_all = self.config.get('force_all', False)
+            force_all = self.config['force_all']
 
             if not force_all:
                 try:

@@ -32,6 +32,7 @@ from ckan.model import Session
 from ckanext.harvest.harvesters.base import HarvesterBase
 from pylons import config as ckanconf
 from simplejson.scanner import JSONDecodeError
+import voluptuous
 
 from ftp_helper import FTPHelper
 
@@ -184,18 +185,22 @@ class BaseFTPHarvester(HarvesterBase):
         """
         if not config_str:
             raise ValueError('Harvester Configuration is required')
-
-        config_obj = json.loads(config_str)
-
-        if 'force_all' in config_obj and not isinstance(config_obj['force_all'], bool):
-            raise ValueError('force_all must be boolean')
-
-        for key in ('environment', 'folder', 'dataset'):
-            if key not in config_obj:
-                raise ValueError('Configuration option {} if required'.format(key))
-            if not isinstance(config_obj[key], basestring):
-                raise ValueError('Configuration option {} must be a string'.format(key))
+        self.load_config(config_str)
         return config_str
+
+    def get_config_validation_schema(self):
+        return {
+            voluptuous.Required('environment'): basestring,
+            voluptuous.Required('folder'): basestring,
+            voluptuous.Required('dataset'): basestring,
+            voluptuous.Required('resource_regex', default='.*'): basestring,
+            voluptuous.Required('force_all', default=False): bool,
+            'max_resources': int,
+            'max_revisions': int,
+        }
+
+    def load_config(self, config_str):
+        return voluptuous.Schema(self.get_config_validation_schema())(json.loads(config_str))
 
     # tested
     def _add_harvester_metadata(self, package_dict):
@@ -553,7 +558,7 @@ class BaseFTPHarvester(HarvesterBase):
             return False
 
         # set harvester config
-        self.config = json.loads(harvest_object.job.source.config)
+        self.config = self.load_config(harvest_object.job.source.config)
 
         if obj['type'] == 'finalizer':
             self.finalize(obj)
@@ -839,7 +844,7 @@ class BaseFTPHarvester(HarvesterBase):
         unmatched_resources = []
 
         # get filename regex for permalink from harvester config or fallback to a catch-all
-        identifier_regex = self.config.get('resource_regex', '.*')
+        identifier_regex = self.config['resource_regex']
         for resource in package['resources']:
             log.info('Testing filename: %s', resource['identifier'])
             if re.match(identifier_regex, resource['identifier'], re.IGNORECASE):

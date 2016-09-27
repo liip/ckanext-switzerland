@@ -30,7 +30,7 @@ class TimetableHarvester(BaseFTPHarvester):
         log.info('In %s FTPHarvester gather_stage' % self.harvester_name)  # harvest_job.source.url
 
         # set harvester config
-        self.config = json.loads(harvest_job.source.config)
+        self.config = self.load_config(harvest_job.source.config)
 
         modified_dates = {}
 
