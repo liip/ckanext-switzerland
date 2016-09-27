@@ -21,7 +21,7 @@ from . import data
 class BaseFTPHarvesterTests(object):
     harvester_class = None
 
-    def run_harvester(self, force_all=False, resource_regex=None, max_resources=None):
+    def run_harvester(self, force_all=False, resource_regex=None, max_resources=None, dataset=data.dataset_name):
         data.harvest_user()
         self.user = data.user()
         self.organization = data.organization(self.user)
@@ -29,7 +29,7 @@ class BaseFTPHarvesterTests(object):
         harvester = self.harvester_class()
 
         config = {
-            'dataset': data.dataset_name,
+            'dataset': dataset,
             'environment': data.environment,
             'folder': data.folder,
         }
