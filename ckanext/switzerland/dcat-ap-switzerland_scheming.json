@@ -54,7 +54,7 @@
         "it": "Permalink"
       },
       "required": false,
-      "preset": "url"
+      "preset": "dataset_permalink"
     },
     {
       "field_name": "issued",

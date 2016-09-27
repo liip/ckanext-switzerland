@@ -88,6 +88,12 @@
       }
     },
     {
+      "preset_name": "dataset_permalink",
+      "values": {
+        "display_snippet": "dataset_permalink.html"
+      }
+    },
+    {
       "preset_name": "resource_format_autocomplete",
       "values": {
         "validators": "ignore_missing clean_format unicode",
