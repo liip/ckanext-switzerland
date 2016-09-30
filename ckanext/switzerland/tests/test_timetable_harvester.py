@@ -29,7 +29,6 @@ class TestTimetableHarvester(BaseFTPHarvesterTests):
     def test_multi_year(self):
         filesystem = self.get_filesystem(filename='FP2016_Jahresfahrplan.zip')
         MockFTPHelper.filesystem = filesystem
-        self.run_harvester(dataset='Timetable {year}', timetable_regex='FP(\d\d\d\d).*')
 
         path = os.path.join(data.environment, data.folder, 'FP2015_Jahresfahrplan.zip')
         filesystem.setcontents(path, data.dataset_content_3)
@@ -37,10 +36,12 @@ class TestTimetableHarvester(BaseFTPHarvesterTests):
         path = os.path.join(data.environment, data.folder, 'InvalidFile')
         filesystem.setcontents(path, data.dataset_content_2)
 
+        self.run_harvester(dataset='Timetable {year}', timetable_regex='FP(\d\d\d\d).*')
+
         dataset1 = self.get_dataset(name='Timetable 2016')
         assert_equal(len(dataset1['resources']), 1)
         self.assert_resource_data(dataset1['resources'][0]['id'], data.dataset_content_1)
 
         dataset2 = self.get_dataset(name='Timetable 2015')
         assert_equal(len(dataset2['resources']), 1)
-        self.assert_resource_data(dataset1['resources'][0]['id'], data.dataset_content_3)
+        self.assert_resource_data(dataset2['resources'][0]['id'], data.dataset_content_3)
