@@ -17,6 +17,23 @@ log = logging.getLogger(__name__)
 
 
 class SBBFTPHarvester(BaseFTPHarvester):
+    harvester_name = 'SBB FTP Harvester'
+
+    # tested
+    def info(self):
+        """
+        Return basic information about the harvester
+
+        :returns: Dictionary with basic information about the harvester
+        :rtype: dict
+        """
+        return {
+            'name': '%sharvest' % self.harvester_name.lower(),
+            'title': self.harvester_name,
+            'description': 'Fetches data from the SBB FTP Server',
+            'form_config_interface': 'Text'
+        }
+
     def gather_stage_impl(self, harvest_job):
         """
         Dummy stage that launches the next phase

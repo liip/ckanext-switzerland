@@ -2,14 +2,17 @@ import logging
 import ftplib  # for errors only
 import tempfile
 from datetime import datetime
+from operator import itemgetter
 
 import os
+import re
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
 from ckan.model import Session
 from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester
+import voluptuous
 
 from ftp_helper import FTPHelper
 
@@ -17,6 +20,27 @@ log = logging.getLogger(__name__)
 
 
 class TimetableHarvester(BaseFTPHarvester):
+    harvester_name = 'Timetable FTP Harvester'
+
+    # tested
+    def info(self):
+        """
+        Return basic information about the harvester
+
+        :returns: Dictionary with basic information about the harvester
+        :rtype: dict
+        """
+        return {
+            'name': '%sharvest' % self.harvester_name.lower(),
+            'title': self.harvester_name,
+            'description': 'Fetches timetables from the SBB FTP Server',
+            'form_config_interface': 'Text'
+        }
+
+    def get_config_validation_schema(self):
+        schema = super(TimetableHarvester, self).get_config_validation_schema()
+        return schema.extend({voluptuous.Required('timetable_regex'): basestring})
+
     def gather_stage_impl(self, harvest_job):
         """
         Dummy stage that launches the next phase
@@ -77,6 +101,14 @@ class TimetableHarvester(BaseFTPHarvester):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
             return None
 
+
+        filelist_with_dataset = []
+        for filename in filelist:
+            match = re.match(self.config['timetable_regex'], filename)
+            if match:
+                dataset = self.config['dataset'].format(year=match.group(1))
+                filelist_with_dataset.append((filename, dataset))
+
         # create one harvest job for each resource in the package
         # -------------------------------------------------------------------------
         object_ids = []
@@ -96,19 +128,25 @@ class TimetableHarvester(BaseFTPHarvester):
 
             if not force_all:
                 try:
-                    existing_dataset = self._get_dataset(self.config['dataset'])
-                    existing_resources = map(lambda r: os.path.basename(r['url']), existing_dataset['resources'])
                     # Request only the resources modified since last harvest job
-                    for f in filelist[:]:
-                        modified_date = modified_dates.get(f)
+                    for f in filelist_with_dataset[:]:
+                        filename, dataset = f
+                        modified_date = modified_dates.get(filename)
+
+                        try:
+                            existing_dataset = self._get_dataset(dataset)
+                        except NotFound:
+                            continue  # dataset for this year does not exist yet
+                        existing_resources = map(lambda r: os.path.basename(r['url']), existing_dataset['resources'])
+
                         # skip file if its older than last harvester run date and it actually exists on the dataset
                         # only skip when file was already downloaded once
                         if modified_date and modified_date < previous_job.gather_started and \
                                 munge_filename(os.path.basename(f)) in existing_resources:
                             # do not run the harvest for this file
-                            filelist.remove(f)
+                            filelist_with_dataset.remove(f)
 
-                    if not len(filelist):
+                    if not len(filelist_with_dataset):
                         log.info('No files have been updated on the ftp server since the last harvest job')
                         return []  # no files to harvest this time
                 except NotFound:  # dataset does not exist yet, download all files
@@ -118,15 +156,15 @@ class TimetableHarvester(BaseFTPHarvester):
 
         # ------------------------------------------------------
         # 2: download all resources
-        for f in filelist:
+        for f in filelist_with_dataset:
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
             obj.content = json.dumps({
                 'type': 'file',
-                'file': f,
+                'file': f[0],
                 'workingdir': workingdir,
                 'remotefolder': remotefolder,
-                'dataset': self.config['dataset'],
+                'dataset': f[1],
             })
             # save it for the next step
             obj.save()
@@ -139,10 +177,14 @@ class TimetableHarvester(BaseFTPHarvester):
         obj.save()
         object_ids.append(obj.id)
 
-        obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
-        obj.content = json.dumps({'type': 'finalizer', 'dataset': self.config['dataset']})
-        obj.save()
-        object_ids.append(obj.id)
+        # get all (unique) datasets where a new file was found
+        datasets = set(map(itemgetter(1), filelist_with_dataset))
+
+        for dataset in datasets:
+            obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
+            obj.content = json.dumps({'type': 'finalizer', 'dataset': dataset})
+            obj.save()
+            object_ids.append(obj.id)
         # ------------------------------------------------------
         # send the jobs to the gather queue
         return object_ids

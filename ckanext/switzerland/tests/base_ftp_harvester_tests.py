@@ -21,7 +21,8 @@ from . import data
 class BaseFTPHarvesterTests(object):
     harvester_class = None
 
-    def run_harvester(self, force_all=False, resource_regex=None, max_resources=None, dataset=data.dataset_name):
+    def run_harvester(self, force_all=False, resource_regex=None, max_resources=None, dataset=data.dataset_name,
+                      timetable_regex=None):
         data.harvest_user()
         self.user = data.user()
         self.organization = data.organization(self.user)
@@ -39,6 +40,8 @@ class BaseFTPHarvesterTests(object):
             config['resource_regex'] = resource_regex
         if max_resources:
             config['max_resources'] = max_resources
+        if timetable_regex:
+            config['timetable_regex'] = timetable_regex
 
         source = HarvestSourceObj(url='http://example.com/harvest', config=json.dumps(config),
                                   source_type=harvester.info()['name'], owner_org=self.organization['id'])

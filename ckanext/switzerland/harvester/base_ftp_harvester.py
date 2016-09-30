@@ -51,9 +51,6 @@ class BaseFTPHarvester(HarvesterBase):
     api_version = 2
     action_api_version = 3
 
-    # default harvester id, to be overwritten by child classes
-    harvester_name = 'SBB FTP Harvester'
-
     # default remote directory to harvest, to be overwritten by child classes
     # e.g. infodoc or didok
     remotefolder = ''
@@ -158,21 +155,6 @@ class BaseFTPHarvester(HarvesterBase):
     def get_remote_folder(self):
         return os.path.join('/', self.config['environment'], self.config['folder'])
 
-    # tested
-    def info(self):
-        """
-        Return basic information about the harvester
-
-        :returns: Dictionary with basic information about the harvester
-        :rtype: dict
-        """
-        return {
-            'name': '%sharvest' % self.harvester_name.lower(),
-            'title': self.harvester_name,
-            'description': 'Fetches data from the SBB FTP Server',
-            'form_config_interface': 'Text'
-        }
-
     def validate_config(self, config_str):
         """
         Validates the configuration that can be pasted into the harvester web interface
@@ -189,7 +171,7 @@ class BaseFTPHarvester(HarvesterBase):
         return config_str
 
     def get_config_validation_schema(self):
-        return {
+        return voluptuous.Schema({
             voluptuous.Required('environment'): basestring,
             voluptuous.Required('folder'): basestring,
             voluptuous.Required('dataset'): basestring,
@@ -197,10 +179,12 @@ class BaseFTPHarvester(HarvesterBase):
             voluptuous.Required('force_all', default=False): bool,
             'max_resources': int,
             'max_revisions': int,
-        }
+        })
 
     def load_config(self, config_str):
-        return voluptuous.Schema(self.get_config_validation_schema())(json.loads(config_str))
+        schema = self.get_config_validation_schema()
+        data = json.loads(config_str)
+        return schema(data)
 
     # tested
     def _add_harvester_metadata(self, package_dict):
