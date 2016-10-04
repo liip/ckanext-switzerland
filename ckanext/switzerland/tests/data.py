@@ -10,6 +10,7 @@ dataset_name = 'Dataset'
 dataset_content_1 = 'Year;data\n2013;1\n'
 dataset_content_2 = 'Year;Data\n2013;1\n2014;2\n'
 dataset_content_3 = 'Year;Data\n2013;1\n2014;2;2015;3\n'
+dataset_content_4 = 'Year;Data\n2013;1\n2014;2;2015;3;2016;4\n'
 
 
 def user():

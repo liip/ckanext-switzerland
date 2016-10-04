@@ -339,8 +339,53 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
             else:
                 self.assert_resource_exists(resource)
 
+    @expectedFailure
     def test_max_revisions(self):
-        pass
+        filesystem = self.get_filesystem()
+        MockFTPHelper.filesystem = filesystem
+
+        path = os.path.join(data.environment, data.folder, data.filename)
+        filesystem.settimes(path, modified_time=datetime.now())
+        filesystem.setcontents(path, data.dataset_content_1)
+        self.run_harvester(max_revisions=3)
+        package = self.get_package()
+        assert_equal(len(package.resources), 1)
+        assert_equal(len(package.resources_all), 1)
+
+        filesystem.settimes(path, modified_time=datetime.now())
+        filesystem.setcontents(path, data.dataset_content_2)
+        self.run_harvester(max_revisions=3)
+        package = self.get_package()
+        assert_equal(len(package.resources), 1)
+        assert_equal(len(package.resources_all), 2)
+
+        filesystem.settimes(path, modified_time=datetime.now())
+        filesystem.setcontents(path, data.dataset_content_3)
+        self.run_harvester(max_revisions=3)
+        package = self.get_package()
+        assert_equal(len(package.resources), 1)
+        assert_equal(len(package.resources_all), 3)
+
+        filesystem.settimes(path, modified_time=datetime.now())
+        filesystem.setcontents(path, data.dataset_content_4)
+        self.run_harvester(max_revisions=3)
+        package = self.get_package()
+        assert_equal(len(package.resources), 1)
+        assert_equal(len(package.resources_all), 4)
+
+        resources = sorted(package.resources_all, key=lambda r: r.created)
+
+        self.assert_resource_deleted(resources[0])
+        self.assert_resource_exists(resources[1])
+        self.assert_resource_exists(resources[2])
+        self.assert_resource_exists(resources[3])
+
+        self.assert_resource_data(resources[1].id, data.dataset_content_2)
+        self.assert_resource_data(resources[2].id, data.dataset_content_3)
+        self.assert_resource_data(resources[3].id, data.dataset_content_4)
+
+        self.assert_resource_exists(package.resources[0])
+        self.assert_resource_data(package.resources[0], data.dataset_content_4)
 
     def test_filter_regex(self):
         filesystem = self.get_filesystem(filename='File.zip')
