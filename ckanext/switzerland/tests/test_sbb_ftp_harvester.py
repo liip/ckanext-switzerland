@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from unittest import expectedFailure
 
@@ -403,9 +404,21 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
 
     def test_validate_regex_fail(self):
         MockFTPHelper.filesystem = self.get_filesystem()
-        with assert_raises(ValidationError):
-            self.run_harvester(filter_regex='*')
+        harvester = SBBFTPHarvester()
+        with assert_raises(Exception):
+            harvester.validate_config(json.dumps({
+                'dataset': data.dataset_name,
+                'environment': data.environment,
+                'folder': data.folder,
+                'filter_regex': '*',
+            }))
 
     def test_validate_regex_ok(self):
         MockFTPHelper.filesystem = self.get_filesystem()
-        self.run_harvester(filter_regex='.*')
+        harvester = SBBFTPHarvester()
+        harvester.validate_config(json.dumps({
+            'dataset': data.dataset_name,
+            'environment': data.environment,
+            'folder': data.folder,
+            'filter_regex': '.*',
+        }))
