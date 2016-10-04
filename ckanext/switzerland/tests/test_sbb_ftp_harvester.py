@@ -303,7 +303,6 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
             else:
                 self.assert_resource_exists(resource)
 
-    @expectedFailure
     def test_max_resources_revisions(self):
         """
         there are multiple revisions of file 20160901.csv, all of them should be deleted

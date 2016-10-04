@@ -24,12 +24,15 @@ import os
 import re
 from ckan import model
 from ckan.lib import helpers
+from ckan.lib import uploader
+from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename, munge_name
 from ckan.logic import NotFound
 from ckan.logic import get_action, check_access
 from ckan.model import Session
 from ckanext.harvest.harvesters.base import HarvesterBase
+from ckanext.switzerland.helpers import resource_filename
 from pylons import config as ckanconf
 from simplejson.scanner import JSONDecodeError
 import voluptuous
@@ -878,17 +881,7 @@ class BaseFTPHarvester(HarvesterBase):
                      resources_count - max_resources)
 
             for resource in ordered_resources[max_resources:]:
-                # delete the file from the filestore
-                get_action('resource_patch')(context, {'id': resource['id'], 'clear_upload': True, })
-
-                # delete the datastore table
-                try:
-                    get_action('datastore_delete')(context, {'resource_id': resource['id'], 'force': True})
-                except NotFound:
-                    pass  # Sometimes importing the data into the datastore fails
-
-                # delete the resource itself
-                get_action('resource_delete')(context, {'id': resource['id']})
+                self._delete_version(context, package['id'], resource_filename(resource['url']))
 
             ordered_resources = ordered_resources[:max_resources]
 
@@ -900,12 +893,26 @@ class BaseFTPHarvester(HarvesterBase):
 
         get_action('package_update')(context, package)
 
+    def _delete_version(self, context, package_id, filename):
+        """
+        delete the current and all old revisions of a resource with the given filename
+        """
+        package = model.Package.get(package_id)
 
-class ContentFetchError(Exception):
-    """ Exception that can be raised when something goes wrong during the fetch stage """
-    pass
+        for resource in package.resources_all:
+            if resource_filename(resource.url) == filename:
+                # delete the file from the filestore
 
+                resource_dict = resource_dictize(resource, {'model': model})
+                path = uploader.ResourceUpload(resource_dict).get_path(resource.id)
+                if os.path.exists(path):
+                    os.remove(path)
 
-class RemoteResourceError(Exception):
-    """ Exception that can be raised when remote operations fail """
-    pass
+                # delete the datastore table
+                try:
+                    get_action('datastore_delete')(context, {'resource_id': resource.id, 'force': True})
+                except NotFound:
+                    pass  # Sometimes importing the data into the datastore fails
+
+                # delete the resource itself
+                get_action('resource_delete')(context, {'id': resource.id})
