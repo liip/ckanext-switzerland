@@ -808,6 +808,13 @@ class BaseFTPHarvester(HarvesterBase):
             # delete the old version of the resource
             if old_resource_id:
                 log.info('Deleting old resource: %s', old_resource_id)
+
+                # delete the datastore table
+                try:
+                    get_action('datastore_delete')(context, {'resource_id': old_resource_id, 'force': True})
+                except NotFound:
+                    pass  # Sometimes importing the data into the datastore fails
+
                 get_action('resource_delete')(context, {'id': old_resource_id})
 
             log.info("Successfully harvested file %s" % f)
