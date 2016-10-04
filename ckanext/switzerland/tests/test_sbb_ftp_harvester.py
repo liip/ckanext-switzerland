@@ -341,3 +341,18 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
 
     def test_max_revisions(self):
         pass
+
+    def test_filter_regex(self):
+        filesystem = self.get_filesystem(filename='File.zip')
+        MockFTPHelper.filesystem = filesystem
+        path = os.path.join(data.environment, data.folder, 'Invalid.csv')
+        filesystem.setcontents(path, data.dataset_content_2)
+
+        self.run_harvester(filter_regex='.*\.zip')
+
+        package = self.get_package()
+        assert_equal(len(package.resources), 1)
+        assert_equal(len(package.resources_all), 1)
+
+        self.assert_resource_data(package.resources[0].id, data.dataset_content_1)
+        assert_equal(package.resources[0].extras['identifier'], 'File.zip')

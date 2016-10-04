@@ -2,8 +2,10 @@ import logging
 import ftplib  # for errors only
 import tempfile
 from datetime import datetime
-
 import os
+import re
+
+import voluptuous
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
@@ -34,6 +36,10 @@ class SBBFTPHarvester(BaseFTPHarvester):
             'form_config_interface': 'Text'
         }
 
+    def get_config_validation_schema(self):
+        schema = super(SBBFTPHarvester, self).get_config_validation_schema()
+        return schema.extend({voluptuous.Required('filter_regex', default='.*'): basestring})
+
     def gather_stage_impl(self, harvest_job):
         """
         Dummy stage that launches the next phase
@@ -60,6 +66,8 @@ class SBBFTPHarvester(BaseFTPHarvester):
             with FTPHelper(remotefolder) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.debug("Remote dirlist: %s" % str(filelist))
+
+                filelist = filter(lambda filename: re.match(self.config['filter_regex'], filename), filelist)
 
                 # get last-modified date of each file
                 for f in filelist:
