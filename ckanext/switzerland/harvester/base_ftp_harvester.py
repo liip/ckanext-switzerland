@@ -40,6 +40,14 @@ from ftp_helper import FTPHelper
 log = logging.getLogger(__name__)
 
 
+def validate_regex(regex):
+    try:
+        re.compile(regex)
+    except re.error:
+        raise voluptuous.Invalid('Invalid regex: "{}"'.format(regex))
+    return regex
+
+
 class BaseFTPHarvester(HarvesterBase):
     """
     A FTP Harvester for the SBB ftp server. This is a generic harvester
@@ -175,7 +183,7 @@ class BaseFTPHarvester(HarvesterBase):
             voluptuous.Required('environment'): basestring,
             voluptuous.Required('folder'): basestring,
             voluptuous.Required('dataset'): basestring,
-            voluptuous.Required('resource_regex', default='.*'): basestring,
+            voluptuous.Required('resource_regex', default='.*'): validate_regex,
             voluptuous.Required('force_all', default=False): bool,
             'max_resources': int,
             'max_revisions': int,

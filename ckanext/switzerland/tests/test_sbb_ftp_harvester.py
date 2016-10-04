@@ -3,7 +3,7 @@ from unittest import expectedFailure
 
 import os
 from ckan.lib.munge import munge_name
-from ckan.logic import get_action, NotFound
+from ckan.logic import get_action, NotFound, ValidationError
 from ckanext.harvest import model as harvester_model
 from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
 from ckanext.switzerland.tests.helpers.mock_ftphelper import MockFTPHelper
@@ -356,3 +356,12 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
 
         self.assert_resource_data(package.resources[0].id, data.dataset_content_1)
         assert_equal(package.resources[0].extras['identifier'], 'File.zip')
+
+    def test_validate_regex_fail(self):
+        MockFTPHelper.filesystem = self.get_filesystem()
+        with assert_raises(ValidationError):
+            self.run_harvester(filter_regex='*')
+
+    def test_validate_regex_ok(self):
+        MockFTPHelper.filesystem = self.get_filesystem()
+        self.run_harvester(filter_regex='.*')

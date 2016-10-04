@@ -11,7 +11,7 @@ from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
 from ckan.model import Session
 from ckanext.harvest.model import HarvestJob, HarvestObject
-from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester
+from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester, validate_regex
 import voluptuous
 
 from ftp_helper import FTPHelper
@@ -39,7 +39,7 @@ class TimetableHarvester(BaseFTPHarvester):
 
     def get_config_validation_schema(self):
         schema = super(TimetableHarvester, self).get_config_validation_schema()
-        return schema.extend({voluptuous.Required('timetable_regex'): basestring})
+        return schema.extend({voluptuous.Required('timetable_regex'): validate_regex})
 
     def gather_stage_impl(self, harvest_job):
         """
