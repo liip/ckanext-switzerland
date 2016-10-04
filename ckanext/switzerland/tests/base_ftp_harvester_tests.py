@@ -72,7 +72,8 @@ class BaseFTPHarvesterTests(object):
         return fs
 
     def assert_resource_data(self, resource_id, resource_data):
-        resource = get_action('resource_show')({}, {'id': resource_id})
+        resource_obj = model.Resource.get(resource_id)
+        resource = resource_dictize(resource_obj, {'model': model})
         path = uploader.ResourceUpload(resource).get_path(resource_id)
         with open(path) as f:
             assert_equal(f.read(), resource_data)

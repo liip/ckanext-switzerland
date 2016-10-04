@@ -339,7 +339,6 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
             else:
                 self.assert_resource_exists(resource)
 
-    @expectedFailure
     def test_max_revisions(self):
         filesystem = self.get_filesystem()
         MockFTPHelper.filesystem = filesystem
@@ -385,7 +384,7 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
         self.assert_resource_data(resources[3].id, data.dataset_content_4)
 
         self.assert_resource_exists(package.resources[0])
-        self.assert_resource_data(package.resources[0], data.dataset_content_4)
+        self.assert_resource_data(package.resources[0].id, data.dataset_content_4)
 
     def test_filter_regex(self):
         filesystem = self.get_filesystem(filename='File.zip')

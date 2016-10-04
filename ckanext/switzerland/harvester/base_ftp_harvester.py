@@ -18,6 +18,7 @@ import logging
 import shutil
 import time
 import traceback
+from collections import defaultdict
 from datetime import datetime
 
 import os
@@ -776,7 +777,6 @@ class BaseFTPHarvester(HarvesterBase):
             # -----------------------------------------------------
             else:
                 old_resource_id = resource_meta['id']
-                print 'old resource id', resource_meta['id']
 
                 self._reset_resource(resource_meta)
 
@@ -892,11 +892,17 @@ class BaseFTPHarvester(HarvesterBase):
 
             ordered_resources = ordered_resources[:max_resources]
 
+        # set permalink on dataset
         package['permalink'] = ordered_resources[0]['url']
         log.info('Permalink for dataset %s is %s', package['name'], package['permalink'])
 
+        # reorder resources
         # not matched resources come first in the list, then the ordered
         package['resources'] = unmatched_resources + ordered_resources
+
+        # ----------------------------------------------------------------------------
+        # delete files of old revisions if there are more than 30 revisions
+        self._cleanup_revisions(package['id'])
 
         get_action('package_update')(context, package)
 
@@ -909,7 +915,6 @@ class BaseFTPHarvester(HarvesterBase):
         for resource in package.resources_all:
             if resource_filename(resource.url) == filename:
                 # delete the file from the filestore
-
                 resource_dict = resource_dictize(resource, {'model': model})
                 path = uploader.ResourceUpload(resource_dict).get_path(resource.id)
                 if os.path.exists(path):
@@ -923,3 +928,24 @@ class BaseFTPHarvester(HarvesterBase):
 
                 # delete the resource itself
                 get_action('resource_delete')(context, {'id': resource.id})
+
+    def _cleanup_revisions(self, package_id):
+        max_revisions = self.config.get('max_revisions')
+        if not max_revisions:
+            return
+
+        # group resources (=old revisions) by filename
+        versions = defaultdict(lambda: [])
+        package = model.Package.get(package_id)
+        for resource in package.resources_all:
+            filename = resource_filename(resource.url)
+            versions[filename].append(resource)
+
+        for filename, resources in versions.iteritems():
+            if len(resources) > max_revisions:
+                resources = sorted(resources, key=lambda r: r.created, reverse=True)
+                for resource in resources[max_revisions:]:
+                    resource_dict = resource_dictize(resource, {'model': model})
+                    path = uploader.ResourceUpload(resource_dict).get_path(resource.id)
+                    if os.path.exists(path):
+                        os.remove(path)
