@@ -11,6 +11,7 @@ import ckan.model as model
 import paste.fileapp
 from ckan.common import _, request, c, response
 from ckan.controllers.package import PackageController
+from ckan.lib.dictization.model_dictize import resource_dictize
 from pylons import config
 from ckanext.switzerland.helpers import resource_filename
 
@@ -129,7 +130,8 @@ class RevisionPackageController(PackageController):
             context['revision_date'] = revision_date
 
         try:
-            rsc = get_action('resource_show')(context, {'id': resource_id})
+            resource_obj = model.Resource.get(resource_id)
+            rsc = resource_dictize(resource_obj, {'model': model})
             get_action('package_show')(context, {'id': id})
         except NotFound:
             abort(404, _('Resource not found'))
