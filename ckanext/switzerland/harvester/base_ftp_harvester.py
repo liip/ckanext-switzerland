@@ -151,6 +151,8 @@ class BaseFTPHarvester(HarvesterBase):
         'coverage': 'Coverage',
     }
 
+    filters = {}
+
     # tested
     def _get_rest_api_offset(self):
         return '/api/%d/rest' % self.api_version
@@ -564,6 +566,10 @@ class BaseFTPHarvester(HarvesterBase):
             self.remove_tmpfolder(obj['tempdir'])
             return True
 
+        if 'filter' in obj:
+            file_filter = self.filters[obj['filter']]
+            obj = file_filter(obj, self.config)
+
         f = obj.get('file')
         if not f:
             log.error('Invalid file key in harvest object: %s' % obj)
@@ -832,13 +838,6 @@ class BaseFTPHarvester(HarvesterBase):
             # close the file pointer
             if fp:
                 fp.close()
-
-            # remove the downloaded resource
-            try:
-                os.remove(f)
-                log.info("Deleted tmp file %s" % f)
-            except OSError:
-                pass
         return True
 
     def _get_ordered_resources(self, package):
@@ -893,8 +892,11 @@ class BaseFTPHarvester(HarvesterBase):
             ordered_resources = ordered_resources[:max_resources]
 
         # set permalink on dataset
-        package['permalink'] = ordered_resources[0]['url']
-        log.info('Permalink for dataset %s is %s', package['name'], package['permalink'])
+        if ordered_resources:
+            package['permalink'] = ordered_resources[0]['url']
+            log.info('Permalink for dataset %s is %s', package['name'], package['permalink'])
+        else:
+            package['permalink'] = None
 
         # reorder resources
         # not matched resources come first in the list, then the ordered

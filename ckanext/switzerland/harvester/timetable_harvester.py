@@ -12,6 +12,7 @@ from ckan.logic import NotFound
 from ckan.model import Session
 from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester, validate_regex
+from ckanext.switzerland.harvester import infoplus
 import voluptuous
 
 from ftp_helper import FTPHelper
@@ -21,6 +22,10 @@ log = logging.getLogger(__name__)
 
 class TimetableHarvester(BaseFTPHarvester):
     harvester_name = 'Timetable FTP Harvester'
+
+    filters = {
+        'infoplus': infoplus.file_filter,
+    }
 
     # tested
     def info(self):
@@ -39,7 +44,10 @@ class TimetableHarvester(BaseFTPHarvester):
 
     def get_config_validation_schema(self):
         schema = super(TimetableHarvester, self).get_config_validation_schema()
-        return schema.extend({voluptuous.Required('timetable_regex'): validate_regex})
+        return schema.extend({
+            voluptuous.Required('timetable_regex'): validate_regex,
+            'infoplus': infoplus.get_validation_schema()
+        })
 
     def gather_stage_impl(self, harvest_job):
         """
@@ -101,7 +109,6 @@ class TimetableHarvester(BaseFTPHarvester):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
             return None
 
-
         filelist_with_dataset = []
         for filename in filelist:
             match = re.match(self.config['timetable_regex'], filename)
@@ -154,6 +161,10 @@ class TimetableHarvester(BaseFTPHarvester):
 
             # ------------------------------------------------------
 
+        infoplus_file = None
+        if 'infoplus' in self.config:
+            infoplus_file = infoplus.get_filename(filelist_with_dataset, self.config)
+
         # ------------------------------------------------------
         # 2: download all resources
         for f in filelist_with_dataset:
@@ -169,6 +180,11 @@ class TimetableHarvester(BaseFTPHarvester):
             # save it for the next step
             obj.save()
             object_ids.append(obj.id)
+
+            if infoplus_file and infoplus_file == f[0]:
+                job_ids = infoplus.create_harvest_jobs(self.config, self.harvester_name, harvest_job,
+                                                       infoplus_file, workingdir)
+                object_ids.extend(job_ids)
 
         # ------------------------------------------------------
         # 3: Add finalizer tasks to queue
