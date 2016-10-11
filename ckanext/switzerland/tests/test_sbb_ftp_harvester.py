@@ -338,6 +338,31 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
             else:
                 self.assert_resource_exists(resource)
 
+    def test_max_resources_redownload_files(self):
+        """
+        If resources get deleted by max_resources, we should not redownload them from ftp.
+        """
+        filesystem = self.get_filesystem(filename='20160901.csv')
+        MockFTPHelper.filesystem = filesystem
+        path = os.path.join(data.environment, data.folder, '20160902.csv')
+        filesystem.setcontents(path, data.dataset_content_3)
+        path = os.path.join(data.environment, data.folder, '20160903.csv')
+        filesystem.setcontents(path, data.dataset_content_3)
+        path = os.path.join(data.environment, data.folder, '20160904.csv')
+        filesystem.setcontents(path, data.dataset_content_4)
+
+        self.run_harvester(max_resources=3)
+
+        package = self.get_package()
+        assert_equal(len(package.resources), 3)
+        assert_equal(len(package.resources_all), 4)
+
+        self.run_harvester(max_resources=3)
+
+        package = self.get_package()
+        assert_equal(len(package.resources), 3)
+        assert_equal(len(package.resources_all), 4)
+
     def test_max_revisions(self):
         filesystem = self.get_filesystem()
         MockFTPHelper.filesystem = filesystem

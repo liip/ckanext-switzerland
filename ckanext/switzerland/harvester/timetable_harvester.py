@@ -10,6 +10,7 @@ from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
 from ckan.model import Session
+from ckan import model
 from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester, validate_regex
 from ckanext.switzerland.harvester import infoplus
@@ -143,7 +144,8 @@ class TimetableHarvester(BaseFTPHarvester):
                         existing_dataset = self._get_dataset(dataset)
                     except NotFound:
                         continue  # dataset for this year does not exist yet
-                    existing_resources = map(lambda r: os.path.basename(r['url']), existing_dataset['resources'])
+                    package = model.Package.get(existing_dataset['id'])
+                    existing_resources = map(lambda r: os.path.basename(r.url), package.resources_all)
 
                     log.info('Existing resources on dataset: {}', ', '.join(existing_dataset))
 

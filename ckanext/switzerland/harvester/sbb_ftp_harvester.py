@@ -10,6 +10,7 @@ from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
 from ckan.model import Session
+from ckan import model
 from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester, validate_regex
 from ckanext.switzerland.harvester.ist_file import ist_file_filter
@@ -130,7 +131,8 @@ class SBBFTPHarvester(BaseFTPHarvester):
             if not force_all:
                 try:
                     existing_dataset = self._get_dataset(self.config['dataset'])
-                    existing_resources = map(lambda r: os.path.basename(r['url']), existing_dataset['resources'])
+                    package = model.Package.get(existing_dataset['id'])
+                    existing_resources = map(lambda r: os.path.basename(r.url), package.resources_all)
                     # Request only the resources modified since last harvest job
                     for f in filelist[:]:
                         modified_date = modified_dates.get(f)
