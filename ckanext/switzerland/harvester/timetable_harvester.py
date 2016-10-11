@@ -134,30 +134,27 @@ class TimetableHarvester(BaseFTPHarvester):
             force_all = self.config.get('force_all', False)
 
             if not force_all:
-                try:
-                    # Request only the resources modified since last harvest job
-                    for f in filelist_with_dataset[:]:
-                        filename, dataset = f
-                        modified_date = modified_dates.get(filename)
+                # Request only the resources modified since last harvest job
+                for f in filelist_with_dataset[:]:
+                    filename, dataset = f
+                    modified_date = modified_dates.get(filename)
 
-                        try:
-                            existing_dataset = self._get_dataset(dataset)
-                        except NotFound:
-                            continue  # dataset for this year does not exist yet
-                        existing_resources = map(lambda r: os.path.basename(r['url']), existing_dataset['resources'])
+                    try:
+                        existing_dataset = self._get_dataset(dataset)
+                    except NotFound:
+                        continue  # dataset for this year does not exist yet
+                    existing_resources = map(lambda r: os.path.basename(r['url']), existing_dataset['resources'])
 
-                        # skip file if its older than last harvester run date and it actually exists on the dataset
-                        # only skip when file was already downloaded once
-                        if modified_date and modified_date < previous_job.gather_started and \
-                                munge_filename(os.path.basename(f)) in existing_resources:
-                            # do not run the harvest for this file
-                            filelist_with_dataset.remove(f)
+                    # skip file if its older than last harvester run date and it actually exists on the dataset
+                    # only skip when file was already downloaded once
+                    if modified_date and modified_date < previous_job.gather_started and \
+                            munge_filename(os.path.basename(f)) in existing_resources:
+                        # do not run the harvest for this file
+                        filelist_with_dataset.remove(f)
 
-                    if not len(filelist_with_dataset):
-                        log.info('No files have been updated on the ftp server since the last harvest job')
-                        return []  # no files to harvest this time
-                except NotFound:  # dataset does not exist yet, download all files
-                    pass
+                if not len(filelist_with_dataset):
+                    log.info('No files have been updated on the ftp server since the last harvest job')
+                    return []  # no files to harvest this time
 
             # ------------------------------------------------------
 
