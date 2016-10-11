@@ -509,6 +509,8 @@ class BaseFTPHarvester(HarvesterBase):
             'tmpfolder': tmpfolder,
             'dataset': obj['dataset'],
         }
+        if 'filter' in obj:
+            retobj['filter'] = obj['filter']
 
         # Save the directory listing and other info in the HarvestObject
         # serialise the dictionary
