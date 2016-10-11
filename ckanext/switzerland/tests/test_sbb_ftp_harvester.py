@@ -1,10 +1,9 @@
 import json
 from datetime import datetime
-from unittest import expectedFailure
 
 import os
 from ckan.lib.munge import munge_name
-from ckan.logic import get_action, NotFound, ValidationError
+from ckan.logic import get_action, NotFound
 from ckanext.harvest import model as harvester_model
 from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
 from ckanext.switzerland.tests.helpers.mock_ftphelper import MockFTPHelper

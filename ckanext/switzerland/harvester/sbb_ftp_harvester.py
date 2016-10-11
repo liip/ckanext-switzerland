@@ -12,6 +12,7 @@ from ckan.logic import NotFound
 from ckan.model import Session
 from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester, validate_regex
+from ckanext.switzerland.harvester.ist_file import ist_file_filter
 
 from ftp_helper import FTPHelper
 
@@ -20,6 +21,10 @@ log = logging.getLogger(__name__)
 
 class SBBFTPHarvester(BaseFTPHarvester):
     harvester_name = 'SBB FTP Harvester'
+
+    filters = {
+        'ist_file': ist_file_filter
+    }
 
     # tested
     def info(self):
@@ -38,7 +43,10 @@ class SBBFTPHarvester(BaseFTPHarvester):
 
     def get_config_validation_schema(self):
         schema = super(SBBFTPHarvester, self).get_config_validation_schema()
-        return schema.extend({voluptuous.Required('filter_regex', default='.*'): validate_regex})
+        return schema.extend({
+            voluptuous.Required('filter_regex', default='.*'): validate_regex,
+            voluptuous.Required('ist_file', default=False): bool,
+        })
 
     def gather_stage_impl(self, harvest_job):
         """
@@ -146,13 +154,20 @@ class SBBFTPHarvester(BaseFTPHarvester):
         for f in filelist:
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
-            obj.content = json.dumps({
+
+            data = {
                 'type': 'file',
                 'file': f,
                 'workingdir': workingdir,
                 'remotefolder': remotefolder,
                 'dataset': self.config['dataset'],
-            })
+            }
+
+            if self.config['ist_file']:
+                data['filter'] = 'ist_file'
+
+            obj.content = json.dumps(data)
+
             # save it for the next step
             obj.save()
             object_ids.append(obj.id)
