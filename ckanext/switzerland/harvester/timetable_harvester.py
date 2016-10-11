@@ -163,6 +163,8 @@ class TimetableHarvester(BaseFTPHarvester):
         infoplus_file = None
         if 'infoplus' in self.config:
             infoplus_file = infoplus.get_filename(filelist_with_dataset, self.config)
+            if infoplus_file:
+                log.info('Found file to extract Info+ data from: {}'.format(infoplus_file))
 
         # ------------------------------------------------------
         # 2: download all resources

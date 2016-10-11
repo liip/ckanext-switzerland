@@ -4,10 +4,12 @@ from operator import itemgetter
 from zipfile import ZipFile
 import re
 import os
-import shutil
+import logging
 
 import voluptuous
 from ckanext.harvest.model import HarvestObject
+
+log = logging.getLogger(__name__)
 
 
 def get_validation_schema():
@@ -93,6 +95,8 @@ def file_filter(harvester_obj, config):
     0000011,7.389462,47.191804,467,Grenchen Nor
     0000016,6.513937,46.659019,499,"La Sarraz, Couronn"
     """
+    log.info('Extracting file {} from Info+ zip file'.format(harvester_obj['infoplus_filename']))
+
     zipfile = ZipFile(os.path.join(harvester_obj['tmpfolder'], harvester_obj['file']), 'r')
     path = os.path.join(harvester_obj['tmpfolder'], harvester_obj['infoplus_filename'] + '.csv')
 
