@@ -444,6 +444,8 @@ class BaseFTPHarvester(HarvesterBase):
             self._save_object_error('Unable to decode harvester info: %s' % str(e), harvest_object.content, stage)
             return False
 
+        log.info('Harvest object json: %s', harvest_object.content)
+
         if obj['type'] != 'file':
             return True
 
@@ -556,6 +558,8 @@ class BaseFTPHarvester(HarvesterBase):
             log.error('Invalid harvest object: %s', harvest_object)
             self._save_object_error('Unable to decode harvester info: %s' % str(e), harvest_object, stage)
             return False
+
+        log.info('Harvest object json: %s', harvest_object.content)
 
         # set harvester config
         self.config = self.load_config(harvest_object.job.source.config)
