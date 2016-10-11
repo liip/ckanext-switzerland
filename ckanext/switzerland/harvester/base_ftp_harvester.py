@@ -429,8 +429,7 @@ class BaseFTPHarvester(HarvesterBase):
         :rtype: mixed
         """
         log.info('=====================================================')
-        log.info('In %s FTPHarvester fetch_stage' % self.harvester_name)
-        log.info('Running harvest job %s' % harvest_object.id)
+        log.info('In %s fetch_stage from source %s', self.harvester_name, harvest_object.job.source.title)
         stage = 'Fetch'
 
         if not harvest_object or not harvest_object.content:
@@ -542,7 +541,8 @@ class BaseFTPHarvester(HarvesterBase):
         :rtype: bool|string
         """
         log.info('=====================================================')
-        log.info('In %s FTPHarvester import_stage' % self.harvester_name)
+        log.info('In %s import_stage from source %s', self.harvester_name, harvest_object.job.source.title)
+
         stage = 'Import'
 
         if not harvest_object or not harvest_object.content:
