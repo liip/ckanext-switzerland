@@ -145,10 +145,12 @@ class TimetableHarvester(BaseFTPHarvester):
                         continue  # dataset for this year does not exist yet
                     existing_resources = map(lambda r: os.path.basename(r['url']), existing_dataset['resources'])
 
+                    log.info('Existing resources on dataset: {}', ', '.join(existing_dataset))
+
                     # skip file if its older than last harvester run date and it actually exists on the dataset
                     # only skip when file was already downloaded once
                     if modified_date and modified_date < previous_job.gather_started and \
-                            munge_filename(os.path.basename(f)) in existing_resources:
+                            munge_filename(os.path.basename(filename)) in existing_resources:
                         # do not run the harvest for this file
                         filelist_with_dataset.remove(f)
 
