@@ -14,7 +14,7 @@ Example:
     <div>
       <div>
         <h2>{{ _('Description') }}</h2>
-        <p>{{ h.get_localized_value(h.parse_json(pkg.description)) }}</p>
+        <p class="dataset-description">{{ h.get_localized_value(h.parse_json(pkg.description))|urlize }}</p>
       </div>
     </div>
     {% endif %}
