@@ -75,6 +75,7 @@
         "fr": "Organisation",
         "it": "Organizzazione"
       },
+      "display_snippet": "dataset_organization.html",
       "preset": "dataset_organization"
     },
     {
