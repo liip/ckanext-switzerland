@@ -2,10 +2,10 @@ import logging
 import ftplib  # for errors only
 import tempfile
 from datetime import datetime
+from operator import itemgetter
+
 import os
 import re
-
-import voluptuous
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
@@ -13,18 +13,19 @@ from ckan.model import Session
 from ckan import model
 from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester, validate_regex
-from ckanext.switzerland.harvester.ist_file import ist_file_filter
+from ckanext.switzerland.harvester import infoplus
+import voluptuous
 
 from ftp_helper import FTPHelper
 
 log = logging.getLogger(__name__)
 
 
-class SBBFTPHarvester(BaseFTPHarvester):
-    harvester_name = 'SBB FTP Harvester'
+class TimetableHarvester(BaseFTPHarvester):
+    harvester_name = 'Timetable FTP Harvester'
 
     filters = {
-        'ist_file': ist_file_filter
+        'infoplus': infoplus.file_filter,
     }
 
     # tested
@@ -38,15 +39,15 @@ class SBBFTPHarvester(BaseFTPHarvester):
         return {
             'name': '%sharvest' % self.harvester_name.lower(),
             'title': self.harvester_name,
-            'description': 'Fetches data from the SBB FTP Server',
+            'description': 'Fetches timetables from the SBB FTP Server',
             'form_config_interface': 'Text'
         }
 
     def get_config_validation_schema(self):
-        schema = super(SBBFTPHarvester, self).get_config_validation_schema()
+        schema = super(TimetableHarvester, self).get_config_validation_schema()
         return schema.extend({
-            voluptuous.Required('filter_regex', default='.*'): validate_regex,
-            voluptuous.Required('ist_file', default=False): bool,
+            voluptuous.Required('timetable_regex'): validate_regex,
+            'infoplus': infoplus.get_validation_schema()
         })
 
     def gather_stage_impl(self, harvest_job):
@@ -75,8 +76,6 @@ class SBBFTPHarvester(BaseFTPHarvester):
             with FTPHelper(remotefolder) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.debug("Remote dirlist: %s" % str(filelist))
-
-                filelist = filter(lambda filename: re.match(self.config['filter_regex'], filename), filelist)
 
                 # get last-modified date of each file
                 for f in filelist:
@@ -111,6 +110,13 @@ class SBBFTPHarvester(BaseFTPHarvester):
             self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
             return None
 
+        filelist_with_dataset = []
+        for filename in filelist:
+            match = re.match(self.config['timetable_regex'], filename)
+            if match:
+                dataset = self.config['dataset'].format(year=match.group(1))
+                filelist_with_dataset.append((filename, dataset))
+
         # create one harvest job for each resource in the package
         # -------------------------------------------------------------------------
         object_ids = []
@@ -126,53 +132,62 @@ class SBBFTPHarvester(BaseFTPHarvester):
             .limit(1).first()
         if previous_job and not previous_job.gather_errors and previous_job.gather_started:
             # optional 'force_all' config setting can be used to always download all files
-            force_all = self.config['force_all']
+            force_all = self.config.get('force_all', False)
 
             if not force_all:
-                try:
-                    existing_dataset = self._get_dataset(self.config['dataset'])
+                # Request only the resources modified since last harvest job
+                for f in filelist_with_dataset[:]:
+                    filename, dataset = f
+                    modified_date = modified_dates.get(filename)
+
+                    try:
+                        existing_dataset = self._get_dataset(dataset)
+                    except NotFound:
+                        continue  # dataset for this year does not exist yet
                     package = model.Package.get(existing_dataset['id'])
                     existing_resources = map(lambda r: os.path.basename(r.url), package.resources_all)
-                    # Request only the resources modified since last harvest job
-                    for f in filelist[:]:
-                        modified_date = modified_dates.get(f)
-                        # skip file if its older than last harvester run date and it actually exists on the dataset
-                        # only skip when file was already downloaded once
-                        if modified_date and modified_date < previous_job.gather_started and \
-                                munge_filename(os.path.basename(f)) in existing_resources:
-                            # do not run the harvest for this file
-                            filelist.remove(f)
 
-                    if not len(filelist):
-                        log.info('No files have been updated on the ftp server since the last harvest job')
-                        return []  # no files to harvest this time
-                except NotFound:  # dataset does not exist yet, download all files
-                    pass
+                    log.info('Existing resources on dataset: {}', ', '.join(existing_dataset))
+
+                    # skip file if its older than last harvester run date and it actually exists on the dataset
+                    # only skip when file was already downloaded once
+                    if modified_date and modified_date < previous_job.gather_started and \
+                            munge_filename(os.path.basename(filename)) in existing_resources:
+                        # do not run the harvest for this file
+                        filelist_with_dataset.remove(f)
+
+                if not len(filelist_with_dataset):
+                    log.info('No files have been updated on the ftp server since the last harvest job')
+                    return []  # no files to harvest this time
 
             # ------------------------------------------------------
 
+        infoplus_file = None
+        if 'infoplus' in self.config:
+            infoplus_file = infoplus.get_filename(filelist_with_dataset, self.config)
+            if infoplus_file:
+                log.info('Found file to extract Info+ data from: {}'.format(infoplus_file))
+
         # ------------------------------------------------------
         # 2: download all resources
-        for f in filelist:
+        for f in filelist_with_dataset:
             obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
             # serialise and store the dirlist
-
-            data = {
+            obj.content = json.dumps({
                 'type': 'file',
-                'file': f,
+                'file': f[0],
                 'workingdir': workingdir,
                 'remotefolder': remotefolder,
-                'dataset': self.config['dataset'],
-            }
-
-            if self.config['ist_file']:
-                data['filter'] = 'ist_file'
-
-            obj.content = json.dumps(data)
-
+                'dataset': f[1],
+            })
             # save it for the next step
             obj.save()
             object_ids.append(obj.id)
+
+            if infoplus_file and infoplus_file == f[0]:
+                job_ids = infoplus.create_harvest_jobs(self.config, self.harvester_name, harvest_job,
+                                                       infoplus_file, workingdir)
+                object_ids.extend(job_ids)
 
         # ------------------------------------------------------
         # 3: Add finalizer tasks to queue
@@ -181,10 +196,14 @@ class SBBFTPHarvester(BaseFTPHarvester):
         obj.save()
         object_ids.append(obj.id)
 
-        obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
-        obj.content = json.dumps({'type': 'finalizer', 'dataset': self.config['dataset']})
-        obj.save()
-        object_ids.append(obj.id)
+        # get all (unique) datasets where a new file was found
+        datasets = set(map(itemgetter(1), filelist_with_dataset))
+
+        for dataset in datasets:
+            obj = HarvestObject(guid=self.harvester_name, job=harvest_job)
+            obj.content = json.dumps({'type': 'finalizer', 'dataset': dataset})
+            obj.save()
+            object_ids.append(obj.id)
         # ------------------------------------------------------
         # send the jobs to the gather queue
         return object_ids

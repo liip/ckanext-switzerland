@@ -11,6 +11,7 @@ import ckan.model as model
 import paste.fileapp
 from ckan.common import _, request, c, response
 from ckan.controllers.package import PackageController
+from ckan.lib.dictization.model_dictize import resource_dictize
 from pylons import config
 from ckanext.switzerland.helpers import resource_filename
 
@@ -129,7 +130,8 @@ class RevisionPackageController(PackageController):
             context['revision_date'] = revision_date
 
         try:
-            rsc = get_action('resource_show')(context, {'id': resource_id})
+            resource_obj = model.Resource.get(resource_id)
+            rsc = resource_dictize(resource_obj, {'model': model})
             get_action('package_show')(context, {'id': id})
         except NotFound:
             abort(404, _('Resource not found'))
@@ -155,6 +157,13 @@ class RevisionPackageController(PackageController):
             abort(404, _('No download is available'))
         redirect(rsc['url'])
 
+
+class SearchController(base.BaseController):
+    def search(self):
+        return render('search/search.html')
+
+
+class PermalinkController(base.BaseController):
     def resource_permalink(self, id, filename):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
@@ -174,7 +183,19 @@ class RevisionPackageController(PackageController):
 
         abort(404, _('Resource not found'))
 
+    def dataset_permalink(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
+        data_dict = {'id': id, 'include_tracking': True}
+        try:
+            dataset = get_action('package_show')(context, data_dict)
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
 
-class SearchController(base.BaseController):
-    def search(self):
-        return render('search/search.html')
+        if not dataset['permalink']:
+            abort(404, _('Resource not found'))
+
+        return redirect(dataset['permalink'])

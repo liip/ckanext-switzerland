@@ -332,8 +332,11 @@ class OgdchResourcePlugin(OgdchLanguagePlugin):
             m.connect('/dataset/{id}/resource/{resource_id}',
                       action='resource_read')
 
+        with SubMapper(map, controller='ckanext.switzerland.controllers:PermalinkController') as m:
             m.connect('/dataset/{id}/resource_permalink/{filename}',
                       action='resource_permalink')
+            m.connect('/dataset/{id}/permalink',
+                      action='dataset_permalink')
 
         map.connect('search', '/search', controller='ckanext.switzerland.controllers:SearchController', action='search')
 
