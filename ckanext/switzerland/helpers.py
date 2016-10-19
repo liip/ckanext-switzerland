@@ -8,12 +8,14 @@ import requests
 import json
 import pylons
 from ckan.lib.munge import munge_filename
+from jinja2.utils import urlize
 from pylons import config
 from ckan.common import _, request
 from ckan.lib.helpers import link_to, url_for, lang
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
 import ast
 from ckan.common import c
+from webhelpers.html import literal
 
 import logging
 
@@ -372,3 +374,10 @@ def load_wordpress_templates():
     c.wordpress_admin_navigation = data['admin']
     c.wordpress_footer = data['footer']
     c.wordpress_title = data['title']
+
+
+def render_description(pkg):
+    text = parse_and_localize(pkg['description'])
+    text = urlize(text)
+    text = text.replace('\n', '\n<br>')
+    return literal(text)
