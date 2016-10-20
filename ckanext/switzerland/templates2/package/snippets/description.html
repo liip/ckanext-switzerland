@@ -10,6 +10,22 @@ Example:
 #}
 <section class="information">
   <div>
+    {% if pkg.description %}
+    <div>
+      <div>
+        <h2>{{ _('Description') }}</h2>
+        <p class="dataset-description">{{ h.render_description(pkg) }}</p>
+      </div>
+    </div>
+    {% endif %}
+    <div>
+      <dl>
+        <dt>{{ _('Further information') }}</dt>
+        <dd>
+          {%- snippet 'scheming/display_snippets/relations.html', data=pkg, schema=schema -%}
+        </dd>
+      </dl>
+    </div>
     <div>
       <dl>
         <dt>{{ _('Last updated') }}</dt>
@@ -34,43 +50,5 @@ Example:
         </dd>
       </dl>
     </div>
-    <div>
-      <dl>
-          <dt>{{ ungettext('Organization', 'Organizations', 1) }}</dt>
-        <dd>
-          {% if pkg.owner_org %}
-          {% set organization = h.get_localized_org(pkg.owner_org) %}
-          {% set url = h.url_for(controller='organization', action='read', id=organization.name) %}
-          <a href="{{ url }}">{{ organization.title or organization.name }}</a>
-          {% else %}
-          {{ _('No organization available') }}
-          {% endif %}
-        </dd>
-      </dl>
-    </div>
-    <div>
-      <dl>
-        <dt>{{ _('Categories') }}</dt>
-        <dd>
-        {% if pkg.groups %}
-          {% for group in pkg.groups %}
-            {% set type = group.type or 'group' %}
-            {% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
-            <a href="{{ url }}" title="{{ _('View {name}').format(name=group.title) }}">{{ group.title }}</a>{% if not loop.last %}, {% endif %}
-          {% endfor %}
-        {% else %}
-          -
-        {% endif %}
-        </dd>
-      </dl>
-    </div>
   </div>
-  {% if pkg.description %}
-    <div>
-      <div>
-        <h2>{{ _('Description') }}</h2>
-        <p>{{ h.get_localized_value(h.parse_json(pkg.description)) }}</p>
-      </div>
-    </div>
-  {% endif %}
 </section>

@@ -1,4 +1,8 @@
-{%- set relations = data[field.field_name] -%}
+{% if field %}
+  {%- set relations = data[field.field_name] -%}
+{% else %}
+  {%- set relations = data['relations'] -%}
+{% endif %}
 
 {% if relations %}
   {% set relations_length = relations|length %}

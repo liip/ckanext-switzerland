@@ -16,6 +16,16 @@
       "validators": "scheming_required ogdch_unique_identifier"
     },
     {
+      "field_name": "modified",
+      "label": {
+        "en": "Modified date",
+        "de": "Änderungsdatum",
+        "fr": "Date de modification",
+        "it": "Data di modifica"
+      },
+      "preset": "ogdch_date"
+    },
+    {
       "field_name": "title",
       "label": {
         "en": "Title",
@@ -43,7 +53,8 @@
         "fr": "Description",
         "it": "Descrizione"
       },
-      "preset": "multilingual_text"
+      "preset": "multilingual_text",
+      "form_snippet": "multilingual_textarea.html"
     },
     {
       "field_name": "permalink",
@@ -57,26 +68,6 @@
       "preset": "dataset_permalink"
     },
     {
-      "field_name": "issued",
-      "label": {
-        "en": "Issued date",
-        "de": "Erstellungsdatum",
-        "fr": "Date de publication",
-        "it": "Data di rilascio"
-      },
-      "preset": "ogdch_date"
-    },
-    {
-      "field_name": "modified",
-      "label": {
-        "en": "Modified date",
-        "de": "Änderungsdatum",
-        "fr": "Date de modification",
-        "it": "Data di modifica"
-      },
-      "preset": "ogdch_date"
-    },
-    {
       "field_name": "owner_org",
       "label": {
         "en": "Organization",
@@ -84,6 +75,7 @@
         "fr": "Organisation",
         "it": "Organizzazione"
       },
+      "display_snippet": "dataset_organization.html",
       "preset": "dataset_organization"
     },
     {
@@ -109,6 +101,89 @@
       "preset": "json_list_of_dicts_field",
       "form_snippet": "contact_points.html",
       "display_snippet": "contact_points.html"
+    },
+    {
+      "field_name": "issued",
+      "label": {
+        "en": "Issued date",
+        "de": "Erstellungsdatum",
+        "fr": "Date de publication",
+        "it": "Data di rilascio"
+      },
+      "preset": "ogdch_date"
+    },
+    {
+      "field_name": "relations",
+      "label": {
+        "en": "Further information",
+        "de": "Weitere Informationen",
+        "fr": "Informations complémentaires",
+        "it": "Addizionali informazioni"
+      },
+      "preset": "json_list_of_dicts_field",
+      "form_snippet": "relations.html",
+      "display_snippet": "relations.html"
+    },
+    {
+      "field_name": "keywords",
+      "label": {
+        "en": "Keywords",
+        "de": "Schlagwörter",
+        "fr": "Mots clés",
+        "it": "Parole chiave"
+      },
+      "preset": "fluent_tags"
+    },
+    {
+      "field_name": "spatial",
+      "label": {
+        "en": "Spatial",
+        "de": "Räumlich",
+        "fr": "Spatial",
+        "it": "Spaziale"
+      }
+    },
+    {
+      "field_name": "coverage",
+      "label": {
+        "en": "Coverage",
+        "de": "Abdeckung",
+        "fr": "Couverture",
+        "it": "Copertura"
+      }
+    },
+    {
+      "field_name": "temporals",
+      "label": {
+        "en": "Temporal coverage",
+        "de": "Zeitliche Abdeckung",
+        "fr": "Couverture temporelle",
+        "it": "Copertura temporale"
+      },
+      "preset": "json_list_of_dicts_field",
+      "form_snippet": "temporals.html",
+      "display_snippet": "temporals.html"
+    },
+    {
+      "field_name": "accrual_periodicity",
+      "label": {
+        "en": "Update interval",
+        "de": "Aktualisierungsintervall",
+        "fr": "Intervalle d'actualisation",
+        "it": "Intervallo di aggiornamento"
+      },
+      "display_snippet": "periodicity.html"
+    },
+    {
+      "field_name": "url",
+      "label": {
+        "en": "Landing page",
+        "de": "Landing page",
+        "fr": "Landing page",
+        "it": "Landing page"
+      },
+      "preset": "url",
+      "display_snippet": "landing_page.html"
     },
     {
       "field_name": "language",
@@ -157,78 +232,6 @@
           }
         }
       ]
-    },
-    {
-      "field_name": "relations",
-      "label": {
-        "en": "Further information",
-        "de": "Weitere Informationen",
-        "fr": "Informations complémentaires",
-        "it": "Addizionali informazioni"
-      },
-      "preset": "json_list_of_dicts_field",
-      "form_snippet": "relations.html",
-      "display_snippet": "relations.html"
-    },
-    {
-      "field_name": "keywords",
-      "label": {
-        "en": "Keywords",
-        "de": "Schlagwörter",
-        "fr": "Mots clés",
-        "it": "Parole chiave"
-      },
-      "preset": "fluent_tags"
-    },
-    {
-      "field_name": "url",
-      "label": {
-        "en": "Landing page",
-        "de": "Landing page",
-        "fr": "Landing page",
-        "it": "Landing page"
-      },
-      "preset": "url"
-    },
-    {
-      "field_name": "spatial",
-      "label": {
-        "en": "Spatial",
-        "de": "Räumlich",
-        "fr": "Spatial",
-        "it": "Spaziale"
-      }
-    },
-    {
-      "field_name": "coverage",
-      "label": {
-        "en": "Coverage",
-        "de": "Abdeckung",
-        "fr": "Couverture",
-        "it": "Copertura"
-      }
-    },
-    {
-      "field_name": "temporals",
-      "label": {
-        "en": "Temporal coverage",
-        "de": "Zeitliche Abdeckung",
-        "fr": "Couverture temporelle",
-        "it": "Copertura temporale"
-      },
-      "preset": "json_list_of_dicts_field",
-      "form_snippet": "temporals.html",
-      "display_snippet": "temporals.html"
-    },
-    {
-      "field_name": "accrual_periodicity",
-      "label": {
-        "en": "Update interval",
-        "de": "Aktualisierungsintervall",
-        "fr": "Intervalle d'actualisation",
-        "it": "Intervallo di aggiornamento"
-      },
-      "display_snippet": "periodicity.html"
     }
   ],
   "resource_fields": [
