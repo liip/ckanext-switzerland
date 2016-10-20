@@ -7,6 +7,14 @@
   <li class="active">{% link_for c.group_dict.display_name|truncate(35), controller='organization', action='read', id=c.group_dict.name %}</li>
 {% endblock %}
 
+{% block head_extras -%}
+  {{ super() }}
+  <meta name="twitter:card" content="summary" />
+  <meta property="twitter:title" content="{{ c.group_dict.title }}">
+  <meta property="twitter:description" content="{{ c.group_dict.description }}">
+  <meta name="twitter:image" content="/content/themes/odpch-wp-theme/img/twitter_card.png" />
+{% endblock -%}
+
 {% block content_action %}
   {% if h.check_access('organization_update', {'id': c.group_dict.id}) %}
     {% link_for _('Manage'), controller='organization', action='edit', id=c.group_dict.name, class_='btn btn-default', icon='wrench' %}

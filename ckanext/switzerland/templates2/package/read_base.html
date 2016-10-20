@@ -13,7 +13,7 @@
   <meta property="og:description" content="{{ description|forceescape|trim }}">
 
   <meta name="twitter:card" content="summary" />
-  <meta property="twitter:title" content="{{ h.dataset_display_name(pkg) }} - {{ g.site_title }}">
+  <meta property="twitter:title" content="{{ h.dataset_display_name(pkg) }}">
   <meta property="twitter:description" content="{{ h.get_localized_value(h.parse_json(pkg.description)) }}">
   <meta name="twitter:image" content="{{ g.site_url }}/content/themes/odpch-wp-theme/img/twitter_card.png" />
 {% endblock -%}
