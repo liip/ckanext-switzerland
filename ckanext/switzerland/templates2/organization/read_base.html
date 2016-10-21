@@ -12,7 +12,7 @@
   <meta name="twitter:card" content="summary" />
   <meta property="twitter:title" content="{{ c.group_dict.title }}">
   <meta property="twitter:description" content="{{ c.group_dict.description }}">
-  <meta name="twitter:image" content="/content/themes/odpch-wp-theme/img/twitter_card.png" />
+  <meta name="twitter:image" content="{{ c.group_dict.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" />
 {% endblock -%}
 
 {% block content_action %}
