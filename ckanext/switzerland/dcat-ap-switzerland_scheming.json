@@ -262,7 +262,8 @@
         "fr": "Description",
         "it": "Descrizione"
       },
-      "preset": "multilingual_text"
+      "preset": "multilingual_text",
+      "form_snippet": "multilingual_textarea.html"
     },
     {
       "field_name": "issued",
@@ -283,6 +284,25 @@
         "it": "Data di modifica"
       },
       "preset": "ogdch_date"
+    },
+    {
+      "field_name": "media_type",
+      "label": {
+        "en": "Format",
+        "de": "Format",
+        "fr": "Format",
+        "it": "Formato"
+      }
+    },
+    {
+      "field_name": "format",
+      "label": {
+        "en": "Format",
+        "de": "Format",
+        "fr": "Format",
+        "it": "Formato"
+      },
+      "preset": "resource_format_autocomplete"
     },
     {
       "field_name": "language",
@@ -372,6 +392,15 @@
       }
     },
     {
+      "field_name": "coverage",
+      "label": {
+        "en": "Coverage",
+        "de": "Abdeckung",
+        "fr": "Couverture",
+        "it": "Copertura"
+      }
+    },
+        {
       "field_name": "byte_size",
       "label": {
         "en": "File size",
@@ -380,34 +409,6 @@
         "it": "Grandezza dei dati"
       },
       "preset": "file_size"
-    },
-    {
-      "field_name": "media_type",
-      "label": {
-        "en": "Format",
-        "de": "Format",
-        "fr": "Format",
-        "it": "Formato"
-      }
-    },
-    {
-      "field_name": "format",
-      "label": {
-        "en": "Format",
-        "de": "Format",
-        "fr": "Format",
-        "it": "Formato"
-      },
-      "preset": "resource_format_autocomplete"
-    },
-    {
-      "field_name": "coverage",
-      "label": {
-        "en": "Coverage",
-        "de": "Abdeckung",
-        "fr": "Couverture",
-        "it": "Copertura"
-      }
     }
   ]
 }
