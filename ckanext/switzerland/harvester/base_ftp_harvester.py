@@ -898,20 +898,23 @@ class BaseFTPHarvester(HarvesterBase):
 
         # set permalink on dataset
         if ordered_resources:
-            package['permalink'] = ordered_resources[0]['url']
-            log.info('Permalink for dataset %s is %s', package['name'], package['permalink'])
+            permalink = ordered_resources[0]['url']
+            log.info('Permalink for dataset %s is %s', package['name'], permalink)
         else:
-            package['permalink'] = None
+            permalink = None
+
+        get_action('package_patch')(context, {'id': package['id'], 'permalink': permalink})
 
         # reorder resources
         # not matched resources come first in the list, then the ordered
-        package['resources'] = unmatched_resources + ordered_resources
+        get_action('package_resource_reorder')(context, {
+            'id': package['id'],
+            'order': map(lambda r: r['id'], unmatched_resources + ordered_resources)
+        })
 
         # ----------------------------------------------------------------------------
         # delete files of old revisions if there are more than 30 revisions
         self._cleanup_revisions(package['id'])
-
-        get_action('package_update')(context, package)
 
     def _delete_version(self, context, package_id, filename):
         """
