@@ -44,14 +44,13 @@ bahnhof_file_csv = """Didok Number,Latitude,Longtitude,Height,Station
 0000033,9.680469,47.544341,0,Lindau Hbf
 """.replace('\n', '\r\n')
 
-infoplus_config = {
-    '0': 'Didok Number',
-    '10': 'Latitude',
-    '20': 'Longtitude',
-    '30': 'Height',
-    '37': '<ignore>',
-    '39': 'Station',
-}
+infoplus_config = [
+    {'from': 1, 'to': 7, 'name': 'StationID'},
+    {'from': 8, 'to': 18, 'name': 'Longtitude'},
+    {'from': 20, 'to': 29, 'name': 'Latitude'},
+    {'from': 31, 'to': 36, 'name': 'Height'},
+    {'from': 40, 'to': -1, 'name': 'Remark'},
+]
 
 ist_file = """BETRIEBSTAG;FAHRT_BEZEICHNER;BETREIBER_ID;BETREIBER_ABK;BETREIBER_NAME;PRODUKT_ID;LINIEN_ID;LINIEN_TEXT;UMLAUF_ID;VERKEHRSMITTEL_TEXT;ZUSATZFAHRT_TF;FAELLT_AUS_TF;BPUIC;HALTESTELLEN_NAME;ANKUNFTSZEIT;AN_PROGNOSE;AN_PROGNOSE_STATUS;ABFAHRTSZEIT;AB_PROGNOSE;AB_PROGNOSE_STATUS;DURCHFAHRT_TF
 25.09.2016;80:06____:17010:000;80:06____;DB;DB Regio AG;Zug;17010;RE;;RE;false;false;8500090;Basel Bad Bf;;;PROGNOSE;25.09.2016 05:49;;UNBEKANNT;false

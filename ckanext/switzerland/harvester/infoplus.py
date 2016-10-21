@@ -13,16 +13,19 @@ log = logging.getLogger(__name__)
 
 
 def get_validation_schema():
+    column_schema = voluptuous.Schema({
+        'from': int,
+        'to': int,
+        'name': basestring,
+    })
+
     def validate_infoplus(files):
-        ret = {}
         for filename, config in files.items():
             voluptuous.Schema(basestring)(filename)
-            voluptuous.Schema(dict)(config)
-            ret[filename] = {}
-            for col, name in config.items():
-                voluptuous.Schema(basestring)(name)
-                ret[filename][int(col)] = name
-        return ret
+            voluptuous.Schema(list)(config)
+            for column in config:
+                column_schema(column)
+        return files
 
     return voluptuous.Schema({
         voluptuous.Required('files'): validate_infoplus,
