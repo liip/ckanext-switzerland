@@ -28,7 +28,7 @@ bahnhof_file = """0000006   7.549783  47.216111 441    % St. Katharinen
 0000030   8.711041  46.766423 831    % Golzern, Talstation Seilbahn
 0000033   9.680469  47.544341 0      % Lindau Hbf"""
 
-bahnhof_file_csv = """Didok Number,Latitude,Longtitude,Height,Station
+bahnhof_file_csv = """StationID,Longitude,Latitude,Height,Remark
 0000006,7.549783,47.216111,441,St. Katharinen
 0000007,9.733756,46.922368,744,Fideris
 0000011,7.389462,47.191804,467,Grenchen Nord
@@ -46,7 +46,7 @@ bahnhof_file_csv = """Didok Number,Latitude,Longtitude,Height,Station
 
 infoplus_config = [
     {'from': 1, 'to': 7, 'name': 'StationID'},
-    {'from': 8, 'to': 18, 'name': 'Longtitude'},
+    {'from': 8, 'to': 18, 'name': 'Longitude'},
     {'from': 20, 'to': 29, 'name': 'Latitude'},
     {'from': 31, 'to': 36, 'name': 'Height'},
     {'from': 40, 'to': -1, 'name': 'Remark'},

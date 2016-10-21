@@ -82,17 +82,16 @@ def file_filter(harvester_obj, config):
     0000016   6.513937  46.659019 499    % La Sarraz, Couronne
 
     Matching config['infoplus']['files'] configuration:
-    infoplus_config = {
-        0: 'Didok Number',
-        10: 'Latitude',
-        20: 'Longtitude',
-        30: 'Height',
-        37: '<ignore>',  # ignore the % sign
-        39: 'Station',
-    }
+    infoplus_config = [
+        {'from': 1, 'to': 7, 'name': 'StationID'},
+        {'from': 8, 'to': 18, 'name': 'Longitude'},
+        {'from': 20, 'to': 29, 'name': 'Latitude'},
+        {'from': 31, 'to': 36, 'name': 'Height'},
+        {'from': 40, 'to': -1, 'name': 'Remark'},
+    ]
 
     Output:
-    Didok Number,Latitude,Longtitude,Height,Station
+    StationID,Longitude,Latitude,Height,Remark
     0000006,7.549783,47.216111,441,St. Katharine
     0000007,9.733756,46.922368,744,Fideri
     0000011,7.389462,47.191804,467,Grenchen Nor
@@ -112,23 +111,15 @@ def file_filter(harvester_obj, config):
 
         infoplus_config = config['infoplus']['files'][harvester_obj['infoplus_filename']]
 
-        config = sorted(infoplus_config.items(), key=itemgetter(0))  # order config items by position
-
-        headings = map(itemgetter(1), filter(lambda k: k[1] != '<ignore>', config))
+        headings = map(lambda col: col['name'], infoplus_config)
         writer.writerow(headings)
-
-        # tuples of positions, e.g. [((0, 'Didok Number'), (10, 'Latitude')), ((10, 'Latitude'), (20, 'Longtitude'))]
-        positions = list(zip(config, config[1:]))
 
         for line in data.split('\n'):
             row = []
-            for (from_pos, column), (to_pos, _) in positions:
-                if column == '<ignore>':
-                    continue
+            for config in infoplus_config:
+                from_pos = config['from'] - 1
+                to_pos = config['to'] if config['to'] != -1 else len(line)
                 row.append(line[from_pos:to_pos].strip())
-
-            # last position should go to the end of the file
-            row.append(line[config[-1][0]:].strip())
             writer.writerow(row)
 
     zipfile.close()
