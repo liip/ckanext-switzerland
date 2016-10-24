@@ -132,7 +132,8 @@
         "fr": "Mots clés",
         "it": "Parole chiave"
       },
-      "preset": "fluent_tags"
+      "preset": "fluent_tags",
+      "display_snippet": "keywords.html"
     },
     {
       "field_name": "spatial",
