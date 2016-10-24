@@ -339,20 +339,6 @@ def resource_link(resource_dict, package_id):
     return link_to(text, url)
 
 
-def revision_url(url, revision_date):
-    """
-    Adds a revision_date get parameter to the url if revision_date is set
-    :param url: resource url
-    :param revision_date: datetime or isoformat string or None
-    :return:
-    """
-    if revision_date and (url.startswith('/') or url.startswith(config.get('ckan.site_url', ''))):
-        if isinstance(revision_date, datetime.datetime):
-            revision_date = revision_date.isoformat()
-        url += '?revision_date=' + revision_date
-    return url
-
-
 def resource_filename(resource_url):
     return munge_filename(os.path.basename(resource_url))
 

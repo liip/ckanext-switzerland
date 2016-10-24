@@ -13,10 +13,9 @@ from ckanext.switzerland.helpers import (
     get_dataset_by_identifier, get_readable_file_size,
     simplify_terms_of_use, parse_json, get_piwik_config,
     convert_post_data_to_dict, dataset_display_name, resource_display_name, group_link, resource_link,
-    parse_and_localize, revision_url, resource_filename, load_wordpress_templates, render_description
+    parse_and_localize, resource_filename, load_wordpress_templates, render_description
 )
 
-from ckan.common import request
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckan.lib.helpers as h
@@ -126,7 +125,6 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'get_piwik_config': get_piwik_config,
             'parse_json': parse_json,
             'convert_post_data_to_dict': convert_post_data_to_dict,
-            'revision_url': revision_url,
             'resource_filename': resource_filename,
             'load_wordpress_templates': load_wordpress_templates,
             'render_description': render_description,
@@ -307,15 +305,6 @@ class OgdchOrganizationPlugin(OgdchLanguagePlugin):
 class OgdchResourcePlugin(OgdchLanguagePlugin):
     plugins.implements(plugins.IResourceController, inherit=True)
 
-    # IResourceController
-    def before_show(self, pkg_dict):
-        try:
-            pkg_dict['url'] = revision_url(pkg_dict['url'], request.GET.get('revision_date'))
-            pkg_dict['download_url'] = revision_url(pkg_dict['download_url'], request.GET.get('revision_date'))
-        except TypeError:  # when called outside of request/response cycle we get a TypeError
-            pass
-        return super(OgdchResourcePlugin, self).before_view(pkg_dict)
-
     def _ignore_field(self, key):
         return key == 'tracking_summary'
 
@@ -323,15 +312,13 @@ class OgdchResourcePlugin(OgdchLanguagePlugin):
 
     def before_map(self, map):
         """
-        Patch PackageController to accept the revision_date GET parameter on resource views.
+        Patch PackageController to make deleted resources downloadable
         """
-        with SubMapper(map, controller='ckanext.switzerland.controllers:RevisionPackageController') as m:
+        with SubMapper(map, controller='ckanext.switzerland.controllers:DeletedResourcePackageController') as m:
             m.connect('/dataset/{id}/resource/{resource_id}/download',
                       action='resource_download')
             m.connect('/dataset/{id}/resource/{resource_id}/download/{filename}',
                       action='resource_download')
-            m.connect('/dataset/{id}/resource/{resource_id}',
-                      action='resource_read')
 
         with SubMapper(map, controller='ckanext.switzerland.controllers:PermalinkController') as m:
             m.connect('/dataset/{id}/resource_permalink/{filename}',
