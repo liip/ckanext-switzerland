@@ -800,6 +800,7 @@ class BaseFTPHarvester(HarvesterBase):
             # this parameter will be replaced later by the resource patch with a link to the download file
             if 'url' not in resource_meta:
                 resource_meta['url'] = 'http://dummy-value'
+                resource_meta['download_url'] = None
 
             if size is not None:
                 resource_meta['size'] = size
