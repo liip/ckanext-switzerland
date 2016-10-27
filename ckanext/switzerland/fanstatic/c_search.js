@@ -1,4 +1,5 @@
-
+Vue.config.delimiters = ['[[', ']]'];
+Vue.config.unsafeDelimiters = ['[[[', ']]]'];
 new Vue({
   el: '#app',
   data: {

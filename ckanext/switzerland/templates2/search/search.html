@@ -36,34 +36,34 @@
             <h1>{{ _('Search') }}</h1>
 
             <div id="app">
-
-              {% raw %}
               <form class="form-inline" v-on:submit.prevent="search">
                 <validator name="searchValidation">
-                  <input type="text" class="form-control" id="search" v-model="searchTerm" v-validate:search="{minlength: 3}">
-                  <input type="submit" class="btn btn-default" value="Search" :disabled="$searchValidation.search.minlength">
+                  <input type="text" class="form-control" id="search" v-model="searchTerm" v-validate:search="{minlength: 3}" style="display: none">
+                  <input type="submit" class="btn btn-default" value="Search" :disabled="$searchValidation.search.minlength" style="display: none">
                   <span class="help-block" v-if="$searchValidation.search.minlength">Search term must be at least 3 characters long</span>
                 </validator>
-              </form>
+             </form>
 
               <div v-show="currentSearchTerm" style="display: none">
                 <h2>
-                  {{ datasetResults.length }} datasets found for "{{ currentSearchTerm }}"
+                  {% trans %}[[ datasetResults.length ]] datasets found for "[[ currentSearchTerm ]]"{% endtrans %}
                 </h2>
                 <div v-for="result in datasetResults">
                   <hr>
-                  <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
-                  <div>{{ result.description }}</div>
+                  <h3><a href="[[ result.link ]]">[[ result.title ]]</a></h3>
+                  <div>[[ result.description ]]</div>
                 </div>
 
-                <h2>{{ pageResults.length }} pages found for "{{ currentSearchTerm }}"</h2>
+                <h2>
+                  {% trans %}[[ pageResults.length ]] pages found for "[[ currentSearchTerm ]]"{% endtrans %}
+                </h2>
                 <div v-for="result in pageResults">
                   <hr>
-                  <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
-                  <div>{{{ result.description }}}</div>
+                  <h3><a href="[[ result.link ]]">[[ result.title ]]</a></h3>
+                  <div>[[[ result.description ]]]</div>
                 </div>
               </div>
-              {% endraw %}
+
             </div>
           {% endblock %}
         </div>
