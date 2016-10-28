@@ -153,19 +153,6 @@ class BaseFTPHarvester(HarvesterBase):
 
     filters = {}
 
-    # tested
-    def _get_rest_api_offset(self):
-        return '/api/%d/rest' % self.api_version
-
-    # tested
-    def _get_action_api_offset(self):
-        return '/api/%d/action' % self.action_api_version
-
-    # tested
-    def _get_search_api_offset(self):
-        return '/api/%d/search' % self.api_version
-
-    # tested
     def get_remote_folder(self):
         return os.path.join('/', self.config['environment'], self.config['folder'])
 
