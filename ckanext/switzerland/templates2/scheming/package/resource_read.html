@@ -17,46 +17,18 @@
 {% block resource_additional_information_inner %}
   <div class="module-content">
     <h2>{{ _('Additional Information') }}</h2>
-    <table class="table table-striped table-bordered table-condensed" data-module="table-toggle-more">
-      <thead>
-        <tr>
-          <th scope="col">{{ _('Field') }}</th>
-          <th scope="col">{{ _('Value') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr>
-            <th scope="row">{{ _('Permalink') }}</th>
-            <td>{% link_for _('Permalink'), controller='ckanext.switzerland.controllers:PermalinkController', action='resource_permalink', id=pkg.name, filename=h.resource_filename(res.url) %}</td>
-          </tr>
-          {#
-          <tr>
-            <th scope="row">{{ _('Identifier') }}</th>
-            <td>{{ res.identifier }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{{ _('Last updated') }}</th>
-            <td>{{ h.render_datetime(res.last_modified) or h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{{ _('Format') }}</th>
-            <td>{{ res.mimetype_inner or res.mimetype or res.format or _('unknown') }}</td>
-          </tr>
-           #}
-          {%- for field in schema.resource_fields -%}
-            {%- if field.field_name not in exclude_fields -%}
-              <tr>
-                <th scope="row">
-                  {{- h.scheming_language_text(field.label) -}}
-                </th>
-                <td>
-                  {%- snippet 'scheming/snippets/display_field.html',
+    <dl class="dl-horizontal">
+      <dt class="dataset-label">{{ _('Permalink') }}</dt>
+      <dd class="dataset-details">{% link_for _('Permalink'), controller='ckanext.switzerland.controllers:PermalinkController', action='resource_permalink', id=pkg.name, filename=h.resource_filename(res.url) %}</dd>
+      {%- for field in schema.resource_fields -%}
+        {%- if field.field_name not in exclude_fields -%}
+          <dt class="dataset-label">{{- h.scheming_language_text(field.label) -}}</dt>
+          <dd class="dataset-details">
+            {%- snippet 'scheming/snippets/display_field.html',
                       field=field, data=res, schema=schema -%}
-                </td>
-              </tr>
-            {%- endif -%}
-          {%- endfor -%}
-      </tbody>
-    </table>
+          </dd>
+        {%- endif -%}
+      {%- endfor -%}
+    </dl>
   </div>
 {% endblock %}

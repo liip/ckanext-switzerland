@@ -77,7 +77,12 @@
             {% endif %}
           </div>
           <br>
-          <b>{{ _('Terms of use') }}:</b> <a href="{{ h.url('/terms-of-use/') }}">{{ _('Terms of use opentransport.swiss') }}</a>
+          <dl>
+            <dt>{{ _('Terms of use') }}</dt>
+            <dd class="terms">
+              <a href="{{ h.url('/terms-of-use/') }}">{{ _('Terms of use opentransport.swiss') }}</a>
+            </dd>
+          </dl>
         {% endblock %}
       </div>
       {% block data_preview %}
