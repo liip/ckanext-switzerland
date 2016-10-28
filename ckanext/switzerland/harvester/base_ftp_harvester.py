@@ -88,9 +88,9 @@ class BaseFTPHarvester(HarvesterBase):
         'maintainer': "Maintainer name",
         'maintainer_email': "maintainer@example.com",
         # license
-        'license_id': "other-open",
-        'license_title': "Other (Open)",
-        'rights': "Other (Open)",
+        'license_id': "",
+        'license_title': "",
+        'rights': "",
         # ckan multilang/switzerland custom required fields
         'coverage': "Coverage",
         'issued': "21.03.2015",
@@ -146,8 +146,8 @@ class BaseFTPHarvester(HarvesterBase):
 
     resource_dict_meta = {
         'state': 'active',
-        'rights': 'Other (Open)',
-        'license': 'Other (Open)',
+        'rights': '',
+        'license': '',
         'coverage': 'Coverage',
     }
 
