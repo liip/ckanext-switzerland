@@ -6,23 +6,19 @@
 	except with .col-md-12
 #}
 {% block secondary %}{% endblock %}
+
+{% block breadcrumb %}
+  <ol class="breadcrumb">
+    {% snippet 'snippets/home_breadcrumb_item.html' %}
+    <li class="serch">{{ _('Search') }}</li>
+  </ol>
+{% endblock %}
+
 {% block primary %}
   <div class="col-md-12">
     {% block primary_content %}
-      <article class="module">
-        {% block page_header %}
-          <header class="module-content page-header">
-            {% if self.content_action() | trim %}
-              <div class="content_action">
-                {% block content_action %}{% endblock %}
-              </div>
-            {% endif %}
-            <ul class="nav nav-tabs">
-              {% block content_primary_nav %}{% endblock %}
-            </ul>
-          </header>
-        {% endblock %}
-        <div class="module-content">
+      <article>
+        <div>
           {% if self.page_primary_action() | trim %}
             <div class="page_primary_action">
               {% block page_primary_action %}{% endblock %}
@@ -34,36 +30,47 @@
             {% resource 'switzerland/c_search.js' %}
 
             <h1>{{ _('Search') }}</h1>
-
             <div id="app">
-
-              {% raw %}
               <form class="form-inline" v-on:submit.prevent="search">
                 <validator name="searchValidation">
-                  <input type="text" class="form-control" id="search" v-model="searchTerm" v-validate:search="{minlength: 3}">
-                  <input type="submit" class="btn btn-default" value="Search" :disabled="$searchValidation.search.minlength">
+                  <input type="text" class="form-control" id="search" v-model="searchTerm" v-validate:search="{minlength: 3}" style="display: none">
+                  <input type="submit" class="btn btn-default" value="Search" :disabled="$searchValidation.search.minlength" style="display: none">
                   <span class="help-block" v-if="$searchValidation.search.minlength">Search term must be at least 3 characters long</span>
                 </validator>
-              </form>
+             </form>
 
               <div v-show="currentSearchTerm" style="display: none">
                 <h2>
-                  {{ datasetResults.length }} datasets found for "{{ currentSearchTerm }}"
+                  {% trans %}[[ datasetResults.length ]] datasets found for "[[ currentSearchTerm ]]"{% endtrans %}
                 </h2>
-                <div v-for="result in datasetResults">
+                <div v-for="result in datasetResults | paginate paginateDatasets">
                   <hr>
-                  <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
-                  <div>{{ result.description }}</div>
+                  <h3><a href="[[ result.link ]]">[[ result.title ]]</a></h3>
+                  <div>[[ result.description ]]</div>
                 </div>
 
-                <h2>{{ pageResults.length }} pages found for "{{ currentSearchTerm }}"</h2>
-                <div v-for="result in pageResults">
+                <ul class="pagination" v-if="paginateDatasets.resultCount > paginateDatasets.itemsPerPage">
+                  <li v-for="datasetNumber in totalDatasets" :class="{active: paginateDatasets.currentPage === datasetNumber}">
+                    <a href="#" @click="setPage(datasetNumber, paginateDatasets)">[[ datasetNumber+1 ]]</a>
+                  </li>
+                </ul>
+                <br>
+
+                <h2>
+                  {% trans %}[[ pageResults.length ]] pages found for "[[ currentSearchTerm ]]"{% endtrans %}
+                </h2>
+                <div v-for="result in pageResults | paginate paginatePages">
                   <hr>
-                  <h3><a href="{{ result.link }}">{{ result.title }}</a></h3>
-                  <div>{{{ result.description }}}</div>
+                  <h3><a href="[[ result.link ]]">[[ result.title ]]</a></h3>
+                  <div>[[[ result.description ]]]</div>
                 </div>
+                <ul class="pagination" v-if="paginatePages.resultCount > paginatePages.itemsPerPage">
+                  <li v-for="pageNumber in totalPages" :class="{active: paginatePages.currentPage === pageNumber}">
+                    <a href="#" @click="setPage(pageNumber, paginatePages)">[[ pageNumber+1 ]]</a>
+                  </li>
+                </ul>
               </div>
-              {% endraw %}
+               <br>
             </div>
           {% endblock %}
         </div>
