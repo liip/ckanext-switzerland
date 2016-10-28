@@ -103,6 +103,17 @@
       "display_snippet": "contact_points.html"
     },
     {
+      "field_name": "keywords",
+      "label": {
+        "en": "Keywords",
+        "de": "Schlagwörter",
+        "fr": "Mots clés",
+        "it": "Parole chiave"
+      },
+      "preset": "fluent_tags",
+      "display_snippet": "keywords.html"
+    },
+    {
       "field_name": "issued",
       "label": {
         "en": "Issued date",
@@ -123,17 +134,6 @@
       "preset": "json_list_of_dicts_field",
       "form_snippet": "relations.html",
       "display_snippet": "relations.html"
-    },
-    {
-      "field_name": "keywords",
-      "label": {
-        "en": "Keywords",
-        "de": "Schlagwörter",
-        "fr": "Mots clés",
-        "it": "Parole chiave"
-      },
-      "preset": "fluent_tags",
-      "display_snippet": "keywords.html"
     },
     {
       "field_name": "spatial",
