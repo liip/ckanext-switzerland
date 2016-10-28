@@ -50,10 +50,6 @@
     {% snippet "package/snippets/description.html", pkg=pkg %}
   {% endblock %}
 
-  {% block package_keywords %}
-    {% snippet "package/snippets/keywords.html", keywords=pkg.keywords %}
-  {% endblock %}
-
   {% block package_resources %}
     {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
   {% endblock %}
