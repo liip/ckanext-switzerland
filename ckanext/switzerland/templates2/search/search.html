@@ -33,9 +33,9 @@
             <div id="app">
               <form class="form-inline" v-on:submit.prevent="search">
                 <validator name="searchValidation">
-                  <input type="text" class="form-control" id="search" v-model="searchTerm" v-validate:search="{minlength: 3}" style="display: none">
-                  <input type="submit" class="btn btn-default" value="Search" :disabled="$searchValidation.search.minlength" style="display: none">
-                  <span class="help-block" v-if="$searchValidation.search.minlength">Search term must be at least 3 characters long</span>
+                  <input type="text" class="form-control" id="search" v-model="searchTerm" v-validate:search="{minlength: 3}">
+                  <input type="submit" class="btn btn-default" value="Search" :disabled="$searchValidation.search.minlength">
+                  <span class="help-block" v-if="$searchValidation.search.minlength">{% trans %}Search term must be at least 3 characters long{% endtrans %}</span>
                 </validator>
              </form>
 
