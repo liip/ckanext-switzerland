@@ -51,7 +51,7 @@
 
                 <ul class="pagination" v-if="paginateDatasets.resultCount > paginateDatasets.itemsPerPage">
                   <li v-for="datasetNumber in totalDatasets" :class="{active: paginateDatasets.currentPage === datasetNumber}">
-                    <a href="#" @click="setPage(datasetNumber, paginateDatasets)">[[ datasetNumber+1 ]]</a>
+                    <a @click.prevent="setPage(datasetNumber, paginateDatasets)">[[ datasetNumber+1 ]]</a>
                   </li>
                 </ul>
                 <br>
@@ -66,7 +66,7 @@
                 </div>
                 <ul class="pagination" v-if="paginatePages.resultCount > paginatePages.itemsPerPage">
                   <li v-for="pageNumber in totalPages" :class="{active: paginatePages.currentPage === pageNumber}">
-                    <a href="#" @click="setPage(pageNumber, paginatePages)">[[ pageNumber+1 ]]</a>
+                    <a @click.prevent="setPage(pageNumber, paginatePages)">[[ pageNumber+1 ]]</a>
                   </li>
                 </ul>
               </div>
