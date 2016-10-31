@@ -30,7 +30,7 @@
             {% resource 'switzerland/c_search.js' %}
 
             <h1>{{ _('Search') }}</h1>
-            <div id="app">
+            <div id="app" v-cloak>
               <form class="form-inline" v-on:submit.prevent="search">
                 <validator name="searchValidation">
                   <input type="text" class="form-control" id="search" v-model="searchTerm" v-validate:search="{minlength: 3}">
@@ -39,7 +39,7 @@
                 </validator>
              </form>
 
-              <div v-show="currentSearchTerm" style="display: none">
+              <div v-show="currentSearchTerm">
                 <h2>
                   {% trans %}[[ datasetResults.length ]] datasets found for "[[ currentSearchTerm ]]"{% endtrans %}
                 </h2>
