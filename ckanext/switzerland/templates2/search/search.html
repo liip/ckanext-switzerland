@@ -42,6 +42,7 @@
 
               <div v-show="currentSearchTerm">
                 <h2>
+                  <a name="ckan"></a>
                   {% trans %}[[ datasetResults.length ]] datasets found for "[[ currentSearchTerm ]]"{% endtrans %}
                 </h2>
                 <div v-for="result in datasetResults | paginate paginateDatasets">
@@ -52,12 +53,13 @@
 
                 <ul class="pagination" v-if="paginateDatasets.resultCount > paginateDatasets.itemsPerPage">
                   <li v-for="datasetNumber in totalDatasets" :class="{active: paginateDatasets.currentPage === datasetNumber}">
-                    <a @click.prevent="setPage(datasetNumber, paginateDatasets)">[[ datasetNumber+1 ]]</a>
+                    <a href="#ckan" @click="setPage(datasetNumber, paginateDatasets)">[[ datasetNumber+1 ]]</a>
                   </li>
                 </ul>
                 <br>
 
                 <h2>
+                  <a name="wordpress"></a>
                   {% trans %}[[ pageResults.length ]] pages found for "[[ currentSearchTerm ]]"{% endtrans %}
                 </h2>
                 <div v-for="result in pageResults | paginate paginatePages">
@@ -67,7 +69,7 @@
                 </div>
                 <ul class="pagination" v-if="paginatePages.resultCount > paginatePages.itemsPerPage">
                   <li v-for="pageNumber in totalPages" :class="{active: paginatePages.currentPage === pageNumber}">
-                    <a @click.prevent="setPage(pageNumber, paginatePages)">[[ pageNumber+1 ]]</a>
+                    <a href="#wordpress" @click="setPage(pageNumber, paginatePages)">[[ pageNumber+1 ]]</a>
                   </li>
                 </ul>
               </div>
