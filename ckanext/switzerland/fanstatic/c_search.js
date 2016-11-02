@@ -9,6 +9,7 @@ new Vue({
     pageResults: [],
     datasetResults: [],
     language: '',
+    loading: false,
     paginatePages: {
       currentPage: 1,
       itemsPerPage: 8,
@@ -50,6 +51,8 @@ new Vue({
     search: function() {
       var self = this
 
+      this.loading = true
+
       var ckanSearch = $.ajax('/api/3/action/package_search?facet.limit=100&q=' + this.searchTerm)
       var wordPressSearch = $.ajax('/wp-json/wp/v2/pages/?filter[s]=' + this.searchTerm + '&per_page=100')
 
@@ -75,6 +78,7 @@ new Vue({
         })
 
         self.currentSearchTerm = self.searchTerm
+        self.loading = false
       })
     },
     setPage: function(pageNumber, paginate) {
