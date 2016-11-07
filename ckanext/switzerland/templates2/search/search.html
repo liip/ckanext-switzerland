@@ -40,6 +40,11 @@
                 </validator>
              </form>
 
+               <!-- error message -->
+              <div v-show="hasError" class="alert alert-danger" style="margin-top: 1em;">
+                  {% trans %}An error occured. Please try another search phrase.{% endtrans %}
+              </div>
+
               <div v-show="currentSearchTerm">
                 <h2>
                   <a name="ckan"></a>

@@ -9,6 +9,8 @@ new Vue({
     pageResults: [],
     datasetResults: [],
     language: '',
+    // shows an error in gui when true
+    hasError: false,
     loading: false,
     paginatePages: {
       currentPage: 1,
@@ -51,12 +53,14 @@ new Vue({
     search: function() {
       var self = this
 
+      this.hasError = false
+      self.currentSearchTerm = self.searchTerm
       this.loading = true
 
       var ckanSearch = $.ajax('/api/3/action/package_search?facet.limit=100&q=' + this.searchTerm)
       var wordPressSearch = $.ajax('/wp-json/wp/v2/pages/?filter[s]=' + this.searchTerm + '&per_page=100')
 
-      $.when(ckanSearch, wordPressSearch).done(function(datasets, pages) {
+      $.when(ckanSearch, wordPressSearch).then(function(datasets, pages) {
         // ckan search results
         self.datasetResults = []
         datasets[0].result.results.map(function(result) {
@@ -77,8 +81,16 @@ new Vue({
           })
         })
 
-        self.currentSearchTerm = self.searchTerm
         self.loading = false
+      }, 
+      /**
+       * Error handler
+       */
+      function() {
+      	self.hasError = true
+      	self.loading = false
+      	self.pageResults = []
+      	self.datasetResults = []
       })
     },
     setPage: function(pageNumber, paginate) {
