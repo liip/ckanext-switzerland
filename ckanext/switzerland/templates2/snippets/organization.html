@@ -32,11 +32,13 @@ Example:
         </div>
       {% endblock %}
       {% block heading %}
-      <h1 class="heading">{{ h.get_localized_value(organization.title) }}
-        {% if organization.state == 'deleted' %}
-          [{{ _('Deleted') }}]
+        {% if not hide_heading %}
+        <h1 class="heading">{{ h.get_localized_value(organization.title) }}
+          {% if organization.state == 'deleted' %}
+            [{{ _('Deleted') }}]
+          {% endif %}
+        </h1>
         {% endif %}
-      </h1>
       {% endblock %}
       {% if show_nums %}
         {% block nums %}
