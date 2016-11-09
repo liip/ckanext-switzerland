@@ -3,11 +3,11 @@
   <div class="col-xs-12 header-top">
     <div class="container">
       <div class="row">
-        <div class="col-xs-6 left">
+        <div class="col-xs-12 col-sm-8 left">
           {{ c.wordpress_user_navigation|safe }}
           {{ c.wordpress_admin_navigation|safe }}
         </div>
-        <div class="col-xs-6 right text-right">
+        <div class="col-xs-12 col-sm-4 right text-right">
           {% include "snippets/language_selector.html" %}
         </div>
       </div>
@@ -39,7 +39,7 @@
       </div>
 
       <!-- title -->
-      <div class="row">
+      <div class="row title">
         <div class="col-xs-12">
           <a href="/" class="title"><span class="header-title">{{ c.wordpress_title }}</span></a>
         </div>
