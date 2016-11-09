@@ -16,16 +16,6 @@
       "validators": "scheming_required ogdch_unique_identifier"
     },
     {
-      "field_name": "modified",
-      "label": {
-        "en": "Modified date",
-        "de": "Änderungsdatum",
-        "fr": "Date de modification",
-        "it": "Data di modifica"
-      },
-      "preset": "ogdch_date"
-    },
-    {
       "field_name": "title",
       "label": {
         "en": "Title",
@@ -44,6 +34,16 @@
         "it": "Slug"
       },
       "preset": "dataset_slug"
+    },
+    {
+      "field_name": "modified",
+      "label": {
+        "en": "Modified date",
+        "de": "Änderungsdatum",
+        "fr": "Date de modification",
+        "it": "Data di modifica"
+      },
+      "preset": "ogdch_date"
     },
     {
       "field_name": "description",
