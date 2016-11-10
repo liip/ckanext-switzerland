@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-switzerland 0.0.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-10-31 17:34+0000\n"
+"POT-Creation-Date: 2016-11-10 08:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -277,7 +277,6 @@ msgstr ""
 #: ckanext/switzerland/templates/footer.html:57
 #: ckanext/switzerland/templates/header.html:41
 #: ckanext/switzerland/templates2/group/read_base.html:19
-#: ckanext/switzerland/templates2/organization/read_base.html:27
 #: ckanext/switzerland/templates2/user/edit_user_form.html:16
 msgid "About"
 msgstr ""
@@ -430,7 +429,7 @@ msgstr ""
 #: ckanext/switzerland/templates2/group/snippets/info.html:16
 #: ckanext/switzerland/templates2/package/read.html:17
 #: ckanext/switzerland/templates2/package/read.html:44
-#: ckanext/switzerland/templates2/snippets/organization.html:37
+#: ckanext/switzerland/templates2/snippets/organization.html:38
 #: ckanext/switzerland/templates2/snippets/package_item.html:42
 #: ckanext/switzerland/templates2/snippets/source_item.html:30
 msgid "Deleted"
@@ -545,28 +544,33 @@ msgid "Search Filter"
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/search_box.html:28
+#: ckanext/switzerland/templates2/package/search.html:23
 msgid "Relevance"
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/search_box.html:29
+#: ckanext/switzerland/templates2/package/search.html:24
 msgid "Name Ascending"
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/search_box.html:30
+#: ckanext/switzerland/templates2/package/search.html:25
 msgid "Name Descending"
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/search_box.html:31
+#: ckanext/switzerland/templates2/package/search.html:26
 #: ckanext/switzerland/templates2/package/snippets/resource_form.html:53
 msgid "Last Modified"
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/search_box.html:32
+#: ckanext/switzerland/templates2/package/search.html:27
 msgid "Popular"
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/search_box.html:35
-#: ckanext/switzerland/templates2/snippets/search_form.html:29
+#: ckanext/switzerland/templates2/snippets/search_form.html:31
 msgid "Order by"
 msgstr ""
 
@@ -612,6 +616,11 @@ msgstr[1] ""
 #: ckanext/switzerland/templates/snippets/search_result_text.html:28
 #: ckanext/switzerland/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
+msgstr ""
+
+#: ckanext/switzerland/templates2/header.html:30
+#: ckanext/switzerland/templates2/search/search.html:36
+msgid "min. 3 characters"
 msgstr ""
 
 #: ckanext/switzerland/templates2/page.html:7
@@ -800,7 +809,7 @@ msgstr ""
 #: ckanext/switzerland/templates2/group/edit_base.html:11
 #: ckanext/switzerland/templates2/group/read_base.html:12
 #: ckanext/switzerland/templates2/organization/edit_base.html:11
-#: ckanext/switzerland/templates2/organization/read_base.html:20
+#: ckanext/switzerland/templates2/organization/read_base.html:35
 #: ckanext/switzerland/templates2/package/read_base.html:23
 #: ckanext/switzerland/templates2/package/resource_read.html:35
 #: ckanext/switzerland/templates2/user/read_base.html:14
@@ -935,9 +944,8 @@ msgstr ""
 #: ckanext/switzerland/templates2/group/read_base.html:17
 #: ckanext/switzerland/templates2/group/snippets/info.html:28
 #: ckanext/switzerland/templates2/organization/edit_base.html:23
-#: ckanext/switzerland/templates2/organization/read_base.html:25
 #: ckanext/switzerland/templates2/revision/diff.html:11
-#: ckanext/switzerland/templates2/snippets/organization.html:49
+#: ckanext/switzerland/templates2/snippets/organization.html:51
 #: ckanext/switzerland/templates2/snippets/source_item.html:42
 #: ckanext/switzerland/templates2/user/read_base.html:19
 #: ckanext/switzerland/templates2/user/read_base.html:53
@@ -945,7 +953,6 @@ msgid "Datasets"
 msgstr ""
 
 #: ckanext/switzerland/templates2/group/read_base.html:18
-#: ckanext/switzerland/templates2/organization/read_base.html:26
 #: ckanext/switzerland/templates2/package/read_base.html:29
 #: ckanext/switzerland/templates2/user/read_base.html:20
 msgid "Activity Stream"
@@ -1005,7 +1012,7 @@ msgstr ""
 #: ckanext/switzerland/templates2/macros/form.html:235
 #: ckanext/switzerland/templates2/scheming/form_snippets/relations.html:37
 #: ckanext/switzerland/templates2/scheming/form_snippets/relations.html:78
-#: ckanext/switzerland/templates2/snippets/search_form.html:16
+#: ckanext/switzerland/templates2/snippets/search_form.html:18
 msgid "Remove"
 msgstr ""
 
@@ -1015,7 +1022,7 @@ msgstr ""
 
 #: ckanext/switzerland/templates2/group/snippets/info.html:24
 #: ckanext/switzerland/templates2/package/snippets/info.html:23
-#: ckanext/switzerland/templates2/snippets/organization.html:45
+#: ckanext/switzerland/templates2/snippets/organization.html:47
 #: ckanext/switzerland/templates2/user/read_base.html:49
 msgid "Followers"
 msgstr ""
@@ -1101,6 +1108,16 @@ msgstr ""
 #: ckanext/switzerland/templates2/organization/new.html:7
 #: ckanext/switzerland/templates2/organization/new.html:12
 msgid "Create an Organization"
+msgstr ""
+
+#: ckanext/switzerland/templates2/organization/read.html:8
+#, python-format
+msgid "%(count)s datasets"
+msgstr ""
+
+#: ckanext/switzerland/templates2/organization/read_base.html:39
+#: ckanext/switzerland/templates2/package/search.html:10
+msgid "Add Dataset"
 msgstr ""
 
 #: ckanext/switzerland/templates2/organization/snippets/helper.html:4
@@ -1517,15 +1534,19 @@ msgstr ""
 msgid "Permalink"
 msgstr ""
 
-#: ckanext/switzerland/templates2/search/search.html:38
+#: ckanext/switzerland/templates2/search/search.html:39
 msgid "Search term must be at least 3 characters long"
 msgstr ""
 
-#: ckanext/switzerland/templates2/search/search.html:44
+#: ckanext/switzerland/templates2/search/search.html:45
+msgid "An error occured. Please try another search phrase."
+msgstr ""
+
+#: ckanext/switzerland/templates2/search/search.html:51
 msgid "[[ datasetResults.length ]] datasets found for \"[[ currentSearchTerm ]]\""
 msgstr ""
 
-#: ckanext/switzerland/templates2/search/search.html:60
+#: ckanext/switzerland/templates2/search/search.html:68
 msgid "[[ pageResults.length ]] pages found for \"[[ currentSearchTerm ]]\""
 msgstr ""
 
@@ -1575,11 +1596,11 @@ msgstr ""
 msgid "Add Item"
 msgstr ""
 
-#: ckanext/switzerland/templates2/snippets/search_form.html:21
+#: ckanext/switzerland/templates2/snippets/search_form.html:23
 msgid "Filter Results"
 msgstr ""
 
-#: ckanext/switzerland/templates2/snippets/search_form.html:38
+#: ckanext/switzerland/templates2/snippets/search_form.html:40
 msgid "Go"
 msgstr ""
 

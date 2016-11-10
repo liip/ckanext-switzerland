@@ -1,3 +1,5 @@
+# #-#-#-#-#  ckanext-switzerland.po (CKAN)  #-#-#-#-#
+# #-#-#-#-#  ckanext-switzerland.po (CKAN)  #-#-#-#-#
 # #-#-#-#-#  ckanext-switzerland.po (opendata.swiss)  #-#-#-#-#
 # Translations template for ckanext-switzerland.
 # Copyright (C) 2015 ORGANIZATION
@@ -28,20 +30,60 @@
 # pierre chrzanowski <pierre.chrzanowski@gmail.com>, 2013
 # Pierre Pezziardi <pierre@pezziardi.net>, 2013
 # Yann-Aël <yannael@gmail.com>, 2015
+# #-#-#-#-#  ckan.po (CKAN)  #-#-#-#-#
+# Translations template for ckan.
+# Copyright (C) 2015 ORGANIZATION
+# This file is distributed under the same license as the ckan project.
+#
+# Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2014
+# Anne-Marie Luigi-Way, 2013
+# arthur.lutz <arthur.lutz@gmail.com>, 2012
+# Diane Mercier <diane.mercier@gmail.com>, 2015
+# Emmanuel <emmanuel@raviart.com>, 2013
+# <internet@davidread.org>, 2011
+# keronos <aka.keronos@gmail.com>, 2012
+# Open Knowledge Foundation <translations@okfn.org>, 2011
+# Philippe Duchesne, 2014-2015
+# pierre chrzanowski <pierre.chrzanowski@gmail.com>, 2013
+# Pierre Pezziardi <pierre@pezziardi.net>, 2013
+# Yann-Aël <yannael@gmail.com>, 2015
+# #-#-#-#-#  ckan.po (CKAN)  #-#-#-#-#
+# Translations template for ckan.
+# Copyright (C) 2015 ORGANIZATION
+# This file is distributed under the same license as the ckan project.
+#
+# Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2014
+# Anne-Marie Luigi-Way, 2013
+# arthur.lutz <arthur.lutz@gmail.com>, 2012
+# Diane Mercier <diane.mercier@gmail.com>, 2015
+# Emmanuel <emmanuel@raviart.com>, 2013
+# <internet@davidread.org>, 2011
+# keronos <aka.keronos@gmail.com>, 2012
+# Open Knowledge Foundation <translations@okfn.org>, 2011
+# Philippe Duchesne, 2014-2015
+# pierre chrzanowski <pierre.chrzanowski@gmail.com>, 2013
+# Pierre Pezziardi <pierre@pezziardi.net>, 2013
+# Yann-Aël <yannael@gmail.com>, 2015
 msgid ""
 msgstr ""
-"Project-Id-Version: opendata.swiss\n"
+"Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-10-31 17:34+0000\n"
-"PO-Revision-Date: 2016-10-31 18:35+0100\n"
-"Last-Translator: Jürg Hunziker <juerg.hunziker@gmail.com>\n"
-"Language-Team: French (http://www.transifex.com/opendataswiss/opendata-swiss/"
-"language/fr/)\n"
+"POT-Creation-Date: 2016-11-10 08:57+0000\n"
+"PO-Revision-Date: 2016-11-10 09:57+0100\n"
+"Last-Translator: Diane Mercier <diane.mercier@gmail.com>\n"
+"Language-Team: French (http://www.transifex.com/okfn/ckan/language/fr/)\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Generated-By: Babel 2.1.1\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"Generated-By: Babel 2.1.1\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
@@ -55,7 +97,6 @@ msgstr ""
 "Generated-By: Babel 2.1.1\n"
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.8.7.1\n"
 
 #: ckan/controllers/package.py:599 ckan/controllers/package.py:1072
 #: ckan/controllers/package.py:1094 ckan/controllers/package.py:1163
@@ -256,6 +297,21 @@ msgstr ""
 "Oups... La page que vous recherchez n'est pas disponible. Voici un joli "
 "vaisseau spatial pour vous remonter le moral! "
 
+#: ckan/logic/converters.py:144 ckan/logic/validators.py:146
+#: ckan/logic/validators.py:188 ckan/templates/package/read_base.html:19
+#: ckanext/stats/templates/ckanext/stats/index.html:89
+msgid "Dataset"
+msgid_plural "Datasets"
+msgstr[0] "Jeu de données"
+msgstr[1] ""
+
+#: ckan/templates/package/snippets/package_basic_fields.html:70
+#: ckan/templates/snippets/organization.html:23
+msgid "Organization"
+msgid_plural "Organizations"
+msgstr[0] "Organisation"
+msgstr[1] ""
+
 #: ckanext/switzerland/templates/footer.html:28
 msgid "Category"
 msgid_plural "Categories"
@@ -439,6 +495,11 @@ msgstr[1] "{number} catégories trouvées"
 #: ckanext/switzerland/templates/snippets/search_result_text.html:24
 msgid "No categories found"
 msgstr "Aucune catégorie trouvée"
+
+#: ckanext/switzerland/templates2/header.html:30
+#: ckanext/switzerland/templates2/search/search.html:36
+msgid "min. 3 characters"
+msgstr ""
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
@@ -977,6 +1038,17 @@ msgstr ""
 msgid "Create an Organization"
 msgstr "Créer une Organisation"
 
+#: ckanext/switzerland/templates2/organization/read.html:8
+#, python-format
+msgid "%(count)s datasets"
+msgstr ""
+
+#: ckan/templates/organization/read.html:5
+#: ckan/templates/package/search.html:16
+#: ckan/templates/user/dashboard_datasets.html:7
+msgid "Add Dataset"
+msgstr "Ajouter un jeu de données"
+
 #: ckan/templates/organization/snippets/help.html:4
 #: ckan/templates/organization/snippets/helper.html:4
 msgid "What are Organizations?"
@@ -1415,16 +1487,21 @@ msgstr ""
 msgid "Permalink"
 msgstr ""
 
-#: ckanext/switzerland/templates2/search/search.html:38
+#: ckanext/switzerland/templates2/search/search.html:39
 msgid "Search term must be at least 3 characters long"
 msgstr ""
 
-#: ckanext/switzerland/templates2/search/search.html:44
+#: ckanext/switzerland/templates2/search/search.html:45
+#, fuzzy
+msgid "An error occured. Please try another search phrase."
+msgstr "Veuillez essayer avec une autre requête."
+
+#: ckanext/switzerland/templates2/search/search.html:51
 msgid ""
 "[[ datasetResults.length ]] datasets found for \"[[ currentSearchTerm ]]\""
 msgstr ""
 
-#: ckanext/switzerland/templates2/search/search.html:60
+#: ckanext/switzerland/templates2/search/search.html:68
 msgid "[[ pageResults.length ]] pages found for \"[[ currentSearchTerm ]]\""
 msgstr ""
 
@@ -1449,8 +1526,9 @@ msgid "Id"
 msgstr ""
 
 #: ckanext/switzerland/templates2/snippets/job_details.html:50
+#, fuzzy
 msgid "Started"
-msgstr ""
+msgstr "Dernière mise à jour"
 
 #: ckanext/switzerland/templates2/snippets/job_details.html:58
 msgid "Finished"
@@ -4072,12 +4150,6 @@ msgstr "Mise à jour de l'Organisation"
 #: ckan/templates/organization/new_organization_form.html:19
 msgid "Create Organization"
 msgstr "Créer une Orgaisation"
-
-#: ckan/templates/organization/read.html:5
-#: ckan/templates/package/search.html:16
-#: ckan/templates/user/dashboard_datasets.html:7
-msgid "Add Dataset"
-msgstr "Ajouter un jeu de données"
 
 #: ckan/templates/organization/snippets/feeds.html:3
 msgid "Datasets in organization: {group}"
