@@ -377,7 +377,7 @@ class BaseFTPHarvester(HarvesterBase):
         return file_format, mimetype, mimetype_inner
 
     def _reset_resource(self, resource):
-        for key in ['id', 'revision_id', 'created', 'updated']:
+        for key in ['id', 'revision_id', 'created', 'updated', 'datastore_active']:
             if key in resource:
                 del resource[key]
 
