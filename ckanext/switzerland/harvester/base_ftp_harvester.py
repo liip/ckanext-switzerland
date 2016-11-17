@@ -695,7 +695,7 @@ class BaseFTPHarvester(HarvesterBase):
         # resource
         # =======================================================================
 
-        log.debug('Importing file: %s' % str(f))
+        log.info('Importing file: %s' % str(f))
 
         site_url = ckanconf.get('ckan.site_url', None)
         if not site_url:

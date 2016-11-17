@@ -74,7 +74,7 @@ class SBBFTPHarvester(BaseFTPHarvester):
         try:
             with FTPHelper(remotefolder) as ftph:
                 filelist = ftph.get_remote_filelist()
-                log.debug("Remote dirlist: %s" % str(filelist))
+                log.info("Remote dirlist: %s" % str(filelist))
 
                 filelist = filter(lambda filename: re.match(self.config['filter_regex'], filename), filelist)
 
