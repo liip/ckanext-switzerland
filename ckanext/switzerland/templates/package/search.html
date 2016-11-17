@@ -1,6 +1,12 @@
 {% extends "page.html" %}
 {% import 'macros/form.html' as form %}
 
+{% block subtitle %}Data{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{{ h.nav_link('Data', controller='package', action='search', highlight_actions = 'new index') }}</li>
+{% endblock %}
+
 {% block primary_content %}
   <section class="module">
     <div class="module-content">
