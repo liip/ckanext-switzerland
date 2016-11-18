@@ -22,6 +22,7 @@ from collections import defaultdict
 from datetime import datetime
 
 import os
+import sys
 import re
 from ckan import model
 from ckan.lib import helpers
@@ -386,6 +387,27 @@ class BaseFTPHarvester(HarvesterBase):
     # =======================================================================
 
     def gather_stage(self, harvest_job):
+        log_dir = os.path.join('/var/www/harvester_logs', munge_filename(harvest_job.source.title))
+        try:
+            os.makedirs(log_dir)
+        except os.error:
+            pass  # directory already exists
+        file_handler = logging.FileHandler(os.path.join(
+            log_dir, '{}.log'.format(harvest_job.created.strftime('%Y-%m-%d_%H-%M-%S'))), 'a')
+        file_formatter = logging.Formatter('%(asctime)s %(levelname)-5.5s [%(name)s] %(message)s')
+        file_handler.setFormatter(file_formatter)
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        stdout_formatter = logging.Formatter('[%(name)s] %(message)s')
+        stdout_handler.setFormatter(stdout_formatter)
+
+        for name, logger in logging.Logger.manager.loggerDict.items():
+            if isinstance(logger, logging.Logger):
+                if logger.handlers:
+                    for handler in logger.handlers[:]:
+                        logger.removeHandler(handler)
+                    logger.addHandler(file_handler)
+                    logger.addHandler(stdout_handler)
+
         try:
             return self.gather_stage_impl(harvest_job)
         except Exception:
