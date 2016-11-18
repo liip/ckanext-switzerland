@@ -498,7 +498,7 @@ class BaseFTPHarvester(HarvesterBase):
 
                 log.info("Fetched %s [%s] in %ds" % (f, str(status), elapsed))
 
-                if status != '226 Transfer complete':
+                if '226' not in status:
                     self._save_object_error('Download error for file %s: %s' % (f, str(status)), harvest_object, stage)
                     return False
 
