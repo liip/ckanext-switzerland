@@ -398,6 +398,8 @@ class BaseFTPHarvester(HarvesterBase):
 
         for name, logger in logging.Logger.manager.loggerDict.items():
             if isinstance(logger, logging.Logger):
+                if name.startswith('ckan'):
+                    logger.setLevel(logging.DEBUG)
                 if logger.handlers:
                     for handler in logger.handlers[:]:
                         logger.removeHandler(handler)
