@@ -382,11 +382,7 @@ class BaseFTPHarvester(HarvesterBase):
             if key in resource:
                 del resource[key]
 
-    # =======================================================================
-    # GATHER Stage
-    # =======================================================================
-
-    def gather_stage(self, harvest_job):
+    def _setup_logging(self, harvest_job):
         log_dir = os.path.join('/var/www/harvester_logs', munge_filename(harvest_job.source.title))
         try:
             os.makedirs(log_dir)
@@ -408,6 +404,12 @@ class BaseFTPHarvester(HarvesterBase):
                     logger.addHandler(file_handler)
                     logger.addHandler(stdout_handler)
 
+    # =======================================================================
+    # GATHER Stage
+    # =======================================================================
+
+    def gather_stage(self, harvest_job):
+        self._setup_logging(harvest_job)
         try:
             return self.gather_stage_impl(harvest_job)
         except Exception:
@@ -422,6 +424,7 @@ class BaseFTPHarvester(HarvesterBase):
     # =======================================================================
 
     def fetch_stage(self, harvest_object):
+        self._setup_logging(harvest_object.job)
         try:
             return self._fetch_stage(harvest_object)
         except Exception:
@@ -533,6 +536,7 @@ class BaseFTPHarvester(HarvesterBase):
     # =======================================================================
 
     def import_stage(self, harvest_object):
+        self._setup_logging(harvest_object.job)
         try:
             return self._import_stage(harvest_object)
         except Exception:
