@@ -148,6 +148,8 @@ class SBBFTPHarvester(BaseFTPHarvester):
                         return []  # no files to harvest this time
                 except NotFound:  # dataset does not exist yet, download all files
                     pass
+            else:
+                log.warning('force_all is activate, downloading all files from ftp without modification date checking')
 
             # ------------------------------------------------------
 

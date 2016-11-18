@@ -159,6 +159,8 @@ class TimetableHarvester(BaseFTPHarvester):
                 if not len(filelist_with_dataset):
                     log.info('No files have been updated on the ftp server since the last harvest job')
                     return []  # no files to harvest this time
+            else:
+                log.warning('force_all is activate, downloading all files from ftp without modification date checking')
 
             # ------------------------------------------------------
 
