@@ -57,9 +57,14 @@ new Vue({
       self.currentSearchTerm = self.searchTerm
       this.loading = true
 
-      var ckanSearch = $.ajax('/api/3/action/package_search?facet.limit=100&q=' + encodeURIComponent(this.searchTerm))
-      var wordPressSearch = $.ajax('/wp-json/wp/v2/pages/?filter[s]=' + encodeURIComponent(this.searchTerm) + '&per_page=100')
-
+      var ckanSearch = $.get('/api/3/action/package_search', {
+        'facet.limit': 100,
+        'q': this.searchTerm
+      });
+      var wordPressSearch = $.get('/wp-json/wp/v2/pages/', {
+        'per_page': 100,
+        'filter[s]': this.searchTerm
+      });
       $.when(ckanSearch, wordPressSearch).then(function(datasets, pages) {
         // ckan search results
         self.datasetResults = []
