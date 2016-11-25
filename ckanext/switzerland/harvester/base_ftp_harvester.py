@@ -819,7 +819,7 @@ class BaseFTPHarvester(HarvesterBase):
 
             if size is not None:
                 resource_meta['size'] = size
-                resource_meta['byte_size'] = size / 8
+                resource_meta['byte_size'] = size
 
             log.info(log_msg % str(resource_meta))
 
