@@ -247,6 +247,12 @@ def get_readable_file_size(num, suffix='B'):
 
 
 def parse_json(value, default_value=None):
+    # when the value is a string integer like "123" we do not want this to be converted to a real integer py json.loads
+    try:
+        int(value)
+        return value
+    except (ValueError, TypeError):
+        pass
     try:
         return json.loads(value)
     except (ValueError, TypeError, AttributeError):
