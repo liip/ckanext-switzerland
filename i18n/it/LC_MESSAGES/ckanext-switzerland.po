@@ -24,7 +24,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-11-16 10:28+0000\n"
-"PO-Revision-Date: 2016-11-16 11:30+0100\n"
+"PO-Revision-Date: 2016-11-29 17:11+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: it\n"
@@ -443,7 +443,7 @@ msgstr "Download URL:"
 #: ckanext/switzerland/templates/package/resource_read.html:81
 #: ckanext/switzerland/templates/package/snippets/description.html:47
 msgid "Terms of use"
-msgstr "Terms of use"
+msgstr "Condizioni di godimento"
 
 #: ckanext/switzerland/templates/package/resource_read.html:83
 #: ckanext/switzerland/templates/package/snippets/description.html:49
@@ -524,11 +524,11 @@ msgstr "Popolare"
 
 #: ckanext/switzerland/templates/package/snippets/additional_info.html:4
 msgid "Additional information"
-msgstr "Additional information"
+msgstr "Informazione aggiuntiva"
 
 #: ckanext/switzerland/templates/package/snippets/description.html:23
 msgid "Further information"
-msgstr "Further information"
+msgstr "Ulteriori informazioni"
 
 #: ckanext/switzerland/templates/package/snippets/package_form.html:31
 msgid ""
