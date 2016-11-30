@@ -1,5 +1,6 @@
 # coding=UTF-8
-
+import os
+import sys
 from ckanext.switzerland import validators as v
 from ckanext.switzerland.logic import (
     ogdch_dataset_count, ogdch_dataset_terms_of_use,
@@ -36,6 +37,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IFacets)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.ITranslation)
 
     # IConfigurer
 
@@ -129,6 +131,19 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'load_wordpress_templates': load_wordpress_templates,
             'render_description': render_description,
         }
+
+    def i18n_directory(self):
+        # assume plugin is called ckanext.<myplugin>.<...>.PluginClass
+        extension_module_name = '.'.join(self.__module__.split('.')[:3])
+        module = sys.modules[extension_module_name]
+        return os.path.abspath(os.path.join(os.path.dirname(module.__file__), '../../i18n'))
+
+    def i18n_locales(self):
+        directory = self.i18n_directory()
+        return [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))]
+
+    def i18n_domain(self):
+        return 'ckanext-switzerland'
 
 
 class OgdchLanguagePlugin(plugins.SingletonPlugin):
