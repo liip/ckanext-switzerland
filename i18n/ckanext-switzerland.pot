@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-switzerland 0.0.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-11-16 10:28+0000\n"
+"POT-Creation-Date: 2016-11-30 09:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -137,16 +137,16 @@ msgstr ""
 msgid "Closed data"
 msgstr ""
 
-#: ckanext/switzerland/helpers.py:308
+#: ckanext/switzerland/helpers.py:314
 msgid "Unnamed resource"
 msgstr ""
 
-#: ckanext/switzerland/plugin.py:68 ckanext/switzerland/plugin.py:78
-#: ckanext/switzerland/plugin.py:88
+#: ckanext/switzerland/plugin.py:70 ckanext/switzerland/plugin.py:80
+#: ckanext/switzerland/plugin.py:90
 msgid "Keywords"
 msgstr ""
 
-#: ckanext/switzerland/plugin.py:69 ckanext/switzerland/plugin.py:79
+#: ckanext/switzerland/plugin.py:71 ckanext/switzerland/plugin.py:81
 #: ckanext/switzerland/templates/organization/edit_base.html:5
 #: ckanext/switzerland/templates/organization/edit_base.html:8
 #: ckanext/switzerland/templates/organization/index.html:3
@@ -158,8 +158,8 @@ msgstr ""
 msgid "Organizations"
 msgstr ""
 
-#: ckanext/switzerland/plugin.py:70 ckanext/switzerland/plugin.py:80
-#: ckanext/switzerland/plugin.py:89
+#: ckanext/switzerland/plugin.py:72 ckanext/switzerland/plugin.py:82
+#: ckanext/switzerland/plugin.py:91
 msgid "Formats"
 msgstr ""
 
@@ -201,6 +201,71 @@ msgstr ""
 
 #: ckanext/switzerland/validators.py:304
 msgid "Identifier is already in use, it must be unique."
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-confirm-action.js:7
+msgid "Please Confirm Action"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-confirm-action.js:8
+msgid "Are you sure you want to perform this action?"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-confirm-action.js:9
+msgid "Confirm"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-confirm-action.js:10
+#: ckanext/switzerland/fanstatic/bs3-resource-reorder.js:11
+#: ckanext/switzerland/templates/group/confirm_delete.html:14
+#: ckanext/switzerland/templates/group/confirm_delete_member.html:15
+#: ckanext/switzerland/templates/organization/confirm_delete.html:14
+#: ckanext/switzerland/templates/organization/confirm_delete_member.html:15
+#: ckanext/switzerland/templates/package/confirm_delete.html:14
+#: ckanext/switzerland/templates/package/confirm_delete_resource.html:14
+msgid "Cancel"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-image-upload.js:15
+msgid "Upload"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-image-upload.js:16
+msgid "Link"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-image-upload.js:17
+#: ckanext/switzerland/templates/group/snippets/group_item.html:43
+#: ckanext/switzerland/templates/macros/form.html:235
+#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:37
+#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:78
+#: ckanext/switzerland/templates/snippets/search_form.html:18
+msgid "Remove"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-image-upload.js:18
+#: ckanext/switzerland/templates/macros/form.html:414
+msgid "Image"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-image-upload.js:19
+msgid "Upload a file on your computer"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-image-upload.js:20
+msgid "Link to a URL on the internet (you can also link to an API)"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-resource-reorder.js:8
+msgid "Reorder resources"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-resource-reorder.js:9
+msgid "Save order"
+msgstr ""
+
+#: ckanext/switzerland/fanstatic/bs3-resource-reorder.js:10
+msgid "Saving..."
 msgstr ""
 
 #: ckanext/switzerland/templates/header.html:30
@@ -250,35 +315,21 @@ msgstr ""
 #: ckanext/switzerland/templates/admin/config.html:36
 #, python-format
 msgid ""
-"\n"
-"        <p><strong>Site Title:</strong> This is the title of this CKAN "
-"instance\n"
-"          It appears in various places throughout CKAN.</p>\n"
-"        <p><strong>Style:</strong> Choose from a list of simple "
-"variations of\n"
-"          the main colour scheme to get a very quick custom theme "
-"working.</p>\n"
-"        <p><strong>Site Tag Logo:</strong> This is the logo that appears "
-"in the\n"
-"          header of all the CKAN instance templates.</p>\n"
-"        <p><strong>About:</strong> This text will appear on this CKAN "
-"instances\n"
-"          <a href=\"%(about_url)s\">about page</a>.</p>\n"
-"        <p><strong>Intro Text:</strong> This text will appear on this "
-"CKAN instances\n"
-"          <a href=\"%(home_url)s\">home page</a> as a welcome to "
-"visitors.</p>\n"
-"        <p><strong>Custom CSS:</strong> This is a block of CSS that "
-"appears in\n"
-"          <code>&lt;head&gt;</code> tag of every page. If you wish to "
-"customize\n"
-"          the templates more fully we recommend\n"
-"          <a href=\"%(docs_url)s\" target=\"_blank\">reading the "
-"documentation</a>.</p>\n"
-"        <p><strong>Homepage:</strong> This is for choosing a predefined "
-"layout for\n"
-"           the modules that appear on your homepage.</p>\n"
-"      "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This "
+"is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN "
+"instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+"Text:</strong> This text will appear on this CKAN instances <a "
+"href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
+"<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
+"target=\"_blank\">reading the documentation</a>.</p> "
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p> "
 msgstr ""
 
 #: ckanext/switzerland/templates/ajax_snippets/api_info.html:21
@@ -291,12 +342,9 @@ msgstr ""
 
 #: ckanext/switzerland/templates/ajax_snippets/api_info.html:26
 msgid ""
-"\n"
-"    Further information in the <a\n"
-"      href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main\n"
-"      CKAN Data API and DataStore documentation</a>.</p>\n"
-"    "
+" Further information in the <a       "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
 
 #: ckanext/switzerland/templates/ajax_snippets/api_info.html:34
@@ -304,9 +352,7 @@ msgid "Endpoints"
 msgstr ""
 
 #: ckanext/switzerland/templates/ajax_snippets/api_info.html:39
-msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
+msgid "The Data API can be accessed via the following actions of the CKAN action API."
 msgstr ""
 
 #: ckanext/switzerland/templates/ajax_snippets/api_info.html:44
@@ -370,15 +416,6 @@ msgstr ""
 
 #: ckanext/switzerland/templates/group/confirm_delete.html:11
 msgid "Are you sure you want to delete group - {name}?"
-msgstr ""
-
-#: ckanext/switzerland/templates/group/confirm_delete.html:14
-#: ckanext/switzerland/templates/group/confirm_delete_member.html:15
-#: ckanext/switzerland/templates/organization/confirm_delete.html:14
-#: ckanext/switzerland/templates/organization/confirm_delete_member.html:15
-#: ckanext/switzerland/templates/package/confirm_delete.html:14
-#: ckanext/switzerland/templates/package/confirm_delete_resource.html:14
-msgid "Cancel"
 msgstr ""
 
 #: ckanext/switzerland/templates/group/confirm_delete_member.html:11
@@ -519,13 +556,9 @@ msgstr ""
 
 #: ckanext/switzerland/templates/group/member_new.html:83
 msgid ""
-"\n"
-"         <p><strong>Admin:</strong> Can edit group information, as well "
-"as\n"
-"           manage organization members.</p>\n"
-"         <p><strong>Member:</strong> Can add/remove datasets from "
-"groups</p>\n"
-"      "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove datasets"
+" from groups</p> "
 msgstr ""
 
 #: ckanext/switzerland/templates/group/members.html:19
@@ -626,14 +659,6 @@ msgid "View {name}"
 msgstr ""
 
 #: ckanext/switzerland/templates/group/snippets/group_item.html:43
-#: ckanext/switzerland/templates/macros/form.html:235
-#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:37
-#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:78
-#: ckanext/switzerland/templates/snippets/search_form.html:18
-msgid "Remove"
-msgstr ""
-
-#: ckanext/switzerland/templates/group/snippets/group_item.html:43
 msgid "Remove dataset from this group"
 msgstr ""
 
@@ -656,8 +681,8 @@ msgstr ""
 #: ckanext/switzerland/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
@@ -679,10 +704,6 @@ msgstr ""
 
 #: ckanext/switzerland/templates/macros/form.html:413
 msgid "Image URL"
-msgstr ""
-
-#: ckanext/switzerland/templates/macros/form.html:414
-msgid "Image"
 msgstr ""
 
 #: ckanext/switzerland/templates/macros/form.html:432
@@ -721,16 +742,11 @@ msgstr ""
 
 #: ckanext/switzerland/templates/organization/member_new.html:84
 msgid ""
-"\n"
-"      <p><strong>Admin:</strong> Can add/edit and delete datasets, as "
-"well as\n"
-"        manage organization members.</p>\n"
-"      <p><strong>Editor:</strong> Can add and edit datasets, but not "
-"manage\n"
-"        organization members.</p>\n"
-"      <p><strong>Member:</strong> Can view the organization's private\n"
-"        datasets, but not add new datasets.</p>\n"
-"    "
+" <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
+"manage organization members.</p> <p><strong>Editor:</strong> Can add and edit"
+" datasets, but not manage organization members.</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets, but"
+" not add new datasets.</p> "
 msgstr ""
 
 #: ckanext/switzerland/templates/organization/new.html:3
@@ -746,7 +762,7 @@ msgid "%(count)s datasets"
 msgstr ""
 
 #: ckanext/switzerland/templates/organization/read_base.html:39
-#: ckanext/switzerland/templates/package/search.html:10
+#: ckanext/switzerland/templates/package/search.html:16
 msgid "Add Dataset"
 msgstr ""
 
@@ -756,13 +772,10 @@ msgstr ""
 
 #: ckanext/switzerland/templates/organization/snippets/helper.html:8
 msgid ""
-"\n"
-"        The public transport Open Data Platform provides customer "
-"information about the whole public transport\n"
-"        network in Switzerland as Open Data. Further there are "
-"information from the Federal Office of Transport,\n"
-"        which are directly related.\n"
-"      "
+" The public transport Open Data Platform provides customer information about "
+"the whole public transport network in Switzerland as Open Data. Further there"
+" are information from the Federal Office of Transport, which are directly "
+"related. "
 msgstr ""
 
 #: ckanext/switzerland/templates/organization/snippets/organization_form.html:12
@@ -779,8 +792,8 @@ msgstr ""
 
 #: ckanext/switzerland/templates/organization/snippets/organization_form.html:62
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all "
-"the public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? This will delete all the "
+"public and private datasets belonging to this organization."
 msgstr ""
 
 #: ckanext/switzerland/templates/organization/snippets/organization_form.html:66
@@ -844,9 +857,8 @@ msgstr ""
 #: ckanext/switzerland/templates/package/read_base.html:47
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
 msgstr ""
 
 #: ckanext/switzerland/templates/package/read_base.html:28
@@ -941,9 +953,9 @@ msgstr ""
 
 #: ckanext/switzerland/templates/package/resource_read.html:137
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, or"
+" the data may not have been pushed to the DataStore, or the DataStore hasn't "
+"finished processing the data yet"
 msgstr ""
 
 #: ckanext/switzerland/templates/package/resource_read.html:159
@@ -991,32 +1003,31 @@ msgid "Add new resource"
 msgstr ""
 
 #: ckanext/switzerland/templates/package/resources.html:21
+#: ckanext/switzerland/templates/package/snippets/resources_list.html:25
 #, python-format
 msgid ""
-"\n"
-"      <p class=\"empty\">This dataset has no data, <a "
-"href=\"%(url)s\">why not add some?</a></p>\n"
-"    "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not add"
+" some?</a></p> "
 msgstr ""
 
-#: ckanext/switzerland/templates/package/search.html:23
+#: ckanext/switzerland/templates/package/search.html:29
 msgid "Relevance"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/search.html:24
+#: ckanext/switzerland/templates/package/search.html:30
 msgid "Name Ascending"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/search.html:25
+#: ckanext/switzerland/templates/package/search.html:31
 msgid "Name Descending"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/search.html:26
+#: ckanext/switzerland/templates/package/search.html:32
 #: ckanext/switzerland/templates/package/snippets/resource_form.html:53
 msgid "Last Modified"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/search.html:27
+#: ckanext/switzerland/templates/package/search.html:33
 msgid "Popular"
 msgstr ""
 
@@ -1042,13 +1053,10 @@ msgstr ""
 
 #: ckanext/switzerland/templates/package/snippets/package_form.html:31
 msgid ""
-"The <i>data license</i> you select above only applies to the contents\n"
-"          of any resource files that you add to this dataset. By "
-"submitting\n"
-"          this form, you agree to release the <i>metadata</i> values that"
-" you\n"
-"          enter into the form under the\n"
-"          <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"The <i>data license</i> you select above only applies to the contents of any "
+"resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
 "Database License</a>."
 msgstr ""
 
@@ -1167,15 +1175,6 @@ msgstr ""
 
 #: ckanext/switzerland/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/snippets/resources_list.html:25
-#, python-format
-msgid ""
-"\n"
-"            <p class=\"empty\">This dataset has no data, <a "
-"href=\"%(url)s\">why not add some?</a></p>\n"
-"          "
 msgstr ""
 
 #: ckanext/switzerland/templates/package/snippets/resources_list.html:29
@@ -1330,9 +1329,7 @@ msgid "Related"
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/related.html:15
-msgid ""
-"No apps, ideas, news stories or images have been\n"
-"      related to this dataset yet."
+msgid "No apps, ideas, news stories or images have been related to this dataset yet."
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/related.html:18

@@ -4,9 +4,9 @@ source /home/vagrant/pyenv/bin/activate
 cd /var/www/ckanext/ckanext-switzerland
 
 # hack to ignore ckanext-harvest strings
-mv ckanext/switzerland/templates/source/ ckanext/switzerland/templates/_source/
-python setup.py extract_messages --mapping-file babel.cfg --output i18n/ckanext-switzerland.pot
-mv ckanext/switzerland/templates/_source/ ckanext/switzerland/templates/source/
+mv ckanext/switzerland/templates/source/ source/
+python setup.py extract_messages
+mv source/ ckanext/switzerland/templates/source/
 
 msgmerge -U i18n/de/LC_MESSAGES/ckanext-switzerland.po i18n/ckanext-switzerland.pot
 msgmerge -U i18n/fr/LC_MESSAGES/ckanext-switzerland.po i18n/ckanext-switzerland.pot
