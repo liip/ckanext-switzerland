@@ -42,7 +42,7 @@ bahnhof_file_csv = u"""StationID,Longitude,Latitude,Höhe,Remark
 0000028,6.838953,46.949588,491,Boudry Littorail
 0000030,8.711041,46.766423,831,"Golzern, Talstation Seilbahn"
 0000033,9.680469,47.544341,0,Lindau Hbf
-""".replace('\n', '\r\n').encode('iso-8859-1')
+""".replace('\n', '\r\n').encode('utf-8')
 
 infoplus_config = [
     {'from': 1, 'to': 7, 'name': 'StationID'},

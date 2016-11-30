@@ -1,11 +1,10 @@
-import csv
 import json
-from operator import itemgetter
 from zipfile import ZipFile
 import re
 import os
 import logging
 
+import unicodecsv
 import voluptuous
 from ckanext.harvest.model import HarvestObject
 
@@ -104,14 +103,15 @@ def file_filter(harvester_obj, config):
 
     fp = zipfile.open(harvester_obj['infoplus_filename'])
     data = fp.read()
+    data = data.decode('iso-8859-1')
     fp.close()
 
-    with open(path, 'w') as f:
-        writer = csv.writer(f)
+    with open(path, 'wb') as f:
+        writer = unicodecsv.writer(f, encoding='utf-8')
 
         infoplus_config = config['infoplus']['files'][harvester_obj['infoplus_filename']]
 
-        headings = map(lambda col: col['name'].encode('iso-8859-1'), infoplus_config)
+        headings = map(lambda col: col['name'], infoplus_config)
         writer.writerow(headings)
 
         for line in data.split('\n'):
