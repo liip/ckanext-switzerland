@@ -94,11 +94,6 @@ class BaseFTPHarvester(HarvesterBase):
         'rights': "",
         # ckan multilang/switzerland custom required fields
         'coverage': "Coverage",
-        'issued': "21.03.2015",
-        # "modified": "21.03.2016",
-        # "metadata_created": "2016-07-05T07:41:28.741265",
-        # "metadata_modified": "2016-07-05T07:43:30.079030",
-        # "url": "https://catalog.data.gov/",
         "spatial": "Spatial",
         "accrual_periodicity": "",
         # --------------------------------------------------------------------------
@@ -657,9 +652,8 @@ class BaseFTPHarvester(HarvesterBase):
             package_dict['creator_user_id'] = model.User.get(context['user']).id
 
             # fill with empty defaults
-            for key in ['issued', 'modified', 'metadata_created', 'metadata_modified']:
-                if key not in package_dict:
-                    package_dict[key] = now
+            for key in ['issued', 'metadata_created']:
+                package_dict[key] = now
             for key in ['resources', 'groups', 'tags', 'extras', 'contact_points', 'relations',
                         'relationships_as_object', 'relationships_as_subject', 'publishers', 'see_alsos', 'temporals']:
                 if key not in package_dict:
@@ -782,7 +776,6 @@ class BaseFTPHarvester(HarvesterBase):
                 }
 
                 resource_meta['issued'] = now
-                resource_meta['modified'] = now
                 resource_meta['version'] = now
 
                 # take this metadata from the old version if available
@@ -827,6 +820,7 @@ class BaseFTPHarvester(HarvesterBase):
             upload.file = open(f, 'rb')
             upload.filename = os.path.basename(f)
             resource_meta['upload'] = upload
+            resource_meta['modified'] = now
 
             get_action('resource_create')(context, resource_meta)
 
@@ -919,7 +913,9 @@ class BaseFTPHarvester(HarvesterBase):
         else:
             permalink = None
 
-        get_action('package_patch')(context, {'id': package['id'], 'permalink': permalink})
+        now = datetime.now().isoformat()
+        get_action('package_patch')(context, {'id': package['id'], 'permalink': permalink,
+                                              'modified': now, 'metadata_modified': now})
 
         # reorder resources
         # not matched resources come first in the list, then the ordered
