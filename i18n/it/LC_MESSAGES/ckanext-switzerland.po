@@ -44,7 +44,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-11-30 09:47+0000\n"
-"PO-Revision-Date: 2016-11-30 10:49+0100\n"
+"PO-Revision-Date: 2016-12-01 16:23+0100\n"
 "Last-Translator: Maurizio Napolitano <maurizio.napolitano@okfn.org>\n"
 "Language-Team: Italian (http://www.transifex.com/okfn/ckan/language/it/)\n"
 "Language: it\n"
@@ -1299,7 +1299,7 @@ msgstr "Titolo"
 #: ckanext/switzerland/templates/scheming/form_snippets/temporals.html:10
 #: ckanext/switzerland/templates/scheming/form_snippets/temporals.html:45
 msgid "Start date"
-msgstr "Start date"
+msgstr "Data d'inizio"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/temporals.html:24
 #: ckanext/switzerland/templates/scheming/form_snippets/temporals.html:60
