@@ -38,7 +38,7 @@ from ckanext.switzerland.helpers import resource_filename
 from pylons import config as ckanconf
 from simplejson.scanner import JSONDecodeError
 import voluptuous
-
+from ckan.lib import search
 from ftp_helper import FTPHelper
 
 
@@ -580,7 +580,7 @@ class BaseFTPHarvester(HarvesterBase):
         self.config = self.load_config(harvest_object.job.source.config)
 
         if obj['type'] == 'finalizer':
-            self.finalize(obj)
+            self.finalize(harvest_object, obj)
             return True
 
         if obj['type'] == 'remove_tempdir':
@@ -878,7 +878,7 @@ class BaseFTPHarvester(HarvesterBase):
         ordered_resources.sort(key=lambda r: r['identifier'], reverse=True)
         return ordered_resources, unmatched_resources
 
-    def finalize(self, harvest_object):
+    def finalize(self, harvest_object, harvest_object_data):
         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
 
         log.info('Running finalizing tasks:')
@@ -894,7 +894,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         # ----------------------------------------------------------------------------
         # reorder resources
-        package = self._get_dataset(harvest_object['dataset'])
+        package = self._get_dataset(harvest_object_data['dataset'])
 
         ordered_resources, unmatched_resources = self._get_ordered_resources(package)
 
@@ -927,6 +927,12 @@ class BaseFTPHarvester(HarvesterBase):
             'id': package['id'],
             'order': map(lambda r: r['id'], unmatched_resources + ordered_resources)
         })
+
+        harvest_object.package_id = package['id']
+        harvest_object.current = True
+        harvest_object.save()
+
+        search.rebuild(package['id'])
 
         # ----------------------------------------------------------------------------
         # delete files of old revisions if there are more than 30 revisions
