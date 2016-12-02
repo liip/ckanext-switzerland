@@ -411,7 +411,8 @@
         "fr": "Taille du fichier",
         "it": "Grandezza dei dati"
       },
-      "preset": "file_size"
+      "preset": "file_size",
+      "form_snippet": null
     }
   ]
 }
