@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-switzerland 0.0.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-11-30 09:47+0000\n"
+"POT-Creation-Date: 2016-12-02 16:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1269,6 +1269,10 @@ msgstr ""
 
 #: ckanext/switzerland/templates/search/search.html:68
 msgid "[[ pageResults.length ]] pages found for \"[[ currentSearchTerm ]]\""
+msgstr ""
+
+#: ckanext/switzerland/templates/search/search.html:83
+msgid "[[ faqResults.length ]] FAQ entries found for \"[[ currentSearchTerm ]]\""
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/activity_item.html:3
