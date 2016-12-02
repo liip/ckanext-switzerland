@@ -381,7 +381,8 @@
         "de": "Nutzungsbedingungen",
         "fr": "Conditions d'utilisation",
         "it": "Condizioni d'uso"
-      }
+      },
+      "form_snippet": null
     },
     {
       "field_name": "license",
@@ -390,7 +391,8 @@
         "de": "Lizenz",
         "fr": "Licence",
         "it": "Licenza"
-      }
+      },
+      "form_snippet": null
     },
     {
       "field_name": "coverage",
