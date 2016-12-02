@@ -8,6 +8,8 @@ new Vue({
     searchTerm: '',
     pageResults: [],
     datasetResults: [],
+    faqResults: [],
+
     language: '',
     // shows an error in gui when true
     hasError: false,
@@ -21,6 +23,11 @@ new Vue({
       currentPage: 1,
       itemsPerPage: 5,
       resultCount: 0
+    },
+    paginateFAQs: {
+      currentPage: 1,
+      itemsPerPage: 5,
+      resultCount: 0
     }
   },
   computed: {
@@ -29,6 +36,9 @@ new Vue({
       },
       totalDatasets: function() {
         return Math.ceil(this.paginateDatasets.resultCount / this.paginateDatasets.itemsPerPage)
+      },
+      totalFAQs: function() {
+        return Math.ceil(this.paginateFAQs.resultCount / this.paginateFAQs.itemsPerPage)
       }
   },
   ready: function() {
@@ -61,11 +71,15 @@ new Vue({
         'facet.limit': 100,
         'q': this.searchTerm
       });
-      var wordPressSearch = $.get('/wp-json/wp/v2/pages/', {
+      var pageSearch = $.get('/wp-json/wp/v2/pages/', {
         'per_page': 100,
         'filter[s]': this.searchTerm
       });
-      $.when(ckanSearch, wordPressSearch).then(function(datasets, pages) {
+      var faqSearch = $.get('/wp-json/wp/v2/akbootstrapfaq/', {
+        'per_page': 100,
+        'filter[s]': this.searchTerm
+      });
+      $.when(ckanSearch, pageSearch, faqSearch).then(function(datasets, pages, faqs) {
         // ckan search results
         self.datasetResults = []
         datasets[0].result.results.map(function(result) {
@@ -76,12 +90,22 @@ new Vue({
           })
         })
 
-        // wordpress search results
+        // wordpress pages search results
         self.pageResults = []
         pages[0].map(function(result) {
           self.pageResults.push({
             title: result.title.rendered,
             description: result.excerpt.rendered,
+            link: result.link
+          })
+        })
+
+        // wordpress faq search results
+        self.faqResults = []
+        faqs[0].map(function(result) {
+          self.faqResults.push({
+            title: result.title.rendered,
+            description: result.content.rendered,
             link: result.link
           })
         })
@@ -111,8 +135,10 @@ new Vue({
       else if (paginate == this.paginateDatasets && paginate.currentPage >= this.totalDatasets) {
         paginate.currentPage = this.totalDatasets
       }
+      else if (paginate == this.paginateFAQs && paginate.currentPage >= this.totalFAQs) {
+        paginate.currentPage = this.totalFAQs
+      }
       var index = paginate.currentPage * paginate.itemsPerPage
-      console.log(index);
       return list.slice(index, index + paginate.itemsPerPage)
     }
   }
