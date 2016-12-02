@@ -779,8 +779,8 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta['version'] = now
 
                 # take this metadata from the old version if available
-                resource_meta['rights'] = resource_meta.get('rights', 'TODO')
-                resource_meta['license'] = resource_meta.get('license', 'TODO')
+                resource_meta['rights'] = resource_meta.get('rights', '')
+                resource_meta['license'] = resource_meta.get('license', '')
                 resource_meta['coverage'] = resource_meta.get('coverage', 'TODO')
                 resource_meta['description'] = resource_meta.get('description', {
                         "de": "TODO",
