@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-switzerland 0.0.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-12-02 16:10+0000\n"
+"POT-Creation-Date: 2016-12-05 15:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -141,12 +141,12 @@ msgstr ""
 msgid "Unnamed resource"
 msgstr ""
 
-#: ckanext/switzerland/plugin.py:70 ckanext/switzerland/plugin.py:80
-#: ckanext/switzerland/plugin.py:90
+#: ckanext/switzerland/plugin.py:71 ckanext/switzerland/plugin.py:81
+#: ckanext/switzerland/plugin.py:91
 msgid "Keywords"
 msgstr ""
 
-#: ckanext/switzerland/plugin.py:71 ckanext/switzerland/plugin.py:81
+#: ckanext/switzerland/plugin.py:72 ckanext/switzerland/plugin.py:82
 #: ckanext/switzerland/templates/organization/edit_base.html:5
 #: ckanext/switzerland/templates/organization/edit_base.html:8
 #: ckanext/switzerland/templates/organization/index.html:3
@@ -158,49 +158,53 @@ msgstr ""
 msgid "Organizations"
 msgstr ""
 
-#: ckanext/switzerland/plugin.py:72 ckanext/switzerland/plugin.py:82
-#: ckanext/switzerland/plugin.py:91
+#: ckanext/switzerland/plugin.py:73 ckanext/switzerland/plugin.py:83
+#: ckanext/switzerland/plugin.py:92
 msgid "Formats"
 msgstr ""
 
-#: ckanext/switzerland/validators.py:23 ckanext/switzerland/validators.py:119
+#: ckanext/switzerland/validators.py:24 ckanext/switzerland/validators.py:120
 msgid "Invalid date"
 msgstr ""
 
-#: ckanext/switzerland/validators.py:71
+#: ckanext/switzerland/validators.py:72
 msgid "Failed to decode JSON string"
 msgstr ""
 
-#: ckanext/switzerland/validators.py:74
+#: ckanext/switzerland/validators.py:75
 msgid "Invalid encoding for JSON string"
 msgstr ""
 
-#: ckanext/switzerland/validators.py:77
+#: ckanext/switzerland/validators.py:78
 msgid "expecting JSON list"
 msgstr ""
 
-#: ckanext/switzerland/validators.py:107
+#: ckanext/switzerland/validators.py:108
 msgid "Invalid form data"
 msgstr ""
 
-#: ckanext/switzerland/validators.py:112
+#: ckanext/switzerland/validators.py:113
 #: ckanext/switzerland/templates/macros/form.html:265
 msgid "This field is required"
 msgstr ""
 
-#: ckanext/switzerland/validators.py:158 ckanext/switzerland/validators.py:222
-#: ckanext/switzerland/validators.py:271
+#: ckanext/switzerland/validators.py:159 ckanext/switzerland/validators.py:223
+#: ckanext/switzerland/validators.py:272
 #, python-format
 msgid "Expecting list of strings, got \"%s\""
 msgstr ""
 
-#: ckanext/switzerland/validators.py:282
+#: ckanext/switzerland/validators.py:283
 #, python-format
 msgid "unexpected choice \"%s\""
 msgstr ""
 
-#: ckanext/switzerland/validators.py:304
+#: ckanext/switzerland/validators.py:305
 msgid "Identifier is already in use, it must be unique."
+msgstr ""
+
+#: ckanext/switzerland/validators.py:321
+msgid "Invalid URL"
 msgstr ""
 
 #: ckanext/switzerland/fanstatic/bs3-confirm-action.js:7
@@ -266,6 +270,10 @@ msgstr ""
 
 #: ckanext/switzerland/fanstatic/bs3-resource-reorder.js:10
 msgid "Saving..."
+msgstr ""
+
+#: ckanext/switzerland/templates/footer.html:2
+msgid "Footer"
 msgstr ""
 
 #: ckanext/switzerland/templates/header.html:30
@@ -916,85 +924,75 @@ msgstr ""
 msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:81
-#: ckanext/switzerland/templates/package/snippets/description.html:47
-msgid "Terms of use"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/resource_read.html:83
-#: ckanext/switzerland/templates/package/snippets/description.html:49
-msgid "Terms of use opentransport.swiss"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/resource_read.html:124
+#: ckanext/switzerland/templates/package/resource_read.html:119
 msgid "There are no views created for this resource yet."
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:128
+#: ckanext/switzerland/templates/package/resource_read.html:123
 msgid "Not seeing the views you were expecting?"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:130
+#: ckanext/switzerland/templates/package/resource_read.html:125
 #: ckanext/switzerland/templates/package/snippets/resource_view.html:26
 msgid "Click here for more information."
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:133
+#: ckanext/switzerland/templates/package/resource_read.html:128
 msgid "Here are some reasons you may not be seeing expected views:"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:135
+#: ckanext/switzerland/templates/package/resource_read.html:130
 msgid "No view has been created that is suitable for this resource"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:136
+#: ckanext/switzerland/templates/package/resource_read.html:131
 msgid "The site administrators may not have enabled the relevant view plugins"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:137
+#: ckanext/switzerland/templates/package/resource_read.html:132
 msgid ""
 "If a view requires the DataStore, the DataStore plugin may not be enabled, or"
 " the data may not have been pushed to the DataStore, or the DataStore hasn't "
 "finished processing the data yet"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:159
+#: ckanext/switzerland/templates/package/resource_read.html:154
 #: ckanext/switzerland/templates/scheming/package/resource_read.html:19
 msgid "Additional Information"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:163
+#: ckanext/switzerland/templates/package/resource_read.html:158
 #: ckanext/switzerland/templates/revision/diff.html:43
 msgid "Field"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:164
+#: ckanext/switzerland/templates/package/resource_read.html:159
 msgid "Value"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:169
+#: ckanext/switzerland/templates/package/resource_read.html:164
 #: ckanext/switzerland/templates/package/snippets/description.html:31
 msgid "Last updated"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:170
-#: ckanext/switzerland/templates/package/resource_read.html:174
-#: ckanext/switzerland/templates/package/resource_read.html:178
+#: ckanext/switzerland/templates/package/resource_read.html:165
+#: ckanext/switzerland/templates/package/resource_read.html:169
+#: ckanext/switzerland/templates/package/resource_read.html:173
 msgid "unknown"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:173
+#: ckanext/switzerland/templates/package/resource_read.html:168
 #: ckanext/switzerland/templates/snippets/job_details.html:42
 msgid "Created"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:177
+#: ckanext/switzerland/templates/package/resource_read.html:172
 #: ckanext/switzerland/templates/package/snippets/resource_form.html:39
 #: ckanext/switzerland/templates/package/snippets/resource_info.html:16
 msgid "Format"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/resource_read.html:181
+#: ckanext/switzerland/templates/package/resource_read.html:176
 msgid "License"
 msgstr ""
 
@@ -1179,6 +1177,15 @@ msgstr ""
 
 #: ckanext/switzerland/templates/package/snippets/resources_list.html:29
 msgid "This dataset has no data"
+msgstr ""
+
+#: ckanext/switzerland/templates/package/snippets/terms_of_use.html:2
+#: ckanext/switzerland/templates/package/snippets/terms_of_use.html:8
+msgid "Terms of use"
+msgstr ""
+
+#: ckanext/switzerland/templates/package/snippets/terms_of_use.html:11
+msgid "Terms of use opentransport.swiss"
 msgstr ""
 
 #: ckanext/switzerland/templates/revision/diff.html:6
