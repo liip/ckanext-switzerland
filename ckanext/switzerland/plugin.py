@@ -60,6 +60,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'json_list_of_dicts_field': v.json_list_of_dicts_field,
             'swiss_date': v.swiss_date,
             'parse_json': parse_json,
+            'url': v.url_validator,
         }
 
     # IFacets

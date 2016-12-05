@@ -1,0 +1,14 @@
+<dl>
+  <dt>{{ _('Terms of use') }}</dt>
+  <dd class="terms">
+    {% if pkg.odpch_license_url %}
+      {% if pkg.odpch_license_name %}
+        <a href="{{ pkg.odpch_license_url }}">{{ pkg.odpch_license_name }}</a>
+      {% else %}
+        <a href="{{ pkg.odpch_license_url }}">{{ _('Terms of use') }}</a>
+      {% endif %}
+    {% else %}
+      <a href="{{ h.url('/terms-of-use/') }}">{{ _('Terms of use opentransport.swiss') }}</a>
+    {% endif %}
+  </dd>
+</dl>

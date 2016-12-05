@@ -84,7 +84,8 @@
     {
       "preset_name": "url",
       "values": {
-        "display_snippet": "url.html"
+        "display_snippet": "url.html",
+        "validators": "url"
       }
     },
     {

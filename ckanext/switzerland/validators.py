@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+import re
 from ckan.plugins.toolkit import missing, _
 import ckan.lib.navl.dictization_functions as df
 from ckanext.scheming.validation import scheming_validator
@@ -306,4 +307,16 @@ def ogdch_unique_identifier(field, schema):
         except NotFound:
             pass
 
+    return validator
+
+
+@scheming_validator
+def url_validator(field, schema):
+    def validator(key, data, errors, context):
+        if errors[key]:
+            return
+        value = data[key]
+        if value and value is not missing:
+            if not isinstance(value, basestring) or not re.match(r'^https?://.*$', value):
+                raise df.Invalid(_('Invalid URL'))
     return validator
