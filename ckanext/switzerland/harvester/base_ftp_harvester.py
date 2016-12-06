@@ -357,8 +357,8 @@ class BaseFTPHarvester(HarvesterBase):
                 break
         return resource_meta
 
-    def _get_dataset(self, dataset):
-        return get_action('ogdch_dataset_by_identifier')({}, {'identifier': dataset})
+    def _get_dataset(self, context, dataset):
+        return get_action('ogdch_dataset_by_identifier')(context, {'identifier': dataset})
 
     def _get_mimetypes(self, filename):
         na, ext = os.path.splitext(filename)
@@ -612,7 +612,7 @@ class BaseFTPHarvester(HarvesterBase):
             # use the existing package dictionary (if it exists)
             # -----------------------------------------------------------------------
 
-            dataset = self._get_dataset(obj['dataset'])
+            dataset = self._get_dataset(context, obj['dataset'])
             log.info("Using existing package with id %s", str(dataset.get('id')))
 
             # update version of package
@@ -890,7 +890,7 @@ class BaseFTPHarvester(HarvesterBase):
 
         # ----------------------------------------------------------------------------
         # reorder resources
-        package = self._get_dataset(harvest_object_data['dataset'])
+        package = self._get_dataset(context, harvest_object_data['dataset'])
 
         ordered_resources, unmatched_resources = self._get_ordered_resources(package)
 
