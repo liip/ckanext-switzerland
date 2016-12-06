@@ -1,6 +1,7 @@
 import logging
 import ftplib  # for errors only
 import tempfile
+import traceback
 from datetime import datetime
 import os
 import re
@@ -104,7 +105,8 @@ class SBBFTPHarvester(BaseFTPHarvester):
                 log.info("Created workingdir: %s" % workingdir)
 
         except ftplib.all_errors as e:
-            self._save_gather_error('Error getting remote directory listing: %s' % str(e), harvest_job)
+            self._save_gather_error('Error getting remote directory listing: {}'
+                                    .format(traceback.format_exc()), harvest_job)
             return None
 
         if not len(filelist):

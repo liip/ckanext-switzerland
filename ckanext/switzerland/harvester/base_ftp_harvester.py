@@ -502,13 +502,13 @@ class BaseFTPHarvester(HarvesterBase):
                     self._save_object_error('Download error for file %s: %s' % (f, str(status)), harvest_object, stage)
                     return False
 
-        except ftplib.all_errors as e:
-            self._save_object_error('Ftplib error: %s' % str(e), harvest_object, stage)
+        except ftplib.all_errors:
+            self._save_object_error('Ftplib error: {}'.format(traceback.format_exc()), harvest_object, stage)
             self.cleanup_after_error(tmpfolder)
             return False
 
-        except Exception as e:
-            self._save_object_error('An error occurred: %s' % e, harvest_object, stage)
+        except Exception:
+            self._save_object_error('An error occurred: {}'.format(traceback.format_exc()), harvest_object, stage)
             self.cleanup_after_error(tmpfolder)
             return False
 
@@ -702,9 +702,10 @@ class BaseFTPHarvester(HarvesterBase):
 
             log.info("Created package: %s" % str(dataset['name']))
 
-        except Exception as e:
+        except Exception:
             # log.error("Error: Package dict: %s" % str(package_dict))
-            self._save_object_error('Package update/creation error: %s' % str(e), harvest_object, stage)
+            self._save_object_error('Package update/creation error: {}'.format(traceback.format_exc()),
+                                    harvest_object, stage)
             return False
 
         # need a dataset to continue
@@ -845,7 +846,8 @@ class BaseFTPHarvester(HarvesterBase):
         except Exception as e:
             log.error("Error adding resource: %s" % str(e))
             # log.debug(traceback.format_exc())
-            self._save_object_error('Error adding resource: %s' % str(e), harvest_object, stage)
+            self._save_object_error('Error adding resource: {}'.format(traceback.format_exc()),
+                                    harvest_object, stage)
             return False
 
         finally:
