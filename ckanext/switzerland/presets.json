@@ -85,7 +85,7 @@
       "preset_name": "url",
       "values": {
         "display_snippet": "url.html",
-        "validators": "url"
+        "validators": "ignore_missing url"
       }
     },
     {
