@@ -64,7 +64,8 @@
         "fr": "URL de la licence",
         "it": "URL di licenza"
       },
-      "preset": "url"
+      "preset": "url",
+      "validators": "ignore_missing url"
     },
     {
       "field_name": "odpch_license_name",
