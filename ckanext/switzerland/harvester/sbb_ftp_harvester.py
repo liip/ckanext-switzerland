@@ -104,7 +104,8 @@ class SBBFTPHarvester(BaseFTPHarvester):
                 workingdir = tempfile.mkdtemp(prefix=prefix)
                 log.info("Created workingdir: %s" % workingdir)
 
-        except ftplib.all_errors as e:
+        except ftplib.all_errors:
+            log.exception('Error getting remote directory listing')
             self._save_gather_error('Error getting remote directory listing: {}'
                                     .format(traceback.format_exc()), harvest_job)
             return None

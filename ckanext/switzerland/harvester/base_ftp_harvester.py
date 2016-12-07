@@ -410,6 +410,7 @@ class BaseFTPHarvester(HarvesterBase):
         try:
             return self.gather_stage_impl(harvest_job)
         except Exception:
+            log.exception('Gather stage failed')
             self._save_gather_error('Gather stage failed: {}'.format(traceback.format_exc()), harvest_job)
             return []
 
@@ -425,6 +426,7 @@ class BaseFTPHarvester(HarvesterBase):
         try:
             return self._fetch_stage(harvest_object)
         except Exception:
+            log.exception('Fetch stage failed')
             self._save_object_error('Fetch stage failed: {}'.format(traceback.format_exc()), harvest_object, 'Fetch')
             return False
 
@@ -503,11 +505,13 @@ class BaseFTPHarvester(HarvesterBase):
                     return False
 
         except ftplib.all_errors:
+            log.exception('Ftplib error')
             self._save_object_error('Ftplib error: {}'.format(traceback.format_exc()), harvest_object, stage)
             self.cleanup_after_error(tmpfolder)
             return False
 
         except Exception:
+            log.exception('An error occurred')
             self._save_object_error('An error occurred: {}'.format(traceback.format_exc()), harvest_object, stage)
             self.cleanup_after_error(tmpfolder)
             return False
@@ -537,6 +541,7 @@ class BaseFTPHarvester(HarvesterBase):
         try:
             return self._import_stage(harvest_object)
         except Exception:
+            log.exception('Import stage failed')
             self._save_object_error('Import stage failed: {}'.format(traceback.format_exc()), harvest_object, 'Import')
             return False
 
@@ -703,7 +708,7 @@ class BaseFTPHarvester(HarvesterBase):
             log.info("Created package: %s" % str(dataset['name']))
 
         except Exception:
-            # log.error("Error: Package dict: %s" % str(package_dict))
+            log.exception('Package update/creation error')
             self._save_object_error('Package update/creation error: {}'.format(traceback.format_exc()),
                                     harvest_object, stage)
             return False
@@ -843,9 +848,8 @@ class BaseFTPHarvester(HarvesterBase):
 
             # ---------------------------------------------------------------------
 
-        except Exception as e:
-            log.error("Error adding resource: %s" % str(e))
-            # log.debug(traceback.format_exc())
+        except Exception:
+            log.exception('Error adding resource')
             self._save_object_error('Error adding resource: {}'.format(traceback.format_exc()),
                                     harvest_object, stage)
             return False
