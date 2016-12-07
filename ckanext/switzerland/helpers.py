@@ -373,3 +373,39 @@ def render_description(pkg):
     text = urlize(text)
     text = text.replace('\n', '\n<br>')
     return literal(text)
+
+
+# all formats that need to be mapped have to be entered lower-case
+def map_to_valid_format(resource_format):
+    format_mapping = {
+        'CSV': ['csv', 'aspx', 'text (.csv)', 'comma ...'],
+        'GeoJSON': ['geojson'],
+        'GeoTIFF': ['geotiff'],
+        'GPKG': ['gpkg'],
+        'HTML': ['html'],
+        'INTERLIS': ['interlis'],
+        'JSON': ['json'],
+        'KMZ': ['kmz'],
+        'MULTIFORMAT': ['multiformat'],
+        'ODS': ['ods', 'vnd.oas...'],
+        'PC-AXIS': ['pc-axis file'],
+        'PDF': ['pdf'],
+        'PNG': ['png'],
+        'RDF': ['sparql-...'],
+        'SHAPEFILE': ['esri shapefile', 'esri geodatabase (....', 'esri file geodatabase', 'esri arcinfo ascii ...'], # noqa
+        'TXT': ['text', 'txt', 'text (.txt)', 'plain'],
+        'TIFF': ['tiff'],
+        'WCS': ['wcs'],
+        'WFS': ['wfs'],
+        'WMS': ['wms'],
+        'WMTS': ['wmts'],
+        'XLS': ['xls', 'xlsx'],
+        'XML': ['xml'],
+        'ZIP': ['zip'],
+    }
+    resource_format_lower = resource_format.lower()
+    for key, values in format_mapping.items():
+        if resource_format_lower in values:
+            return key
+    else:
+        return None
