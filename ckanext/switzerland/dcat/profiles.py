@@ -7,6 +7,8 @@ import time
 
 import re
 
+from pylons import config
+
 from ckanext.dcat.profiles import RDFProfile
 from ckanext.dcat.utils import resource_uri
 
@@ -361,7 +363,7 @@ class SwissDCATAPProfile(RDFProfile):
 
         # LandingPage
         g.add((dataset_ref, DCAT.landingPage,
-               Literal(dataset_dict['url'])))
+               Literal(config.get('ckan.site_url'))))
 
         self._add_multilang_value(dataset_ref, DCAT.keyword, 'keywords', dataset_dict) # noqa
 
