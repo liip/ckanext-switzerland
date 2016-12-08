@@ -30,15 +30,13 @@ Example:
       <dl>
         <dt>{{ _('Last updated') }}</dt>
         <dd>
-          {% set mod_date = pkg.modified or pkg.issued %}
-          {% if not mod_date and pkg.resources and pkg.resources|length > 0 %}
-            {% set mod_date = pkg.resources[0].issued %}
-          {% endif %}
-          {% if mod_date %}
-            {{ h.render_datetime(mod_date, with_hours=False) }}
-          {% else %}
-            -
-          {% endif %}
+        {% if pkg.issued %}
+          <span class="automatic-local-datetime" data-datetime="{{ h.render_datetime(pkg.issued, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
+            {{ h.render_datetime(pkg.issued, with_hours=True)  }}
+          </span>
+        {% else %}
+          -
+        {% endif %}
         </dd>
       </dl>
     </div>
