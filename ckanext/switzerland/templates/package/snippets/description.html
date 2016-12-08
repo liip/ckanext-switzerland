@@ -30,9 +30,9 @@ Example:
       <dl>
         <dt>{{ _('Last updated') }}</dt>
         <dd>
-        {% if pkg.issued %}
-          <span class="automatic-local-datetime" data-datetime="{{ h.render_datetime(pkg.issued, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
-            {{ h.render_datetime(pkg.issued, with_hours=True)  }}
+        {% if pkg.modified %}
+          <span class="automatic-local-datetime" data-datetime="{{ h.render_datetime(pkg.modified, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
+            {{ h.render_datetime(pkg.modified, with_hours=True)  }}
           </span>
         {% else %}
           -
