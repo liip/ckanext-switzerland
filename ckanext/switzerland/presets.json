@@ -135,7 +135,7 @@
       "values": {
         "display_snippet": "date.html",
         "output_validators": "swiss_date",
-        "form_snippet": null
+        "form_snippet": "hidden.html"
       }
     },
     {
