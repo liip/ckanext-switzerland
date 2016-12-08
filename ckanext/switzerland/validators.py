@@ -119,6 +119,13 @@ def json_list_of_dicts_field(field, schema):
             except ValueError:
                 errors[(name,)] = [_('Invalid date')]
 
+        for counter, value in values.items():
+            fields = set(field_type['fields'].keys())
+            set_fields = set(value.keys())
+            missing_fields = fields - set_fields
+            for missing_field in missing_fields:
+                errors[('{}{}-{}'.format(prefix, counter, missing_field),)] = [_('This field is required')]
+
         # iterate over junk fields (used in resource creation/update)
         junk = data.get(('__junk',))
         if junk:
