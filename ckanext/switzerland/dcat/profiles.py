@@ -1,4 +1,5 @@
 import rdflib
+from ckan.lib.helpers import url_for
 from rdflib import URIRef, BNode, Literal
 from rdflib.namespace import Namespace, RDFS, RDF, SKOS, XSD
 
@@ -363,8 +364,8 @@ class SwissDCATAPProfile(RDFProfile):
 
         # LandingPage
         g.add((dataset_ref, DCAT.landingPage,
-               Literal(config.get('ckan.site_url'))))
-
+               Literal(url_for(controller='package', action='read', id=dataset_dict['name'],
+                               qualified=True, locale='default'))))
         self._add_multilang_value(dataset_ref, DCAT.keyword, 'keywords', dataset_dict) # noqa
 
         # Dates
