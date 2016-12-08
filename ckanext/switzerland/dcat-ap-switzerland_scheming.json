@@ -204,7 +204,8 @@
         "it": "Landing page"
       },
       "preset": "url",
-      "display_snippet": "landing_page.html"
+      "display_snippet": "landing_page.html",
+      "form_snippet": null
     },
     {
       "field_name": "language",
