@@ -479,12 +479,13 @@ class SwissDCATAPProfile(RDFProfile):
             #  Simple values
             items = [
                 ('status', ADMS.status, None, Literal),
-                ('rights', DCT.rights, None, Literal),
                 ('license', DCT.license, None, Literal),
                 ('identifier', DCT.identifier, None, Literal),
                 ('media_type', DCAT.mediaType, None, Literal),
                 ('spatial', DCT.spatial, None, Literal),
             ]
+
+            g.add((distribution, DCAT.rights, Literal('NonCommercialAllowed-CommercialAllowed-ReferenceRequired')))
 
             self._add_triples_from_dict(resource_dict, distribution, items)
 
