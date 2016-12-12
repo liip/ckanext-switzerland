@@ -39,6 +39,8 @@ from pylons import config as ckanconf
 from simplejson.scanner import JSONDecodeError
 import voluptuous
 from ckan.lib import search
+from sqlalchemy.sql import update, bindparam
+
 from ftp_helper import FTPHelper
 
 
@@ -929,6 +931,13 @@ class BaseFTPHarvester(HarvesterBase):
             'id': package['id'],
             'order': map(lambda r: r['id'], unmatched_resources + ordered_resources)
         })
+
+        from ckanext.harvest.model import harvest_object_table
+        conn = Session.connection()
+        u = update(harvest_object_table) \
+            .where(harvest_object_table.c.package_id == bindparam('b_package_id')) \
+            .values(current=False)
+        conn.execute(u, b_package_id=package['id'])
 
         harvest_object.package_id = package['id']
         harvest_object.current = True
