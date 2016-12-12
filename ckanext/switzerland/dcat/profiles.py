@@ -489,7 +489,7 @@ class SwissDCATAPProfile(RDFProfile):
 
             self._add_triples_from_dict(resource_dict, distribution, items)
 
-            self._add_multilang_value(distribution, DCT.title, 'display_name', dataset_dict) # noqa
+            self._add_multilang_value(distribution, DCT.title, 'title', dataset_dict) # noqa
             self._add_multilang_value(distribution, DCT.description, 'description', dataset_dict) # noqa
 
             #  Lists
