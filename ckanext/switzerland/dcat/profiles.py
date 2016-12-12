@@ -484,8 +484,8 @@ class SwissDCATAPProfile(RDFProfile):
                 ('spatial', DCT.spatial, None, Literal),
             ]
 
-            g.add((distribution, DCAT.rights, Literal('NonCommercialAllowed-CommercialAllowed-ReferenceRequired')))
-            g.add((distribution, DCAT.license, Literal('NonCommercialAllowed-CommercialAllowed-ReferenceRequired')))
+            g.add((distribution, DCT.rights, Literal('NonCommercialAllowed-CommercialAllowed-ReferenceRequired')))
+            g.add((distribution, DCT.license, Literal('NonCommercialAllowed-CommercialAllowed-ReferenceRequired')))
 
             self._add_triples_from_dict(resource_dict, distribution, items)
 
