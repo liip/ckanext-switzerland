@@ -348,7 +348,6 @@ class SwissDCATAPProfile(RDFProfile):
 
         # Basic fields
         items = [
-            ('identifier', DCT.identifier, ['guid', 'id'], Literal),
             ('version', OWL.versionInfo, ['dcat_version'], Literal),
             ('version_notes', ADMS.versionNotes, None, Literal),
             ('frequency', DCT.accrualPeriodicity, None, Literal),
@@ -357,6 +356,10 @@ class SwissDCATAPProfile(RDFProfile):
             ('provenance', DCT.provenance, None, Literal),
             ('spatial', DCT.spatial, None, Literal),
         ]
+
+        g.add((dataset_ref, DCT.identifier, Literal('{}@{}'.format(dataset_dict['name'],
+                                                                   dataset_dict['organization']['name']))))
+
         self._add_triples_from_dict(dataset_dict, dataset_ref, items)
 
         self._add_multilang_value(dataset_ref, DCT.description, 'description', dataset_dict) # noqa
