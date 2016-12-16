@@ -145,7 +145,7 @@ class TimetableHarvester(BaseFTPHarvester):
 
                     try:
                         context = {'model': model, 'session': Session, 'user': self._get_user_name()}
-                        existing_dataset = self._get_dataset(context, dataset)
+                        existing_dataset = self._get_dataset(dataset)
                     except NotFound:
                         continue  # dataset for this year does not exist yet
                     package = model.Package.get(existing_dataset['id'])
