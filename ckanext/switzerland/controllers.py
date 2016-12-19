@@ -117,3 +117,8 @@ class PermalinkController(base.BaseController):
             abort(404, _('Resource not found'))
 
         return redirect(dataset['permalink'])
+
+
+class EmailAddressExporter(base.BaseController):
+    def email_address_exporter(self):
+        return render('email_exporter/email_exporter.html')

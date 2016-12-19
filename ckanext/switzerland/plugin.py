@@ -38,6 +38,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.ITranslation)
+    plugins.implements(plugins.IRoutes, inherit=True)
 
     # IConfigurer
 
@@ -145,6 +146,11 @@ class OgdchPlugin(plugins.SingletonPlugin):
 
     def i18n_domain(self):
         return 'ckanext-switzerland'
+
+    def before_map(self, map):
+        map.connect('email_exporter', '/ckan-admin/email_exporter',
+                    controller='ckanext.switzerland.controllers:EmailAddressExporter', action='email_address_exporter')
+        return map
 
 
 class OgdchLanguagePlugin(plugins.SingletonPlugin):
