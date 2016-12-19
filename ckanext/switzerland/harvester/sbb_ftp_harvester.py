@@ -111,7 +111,7 @@ class SBBFTPHarvester(BaseFTPHarvester):
             return None
 
         if not len(filelist):
-            self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
+            log.warning('No files found in %s', remotefolder)
             return None
 
         # create one harvest job for each resource in the package

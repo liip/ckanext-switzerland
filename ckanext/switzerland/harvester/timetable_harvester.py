@@ -110,7 +110,7 @@ class TimetableHarvester(BaseFTPHarvester):
             return None
 
         if not len(filelist):
-            self._save_gather_error('No files found in %s' % remotefolder, harvest_job)
+            log.warning('No files found in %s', remotefolder)
             return None
 
         filelist_with_dataset = []
