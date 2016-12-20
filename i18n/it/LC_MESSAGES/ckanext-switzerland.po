@@ -43,8 +43,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-12-05 16:25+0100\n"
-"PO-Revision-Date: 2016-12-12 16:45+0100\n"
+"POT-Creation-Date: 2016-12-20 15:07+0100\n"
+"PO-Revision-Date: 2016-12-20 15:08+0100\n"
 "Last-Translator: Team Amboss <be-dev@liip.ch>\n"
 "Language-Team: Italian (http://www.transifex.com/okfn/ckan/language/it/)\n"
 "Language: it\n"
@@ -58,32 +58,37 @@ msgstr ""
 "Generated-By: Babel 2.1.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ckanext/switzerland/controllers.py:55 ckanext/switzerland/controllers.py:102
-#: ckanext/switzerland/controllers.py:117
+#: ckanext/switzerland/controllers.py:60 ckanext/switzerland/controllers.py:107
+#: ckanext/switzerland/controllers.py:122
 msgid "Resource not found"
 msgstr "Risorsa non trovata"
 
-#: ckanext/switzerland/controllers.py:57
+#: ckanext/switzerland/controllers.py:62
 #, python-format
 msgid "Unauthorized to read resource %s"
 msgstr "Non si è autorizzati a leggere la risorsa %s"
 
-#: ckanext/switzerland/controllers.py:66
+#: ckanext/switzerland/controllers.py:71
 msgid "Resource data not found"
 msgstr "Risorsa non trovata"
 
-#: ckanext/switzerland/controllers.py:75
+#: ckanext/switzerland/controllers.py:80
 msgid "No download is available"
 msgstr "Nessun download è disponibile"
 
-#: ckanext/switzerland/controllers.py:94 ckanext/switzerland/controllers.py:112
+#: ckanext/switzerland/controllers.py:99 ckanext/switzerland/controllers.py:117
 msgid "Dataset not found"
 msgstr "Dataset non trovato"
 
-#: ckanext/switzerland/controllers.py:96 ckanext/switzerland/controllers.py:114
+#: ckanext/switzerland/controllers.py:101
+#: ckanext/switzerland/controllers.py:119
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr "Non si è autorizzati a leggere il pacchetto %s"
+
+#: ckanext/switzerland/controllers.py:130
+msgid "Unauthorized"
+msgstr ""
 
 #: ckanext/switzerland/helpers.py:157
 msgid "Irregular"
@@ -181,12 +186,12 @@ msgstr "Closed data"
 msgid "Unnamed resource"
 msgstr "Risorsa senza nome"
 
-#: ckanext/switzerland/plugin.py:71 ckanext/switzerland/plugin.py:81
-#: ckanext/switzerland/plugin.py:91
+#: ckanext/switzerland/plugin.py:72 ckanext/switzerland/plugin.py:82
+#: ckanext/switzerland/plugin.py:92
 msgid "Keywords"
 msgstr "Parole chiave"
 
-#: ckanext/switzerland/plugin.py:72 ckanext/switzerland/plugin.py:82
+#: ckanext/switzerland/plugin.py:73 ckanext/switzerland/plugin.py:83
 #: ckanext/switzerland/templates/organization/edit_base.html:5
 #: ckanext/switzerland/templates/organization/edit_base.html:8
 #: ckanext/switzerland/templates/organization/index.html:3
@@ -198,8 +203,8 @@ msgstr "Parole chiave"
 msgid "Organizations"
 msgstr "Organizzazioni"
 
-#: ckanext/switzerland/plugin.py:73 ckanext/switzerland/plugin.py:83
-#: ckanext/switzerland/plugin.py:92
+#: ckanext/switzerland/plugin.py:74 ckanext/switzerland/plugin.py:84
+#: ckanext/switzerland/plugin.py:93
 msgid "Formats"
 msgstr ""
 
@@ -223,28 +228,28 @@ msgstr "attesa lista JSON"
 msgid "Invalid form data"
 msgstr "Data modulo non valida"
 
-#: ckanext/switzerland/validators.py:113
+#: ckanext/switzerland/validators.py:113 ckanext/switzerland/validators.py:127
 #: ckanext/switzerland/templates/macros/form.html:265
 msgid "This field is required"
 msgstr "Questo è un campo richiesto"
 
-#: ckanext/switzerland/validators.py:159 ckanext/switzerland/validators.py:223
-#: ckanext/switzerland/validators.py:272
+#: ckanext/switzerland/validators.py:166 ckanext/switzerland/validators.py:230
+#: ckanext/switzerland/validators.py:279
 #, python-format
 msgid "Expecting list of strings, got \"%s\""
 msgstr ""
 "Il tipo di dato atteso è un elenco di stringhe, il dato immesso è \"%s\""
 
-#: ckanext/switzerland/validators.py:283
+#: ckanext/switzerland/validators.py:290
 #, python-format
 msgid "unexpected choice \"%s\""
 msgstr "selezione inattesa \"%s\""
 
-#: ckanext/switzerland/validators.py:305
+#: ckanext/switzerland/validators.py:312
 msgid "Identifier is already in use, it must be unique."
 msgstr "Identificatore già in uso. Inserirne uno univoco."
 
-#: ckanext/switzerland/validators.py:321
+#: ckanext/switzerland/validators.py:328
 msgid "Invalid URL"
 msgstr ""
 
@@ -317,7 +322,13 @@ msgstr "Salvataggio in corso..."
 msgid "Footer"
 msgstr "Piè di pagina"
 
+#: ckanext/switzerland/templates/header.html:23
+#: ckanext/switzerland/templates/snippets/home_breadcrumb_item.html:2
+msgid "Home"
+msgstr ""
+
 #: ckanext/switzerland/templates/header.html:30
+#: ckanext/switzerland/templates/header.html:32
 #: ckanext/switzerland/templates/search/search.html:13
 #: ckanext/switzerland/templates/search/search.html:32
 #: ckanext/switzerland/templates/search/search.html:37
@@ -472,6 +483,28 @@ msgstr ""
 #: ckanext/switzerland/templates/ajax_snippets/api_info.html:125
 msgid "Example: Python"
 msgstr "Esempio: Python"
+
+#: ckanext/switzerland/templates/email_exporter/email_exporter.html:3
+#: ckanext/switzerland/templates/email_exporter/email_exporter.html:6
+msgid "Email exporter"
+msgstr ""
+
+#: ckanext/switzerland/templates/email_exporter/email_exporter.html:9
+msgid "All users"
+msgstr "Tutti gli utenti"
+
+#: ckanext/switzerland/templates/email_exporter/email_exporter.html:11
+#: ckanext/switzerland/templates/group/snippets/info.html:24
+#: ckanext/switzerland/templates/package/snippets/info.html:23
+#: ckanext/switzerland/templates/snippets/organization.html:47
+#: ckanext/switzerland/templates/user/read_base.html:49
+msgid "Followers"
+msgstr "Sostenitori"
+
+#: ckanext/switzerland/templates/email_exporter/email_exporter.html:14
+#: ckanext/switzerland/templates/package/resource_read.html:47
+msgid "Download"
+msgstr ""
 
 #: ckanext/switzerland/templates/group/confirm_delete.html:3
 #: ckanext/switzerland/templates/group/confirm_delete.html:15
@@ -751,13 +784,6 @@ msgstr "Elimina il dataset da questo gruppo"
 msgid "Deleted"
 msgstr ""
 
-#: ckanext/switzerland/templates/group/snippets/info.html:24
-#: ckanext/switzerland/templates/package/snippets/info.html:23
-#: ckanext/switzerland/templates/snippets/organization.html:47
-#: ckanext/switzerland/templates/user/read_base.html:49
-msgid "Followers"
-msgstr "Sostenitori"
-
 #: ckanext/switzerland/templates/macros/form.html:126
 #, python-format
 msgid ""
@@ -994,10 +1020,6 @@ msgstr "API Endpoint"
 
 #: ckanext/switzerland/templates/package/resource_read.html:45
 msgid "Go to resource"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/resource_read.html:47
-msgid "Download"
 msgstr ""
 
 #: ckanext/switzerland/templates/package/resource_read.html:63
@@ -1406,10 +1428,6 @@ msgstr "Mostra solo {facet_type} popolari"
 
 #: ckanext/switzerland/templates/snippets/facet_list.html:87
 msgid "There are no {facet_type} that match this search"
-msgstr ""
-
-#: ckanext/switzerland/templates/snippets/home_breadcrumb_item.html:2
-msgid "Home"
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/job_details.html:26
