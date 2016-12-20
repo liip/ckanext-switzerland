@@ -8,7 +8,7 @@ from ckanext.switzerland.harvester.timetable_harvester import TimetableHarvester
 from ckanext.switzerland.tests import data
 from ckanext.switzerland.tests.helpers.mock_ftphelper import MockFTPHelper
 from mock import patch
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_is_not_none, assert_in
 
 from .base_ftp_harvester_tests import BaseFTPHarvesterTests
 
@@ -72,6 +72,11 @@ class TestInfoplusHarvester(BaseFTPHarvesterTests):
         dataset = self.get_dataset(name='Station List')
 
         assert_equal(len(dataset['resources']), 1)
+
+        assert_in('issued', dataset)
+        assert_in('modified', dataset)
+        assert_is_not_none(dataset['issued'])
+        assert_is_not_none(dataset['modified'])
 
         assert_equal(dataset['resources'][0]['identifier'], 'BAHNHOF.csv')
         self.assert_resource_data(dataset['resources'][0]['id'], data.bahnhof_file_csv)

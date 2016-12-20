@@ -68,6 +68,12 @@ def create_harvest_jobs(harvester_config, harvester_name, harvest_job, zip_filen
         # save it for the next step
         obj.save()
         job_ids.append(obj.id)
+
+    obj = HarvestObject(guid=harvester_name, job=harvest_job)
+    obj.content = json.dumps({'type': 'finalizer', 'dataset': harvester_config['infoplus']['dataset']})
+    obj.save()
+    job_ids.append(obj.id)
+
     return job_ids
 
 
