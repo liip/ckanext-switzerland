@@ -4,8 +4,8 @@
 
 {% block primary %}
     <h1 class="heading">{% block page_heading %}{{ _('Email exporter') }}{% endblock %}</h1>
-    <form>
-    <select></select>
-    <input type="submit" value="Send">
+    <form action="" method="get">
+      <input type="submit" name="filter" value="{{ _('Download') }}">
     </form>
+    <br>
 {% endblock %}

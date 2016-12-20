@@ -1,6 +1,10 @@
 import logging
 import mimetypes
 
+import requests
+import unicodecsv
+from StringIO import StringIO
+
 import ckan.lib.base as base
 import ckan.lib.plugins
 import ckan.lib.render
@@ -8,6 +12,7 @@ import ckan.lib.uploader as uploader
 import ckan.logic as logic
 import ckan.model as model
 import paste.fileapp
+from pylons import config
 from ckan.common import _, request, c, response
 from ckan.controllers.package import PackageController
 from ckan.lib.dictization.model_dictize import resource_dictize
@@ -121,4 +126,24 @@ class PermalinkController(base.BaseController):
 
 class EmailAddressExporter(base.BaseController):
     def email_address_exporter(self):
+        if 'filter' in request.params:
+            fobj = StringIO()
+            csv = unicodecsv.writer(fobj)
+            csv.writerow(['First Name', 'Last Name', 'Email'])
+
+            site_url = config.get('ckan.site_url')
+            api_key = config.get('ckanext.switzerland.user_list_api_key')
+            url = '{}/cms/wp-admin/admin-post.php?action=user_list&key={}'.format(site_url, api_key)
+            resp = requests.get(url).json()
+
+            for user in resp['data']:
+                if ' ' in user['display_name']:
+                    first_name, last_name = user['display_name'].split(' ', 1)
+                else:
+                    first_name, last_name = '', user['display_name']
+                csv.writerow([first_name, last_name, user['user_email']])
+
+            response.headers['Content-Type'] = 'text/csv'
+            response.headers['Content-Disposition'] = 'attachment; filename="emails.csv"'
+            return fobj.getvalue()
         return render('email_exporter/email_exporter.html')
