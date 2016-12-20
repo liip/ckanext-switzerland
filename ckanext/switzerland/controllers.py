@@ -126,6 +126,9 @@ class PermalinkController(base.BaseController):
 
 class EmailAddressExporter(base.BaseController):
     def email_address_exporter(self):
+        if not (c.userobj and c.userobj.sysadmin):
+            abort(401, _('Unauthorized'))
+
         if 'filter' in request.params:
             fobj = StringIO()
             csv = unicodecsv.writer(fobj)
