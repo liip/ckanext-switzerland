@@ -137,9 +137,14 @@ class EmailAddressExporter(base.BaseController):
             site_url = config.get('ckan.site_url')
             api_key = config.get('ckanext.switzerland.user_list_api_key')
             url = '{}/cms/wp-admin/admin-post.php?action=user_list&key={}'.format(site_url, api_key)
-            resp = requests.get(url).json()
+            users = requests.get(url).json()['data']
 
-            for user in resp['data']:
+            if request.params['filter'] != 'all':
+                followers = get_action('dataset_follower_list')({}, {'id': request.params['filter']})
+                followers = {follower['name'] for follower in followers}
+                users = filter(lambda u: u['user_login'] in followers, users)
+
+            for user in users:
                 if ' ' in user['display_name']:
                     first_name, last_name = user['display_name'].split(' ', 1)
                 else:
@@ -149,4 +154,10 @@ class EmailAddressExporter(base.BaseController):
             response.headers['Content-Type'] = 'text/csv'
             response.headers['Content-Disposition'] = 'attachment; filename="emails.csv"'
             return fobj.getvalue()
+
+        packages = get_action('package_search')({}, {'sort': 'identifier asc'})['results']
+        for package in packages:
+            package['follower_count'] = get_action('dataset_follower_count')({}, {'id': package['id']})
+
+        c.datasets = packages
         return render('email_exporter/email_exporter.html')
