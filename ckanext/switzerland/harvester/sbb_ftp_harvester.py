@@ -133,7 +133,6 @@ class SBBFTPHarvester(BaseFTPHarvester):
 
             if not force_all:
                 try:
-                    context = {'model': model, 'session': Session, 'user': self._get_user_name()}
                     existing_dataset = self._get_dataset(self.config['dataset'])
                     package = model.Package.get(existing_dataset['id'])
                     existing_resources = map(lambda r: os.path.basename(r.url), package.resources_all)
