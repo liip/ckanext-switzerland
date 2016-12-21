@@ -145,11 +145,7 @@ class EmailAddressExporter(base.BaseController):
                 users = filter(lambda u: u['user_login'] in followers, users)
 
             for user in users:
-                if ' ' in user['display_name']:
-                    first_name, last_name = user['display_name'].split(' ', 1)
-                else:
-                    first_name, last_name = '', user['display_name']
-                csv.writerow([first_name, last_name, user['user_email']])
+                csv.writerow([user['first_name'], user['last_name'], user['user_email']])
 
             response.headers['Content-Type'] = 'text/csv'
             response.headers['Content-Disposition'] = 'attachment; filename="emails.csv"'
