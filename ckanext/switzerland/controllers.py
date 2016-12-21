@@ -155,7 +155,7 @@ class EmailAddressExporter(base.BaseController):
             response.headers['Content-Disposition'] = 'attachment; filename="emails.csv"'
             return fobj.getvalue()
 
-        packages = get_action('package_search')({}, {'sort': 'identifier asc', 'rows': 1000})['results']
+        packages = get_action('package_search')({}, {'sort': 'name asc', 'rows': 1000})['results']
         for package in packages:
             package['follower_count'] = get_action('dataset_follower_count')({}, {'id': package['id']})
 
