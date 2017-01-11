@@ -460,13 +460,11 @@ class SwissDCATAPProfile(RDFProfile):
                     g.add((dataset_ref, DCT.temporal, temporal_extent))
 
         # Themes
-        groups = self._get_dataset_value(dataset_dict, 'groups')
-        for group_name in groups:
-            g.add((
-                dataset_ref,
-                DCAT.theme,
-                URIRef(ogd_theme_base_url + group_name.get('name'))
-            ))
+        g.add((
+            dataset_ref,
+            DCAT.theme,
+            URIRef('http://opendata.swiss/themes/mobility')
+        ))
 
         # Resources
         for resource_dict in dataset_dict.get('resources', []):
