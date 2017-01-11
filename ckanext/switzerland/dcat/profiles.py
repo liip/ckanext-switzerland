@@ -529,13 +529,7 @@ class SwissDCATAPProfile(RDFProfile):
 
             # Numbers
             if resource_dict.get('byte_size'):
-                try:
-                    g.add((distribution, DCAT.byteSize,
-                           Literal(float(resource_dict['size']),
-                                   datatype=XSD.decimal)))
-                except (ValueError, TypeError):
-                    g.add((distribution, DCAT.byteSize,
-                           Literal(resource_dict['size'])))
+                g.add((distribution, DCAT.byteSize, Literal(resource_dict['size'])))
 
     def graph_from_catalog(self, catalog_dict, catalog_ref):
         g = self.g
