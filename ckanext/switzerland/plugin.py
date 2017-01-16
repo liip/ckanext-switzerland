@@ -1,6 +1,8 @@
 # coding=UTF-8
 import os
 import sys
+
+import re
 from ckanext.switzerland import validators as v
 from ckanext.switzerland.logic import (
     ogdch_dataset_count, ogdch_dataset_terms_of_use,
@@ -27,6 +29,8 @@ import collections
 import logging
 
 from routes.mapper import SubMapper
+from webhelpers import paginate
+from webhelpers.html import HTML
 
 log = logging.getLogger(__name__)
 
@@ -521,3 +525,42 @@ h.dataset_display_name = dataset_display_name
 h.resource_display_name = resource_display_name
 h.group_link = group_link
 h.resource_link = resource_link
+
+
+# Monkeypatch to style CKAN pagination
+class OGDPage(paginate.Page):
+    # Curry the pager method of the webhelpers.paginate.Page class, so we have
+    # our custom layout set as default.
+    def pager(self, *args, **kwargs):
+        kwargs.update(
+            format=u"<div style='text-align: center;width: 100%;border-top: 1px solid #ddd;'><ul class='pagination' style='margin: 0; border: none;'>$link_previous ~2~ $link_next</ul></div>",  # noqa
+            symbol_previous=u'«', symbol_next=u'»',
+            curpage_attr={'class': 'active'}, link_attr={}
+        )
+        return super(OGDPage, self).pager(*args, **kwargs)
+
+    # Put each page link into a <li> (for Bootstrap to style it)
+    def _pagerlink(self, page, text, extra_attributes=None):
+        anchor = super(OGDPage, self)._pagerlink(page, text)
+        extra_attributes = extra_attributes or {}
+        return HTML.li(anchor, **extra_attributes)
+
+    # Change 'current page' link from <span> to <li><a>
+    # and '..' into '<li><a>..'
+    # (for Bootstrap to style them properly)
+    def _range(self, regexp_match):
+        html = super(OGDPage, self)._range(regexp_match)
+        # Convert ..
+        dotdot = '<span class="pager_dotdot">..</span>'
+        dotdot_link = HTML.li(HTML.a('...', href='#'), class_='disabled')
+        html = re.sub(dotdot, dotdot_link, html)
+
+        # Convert current page
+        text = '%s' % self.page
+        current_page_span = str(HTML.span(c=text, **self.curpage_attr))
+        current_page_link = self._pagerlink(self.page, text,
+                                            extra_attributes=self.curpage_attr)
+        return re.sub(current_page_span, current_page_link, html)
+
+
+h.Page = OGDPage
