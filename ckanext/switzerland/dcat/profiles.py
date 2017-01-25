@@ -412,6 +412,10 @@ class SwissDCATAPProfile(RDFProfile):
                 g.add((relation, RDFS.label, Literal(relation_name)))
                 g.add((dataset_ref, DCT.relation, relation))
 
+        relation = URIRef('https://opentransportdata.swiss/terms-of-use/')
+        g.add((relation, RDFS.label, Literal('Terms of use')))
+        g.add((dataset_ref, DCT.relation, relation))
+
         # References
         if dataset_dict.get('see_alsos'):
             references = dataset_dict.get('see_alsos')
