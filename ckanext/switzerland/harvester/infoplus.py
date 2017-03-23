@@ -109,7 +109,7 @@ def file_filter(harvester_obj, config):
 
     fp = zipfile.open(harvester_obj['infoplus_filename'])
     data = fp.read()
-    data = data.decode('iso-8859-1')
+    data = data.decode('utf-8')
     fp.close()
 
     with open(path, 'wb') as f:
