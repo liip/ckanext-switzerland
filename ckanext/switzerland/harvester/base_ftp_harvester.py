@@ -822,6 +822,9 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta['size'] = size
                 resource_meta['byte_size'] = size
 
+            if 'rights' not in resource_meta:
+                resource_meta['rights'] = ''
+
             log.info(log_msg % str(resource_meta))
 
             upload = cgi.FieldStorage()
