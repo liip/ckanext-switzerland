@@ -9,6 +9,9 @@ Example:
   {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
 
 #}
+
+{% resource 'switzerland/sort_resources.js' %}
+
 <section id="dataset-resources" class="resources">
   <h2>{{ _('Data and Resources') }}</h2>
   {% block resource_list %}
