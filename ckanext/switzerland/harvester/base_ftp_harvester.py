@@ -323,9 +323,10 @@ class BaseFTPHarvester(HarvesterBase):
     # tested
     def remove_tmpfolder(self, tmpfolder):
         """ Remove the tmp folder, if it exists """
-        if not tmpfolder:
-            return
-        shutil.rmtree(tmpfolder)
+        try:
+            shutil.rmtree(tmpfolder)
+        except OSError:
+            pass
 
     # tested
     def cleanup_after_error(self, retobj):
