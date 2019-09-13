@@ -125,4 +125,4 @@ def resource(dataset, filename='filenamethatshouldnotmatch.csv'):
                        rights='Other (Open)',
                        license='Other (Open)',
                        coverage='Coverage',
-                       url='http://ogdch.dev/dataset/testdataset/resource/download/{}'.format(munge_filename(filename)))
+                       url='http://odp.test/dataset/testdataset/resource/download/{}'.format(munge_filename(filename)))

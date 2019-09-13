@@ -165,7 +165,7 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
         assert_equal(package.resources[1].extras['identifier'], '20160901.csv')
 
         # permalink
-        assert_equal(package.permalink, 'http://ogdch.dev/dataset/{}/resource/{}/download/20160902.csv'.format(
+        assert_equal(package.permalink, 'http://odp.test/dataset/{}/resource/{}/download/20160902.csv'.format(
             package.id, package.resources[0].id))
 
         self.assert_resource_data(package.resources[0].id, data.dataset_content_2)
@@ -205,7 +205,7 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
         assert_equal(package.resources[0].extras['identifier'], '20160902.csv')
         assert_equal(package.resources[1].extras['identifier'], '20160901.csv')
 
-        assert_equal(package.permalink, 'http://ogdch.dev/dataset/{}/resource/{}/download/20160902.csv'.format(
+        assert_equal(package.permalink, 'http://odp.test/dataset/{}/resource/{}/download/20160902.csv'.format(
             package.id, package.resources[0].id))
 
         self.assert_resource_data(package.resources[0].id, data.dataset_content_2)
@@ -244,7 +244,7 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
         assert_equal(package.resources[0].extras['identifier'], '20160902.csv')
         assert_equal(package.resources[1].extras['identifier'], '20160901.csv')
 
-        assert_equal(package.permalink, 'http://ogdch.dev/dataset/{}/resource/{}/download/20160902.csv'.format(
+        assert_equal(package.permalink, 'http://odp.test/dataset/{}/resource/{}/download/20160902.csv'.format(
             package.id, package.resources[0].id))
 
         self.assert_resource_data(package.resources[0].id, data.dataset_content_3)
@@ -270,7 +270,7 @@ class TestSBBFTPHarvester(BaseFTPHarvesterTests):
         assert_equal(package.resources[2].extras['identifier'], '20160902.csv')
         assert_equal(package.resources[3].extras['identifier'], '20160901.csv')
 
-        assert_equal(package.permalink, 'http://ogdch.dev/dataset/{}/resource/{}/download/20160902.csv'.format(
+        assert_equal(package.permalink, 'http://odp.test/dataset/{}/resource/{}/download/20160902.csv'.format(
             package.id, package.resources[2].id))
 
     # cleanup tests
