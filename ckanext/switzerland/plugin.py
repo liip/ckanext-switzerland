@@ -419,7 +419,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
 
         # log.debug(pprint.pformat(validated_dict))
 
-        search_data['res_name'] = [r['title'] for r in validated_dict[u'resources']]  # noqa
+        search_data['res_name'] = [extract_title(r) for r in validated_dict[u'resources']]  # noqa
         search_data['res_format'] = [r['media_type'] for r in validated_dict[u'resources'] if 'media_type' in r]  # noqa
         search_data['res_rights'] = [simplify_terms_of_use(r.get('rights', '')) for r in validated_dict[u'resources']]  # noqa
         search_data['title_string'] = extract_title(validated_dict)
@@ -514,11 +514,21 @@ class LangToString(object):
         self.attribute = attribute
 
     def __call__(self, data_dict):
-        lang = data_dict[self.attribute]
-        return (
-            '%s - %s - %s - %s'
-            % (lang['de'], lang['fr'], lang['it'], lang['en'])
-        )
+        try:
+            lang = data_dict[self.attribute]
+
+            return (
+                '%s - %s - %s - %s' % (
+                    lang.get('de', ''),
+                    lang.get('fr', ''),
+                    lang.get('it', ''),
+                    lang.get('en', '')
+                )
+            )
+        except KeyError:
+            return ''
+        except AttributeError:
+            return None
 
 # monkey patch template helpers to return translated names/titles
 h.dataset_display_name = dataset_display_name
