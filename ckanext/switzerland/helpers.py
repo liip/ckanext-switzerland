@@ -11,7 +11,7 @@ from ckan.lib.munge import munge_filename
 from jinja2.utils import urlize
 from pylons import config
 from ckan.common import _, request
-from ckan.lib.helpers import link_to, url_for, lang
+from ckan.lib.helpers import _link_to, url_for, lang
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
 import ast
 from ckan.common import c
@@ -324,7 +324,7 @@ def group_link(group):
         title = ast.literal_eval(title)
     if isinstance(title, dict):
         title = get_localized_value(title)
-    return link_to(title, url)
+    return _link_to(title, url)
 
 
 # patch activity
@@ -342,7 +342,7 @@ def resource_link(resource_dict, package_id):
                   action='resource_read',
                   id=package_id,
                   resource_id=resource_dict['id'])
-    return link_to(text, url)
+    return _link_to(text, url)
 
 
 def resource_filename(resource_url):
