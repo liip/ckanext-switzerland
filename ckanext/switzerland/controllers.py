@@ -14,15 +14,16 @@ import ckan.model as model
 import paste.fileapp
 from pylons import config
 from ckan.common import _, request, c, response
+import ckan.plugins.toolkit as toolkit
 from ckan.controllers.package import PackageController
 from ckan.lib.dictization.model_dictize import resource_dictize
 from ckanext.switzerland.helpers import resource_filename
 
 log = logging.getLogger(__name__)
 
-render = base.render
-abort = base.abort
-redirect = base.redirect
+render = toolkit.render
+abort = toolkit.abort
+redirect = toolkit.redirect_to
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
