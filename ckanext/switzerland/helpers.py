@@ -349,8 +349,10 @@ def resource_filename(resource_url):
 
 
 def load_wordpress_templates():
-    site_url = tk.config.get('ckan.site_url', '')
-    url = '{}/cms/wp-admin/admin-post.php?action=get_nav&lang={}'.format(site_url, lang())
+    site_url = tk.config.get('ckanext.switzerland.wp_template_url', '')
+    url = '{}&lang={}'.format(site_url, lang())
+
+    log.error('URL: {0}'.format(url))
     resp = requests.get(url, cookies=request.cookies)
     if resp.status_code != 200:
         return
@@ -365,6 +367,7 @@ def load_wordpress_templates():
     c.wordpress_admin_navigation = data['admin']
     c.wordpress_footer = data['footer']
     c.wordpress_title = data['title']
+    c.wordpress_css = data['css']
 
 
 def render_description(pkg):
