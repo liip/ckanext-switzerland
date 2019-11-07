@@ -9,7 +9,6 @@ import json
 import pylons
 from ckan.lib.munge import munge_filename
 from jinja2.utils import urlize
-from pylons import config
 from ckan.common import _, request
 from ckan.lib.helpers import _link_to, url_for, lang
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
@@ -268,8 +267,8 @@ def get_content_headers(url):
 
 def get_piwik_config():
     return {
-        'url': pylons.config.get('piwik.url', False),
-        'site_id': pylons.config.get('piwik.site_id', False)
+        'url': tk.config.get('piwik.url', False),
+        'site_id': tk.config.get('piwik.site_id', False)
     }
 
 
@@ -350,8 +349,10 @@ def resource_filename(resource_url):
 
 
 def load_wordpress_templates():
-    site_url = config.get('ckan.site_url', '')
-    url = '{}/cms/wp-admin/admin-post.php?action=get_nav&lang={}'.format(site_url, lang())
+    site_url = tk.config.get('ckanext.switzerland.wp_template_url', '')
+    url = '{}&lang={}'.format(site_url, lang())
+
+    log.error('URL: {0}'.format(url))
     resp = requests.get(url, cookies=request.cookies)
     if resp.status_code != 200:
         return
@@ -366,6 +367,7 @@ def load_wordpress_templates():
     c.wordpress_admin_navigation = data['admin']
     c.wordpress_footer = data['footer']
     c.wordpress_title = data['title']
+    c.wordpress_css = data['css']
 
 
 def render_description(pkg):

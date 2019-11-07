@@ -1,7 +1,8 @@
 {% set current_url = request.environ.CKAN_CURRENT_URL %}
+{% set current_lang = request.environ.CKAN_LANG %}
 
 {% for locale in h.get_available_locales() %}
-    <a href="{{ h.url_for(current_url, locale=locale) }}" class="btn btn-link{% if h.lang() == locale.language %} active{% endif %}">
+    <a href="{% url_for current_url, locale=locale.short_name %}" class="btn btn-link{% if locale.identifier == current_lang %} active{% endif %}">
       {{ locale.language | upper }}
     </a>
 {% endfor %}

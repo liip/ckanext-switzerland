@@ -23,9 +23,8 @@
 {% block styles %}
   {# also update the version number in odpch-wp-theme/functions.php odpch_enqueue_scripts
      and in odpch-wp-theme/style.css #}
-  <link rel="stylesheet" href="{{ g.site_url }}/content/themes/odpch-wp-theme/css/main.min.css?v1.7">
-  <link rel="stylesheet"
-        href="{{ g.site_url }}/content/themes/odpch-wp-theme/css/notosans-fontface.min.css">
+  <link rel="stylesheet" href="{{ c.wordpress_css }}">
+
 {% endblock %}
 
 {% block title %}
