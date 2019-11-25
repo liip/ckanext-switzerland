@@ -137,7 +137,7 @@ class EmailAddressExporter(base.BaseController):
 
             site_url = config.get('ckan.site_url')
             api_key = config.get('ckanext.switzerland.user_list_api_key')
-            url = '{}/cms/wp-admin/admin-post.php?action=user_list&key={}'.format(site_url, api_key)
+            url = '{}/wp-admin/admin-post.php?action=user_list&key={}'.format(site_url, api_key)
             users = requests.get(url).json()['data']
 
             if request.params['filter'] != 'all':
