@@ -1,11 +1,11 @@
 ckanext-switzerland
 ===================
 
-CKAN extension for DCAT-AP Switzerland, templates and different plugins for [opendata.swiss](https://opendata.swiss).
+CKAN extension for DCAT-AP Switzerland, templates and different plugins for [opentransportdata.swiss](https://opentransportdata.swiss).
 
 ## Requirements
 
-- CKAN 2.4+
+- CKAN 2.8+
 - ckanext-scheming
 - ckanext-fluent
 
@@ -46,11 +46,14 @@ To install ckanext-switzerland:
 This extension uses the following config options (.ini file)
 
     # the URL of the WordPress AJAX interface
-    ckanext.switzerland.wp_ajax_url = https://opendata.swiss/cms/wp-admin/admin-ajax.php
+    ckanext.switzerland.wp_ajax_url = https://wp/wp-admin/admin-ajax.php
+    ckanext.switzerland.wp_ajax_url = http://wp/cms/wp-admin/admin-ajax.php
+    ckanext.switzerland.wp_template_url = http://wp/cms/wp-admin/admin-post.php?action=get_nav
+    ckanext.switzerland.wp_url = http://wp
 
     # piwik config
     piwik.site_id = 1
-    piwik.url = piwik.opendata.swiss
+    piwik.url = piwik.opentransportdata.swiss
 
 
 ## Development Installation
