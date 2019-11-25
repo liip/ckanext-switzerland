@@ -381,7 +381,7 @@ class BaseFTPHarvester(HarvesterBase):
                 del resource[key]
 
     def _setup_logging(self, harvest_job):
-        log_dir = os.path.join('/var/www/harvester_logs', munge_filename(harvest_job.source.title))
+        log_dir = os.path.join('/etc/ckan/harvester_logs', munge_filename(harvest_job.source.title))
         try:
             os.makedirs(log_dir)
         except os.error:
