@@ -44,7 +44,10 @@ class FTPHelper(object):
         """
 
         if config:
+            # read ftpconfig from harvester-config
             ftpconfig = config
+            # localpath is read from the ckan-config
+            ftpconfig['localpath'] = ckanconf.get('ckan.ftp.localpath', '')
         else:
             ftpconfig = {}
             for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:

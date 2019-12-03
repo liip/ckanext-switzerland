@@ -185,7 +185,6 @@ class BaseFTPHarvester(HarvesterBase):
                     voluptuous.Required('host'): basestring,
                     voluptuous.Required('port'): basestring,
                     voluptuous.Required('remotedirectory'): basestring,
-                    voluptuous.Required('localpath'): basestring,
                 },
         })
 
