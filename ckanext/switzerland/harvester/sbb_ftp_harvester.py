@@ -72,8 +72,10 @@ class SBBFTPHarvester(BaseFTPHarvester):
         remotefolder = self.get_remote_folder()
         log.info("Getting listing from remotefolder: %s" % remotefolder)
 
+        ftp_config = self.config.get('ftp', None)
+
         try:
-            with FTPHelper(remotefolder) as ftph:
+            with FTPHelper(remotefolder, config=ftp_config) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 

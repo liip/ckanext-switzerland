@@ -11,6 +11,7 @@ The class is intended to be used with Python's `with` statement, e.g.
 """
 
 import logging
+from pprint import pformat
 
 import os
 from pylons import config as ckanconf
@@ -34,18 +35,26 @@ class FTPHelper(object):
     tmpfile_extension = '.TMP'
 
     # tested
-    def __init__(self, remotefolder=''):
+    def __init__(self, remotefolder='', config=None):
         """
         Load the ftp configuration from ckan config file
 
         :param remotefolder: Remote folder path
         :type remotefolder: str or unicode
         """
-        ftpconfig = {}
-        for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
-            ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
+
+        if config:
+            ftpconfig = config
+        else:
+            ftpconfig = {}
+            for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
+                ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
+
         ftpconfig['host'] = str(ftpconfig['host'])
         ftpconfig['port'] = int(ftpconfig['port'])
+
+        log.info('Using FTP-Config: %s' % pformat(config))
+        
         self._config = ftpconfig
         # prepare the remote path
         self.remotefolder = remotefolder.rstrip("/")
