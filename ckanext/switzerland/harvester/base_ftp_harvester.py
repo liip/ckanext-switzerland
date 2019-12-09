@@ -178,6 +178,14 @@ class BaseFTPHarvester(HarvesterBase):
             voluptuous.Required('force_all', default=False): bool,
             'max_resources': int,
             'max_revisions': int,
+            'ftp':
+                {
+                    voluptuous.Required('username'): basestring,
+                    voluptuous.Required('password'): basestring,
+                    voluptuous.Required('host'): basestring,
+                    voluptuous.Required('port'): basestring,
+                    voluptuous.Required('remotedirectory'): basestring,
+                },
         })
 
     def load_config(self, config_str):
