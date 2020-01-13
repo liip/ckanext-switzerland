@@ -1,9 +1,9 @@
 {% extends "user/edit_base.html" %}
 
-{% set user = c.userobj %}
+{% set user = g.userobj %}
 
 {% block breadcrumb_content %}
-  <li class="active"><a href="{{ h.url_for(controller='user', action='dashboard') }}">{{ _('Dashboard') }}</a></li>
+  <li class="active"><a href="{{ h.url_for('dashboard.index') }}">{{ _('Dashboard') }}</a></li>
 {% endblock %}
 
 {% block secondary %}{% endblock %}
@@ -13,10 +13,10 @@
     {% block page_header %}
       <header class="module-content page-header hug">
         <ul class="nav nav-tabs">
-          {{ h.build_nav_icon('user_dashboard', _('News feed')) }}
-          {{ h.build_nav_icon('user_dashboard_datasets', _('My Datasets')) }}
-          {{ h.build_nav_icon('user_dashboard_organizations', _('My Organizations')) }}
-          {{ h.build_nav_icon('user_dashboard_groups', _('My Groups')) }}
+          {{ h.build_nav_icon('dashboard.index', _('News feed')) }}
+          {{ h.build_nav_icon('dashboard.datasets', _('My Datasets')) }}
+          {{ h.build_nav_icon('dashboard.organizations', _('My Organizations')) }}
+          {{ h.build_nav_icon('dashboard.groups', _('My Groups')) }}
         </ul>
       </header>
     {% endblock %}
@@ -36,7 +36,7 @@
             <small>{{ _("Activity from items that I'm following") }}</small>
           </h2>
           {% block activity_stream %}
-            {{ c.dashboard_activity_stream }}
+            {{ dashboard_activity_stream|safe }}
           {% endblock %}
         </div>
       {% endblock %}
