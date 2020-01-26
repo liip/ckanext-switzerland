@@ -135,9 +135,9 @@ class EmailAddressExporter(base.BaseController):
             csv = unicodecsv.writer(fobj)
             csv.writerow(['First Name', 'Last Name', 'Email'])
 
-            site_url = config.get('ckan.site_url')
+            wp_url = config.get('ckanext.switzerland.wp_url')
             api_key = config.get('ckanext.switzerland.user_list_api_key')
-            url = '{}/wp-admin/admin-post.php?action=user_list&key={}'.format(site_url, api_key)
+            url = '{}/wp-admin/admin-post.php?action=user_list&key={}'.format(wp_url, api_key)
             users = requests.get(url).json()['data']
 
             if request.params['filter'] != 'all':
