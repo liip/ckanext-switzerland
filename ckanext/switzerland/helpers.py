@@ -6,7 +6,6 @@ import ckan.logic as logic
 import datetime
 import requests
 import json
-import pylons
 from ckan.lib.munge import munge_filename
 from jinja2.utils import urlize
 from ckan.common import _, request
@@ -111,7 +110,7 @@ def get_localized_value(lang_dict, desired_lang_code=None, default_value=''):
 
     # if no specific lang is requested, read from environment
     if desired_lang_code is None:
-        desired_lang_code = pylons.request.environ['CKAN_LANG']
+        desired_lang_code = tk.request.environ['CKAN_LANG']
 
     try:
         # return desired lang if available
