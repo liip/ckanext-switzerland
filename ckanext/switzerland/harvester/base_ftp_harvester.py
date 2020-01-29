@@ -35,7 +35,7 @@ from ckan.logic import get_action, check_access
 from ckan.model import Session
 from ckanext.harvest.harvesters.base import HarvesterBase
 from ckanext.switzerland.helpers import resource_filename
-from pylons import config as ckanconf
+from ckan.plugins.toolkit import config as ckanconf
 from simplejson.scanner import JSONDecodeError
 import voluptuous
 from ckan.lib import search

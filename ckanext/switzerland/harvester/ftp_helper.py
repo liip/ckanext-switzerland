@@ -14,7 +14,7 @@ import logging
 from pprint import pformat
 
 import os
-from pylons import config as ckanconf
+from ckan.plugins.toolkit import config as ckanconf
 import ftplib
 import zipfile
 import errno
