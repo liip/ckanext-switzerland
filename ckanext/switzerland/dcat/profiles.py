@@ -8,8 +8,6 @@ import time
 
 import re
 
-from pylons import config
-
 from ckanext.dcat.profiles import RDFProfile
 from ckanext.dcat.utils import resource_uri
 

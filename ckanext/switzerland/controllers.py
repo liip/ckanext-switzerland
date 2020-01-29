@@ -12,7 +12,6 @@ import ckan.lib.uploader as uploader
 import ckan.logic as logic
 import ckan.model as model
 import paste.fileapp
-from pylons import config
 from ckan.common import _, request, c, response
 import ckan.plugins.toolkit as toolkit
 from ckan.controllers.package import PackageController
