@@ -75,7 +75,7 @@ new Vue({
         'per_page': 100,
         'filter[s]': this.searchTerm
       });
-      var faqSearch = $.get('/wp-json/wp/v2/akbootstrapfaq/', {
+      var faqSearch = $.get('/wp-json/wp/v2/hrf_faq/', {
         'per_page': 100,
         'filter[s]': this.searchTerm
       });
