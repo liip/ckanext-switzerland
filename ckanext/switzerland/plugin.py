@@ -23,7 +23,6 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckan.lib.helpers as h
 from ckan.lib.munge import munge_title_to_name
-import pylons
 import json
 import collections
 import logging
@@ -71,7 +70,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     # IFacets
 
     def dataset_facets(self, facets_dict, package_type):
-        lang_code = pylons.request.environ['CKAN_LANG']
+        lang_code = toolkit.request.environ['CKAN_LANG']
         facets_dict = collections.OrderedDict()
         facets_dict['keywords_' + lang_code] = plugins.toolkit._('Keywords')
         facets_dict['organization'] = plugins.toolkit._('Organizations')
@@ -79,7 +78,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
         return facets_dict
 
     def group_facets(self, facets_dict, group_type, package_type):
-        lang_code = pylons.request.environ['CKAN_LANG']
+        lang_code = toolkit.request.environ['CKAN_LANG']
         # the IFacets implementation of CKAN 2.4 is broken,
         # clear the dict instead and change the passed in argument
         facets_dict.clear()
@@ -89,7 +88,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
 
     def organization_facets(self, facets_dict, organization_type,
                             package_type):
-        lang_code = pylons.request.environ['CKAN_LANG']
+        lang_code = toolkit.request.environ['CKAN_LANG']
         # the IFacets implementation of CKAN 2.4 is broken,
         # clear the dict instead and change the passed in argument
         facets_dict.clear()
@@ -179,9 +178,9 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
             # Do not change the resulting dict for API requests and form saves
             # _package_reduce_to_requested_language removes all translation dicts needed to show the form
             # on resource_edit, so we skip it here
-            path = pylons.request.path
-            if path.startswith('/api') or pylons.request.method == 'POST' or \
-                    pylons.request.urlvars['action'] == 'resource_edit':
+            path = toolkit.request.path
+            if path.startswith('/api') or toolkit.request.path == 'POST' or \
+                    toolkit.request.urlvars['action'] == 'resource_edit':
                 return pkg_dict
         except TypeError:
             # we get here if there is no request (i.e. on the command line)
@@ -197,9 +196,9 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
 
     def _get_request_language(self):
         try:
-            return pylons.request.environ['CKAN_LANG']
+            return toolkit.request.environ['CKAN_LANG']
         except TypeError:
-            return pylons.config.get('ckan.locale_default', 'en')
+            return toolkit.config.get('ckan.locale_default', 'en')
 
     def _package_parse_json_strings(self, pkg_dict):
         # try to parse all values as JSON
@@ -469,19 +468,19 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         '''
         lang_set = get_langs()
         try:
-            current_lang = pylons.request.environ['CKAN_LANG']
+            current_lang = toolkit.request.environ['CKAN_LANG']
         except TypeError as err:
             if err.message == ('No object (name: request) has been registered '
                                'for this thread'):
                 # This happens when this code gets called as part of a paster
                 # command rather then as part of an HTTP request.
-                current_lang = pylons.config.get('ckan.locale_default')
+                current_lang = toolkit.config.get('ckan.locale_default')
             else:
                 raise
 
         # fallback to default locale if locale not in suported langs
         if current_lang not in lang_set:
-            current_lang = pylons.config.get('ckan.locale_default', 'en')
+            current_lang = toolkit.config.get('ckan.locale_default', 'en')
         # treat current lang differenly so remove from set
         lang_set.remove(current_lang)
 

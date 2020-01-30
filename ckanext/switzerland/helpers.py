@@ -6,7 +6,6 @@ import ckan.logic as logic
 import datetime
 import requests
 import json
-import pylons
 from ckan.lib.munge import munge_filename
 from jinja2.utils import urlize
 from ckan.common import _, request
@@ -66,17 +65,6 @@ def get_tweet_count():
 
 def _call_wp_api(action):
     return None
-    # api_url = pylons.config.get('ckanext.switzerland.wp_ajax_url', None)
-    # try:
-    #     """
-    #     this call does not verify the SSL cert, because it is missing on
-    #     the deployed server.
-    #     TODO: re-enable verification
-    #     """
-    #     r = requests.post(api_url, data={'action': action}, verify=False)
-    #     return r.json()
-    # except:
-    #     return None
 
 
 def get_localized_org(org_id=None, include_datasets=False):
@@ -122,7 +110,7 @@ def get_localized_value(lang_dict, desired_lang_code=None, default_value=''):
 
     # if no specific lang is requested, read from environment
     if desired_lang_code is None:
-        desired_lang_code = pylons.request.environ['CKAN_LANG']
+        desired_lang_code = tk.request.environ['CKAN_LANG']
 
     try:
         # return desired lang if available
