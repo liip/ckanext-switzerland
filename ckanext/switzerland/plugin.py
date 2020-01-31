@@ -179,8 +179,7 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
             # _package_reduce_to_requested_language removes all translation dicts needed to show the form
             # on resource_edit, so we skip it here
             path = toolkit.request.path
-            if path.startswith('/api') or toolkit.request.path == 'POST' or \
-                    toolkit.request.urlvars['action'] == 'resource_edit':
+            if path.startswith('/api') or toolkit.request.path == 'POST':
                 return pkg_dict
         except TypeError:
             # we get here if there is no request (i.e. on the command line)
