@@ -73,11 +73,13 @@ new Vue({
       });
       var pageSearch = $.get('/wp-json/wp/v2/pages/', {
         'per_page': 100,
-        'filter[s]': this.searchTerm
+        'search': this.searchTerm,
+        'lang': self.language
       });
       var faqSearch = $.get('/wp-json/wp/v2/hrf_faq/', {
         'per_page': 100,
-        'filter[s]': this.searchTerm
+        'search': this.searchTerm,
+        'lang': self.language
       });
       $.when(ckanSearch, pageSearch, faqSearch).then(function(datasets, pages, faqs) {
         // ckan search results
