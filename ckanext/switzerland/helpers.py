@@ -11,6 +11,7 @@ from jinja2.utils import urlize
 from ckan.common import _, request
 from ckan.lib.helpers import _link_to, url_for, lang
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
+from ckan.lib.helpers import organization_link as organization_link_orig
 import ast
 from ckan.common import c
 from webhelpers.html import literal
@@ -299,6 +300,12 @@ def resource_display_name(resource_dict):
         return description
     else:
         return _("Unnamed resource")
+
+
+# monkey patched version of ckan.lib.helpers.organization_link which extracts the correct translation of the org
+def organization_link(organization):
+    organization['title'] = parse_and_localize(organization['title'])
+    return organization_link_orig(organization)
 
 
 # monkey patched version of ckan.lib.helpers.group_link which extracts the correct translation of the dataset
