@@ -128,6 +128,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'resource_display_name': sh.resource_display_name,
             'group_link': sh.group_link,
             'resource_link': sh.resource_link,
+            'organization_link': sh.organization_link,
         }
 
     def i18n_directory(self):
@@ -147,6 +148,14 @@ class OgdchPlugin(plugins.SingletonPlugin):
         map.connect('email_exporter', '/ckan-admin/email_exporter',
                     controller='ckanext.switzerland.controllers:EmailAddressExporter', action='email_address_exporter')
         return map
+
+
+# monkey patch template helpers to return translated names/titles
+h.dataset_display_name = sh.dataset_display_name
+h.resource_display_name = sh.resource_display_name
+h.group_link = sh.group_link
+h.resource_link = sh.resource_link
+h.organization_link = sh.organization_link
 
 
 class OgdchLanguagePlugin(plugins.SingletonPlugin):
