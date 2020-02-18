@@ -339,6 +339,11 @@ def resource_link(resource_dict, package_id):
     return _link_to(text, url)
 
 
+def prettify_dict_keys(package_dict):
+    pretty_dict = {k.lower(): v for k, v in package_dict.iteritems()}
+    return pretty_dict
+
+
 def resource_filename(resource_url):
     return munge_filename(os.path.basename(resource_url))
 

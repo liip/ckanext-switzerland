@@ -123,6 +123,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'resource_filename': sh.resource_filename,
             'load_wordpress_templates': sh.load_wordpress_templates,
             'render_description': sh.render_description,
+            'prettify_dict_keys': sh.prettify_dict_keys,
             # monkey patch template helpers to return translated names/titles
             'dataset_display_name': sh.dataset_display_name,
             'resource_display_name': sh.resource_display_name,

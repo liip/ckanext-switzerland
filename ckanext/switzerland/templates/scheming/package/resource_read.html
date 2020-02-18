@@ -15,6 +15,7 @@
 {%- set schema = h.scheming_get_dataset_schema(dataset_type) -%}
 
 {% block resource_additional_information_inner %}
+{% set res =  h.prettify_dict_keys(res) %}
   <div class="module-content">
     <h2>{{ _('Additional Information') }}</h2>
     <dl class="dl-horizontal">
