@@ -12,8 +12,10 @@ from ckan.common import _, request
 from ckan.lib.helpers import _link_to, url_for, lang
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
 from ckan.lib.helpers import organization_link as organization_link_orig
+from ckan.lib.helpers import format_resource_items
 import ast
 from ckan.common import c
+import ckan.model as model
 from webhelpers.html import literal
 
 import logging
@@ -339,9 +341,32 @@ def resource_link(resource_dict, package_id):
     return _link_to(text, url)
 
 
-def prettify_dict_keys(package_dict):
-    pretty_dict = {k.lower(): v for k, v in package_dict.iteritems()}
-    return pretty_dict
+def get_resource_display_items(res, exclude_fields, schema):
+    from pprint import pformat
+
+    context = {'model': model,
+               'session': model.Session,
+               'user': c.user,
+               'auth_user_obj': c.userobj,
+               'for_view': False}  # fetching the resource-data in API-style
+
+    resource = tk.get_action('resource_show')(context, {'id': res.get('id'), 'use_default_schema': True})
+
+    for key, value in resource.items():
+        if key in exclude_fields:
+            resource.pop(key)
+
+    display_items = dict()
+
+    for field in schema.get('resource_fields'):
+        if resource.get((field.get('field_name'))):
+            field.update({'value': resource.get((field.get('field_name')))})
+            display_items[field.get('field_name')] = field
+
+    # TODO make date pretty
+    # display_resource = format_resource_items(display_resource.items())
+
+    return display_items
 
 
 def resource_filename(resource_url):
