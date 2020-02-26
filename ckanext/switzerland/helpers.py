@@ -351,7 +351,9 @@ def get_resource_display_items(res, exclude_fields, schema):
     resource = tk.get_action('resource_show')(context, {'id': res.get('id'), 'use_default_schema': True})
 
     for key, value in resource.items():
-        if key in exclude_fields:
+        if key == 'size':
+            resource['byte_size'] = value
+        elif key in exclude_fields:
             resource.pop(key)
 
     display_items = dict()
