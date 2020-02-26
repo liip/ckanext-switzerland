@@ -342,7 +342,6 @@ def resource_link(resource_dict, package_id):
 
 
 def get_resource_display_items(res, exclude_fields, schema):
-    from pprint import pformat
 
     context = {'model': model,
                'session': model.Session,
