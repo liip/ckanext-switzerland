@@ -12,7 +12,6 @@ from ckan.common import _, request
 from ckan.lib.helpers import _link_to, url_for, lang
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
 from ckan.lib.helpers import organization_link as organization_link_orig
-from ckan.lib.helpers import format_resource_items
 import ast
 from ckan.common import c
 import ckan.model as model
@@ -361,9 +360,6 @@ def get_resource_display_items(res, exclude_fields, schema):
         if resource.get((field.get('field_name'))):
             field.update({'value': resource.get((field.get('field_name')))})
             display_items[field.get('field_name')] = field
-
-    # TODO make date pretty
-    # display_resource = format_resource_items(display_resource.items())
 
     return display_items
 
