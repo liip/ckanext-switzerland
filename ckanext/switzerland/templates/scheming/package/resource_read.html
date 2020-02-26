@@ -24,6 +24,7 @@
       {% for key, field in display_items.items() %}
         {% set resource_helper = dict({key: field.value}) %}
         <dt class="dataset-label">{{- h.scheming_language_text(field.label) -}}</dt>
+        <dd class="dataset-details">
             {%- snippet 'scheming/snippets/display_field.html',
                       field=field, data=resource_helper, schema=schema -%}
         </dd>
