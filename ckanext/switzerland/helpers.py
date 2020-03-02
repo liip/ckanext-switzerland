@@ -355,8 +355,8 @@ def get_resource_display_items(res, exclude_fields, schema):
     display_items = dict()
 
     for field in schema.get('resource_fields'):
-        if resource.get((field.get('field_name'))):
-            field.update({'value': resource.get((field.get('field_name')))})
+        if field.get('field_name', '') not in exclude_fields:
+            field.update({'value': resource.get(field.get('field_name', ''))})
             display_items[field.get('field_name')] = field
 
     return display_items
