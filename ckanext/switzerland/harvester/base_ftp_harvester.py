@@ -955,6 +955,14 @@ class BaseFTPHarvester(HarvesterBase):
         harvest_object.current = True
         harvest_object.save()
 
+        # Defer constraints and flush so the dataset can be indexed with
+        # the harvest object id (on the after_show hook from the harvester
+        # plugin)
+        harvest_object.add()
+
+        model.Session.execute('SET CONSTRAINTS harvest_object_package_id_fkey DEFERRED')
+        model.Session.flush()
+
         search.rebuild(package['id'])
 
         # ----------------------------------------------------------------------------
