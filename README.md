@@ -53,7 +53,7 @@ This extension uses the following config options (.ini file)
 
     # piwik config
     piwik.site_id = 1
-    piwik.url = piwik.opentransportdata.swiss
+    piwik.url = stats.opentransportdata.swiss
 
 
 ## Development Installation
