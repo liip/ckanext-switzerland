@@ -51,9 +51,9 @@ This extension uses the following config options (.ini file)
     ckanext.switzerland.wp_template_url = http://wp/cms/wp-admin/admin-post.php?action=get_nav
     ckanext.switzerland.wp_url = http://wp
 
-    # piwik config
-    piwik.site_id = 1
-    piwik.url = stats.opentransportdata.swiss
+    # matomo config
+    matomo.site_id = 1
+    matomo.url = stats.opentransportdata.swiss
 
 
 ## Development Installation

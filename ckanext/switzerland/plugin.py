@@ -117,7 +117,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'get_dataset_terms_of_use': sh.get_dataset_terms_of_use,
             'get_dataset_by_identifier': sh.get_dataset_by_identifier,
             'get_readable_file_size': sh.get_readable_file_size,
-            'get_piwik_config': sh.get_piwik_config,
+            'get_matomo_config': sh.get_matomo_config,
             'parse_json': sh.parse_json,
             'convert_post_data_to_dict': sh.convert_post_data_to_dict,
             'resource_filename': sh.resource_filename,

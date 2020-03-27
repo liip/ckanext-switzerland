@@ -255,10 +255,10 @@ def get_content_headers(url):
     return response
 
 
-def get_piwik_config():
+def get_matomo_config():
     return {
-        'url': tk.config.get('piwik.url', False),
-        'site_id': tk.config.get('piwik.site_id', False)
+        'url': tk.config.get('matomo.url', False),
+        'site_id': tk.config.get('matomo.site_id', False)
     }
 
 
