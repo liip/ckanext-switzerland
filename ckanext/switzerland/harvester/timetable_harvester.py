@@ -13,7 +13,8 @@ from ckan.logic import NotFound
 from ckan.model import Session
 from ckan import model
 from ckanext.harvest.model import HarvestJob, HarvestObject
-from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester, validate_regex
+from ckanext.switzerland.harvester.base_ftp_harvester import validate_regex
+from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
 from ckanext.switzerland.harvester import infoplus
 import voluptuous
 
@@ -22,7 +23,7 @@ from ftp_helper import FTPHelper
 log = logging.getLogger(__name__)
 
 
-class TimetableHarvester(BaseFTPHarvester):
+class TimetableHarvester(SBBFTPHarvester):
     harvester_name = 'Timetable FTP Harvester'
 
     filters = {
@@ -77,6 +78,8 @@ class TimetableHarvester(BaseFTPHarvester):
             with FTPHelper(remotefolder) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
+
+                filelist = filter(lambda filename: re.match(self.config['filter_regex'], filename), filelist)
 
                 # get last-modified date of each file
                 for f in filelist:
