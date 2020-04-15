@@ -51,16 +51,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-12-20 15:08+0100\n"
-"PO-Revision-Date: 2016-12-20 15:08+0100\n"
-"Last-Translator: Team Amboss <be-dev@liip.ch>\n"
+"POT-Creation-Date: 2020-04-15 15:30+0200\n"
+"PO-Revision-Date: 2020-04-15 15:43+0200\n"
+"Last-Translator: Adrian Schlegel <adrian.schlegel@liip.ch>\n"
 "Language-Team: German (http://www.transifex.com/okfn/ckan/language/de/)\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: xls-to-po 1.0\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 2.3\n"
 "Generated-By: Babel 2.1.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.1.1\n"
@@ -98,108 +98,108 @@ msgstr "Keine Berechtigung Paket %s zu lesen"
 msgid "Unauthorized"
 msgstr ""
 
-#: ckanext/switzerland/helpers.py:157
+#: ckanext/switzerland/helpers.py:146
 msgid "Irregular"
 msgstr "Unregelmässig"
 
-#: ckanext/switzerland/helpers.py:158
+#: ckanext/switzerland/helpers.py:147
 msgid "Continuous"
 msgstr "Kontinuierlich"
 
-#: ckanext/switzerland/helpers.py:159
+#: ckanext/switzerland/helpers.py:148
 msgid "Hourly"
 msgstr "Stündlich"
 
-#: ckanext/switzerland/helpers.py:160
+#: ckanext/switzerland/helpers.py:149
 msgid "Daily"
 msgstr "Täglich"
 
-#: ckanext/switzerland/helpers.py:161
+#: ckanext/switzerland/helpers.py:150
 msgid "Three times a week"
 msgstr "Dreimal pro Woche"
 
-#: ckanext/switzerland/helpers.py:162
+#: ckanext/switzerland/helpers.py:151
 msgid "Semi weekly"
 msgstr "Halbwöchentlich"
 
-#: ckanext/switzerland/helpers.py:163
+#: ckanext/switzerland/helpers.py:152
 msgid "Weekly"
 msgstr "Wöchentlich"
 
-#: ckanext/switzerland/helpers.py:164
+#: ckanext/switzerland/helpers.py:153
 msgid "Three times a month"
 msgstr "Dreimal pro Monat"
 
-#: ckanext/switzerland/helpers.py:165
+#: ckanext/switzerland/helpers.py:154
 msgid "Biweekly"
 msgstr "Alle zwei Wochen"
 
-#: ckanext/switzerland/helpers.py:166
+#: ckanext/switzerland/helpers.py:155
 msgid "Semimonthly"
 msgstr "Halbmonatlich"
 
-#: ckanext/switzerland/helpers.py:167
+#: ckanext/switzerland/helpers.py:156
 msgid "Monthly"
 msgstr "Monatlich"
 
-#: ckanext/switzerland/helpers.py:168
+#: ckanext/switzerland/helpers.py:157
 msgid "Bimonthly"
 msgstr "Alle zwei Monate"
 
-#: ckanext/switzerland/helpers.py:169
+#: ckanext/switzerland/helpers.py:158
 msgid "Quarterly"
 msgstr "Vierteljährlich"
 
-#: ckanext/switzerland/helpers.py:170
+#: ckanext/switzerland/helpers.py:159
 msgid "Three times a year"
 msgstr "Dreimal pro Jahr"
 
-#: ckanext/switzerland/helpers.py:171
+#: ckanext/switzerland/helpers.py:160
 msgid "Semi Annual"
 msgstr "Halbjährlich"
 
-#: ckanext/switzerland/helpers.py:172
+#: ckanext/switzerland/helpers.py:161
 msgid "Annual"
 msgstr "Jährlich"
 
-#: ckanext/switzerland/helpers.py:173
+#: ckanext/switzerland/helpers.py:162
 msgid "Biennial"
 msgstr "Zweijährlich"
 
-#: ckanext/switzerland/helpers.py:174
+#: ckanext/switzerland/helpers.py:163
 msgid "Triennial"
 msgstr "Dreijährlich"
 
-#: ckanext/switzerland/helpers.py:185
+#: ckanext/switzerland/helpers.py:174
 msgid "Open data"
 msgstr "Open Data"
 
-#: ckanext/switzerland/helpers.py:189
+#: ckanext/switzerland/helpers.py:178
 msgid "Reference required"
 msgstr "Referenz erforderlich"
 
-#: ckanext/switzerland/helpers.py:193
+#: ckanext/switzerland/helpers.py:182
 msgid "Commercial use with permission allowed"
 msgstr "Kommerzielle Nutzung mit Erlaubnis zulässig"
 
-#: ckanext/switzerland/helpers.py:197
+#: ckanext/switzerland/helpers.py:186
 msgid "Reference required / Commercial use with permission allowed"
 msgstr "Referenz erforderlich / Kommerzielle Nutzung mit Erlaubnis zulässig"
 
-#: ckanext/switzerland/helpers.py:201
+#: ckanext/switzerland/helpers.py:190
 msgid "Closed data"
 msgstr "Closed Data"
 
-#: ckanext/switzerland/helpers.py:314
+#: ckanext/switzerland/helpers.py:303
 msgid "Unnamed resource"
 msgstr "Unbenannte Ressource"
 
-#: ckanext/switzerland/plugin.py:72 ckanext/switzerland/plugin.py:82
-#: ckanext/switzerland/plugin.py:92
+#: ckanext/switzerland/plugin.py:63 ckanext/switzerland/plugin.py:73
+#: ckanext/switzerland/plugin.py:83
 msgid "Keywords"
 msgstr "Schlagwörter"
 
-#: ckanext/switzerland/plugin.py:73 ckanext/switzerland/plugin.py:83
+#: ckanext/switzerland/plugin.py:64 ckanext/switzerland/plugin.py:74
 #: ckanext/switzerland/templates/organization/edit_base.html:5
 #: ckanext/switzerland/templates/organization/edit_base.html:8
 #: ckanext/switzerland/templates/organization/index.html:3
@@ -211,8 +211,8 @@ msgstr "Schlagwörter"
 msgid "Organizations"
 msgstr ""
 
-#: ckanext/switzerland/plugin.py:74 ckanext/switzerland/plugin.py:84
-#: ckanext/switzerland/plugin.py:93
+#: ckanext/switzerland/plugin.py:65 ckanext/switzerland/plugin.py:75
+#: ckanext/switzerland/plugin.py:84
 msgid "Formats"
 msgstr ""
 
@@ -236,8 +236,8 @@ msgstr "JSON-Liste erwartet"
 msgid "Invalid form data"
 msgstr "Ungültige Formulardaten"
 
-#: ckanext/switzerland/validators.py:113 ckanext/switzerland/validators.py:127
 #: ckanext/switzerland/templates/macros/form.html:265
+#: ckanext/switzerland/validators.py:113 ckanext/switzerland/validators.py:127
 msgid "This field is required"
 msgstr "Dieses Feld ist erforderlich"
 
@@ -354,6 +354,24 @@ msgstr "min. 3 Zeichen"
 msgid "Skip to content"
 msgstr "Überspringen zum Inhalt"
 
+#: ckanext/switzerland/templates/activity_streams/activity_stream_email_notifications.text:1
+msgid "You have {num} new activity on your {site_title} dashboard"
+msgid_plural "You have {num} new activities on your {site_title} dashboard"
+msgstr[0] "Du hast {num} Aktivität auf deinem {site_title} Dashboard"
+msgstr[1] "Du hast {num} Aktivitäten auf deinem {site_title} Dashboard"
+
+#: ckanext/switzerland/templates/activity_streams/activity_stream_email_notifications.text:1
+msgid "To view your dashboard, click on this link:"
+msgstr "Um dein Dashboard anzusehen, klicke auf den folgenden Link:"
+
+#: ckanext/switzerland/templates/activity_streams/activity_stream_email_notifications.text:5
+msgid ""
+"If you don't want to receive these notifications you need to unfollow all "
+"datasets you are currently following."
+msgstr ""
+"Wenn du keine weiteren Benachrichtigungen willst, musst du alle Datensätze "
+"entfolgen, denen du aktuell folgst."
+
 #: ckanext/switzerland/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
 msgstr "Weniger laden"
@@ -416,17 +434,17 @@ msgstr ""
 "können Sie ein vorbereitetes Layout für die Module auf Ihrer Startseite "
 "auswählen.</p> "
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:21
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:20
 msgid "CKAN Data API"
 msgstr "CKAN Data API"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:25
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:24
 msgid "Access resource data via a web API with powerful query support"
 msgstr ""
 "Zugriff auf Ressourcen per Web-Schnittstelle mit umfangreichen "
 "Suchmöglichkeiten"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:26
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:25
 msgid ""
 " Further information in the <a       href=\"http://docs.ckan.org/en/latest/"
 "maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and "
@@ -436,11 +454,11 @@ msgstr ""
 "maintaining/datastore.html\" target=\"_blank\">zentralen CKAN Data API und "
 "DataStore Dokumentation</a>.</p>"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:34
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
 msgstr "Endpunkt, engl. Endpoint"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:39
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:38
 msgid ""
 "The Data API can be accessed via the following actions of the CKAN action "
 "API."
@@ -448,47 +466,47 @@ msgstr ""
 "Die Daten-Schnittstelle (Data-API) kann über folgende Schnittstellenbefehle "
 "der CKAN Action API erreicht werden."
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:44
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:43
 msgid "Create"
 msgstr "Erstellen"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:48
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:47
 msgid "Update / Insert"
 msgstr "Aktualisieren / Einfügen"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:52
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:51
 msgid "Query"
 msgstr "Abfrage"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:56
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:55
 msgid "Query (via SQL)"
 msgstr "Abfrage (mit SQL)"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:69
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:68
 msgid "Querying"
 msgstr "Abfrage läuft"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:74
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:73
 msgid "Query example (first 5 results)"
 msgstr "Abfragebeispiel (erste 5 Ergebnisse)"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:79
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:78
 msgid "Query example (results containing 'jones')"
 msgstr "Abfragebeispiel (Ergebnisse enthalten 'jones')"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:85
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:83
 msgid "Query example (via SQL statement)"
 msgstr "Abfragebeispiel (mit SQL Befehl)"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:98
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:96
 msgid "Example: Javascript"
 msgstr "Beispiel: Javascript"
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:103
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:101
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
 msgstr "Eine einfache AJAX (JSONP) Abfrage des Data API mit jQuery."
 
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:125
+#: ckanext/switzerland/templates/ajax_snippets/api_info.html:123
 msgid "Example: Python"
 msgstr "Beispiel: Python"
 
@@ -763,14 +781,14 @@ msgid "Save Group"
 msgstr "Gruppe speichern"
 
 #: ckanext/switzerland/templates/group/snippets/group_item.html:32
-#: ckanext/switzerland/templates/organization/snippets/organization_item.html:32
+#: ckanext/switzerland/templates/organization/snippets/organization_item.html:33
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
 msgstr[0] ""
 msgstr[1] ""
 
 #: ckanext/switzerland/templates/group/snippets/group_item.html:34
-#: ckanext/switzerland/templates/organization/snippets/organization_item.html:34
+#: ckanext/switzerland/templates/organization/snippets/organization_item.html:35
 msgid "0 Datasets"
 msgstr "Keine Datensätze"
 
@@ -929,8 +947,8 @@ msgstr ""
 msgid "Save Organization"
 msgstr "Organisation speichern"
 
-#: ckanext/switzerland/templates/organization/snippets/organization_item.html:38
 #: ckanext/switzerland/templates/organization/snippets/organization_item.html:39
+#: ckanext/switzerland/templates/organization/snippets/organization_item.html:40
 msgid "View {organization_name}"
 msgstr "{organization_name} ansehen"
 
@@ -1081,7 +1099,7 @@ msgstr ""
 "DataStore ist noch nicht mit der Datenverarbeitung fertig"
 
 #: ckanext/switzerland/templates/package/resource_read.html:154
-#: ckanext/switzerland/templates/scheming/package/resource_read.html:19
+#: ckanext/switzerland/templates/scheming/package/resource_read.html:20
 msgid "Additional Information"
 msgstr "Zusätzliche Informationen"
 
@@ -1125,7 +1143,7 @@ msgid "Add new resource"
 msgstr "Neue Ressource hinzufügen"
 
 #: ckanext/switzerland/templates/package/resources.html:21
-#: ckanext/switzerland/templates/package/snippets/resources_list.html:25
+#: ckanext/switzerland/templates/package/snippets/resources_list.html:28
 #, python-format
 msgid ""
 " <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
@@ -1305,11 +1323,11 @@ msgstr "Höhe"
 msgid "Code"
 msgstr "Code"
 
-#: ckanext/switzerland/templates/package/snippets/resources_list.html:13
+#: ckanext/switzerland/templates/package/snippets/resources_list.html:16
 msgid "Data and Resources"
 msgstr "Daten und Ressourcen"
 
-#: ckanext/switzerland/templates/package/snippets/resources_list.html:29
+#: ckanext/switzerland/templates/package/snippets/resources_list.html:32
 msgid "This dataset has no data"
 msgstr "Dieser Datensatz hat keine Daten."
 
@@ -1391,8 +1409,8 @@ msgstr "Enddatum"
 msgid "Are you sure you want to delete this Organization?"
 msgstr "Sind Sie sicher, dass Sie diese Organisation löschen möchten?"
 
-#: ckanext/switzerland/templates/scheming/package/resource_read.html:21
 #: ckanext/switzerland/templates/scheming/package/resource_read.html:22
+#: ckanext/switzerland/templates/scheming/package/resource_read.html:23
 msgid "Permalink"
 msgstr "Permalink"
 
