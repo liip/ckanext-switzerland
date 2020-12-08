@@ -16,24 +16,12 @@ Example:
 {% block item %}
 <li class="media-item">
   {% block item_inner %}
-  {% block image %}
-    <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image">
-  {% endblock %}
+  {% block image %}{% endblock %}
   {% block title %}
     <h3 class="media-heading">{{ h.get_localized_value(h.parse_json(group.display_name)) }}</h3>
   {% endblock %}
-  {% block description %}
-    {% if group.description %}
-      <p>{{ h.markdown_extract(h.get_localized_value(h.parse_json(group.description)), extract_length=80) }}</p>
-    {% endif %}
-  {% endblock %}
-  {% block datasets %}
-    {% if group.packages %}
-      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.packages).format(num=group.packages) }}</strong>
-    {% elif group.packages == 0 %}
-      <span class="count">{{ _('0 Datasets') }}</span>
-    {% endif %}
-  {% endblock %}
+  {% block description %}{% endblock %}
+  {% block datasets %}{% endblock %}
   {% block link %}
   <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" class="media-view">
     <span>{{ _('View {name}').format(name=group.display_name) }}</span>
