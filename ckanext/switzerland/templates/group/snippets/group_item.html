@@ -14,7 +14,7 @@ Example:
 {% set type = group.type or 'group' %}
 {% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
 {% block item %}
-<li class="media-item">
+<li class="media-item page-item">
   {% block item_inner %}
   {% block image %}{% endblock %}
   {% block title %}
@@ -24,7 +24,7 @@ Example:
   {% block datasets %}{% endblock %}
   {% block link %}
   <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" class="media-view">
-    <span>{{ _('View {name}').format(name=group.display_name) }}</span>
+    <span>{{ _('{name}').format(name=group.display_name) }}</span>
   </a>
   {% endblock %}
   {% if group.user_member %}
