@@ -1,0 +1,21 @@
+{#
+Display a grid of group items.
+
+groups - A list of groups.
+
+Example:
+
+    {% snippet "group/snippets/group_list.html" %}
+
+#}
+{% block group_list %}
+
+	{% block group_list_inner %}
+    <ul class="page-list subpages-page-list ckan-subpage-list">
+  {% for group in groups %}
+    {% snippet "group/snippets/group_item.html", group=group, position=loop.index %}
+  {% endfor %}
+    </ul>
+  {% endblock %}
+
+{% endblock %}
