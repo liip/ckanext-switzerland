@@ -19,6 +19,7 @@ import ftplib
 import zipfile
 import errno
 import datetime
+import ssl
 
 log = logging.getLogger(__name__)
 
@@ -147,6 +148,9 @@ class FTPHelper(object):
         """
         # overwrite the default port (21)
         ftplib.FTP.port = int(self._config['port'])
+        # we need to set the TLS version explicitly to allow connection
+        # to newer servers who have disabled older TLS versions (< TLSv1.2)
+        ftplib.FTP_TLS.ssl_version = ssl.PROTOCOL_TLSv1_2
         # connect
         self.ftps = ftplib.FTP_TLS(self._config['host'], self._config['username'], self._config['password'])
         # switch to secure data connection
