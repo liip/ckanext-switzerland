@@ -510,6 +510,19 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         return search_params
 
 
+class OgdchCommandsPlugin(plugins.SingletonPlugin):
+    plugins.implements(plugins.IActions)
+
+    # IActions
+    def get_actions(self):
+        """
+        Actions that are used by the commands.
+        """
+        return {
+            "ogdch_cleanup_harvestjobs": l.ogdch_cleanup_harvestjobs,
+        }
+
+
 class LangToString(object):
     def __init__(self, attribute):
         self.attribute = attribute
