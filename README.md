@@ -77,7 +77,7 @@ This command finds these orphaned tables and deletes its rows to free the space 
 It is meant to be run regularly by a cronjob.
 
 ```bash
-paster --plugin=ckanext-ogdchcommands ogdch cleanup_datastore -c /var/www/ckan/development.ini
+paster --plugin=ckanext-switzerland ogdch cleanup_datastore -c /var/www/ckan/development.ini
 ```
 
 ### Command to cleanup the harvest jobs.
@@ -88,5 +88,5 @@ of past job runs. It has a dryrun option so that it can be tested what will get 
 database before the actual database changes are performed.
 
 ```bash
-paster --plugin=ckanext-ogdchcommands ogdch cleanup_harvestjobs [{source_id}] [--keep={n}}] [--dryrun] -c /var/www/ckan/development.ini
+paster --plugin=ckanext-switzerland ogdch cleanup_harvestjobs [{source_id}] [--keep={n}}] [--dryrun] -c /var/www/ckan/development.ini
 ```
