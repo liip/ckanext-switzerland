@@ -89,7 +89,7 @@ setup(
         timetable_harvester=ckanext.switzerland.harvester.timetable_harvester:TimetableHarvester
 
         [paste.paster_command]
-        ogdch=ckanext.ogdchcommands.commands:OgdchCommands
+        ogdch=ckanext.switzerland.commands:OgdchCommands
 
         [ckan.rdf.profiles]
         swiss_dcat_ap=ckanext.switzerland.dcat.profiles:SwissDCATAPProfile
