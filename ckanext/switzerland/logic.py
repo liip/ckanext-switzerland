@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import itertools
 import logging
 from collections import OrderedDict
@@ -135,7 +137,7 @@ def ogdch_cleanup_harvestjobs(context, data_dict):
         sources_to_cleanup = model.Session.query(HarvestSource).all()
 
     log.error("got sources:")
-    log.error(sources_to_cleanup)
+    log.error([s.id for s in sources_to_cleanup])
 
     # get number of jobs to keep form data_dict
     if "number_of_jobs_to_keep" in data_dict:
