@@ -100,10 +100,10 @@ class BaseFTPHarvester(HarvesterBase):
         "accrual_periodicity": "",
         # --------------------------------------------------------------------------
         "description": {
-            "fr": "FR Description",
-            "en": "EN Description",
-            "de": "DE Description",
-            "it": "IT Description"
+            "fr": "",
+            "en": "",
+            "de": "",
+            "it": ""
         },
 
         "notes": {
@@ -800,10 +800,10 @@ class BaseFTPHarvester(HarvesterBase):
                 resource_meta['license'] = resource_meta.get('license', '')
                 resource_meta['coverage'] = resource_meta.get('coverage', 'TODO')
                 resource_meta['description'] = resource_meta.get('description', {
-                        "de": "TODO",
-                        "en": "TODO",
-                        "fr": "TODO",
-                        "it": "TODO"
+                        "de": "",
+                        "en": "",
+                        "fr": "",
+                        "it": ""
                     })
                 resource_meta['relations'] = resource_meta.get('relations', [])
 
