@@ -15,6 +15,7 @@ from ckan.lib.helpers import organization_link as organization_link_orig
 import ast
 from ckan.common import c
 import ckan.model as model
+from simplejson import JSONDecodeError
 from webhelpers.html import literal
 
 import logging
@@ -370,14 +371,20 @@ def load_wordpress_templates():
     site_url = tk.config.get('ckanext.switzerland.wp_template_url', '')
     url = '{}&lang={}'.format(site_url, lang())
 
-    log.error('URL: {0}'.format(url))
     resp = requests.get(url, cookies=request.cookies)
     if resp.status_code != 200:
+        log.error("Error getting WordPress templates. Status code: {}."
+                  " Content: {}"
+                  .format(resp.status_code, resp.content))
         return
 
     try:
         data = resp.json()['data']
-    except (ValueError, KeyError):
+    except JSONDecodeError:
+        content = resp.content[resp.content.index('{'):]
+        data = json.loads(content)['data']
+    except (ValueError, KeyError) as e:
+        log.error("Error getting WordPress templates: {}".format(e))
         return
 
     c.wordpress_user_navigation = data['user']
