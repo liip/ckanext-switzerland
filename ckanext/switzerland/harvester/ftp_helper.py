@@ -47,12 +47,12 @@ class FTPHelper(object):
         if config:
             # read ftpconfig from harvester-config
             ftpconfig = config
-            # localpath is read from the ckan-config
-            ftpconfig['localpath'] = ckanconf.get('ckan.ftp.localpath', '')
-        else:
-            ftpconfig = {}
+            # all server related information is read from the ckan-config
+            ftp_server_ = 'ckan.ftp.' + ftpconfig['ftp_server']
             for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
-                ftpconfig[key] = ckanconf.get('ckan.ftp.%s' % key, '')
+                ftpconfig[key] = ckanconf.get(ftp_server_+'.%s' % key, '')
+        else:
+            raise Exception('The ftp server must be specified in the harvester configuration')
 
         ftpconfig['host'] = str(ftpconfig['host'])
         ftpconfig['port'] = int(ftpconfig['port'])

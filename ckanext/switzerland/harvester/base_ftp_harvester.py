@@ -180,11 +180,7 @@ class BaseFTPHarvester(HarvesterBase):
             'max_revisions': int,
             'ftp':
                 {
-                    voluptuous.Required('username'): basestring,
-                    voluptuous.Required('password'): basestring,
-                    voluptuous.Required('host'): basestring,
-                    voluptuous.Required('port'): basestring,
-                    voluptuous.Required('remotedirectory'): basestring,
+                    voluptuous.Required('ftp_server'): basestring,
                 },
         })
 
