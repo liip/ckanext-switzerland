@@ -178,10 +178,7 @@ class BaseFTPHarvester(HarvesterBase):
             voluptuous.Required('force_all', default=False): bool,
             'max_resources': int,
             'max_revisions': int,
-            'ftp':
-                {
-                    voluptuous.Required('ftp_server'): basestring,
-                },
+            voluptuous.Required('ftp_server'): basestring,
         })
 
     def load_config(self, config_str):
