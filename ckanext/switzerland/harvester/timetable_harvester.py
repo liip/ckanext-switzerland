@@ -74,8 +74,11 @@ class TimetableHarvester(SBBFTPHarvester):
         remotefolder = self.get_remote_folder()
         log.info("Getting listing from remotefolder: %s" % remotefolder)
 
+        ftp_config = {}
+        ftp_config['ftp_server'] = self.config.get('ftp_server')
+
         try:
-            with FTPHelper(remotefolder) as ftph:
+            with FTPHelper(remotefolder, config=ftp_config) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 

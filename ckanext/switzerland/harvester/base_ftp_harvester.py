@@ -487,9 +487,12 @@ class BaseFTPHarvester(HarvesterBase):
         log.info("Remote directory: %s", remotefolder)
         log.info("Local directory: %s", tmpfolder)
 
+        ftp_config = {}
+        ftp_config['ftp_server'] = self.config.get('ftp_server')
+
         try:
 
-            with FTPHelper(remotefolder) as ftph:
+            with FTPHelper(remotefolder, config=ftp_config) as ftph:
 
                 # fetch file via ftplib
                 # -------------------------------------------------------------------
