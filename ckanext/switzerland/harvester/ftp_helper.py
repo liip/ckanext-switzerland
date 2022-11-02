@@ -162,10 +162,11 @@ class FTPHelper(object):
             self.ftps.prot_p()
         elif self._config['keyfile']:
             # connecting via SSH
-            self.sftp = pysftp.Connection(host=self._config['host'], username=self._config['username'],
-                                            private_key=self._config['keyfile'],
-                                            port=int(self._config['port']),
-                                           )
+            self.sftp = pysftp.Connection(host=self._config['host'],
+                                          username=self._config['username'],
+                                          private_key=self._config['keyfile'],
+                                          port=int(self._config['port']),
+                                          )
     # tested
     def _disconnect(self):
         """
@@ -360,7 +361,7 @@ class FTPHelper(object):
     # tested
     def fetch(self, filename, localpath=None):
         """
-        Fetch a single file from the remote server with ftplib
+        Fetch a single file from the remote server with ftplib and pysftp
 
         :param filename: File to fetch
         :type filename: str or unicode
@@ -374,12 +375,18 @@ class FTPHelper(object):
             localpath = os.path.join(self._config['localpath'], filename)
 
         localfile = open(localpath, 'wb')
+
         if self.ftps:
             status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
-        # elif self.sftp:
-        #     status = self.sftp.get(filename, localpath=localpath)
-        #     log.info(status)
-        localfile.close()
+        elif self.sftp:
+            status = self.sftp.get(filename, localpath=localpath)
+
+            if status == None:
+                status = "226 Transfer complete"
+            else:
+                # something went wrong with copies a file between the remote host and the local host
+                raise
+
         return status
 
     # tested
