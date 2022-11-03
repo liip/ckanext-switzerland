@@ -1,3 +1,4 @@
 requests==2.11.1
 voluptuous==0.9.3
 unicodecsv==0.14.1
+pysftp==0.2.8

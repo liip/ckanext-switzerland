@@ -14,6 +14,8 @@ import logging
 from pprint import pformat
 
 import os
+
+import pysftp
 from ckan.plugins.toolkit import config as ckanconf
 import ftplib
 import zipfile
@@ -49,7 +51,7 @@ class FTPHelper(object):
             ftpconfig = config
             # all server related information is read from the ckan-config
             ftp_server_ = 'ckan.ftp.' + ftpconfig['ftp_server']
-            for key in ['username', 'password', 'host', 'port', 'remotedirectory', 'localpath']:
+            for key in ['username', 'password', 'keyfile', 'host', 'port', 'remotedirectory', 'localpath']:
                 ftpconfig[key] = ckanconf.get(ftp_server_+'.%s' % key, '')
         else:
             raise Exception('The ftp server must be specified in the harvester configuration')
@@ -142,20 +144,29 @@ class FTPHelper(object):
     def _connect(self):
         """
         Establish an FTP connection
-
+        ftps - to connect with password
+        sftp - to connect with keyfile
         :returns: None
         :rtype: None
         """
-        # overwrite the default port (21)
-        ftplib.FTP.port = int(self._config['port'])
-        # we need to set the TLS version explicitly to allow connection
-        # to newer servers who have disabled older TLS versions (< TLSv1.2)
-        ftplib.FTP_TLS.ssl_version = ssl.PROTOCOL_TLSv1_2
-        # connect
-        self.ftps = ftplib.FTP_TLS(self._config['host'], self._config['username'], self._config['password'])
-        # switch to secure data connection
-        self.ftps.prot_p()
 
+        if self._config['password']:
+            # overwrite the default port (21)
+            ftplib.FTP.port = int(self._config['port'])
+            # we need to set the TLS version explicitly to allow connection
+            # to newer servers who have disabled older TLS versions (< TLSv1.2)
+            ftplib.FTP_TLS.ssl_version = ssl.PROTOCOL_TLSv1_2
+            # connect
+            self.ftps = ftplib.FTP_TLS(self._config['host'], self._config['username'], self._config['password'])
+            # switch to secure data connection
+            self.ftps.prot_p()
+        elif self._config['keyfile']:
+            # connecting via SSH
+            self.sftp = pysftp.Connection(host=self._config['host'],
+                                          username=self._config['username'],
+                                          private_key=self._config['keyfile'],
+                                          port=int(self._config['port']),
+                                          )
     # tested
     def _disconnect(self):
         """
@@ -166,6 +177,8 @@ class FTPHelper(object):
         """
         if self.ftps:
             self.ftps.quit()  # '221 Goodbye.'
+        elif self.sftp:
+            self.sftp.close()
 
     # tested
     def cdremote(self, remotedir=None):
@@ -180,7 +193,10 @@ class FTPHelper(object):
         """
         if not remotedir:
             remotedir = self.remotefolder
-        self.ftps.cwd(remotedir)
+        if self.ftps:
+            self.ftps.cwd(remotedir)
+        elif self.sftp:
+            self.sftp.cwd(remotedir)
 
     def get_remote_filelist(self, folder=None):
         """
@@ -196,16 +212,19 @@ class FTPHelper(object):
         if folder:
             cmd += ' ' + folder
 
-        files_dirs = []
-        self.ftps.retrlines(cmd, files_dirs.append)
-
         files = []
-        for file_dir in files_dirs:
-            data, filename = file_dir.split(' ', 1)
-            for kv in filter(lambda x: x, data.split(';')):
-                key, value = kv.split('=')
-                if key == 'type' and value == 'file':
-                    files.append(filename)
+        if self.ftps:
+            files_dirs = []
+            self.ftps.retrlines(cmd, files_dirs.append)
+            for file_dir in files_dirs:
+                data, filename = file_dir.split(' ', 1)
+                for kv in filter(lambda x: x, data.split(';')):
+                    key, value = kv.split('=')
+                    if key == 'type' and value == 'file':
+                        files.append(filename)
+        elif self.sftp:
+            files = self.sftp.listdir(self.remotefolder)
+
         return files
 
     # tested
@@ -219,12 +238,19 @@ class FTPHelper(object):
         :returns: Directory listing (excluding '.' and '..')
         :rtype: list
         """
+
         # get dir listing of a specific directory
         if folder:
-            dirlist = self.ftps.nlst(folder)
+            if self.ftps:
+                dirlist = self.ftps.nlst(folder)
+            elif self.sftp:
+                dirlist = self.sftp.listdir(folder)
         # get dir listing of current directory
         else:
-            dirlist = self.ftps.nlst()
+            if self.ftps:
+                dirlist = self.ftps.nlst()
+            elif self.sftp:
+                dirlist = self.sftp.listdir(self.remotefolder)
 
         # filter out '.' and '..' and return the list
         dirlist = filter(lambda entry: entry not in ['.', '..'], dirlist)
@@ -289,21 +315,27 @@ class FTPHelper(object):
         :returns: Date
         :rtype: TODO
         """
-
         modified_date = None
 
         if folder:
             self.cdremote(folder)
-
-        ret = self.ftps.sendcmd('MDTM %s' % filename)
-        # example: '203 20160621123722'
+        if self.ftps:
+            ret = self.ftps.sendcmd('MDTM %s' % filename)
+            # example: '203 20160621123722'
+        elif self.sftp:
+            ret = self.sftp.stat(filename).st_mtime
+            # example unix time (int): 1667384100
 
         if ret:
+            if self.ftps:
+                modified_date = ret.split(' ')[1]
+                # example: '20160621123722'
 
-            modified_date = ret.split(' ')[1]
-            # example: '20160621123722'
-
-            modified_date = datetime.datetime.strptime(modified_date, '%Y%m%d%H%M%S')
+                modified_date = datetime.datetime.strptime(modified_date, '%Y%m%d%H%M%S')
+                # example: 2022-11-02 19:07:13
+            elif self.sftp:
+                modified_date = datetime.datetime.fromtimestamp(ret)
+                # example: 2022-11-02 13:46:07
 
         log.debug('modified date of %s: %s ' % (filename, str(modified_date)))
 
@@ -331,7 +363,7 @@ class FTPHelper(object):
     # tested
     def fetch(self, filename, localpath=None):
         """
-        Fetch a single file from the remote server with ftplib
+        Fetch a single file from the remote server with ftplib and pysftp
 
         :param filename: File to fetch
         :type filename: str or unicode
@@ -345,8 +377,19 @@ class FTPHelper(object):
             localpath = os.path.join(self._config['localpath'], filename)
 
         localfile = open(localpath, 'wb')
-        status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
-        localfile.close()
+
+        if self.ftps:
+            status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
+            localfile.close()
+        elif self.sftp:
+            status = self.sftp.get(filename, localpath=localpath)
+
+            if status == None:
+                status = "226 Transfer complete"
+            else:
+                # something went wrong with copies a file between the remote host and the local host
+                raise
+
         return status
 
     # tested
