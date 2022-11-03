@@ -332,8 +332,10 @@ class FTPHelper(object):
                 # example: '20160621123722'
 
                 modified_date = datetime.datetime.strptime(modified_date, '%Y%m%d%H%M%S')
+                # example: 2022-11-02 19:07:13
             elif self.sftp:
                 modified_date = datetime.datetime.fromtimestamp(ret)
+                # example: 2022-11-02 13:46:07
 
         log.debug('modified date of %s: %s ' % (filename, str(modified_date)))
 
@@ -378,6 +380,7 @@ class FTPHelper(object):
 
         if self.ftps:
             status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
+            localfile.close()
         elif self.sftp:
             status = self.sftp.get(filename, localpath=localpath)
 
