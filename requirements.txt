@@ -5,5 +5,5 @@ pysftp==0.2.8
 # TODO: https://github.com/ckan/ckan/issues/5026
 rdflib==4.2.1
 rdflib-jsonld==0.4.0
-git+https://github.com/geomet/geomet.git
+geomet==0.3.0
 ckantoolkit==0.0.3
