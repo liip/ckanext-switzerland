@@ -57,7 +57,7 @@ class FTPHelper(object):
             raise Exception('The ftp server must be specified in the harvester configuration')
 
         ftpconfig['host'] = str(ftpconfig['host'])
-        ftpconfig['port'] = str(ftpconfig['port'])
+        ftpconfig['port'] = int(ftpconfig['port'])
 
         log.info('Using FTP-Config: %s' % pformat(config))
         
