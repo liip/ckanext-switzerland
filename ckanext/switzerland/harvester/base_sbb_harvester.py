@@ -436,10 +436,7 @@ class BaseSBBHarvester(HarvesterBase):
             return False
 
     def __get_storage_adapter__(self, remote_folder, config):
-        log.info("Using factory method")
-        if self.storage_adapter is None:
-            self.storage_adapter = FTPHelper(remote_folder, config=config)
-        return self.storage_adapter
+        return FTPHelper(remote_folder, config=config)
 
     def _fetch_stage(self, harvest_object):
         """
