@@ -55,7 +55,7 @@ def validate_regex(regex):
     return regex
 
 
-class BaseFTPHarvester(HarvesterBase):
+class BaseSBBHarvester(HarvesterBase):
     """
     A FTP Harvester for the SBB ftp server. This is a generic harvester
     which can be configured for specif datasets using the ckan harvester webinterface.

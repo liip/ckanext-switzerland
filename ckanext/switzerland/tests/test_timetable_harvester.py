@@ -6,12 +6,12 @@ from ckanext.switzerland.tests.helpers.mock_ftphelper import MockFTPHelper
 from mock import patch
 from nose.tools import assert_equal
 
-from .base_ftp_harvester_tests import BaseFTPHarvesterTests
+from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 
 
 @patch('ckanext.switzerland.harvester.timetable_harvester.FTPHelper', MockFTPHelper)
-@patch('ckanext.switzerland.harvester.base_ftp_harvester.FTPHelper', MockFTPHelper)
-class TestTimetableHarvester(BaseFTPHarvesterTests):
+@patch('ckanext.switzerland.harvester.base_sbb_harvester.FTPHelper', MockFTPHelper)
+class TestTimetableHarvester(BaseSBBHarvesterTests):
     """
     Integration test for SBBFTPHarvester
     """

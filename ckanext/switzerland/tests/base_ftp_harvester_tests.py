@@ -18,7 +18,7 @@ from nose.tools import assert_equal
 from . import data
 
 
-class BaseFTPHarvesterTests(object):
+class BaseSBBHarvesterTests(object):
     harvester_class = None
 
     def run_harvester(self, force_all=False, resource_regex=None, max_resources=None, dataset=data.dataset_name,

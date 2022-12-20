@@ -11,12 +11,12 @@ from mock import patch
 from nose.tools import assert_equal, assert_raises
 
 from . import data
-from .base_ftp_harvester_tests import BaseFTPHarvesterTests
+from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 
 
 @patch('ckanext.switzerland.harvester.sbb_ftp_harvester.FTPHelper', MockFTPHelper)
-@patch('ckanext.switzerland.harvester.base_ftp_harvester.FTPHelper', MockFTPHelper)
-class TestSBBFTPHarvester(BaseFTPHarvesterTests):
+@patch('ckanext.switzerland.harvester.base_sbb_harvester.FTPHelper', MockFTPHelper)
+class TestSBBFTPHarvester(BaseSBBHarvesterTests):
     """
     Integration test for SBBFTPHarvester
     """

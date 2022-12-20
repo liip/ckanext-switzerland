@@ -13,7 +13,7 @@ from ckan.logic import NotFound
 from ckan.model import Session
 from ckan import model
 from ckanext.harvest.model import HarvestJob, HarvestObject
-from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester, validate_regex
+from ckanext.switzerland.harvester.base_sbb_harvester import BaseSBBHarvester, validate_regex
 from ckanext.switzerland.harvester.ist_file import ist_file_filter
 
 from ftp_helper import FTPHelper
@@ -21,7 +21,7 @@ from ftp_helper import FTPHelper
 log = logging.getLogger(__name__)
 
 
-class SBBFTPHarvester(BaseFTPHarvester):
+class SBBFTPHarvester(BaseSBBHarvester):
     harvester_name = 'SBB FTP Harvester'
 
     filters = {
@@ -61,6 +61,7 @@ class SBBFTPHarvester(BaseFTPHarvester):
         """
         log.info('=====================================================')
         log.info('In %s FTPHarvester gather_stage' % self.harvester_name)  # harvest_job.source.url
+        log.info('Using ODPCHSUP-198 code branch')
 
         # set harvester config
         self.config = self.load_config(harvest_job.source.config)

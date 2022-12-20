@@ -13,7 +13,7 @@ from ckan.logic import NotFound
 from ckan.model import Session
 from ckan import model
 from ckanext.harvest.model import HarvestJob, HarvestObject
-from ckanext.switzerland.harvester.base_ftp_harvester import validate_regex
+from ckanext.switzerland.harvester.base_sbb_harvester import validate_regex
 from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
 from ckanext.switzerland.harvester import infoplus
 import voluptuous
