@@ -157,9 +157,19 @@ class FTPHelper(object):
             # to newer servers who have disabled older TLS versions (< TLSv1.2)
             ftplib.FTP_TLS.ssl_version = ssl.PROTOCOL_TLSv1_2
             # connect
-            self.ftps = ftplib.FTP_TLS(self._config['host'], self._config['username'], self._config['password'])
-            # switch to secure data connection
-            self.ftps.prot_p()
+            # check SFTP protocol is used, pysftp defaults to 22
+            if int(self._config['port']) == 22:
+                self.sftp = pysftp.Connection(host=self._config['host'],
+                                              username=self._config['username'],
+                                              password=self._config['password'],
+                                              port=int(self._config['port']),
+                                              )
+            else:
+                self.ftps = ftplib.FTP_TLS(self._config['host'],
+                                           self._config['username'],
+                                           self._config['password'])
+                # switch to secure data connection
+                self.ftps.prot_p()
         elif self._config['keyfile']:
             # connecting via SSH
             self.sftp = pysftp.Connection(host=self._config['host'],
