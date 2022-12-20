@@ -42,8 +42,7 @@ import voluptuous
 from ckan.lib import search
 from sqlalchemy.sql import update, bindparam
 
-from ftp_helper import FTPHelper
-from storage_adapter_interface import StorageAdapterInterface
+from storage_adapter_factory import StorageAdapterFactory
 
 
 log = logging.getLogger(__name__)
@@ -435,9 +434,6 @@ class BaseSBBHarvester(HarvesterBase):
             self._save_object_error('Fetch stage failed: {}'.format(traceback.format_exc()), harvest_object, 'Fetch')
             return False
 
-    def __get_storage_adapter__(self, remote_folder, config):
-        return FTPHelper(remote_folder, config=config)
-
     def _fetch_stage(self, harvest_object):
         """
         Fetching of resources. Runs once for each gathered resource.
@@ -498,7 +494,7 @@ class BaseSBBHarvester(HarvesterBase):
             ftp_config['ftp_server'] = self.config.get('ftp_server')
 
         try:
-            with self.__get_storage_adapter__(remotefolder, ftp_config) as ftph:
+            with StorageAdapterFactory().get_storage_adapter(remotefolder, ftp_config) as ftph:
 
                 # fetch file via ftplib
                 # -------------------------------------------------------------------

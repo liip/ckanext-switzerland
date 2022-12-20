@@ -18,7 +18,7 @@ from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
 from ckanext.switzerland.harvester import infoplus
 import voluptuous
 
-from ftp_helper import FTPHelper
+from storage_adapter_factory import StorageAdapterFactory
 
 log = logging.getLogger(__name__)
 
@@ -78,7 +78,7 @@ class TimetableHarvester(SBBFTPHarvester):
         ftp_config['ftp_server'] = self.config.get('ftp_server')
 
         try:
-            with FTPHelper(remotefolder, config=ftp_config) as ftph:
+            with StorageAdapterFactory().get_storage_adapter(remotefolder, ftp_config) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 

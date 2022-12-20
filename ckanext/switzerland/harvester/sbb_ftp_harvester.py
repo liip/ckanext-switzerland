@@ -16,7 +16,7 @@ from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_sbb_harvester import BaseSBBHarvester, validate_regex
 from ckanext.switzerland.harvester.ist_file import ist_file_filter
 
-from ftp_helper import FTPHelper
+from storage_adapter_factory import StorageAdapterFactory
 
 log = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ class SBBFTPHarvester(BaseSBBHarvester):
         ftp_config['ftp_server'] = self.config.get('ftp_server')
 
         try:
-            with FTPHelper(remotefolder, config=ftp_config) as ftph:
+            with StorageAdapterFactory().get_storage_adapter(remotefolder, ftp_config) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 
