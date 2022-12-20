@@ -24,6 +24,7 @@ from datetime import datetime
 import os
 import sys
 import re
+
 from ckan import model
 from ckan.lib import helpers
 from ckan.lib import uploader
@@ -42,10 +43,10 @@ from ckan.lib import search
 from sqlalchemy.sql import update, bindparam
 
 from ftp_helper import FTPHelper
+from storage_adapter_interface import StorageAdapterInterface
 
 
 log = logging.getLogger(__name__)
-
 
 def validate_regex(regex):
     try:
@@ -434,6 +435,12 @@ class BaseSBBHarvester(HarvesterBase):
             self._save_object_error('Fetch stage failed: {}'.format(traceback.format_exc()), harvest_object, 'Fetch')
             return False
 
+    def __get_storage_adapter__(self, remote_folder, config):
+        log.info("Using factory method")
+        if self.storage_adapter is None:
+            self.storage_adapter = FTPHelper(remote_folder, config=config)
+        return self.storage_adapter
+
     def _fetch_stage(self, harvest_object):
         """
         Fetching of resources. Runs once for each gathered resource.
@@ -494,8 +501,7 @@ class BaseSBBHarvester(HarvesterBase):
             ftp_config['ftp_server'] = self.config.get('ftp_server')
 
         try:
-
-            with FTPHelper(remotefolder, config=ftp_config) as ftph:
+            with self.__get_storage_adapter__(remotefolder, ftp_config) as ftph:
 
                 # fetch file via ftplib
                 # -------------------------------------------------------------------

@@ -14,6 +14,7 @@ import logging
 from pprint import pformat
 
 import os
+from storage_adapter_interface import StorageAdapterInterface
 
 import pysftp
 from ckan.plugins.toolkit import config as ckanconf
@@ -26,7 +27,7 @@ import ssl
 log = logging.getLogger(__name__)
 
 
-class FTPHelper(object):
+class FTPHelper(StorageAdapterInterface):
     """ FTP Helper Class """
 
     _config = None
