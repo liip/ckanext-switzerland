@@ -1,6 +1,7 @@
 import os
 import logging
 import errno
+import zipfile
 
 log = logging.getLogger(__name__)
 class StorageAdapterBase(object):
@@ -197,6 +198,7 @@ class StorageAdapterBase(object):
         """
         raise NotImplementedError('fetch')
 
+    # tested
     def unzip(self, filepath):
         """
         Extract a single zip file
@@ -208,4 +210,11 @@ class StorageAdapterBase(object):
         :returns: Number of extracted files
         :rtype: int
         """
-        pass
+        na, file_extension = os.path.splitext(filepath)
+        if file_extension.lower() == '.zip':
+            log.info("Unzipping: %s" % filepath)
+            target_folder = os.path.dirname(filepath)
+            zfile = zipfile.ZipFile(filepath)
+            filelist = zfile.namelist()
+            zfile.extractall(target_folder)
+            return len(filelist)

@@ -322,23 +322,3 @@ class FTPHelper(StorageAdapterBase):
 
         return status
 
-    # tested
-    def unzip(self, filepath):
-        """
-        Extract a single zip file
-        E.g. will extract a file /tmp/somedir/myfile.zip into /tmp/somedir/
-
-        :param filepath: Path to a local file
-        :type filepath: str or unicode
-
-        :returns: Number of extracted files
-        :rtype: int
-        """
-        na, file_extension = os.path.splitext(filepath)
-        if file_extension.lower() == '.zip':
-            log.info("Unzipping: %s" % filepath)
-            target_folder = os.path.dirname(filepath)
-            zfile = zipfile.ZipFile(filepath)
-            filelist = zfile.namelist()
-            zfile.extractall(target_folder)
-            return len(filelist)
