@@ -7,12 +7,18 @@ import shutil
 from ckanext.switzerland.harvester.s3_storage_adapter import S3StorageAdapter
 # -----------------------------------------------------------------------
 
+from ckanext.switzerland.harvester.aws_keys import AWS_SECRET_KEY, AWS_ACCESS_KEY, AWS_REGION_NAME
+
 LOCAL_PATH='localpath'
+
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = '/tmp/s3harvest/tests/'
     remote_folder = '/tests'
     config = {
-        LOCAL_PATH: temp_folder
+        LOCAL_PATH: temp_folder, 
+        AWS_SECRET_KEY: "secret_key",
+        AWS_ACCESS_KEY: "access_key",
+        AWS_REGION_NAME: "region_name"
     }
 
     @classmethod
@@ -61,3 +67,8 @@ class TestS3StorageAdapter(unittest.TestCase):
 
         assert os.path.exists(folder)
 
+    def test_connect_then_client_is_initialized(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter._connect()
+
+        self.assertIsNotNone(storage_adapter._aws_session)
