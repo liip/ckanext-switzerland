@@ -10,9 +10,9 @@ The class is intended to be used with Python's `with` statement, e.g.
 `
 """
 import logging
-from storage_adapter_interface import StorageAdapterInterface
+from storage_adapter_base import StorageAdapterBase
 
-class S3StorageAdapter(StorageAdapterInterface):
+class S3StorageAdapter(StorageAdapterBase):
 
     remote_folder = None
 

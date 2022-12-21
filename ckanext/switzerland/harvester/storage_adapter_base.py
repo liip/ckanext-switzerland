@@ -3,8 +3,7 @@ import logging
 import errno
 
 log = logging.getLogger(__name__)
-#TODO: Rename to S3 StorageAdapterBase 
-class StorageAdapterInterface(object):
+class StorageAdapterBase(object):
     _config = None
     
     def get_top_folder(self):
