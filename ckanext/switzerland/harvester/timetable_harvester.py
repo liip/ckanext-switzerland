@@ -74,11 +74,8 @@ class TimetableHarvester(SBBFTPHarvester):
         remotefolder = self.get_remote_folder()
         log.info("Getting listing from remotefolder: %s" % remotefolder)
 
-        ftp_config = {}
-        ftp_config['ftp_server'] = self.config.get('ftp_server')
-
         try:
-            with StorageAdapterFactory().get_storage_adapter(remotefolder, ftp_config) as ftph:
+            with StorageAdapterFactory().get_storage_adapter(remotefolder, self.config) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 

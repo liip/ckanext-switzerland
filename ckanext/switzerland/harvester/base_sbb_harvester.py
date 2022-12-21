@@ -24,6 +24,7 @@ from datetime import datetime
 import os
 import sys
 import re
+import json
 
 from ckan import model
 from ckan.lib import helpers
@@ -486,15 +487,18 @@ class BaseSBBHarvester(HarvesterBase):
 
         log.info("Remote directory: %s", remotefolder)
         log.info("Local directory: %s", tmpfolder)
+        
+        # TODO: See if we can replace this (that validates only the 'ftp_server')
+        # ftp_config = {}
+        # ftp_config['ftp_server'] = self.validate_config('ftp_server')
 
-        ftp_config = {}
-        try:
-            ftp_config['ftp_server'] = self.validate_config('ftp_server')
-        except JSONDecodeError:
-            ftp_config['ftp_server'] = self.config.get('ftp_server')
+
+        # By this (used in all other classes)
+        # set harvester config
+        self.config = self.load_config(harvest_object.job.source.config)
 
         try:
-            with StorageAdapterFactory().get_storage_adapter(remotefolder, ftp_config) as ftph:
+            with StorageAdapterFactory().get_storage_adapter(remotefolder, self.config) as ftph:
 
                 # fetch file via ftplib
                 # -------------------------------------------------------------------
