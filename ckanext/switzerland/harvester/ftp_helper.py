@@ -97,27 +97,6 @@ class FTPHelper(StorageAdapterBase):
         return "%s:%d" % (self._config['host'], self._config['port'])
 
     # tested
-    def _mkdir_p(self, path, perms=0777):
-        """
-        Recursively create local directories
-        Based on http://stackoverflow.com/a/600612/426266
-
-        :param path: Folder path
-        :type path: str or unicode
-        :param perms: Folder permissions
-        :type perms: octal
-        """
-        try:
-            os.makedirs(path, perms)
-        except OSError as exc:  # Python >2.5
-            if exc.errno == errno.EEXIST and os.path.isdir(path):
-                # path already exists
-                pass
-            else:
-                # something went wrong with the creation of the directories
-                raise
-
-    # tested
     def _connect(self):
         """
         Establish an FTP connection
