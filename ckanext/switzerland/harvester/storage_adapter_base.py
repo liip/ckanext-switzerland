@@ -87,7 +87,7 @@ class StorageAdapterBase(object):
         :returns: None
         :rtype: None
         """
-        pass
+        raise NotImplementedError('cdremote')
 
     def get_remote_filelist(self, folder=None):
         """
@@ -99,7 +99,7 @@ class StorageAdapterBase(object):
         :returns: Directory listing (excluding '.' and '..')
         :rtype: list
         """
-        pass
+        raise NotImplementedError('get_remote_filelist')
 
     def get_remote_dirlist(self, folder=None):
         """

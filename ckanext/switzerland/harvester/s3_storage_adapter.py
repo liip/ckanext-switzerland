@@ -17,11 +17,14 @@ from aws_keys import (
     AWS_SECRET_KEY, 
     AWS_ACCESS_KEY, 
     AWS_REGION_NAME,
-    AWS_BUCKET_NAME
+    AWS_BUCKET_NAME,
+    AWS_RESPONSE_CONTENT
 )
 
+log = logging.getLogger(__name__)
 class S3StorageAdapter(StorageAdapterBase):
     _aws_session = None
+    _aws_client = None
     _working_directory = ''
 
     def __init__(self, config, remote_folder=''):
@@ -47,6 +50,8 @@ class S3StorageAdapter(StorageAdapterBase):
             aws_secret_access_key=self._config[AWS_SECRET_KEY],
             region_name=self._config[AWS_REGION_NAME]
         )
+
+        self._aws_client = self._aws_session.client('s3')
     
     def _disconnect(self):
         # as boto3 is HTTP call based, we don't need to close anything
@@ -54,9 +59,15 @@ class S3StorageAdapter(StorageAdapterBase):
 
     def cdremote(self, remotedir=None):
         # there is no such command on S3. We just need to keep a ref to a Working Directory
-        self._working_directory = remotedir.rstrip('/') if remotedir is not None else '/'
+        self._working_directory = remotedir.rstrip('/').lstrip('/') if remotedir is not None else ''
 
     def get_top_folder(self):
         # the top folder is basically just the name of the bucket.
         return self._config[AWS_BUCKET_NAME]
-        
+
+    def get_remote_filelist(self, folder=None):
+        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=self._working_directory)
+        if not s3_objects or AWS_RESPONSE_CONTENT not in s3_objects:
+            log.info("Listing files on AWS returned an empty list")
+            return []
+        return map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT])
