@@ -21,7 +21,7 @@ from ckanext.switzerland.harvester.aws_keys import (
 
 LOCAL_PATH = 'localpath'
 
-LIST_OBJECT_RESPONSE = {
+FILES_AT_ROOT = {
     "Contents": [
         {'Key': 'actual_date_subline_versions_2022-12-20.csv', 'LastModified': datetime.datetime(2022, 12, 20, 2, 20, 1, tzinfo=tzutc(
         )), 'ETag': '"50d4c098d919798c1be34059b1a82f3f"', 'Size': 52299, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'f72bd14b6b6f3869dd203a3ca282a618aaba2ddf8d574a810ff58ac2b578e0a9'}},
@@ -29,7 +29,28 @@ LIST_OBJECT_RESPONSE = {
         )), 'ETag': '"3d0c9020da5748f0a56cb8e13e3cd94a"', 'Size': 11373, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'f72bd14b6b6f3869dd203a3ca282a618aaba2ddf8d574a810ff58ac2b578e0a9'}},
     ]
 }
-LIST_OBJECT_RESPONSE_WITHOUT_CONTENT = {
+
+FILES_AT_FOLDER = {
+    "Contents": [
+        {'Key': 'subline/actual_date_subline_versions_2022-12-19.csv', 'LastModified': datetime.datetime(2022, 12, 20, 2, 20, 1, tzinfo=tzutc(
+        )), 'ETag': '"50d4c098d919798c1be34059b1a82f3f"', 'Size': 52299, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'f72bd14b6b6f3869dd203a3ca282a618aaba2ddf8d574a810ff58ac2b578e0a9'}},
+        {'Key': 'subline/actual_date_subline_versions_2022-12-19.csv.zip', 'LastModified': datetime.datetime(2022, 12, 20, 2, 20, 1, tzinfo=tzutc(
+        )), 'ETag': '"3d0c9020da5748f0a56cb8e13e3cd94a"', 'Size': 11373, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'f72bd14b6b6f3869dd203a3ca282a618aaba2ddf8d574a810ff58ac2b578e0a9'}},
+    ]
+}
+
+NO_CONTENT = {
+}
+
+FOLDER_LIST = {
+    'CommonPrefixes': [
+        {'Prefix': 'business_organisation/'}, 
+        {'Prefix': 'line/'}, 
+        {'Prefix': 'opendata_didok/'}, 
+        {'Prefix': 'servicepoint_didok/'}, 
+        {'Prefix': 'subline/'}, 
+        {'Prefix': 'timetable_field_number/'}
+    ]
 }
 
 
@@ -41,7 +62,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         AWS_SECRET_KEY: "secret_key",
         AWS_ACCESS_KEY: "access_key",
         AWS_REGION_NAME: "eu-central-1",
-        AWS_BUCKET_NAME: "bucket_name"
+        AWS_BUCKET_NAME: AWS_BUCKET_NAME
     }
 
     @classmethod
@@ -60,12 +81,11 @@ class TestS3StorageAdapter(unittest.TestCase):
         if os.path.exists(self.temp_folder):
             shutil.rmtree(self.temp_folder, ignore_errors=True)
 
-    def __stub_aws_client__(self, storage_adapter, method, value):
+    def __stub_aws_client__(self, storage_adapter):
         client = boto3.client('s3')
         storage_adapter._aws_client = client
         stubber = Stubber(client)
-        stubber.add_response(method, value)
-        stubber.activate()
+        return stubber
 
     def test_init_when_remote_folder_then_stored_without_trailing_slash(self):
         remote_folder = '/test/'
@@ -132,11 +152,13 @@ class TestS3StorageAdapter(unittest.TestCase):
         self.assertEqual(self.config[AWS_BUCKET_NAME],
                          storage_adapter.get_top_folder())
 
-    def test_get_remote_filelist_at_root_then_returns_the_list_of_file_names(self):
+    def test_get_remote_filelist_at_root_then_returns_correct_list(self):
         storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
-        self.__stub_aws_client__(storage_adapter, 'list_objects', LIST_OBJECT_RESPONSE)               
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", FILES_AT_ROOT, {'Bucket': AWS_BUCKET_NAME ,'Prefix': ''})
+        stubber.activate()
         expected_files_list = [
-            "actual_date_subline_versions_2022-12-20.csv", 
+            "actual_date_subline_versions_2022-12-20.csv",
             "actual_date_subline_versions_2022-12-20.csv.zip"
         ]
 
@@ -144,10 +166,27 @@ class TestS3StorageAdapter(unittest.TestCase):
 
         assert_array_equal(expected_files_list, files_list)
 
-    def test_get_remote_filelist_at_root_then_returns_the_list_of_file_names(self):
-        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)        
-        self.__stub_aws_client__(storage_adapter, 'list_objects', LIST_OBJECT_RESPONSE_WITHOUT_CONTENT)    
-        
+    def test_get_remote_filelist_at_folder_then_returns_the_correct_names(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter.cdremote('subline')
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", FILES_AT_FOLDER, {'Bucket': AWS_BUCKET_NAME ,'Prefix': 'subline'})
+        stubber.activate()
+        expected_files_list = [
+            "subline/actual_date_subline_versions_2022-12-19.csv",
+            "subline/actual_date_subline_versions_2022-12-19.csv.zip"
+        ]
+
+        files_list = storage_adapter.get_remote_filelist()
+
+        assert_array_equal(expected_files_list, files_list)
+    
+    def test_get_remote_filelist_at_empty_folder_then_returns_empty_list(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter.cdremote('empty')
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", NO_CONTENT, {'Bucket': AWS_BUCKET_NAME ,'Prefix': 'empty'})
+        stubber.activate()
         files_list = storage_adapter.get_remote_filelist()
 
         assert_array_equal([], files_list)
