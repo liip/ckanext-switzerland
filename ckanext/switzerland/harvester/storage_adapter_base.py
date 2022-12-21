@@ -135,7 +135,11 @@ class StorageAdapterBase(object):
         :returns: Directory listing
         :rtype: list
         """
-        pass
+        dirlist = []
+        for dirpath, dirnames, filenames in os.walk(localpath):
+            for filename in [f for f in filenames]:
+                dirlist.append(os.path.join(dirpath, filename))
+        return dirlist
 
     def get_modified_date(self, filename, folder=None):
         """
