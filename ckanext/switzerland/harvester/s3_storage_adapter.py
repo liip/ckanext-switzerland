@@ -17,6 +17,9 @@ class S3StorageAdapter(StorageAdapterInterface):
     remote_folder = None
     config = None
 
-    def __init__(self, remote_folder='', config=None):
+    def __init__(self, config, remote_folder=''):
+        if config is None:
+            raise Exception("The storage adapter cannot be initialized without config")
+
         self.remote_folder = remote_folder.rstrip('/')
         self.config = config

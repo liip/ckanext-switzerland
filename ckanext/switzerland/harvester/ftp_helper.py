@@ -23,6 +23,7 @@ import zipfile
 import errno
 import datetime
 import ssl
+import json
 
 log = logging.getLogger(__name__)
 
@@ -40,6 +41,9 @@ class FTPHelper(StorageAdapterInterface):
 
     # tested
     def __init__(self, remotefolder='', config=None):
+
+        print ('### FTPHelper')
+        print(json.dumps(config))
         """
         Load the ftp configuration from ckan config file
 
