@@ -31,11 +31,7 @@ log = logging.getLogger(__name__)
 class FTPHelper(StorageAdapterBase):
     """ FTP Helper Class """
 
-    _config = None
-
     ftps = None
-
-    remotefolder = ''
 
     tmpfile_extension = '.TMP'
 
@@ -68,7 +64,7 @@ class FTPHelper(StorageAdapterBase):
         
         self._config = ftpconfig
         # prepare the remote path
-        self.remotefolder = remotefolder.rstrip("/")
+        self.remote_folder = remotefolder.rstrip("/")
         # create the local directory, if it does not exist
         self.create_local_dir()
 
@@ -123,27 +119,6 @@ class FTPHelper(StorageAdapterBase):
             else:
                 # something went wrong with the creation of the directories
                 raise
-
-    # tested
-    def create_local_dir(self, folder=None):
-        """
-        Create a local folder
-
-        :param folder: Folder path
-        :type folder: str or unicode
-
-        :returns: None
-        :rtype: None
-        """
-        if not folder:
-            folder = self._config['localpath']
-        # create the local directory if it does not exist
-
-        folder = folder.rstrip("/")
-
-        if not os.path.isdir(folder):
-            self._mkdir_p(folder)
-            log.debug("Created folder: %s" % str(folder))
 
     # tested
     def _connect(self):
@@ -207,7 +182,7 @@ class FTPHelper(StorageAdapterBase):
         :rtype: None
         """
         if not remotedir:
-            remotedir = self.remotefolder
+            remotedir = self.remote_folder
         if self.ftps:
             self.ftps.cwd(remotedir)
         elif self.sftp:
@@ -238,7 +213,7 @@ class FTPHelper(StorageAdapterBase):
                     if key == 'type' and value == 'file':
                         files.append(filename)
         elif self.sftp:
-            files = self.sftp.listdir(self.remotefolder)
+            files = self.sftp.listdir(self.remote_folder)
 
         return files
 
@@ -265,7 +240,7 @@ class FTPHelper(StorageAdapterBase):
             if self.ftps:
                 dirlist = self.ftps.nlst()
             elif self.sftp:
-                dirlist = self.sftp.listdir(self.remotefolder)
+                dirlist = self.sftp.listdir(self.remote_folder)
 
         # filter out '.' and '..' and return the list
         dirlist = filter(lambda entry: entry not in ['.', '..'], dirlist)
@@ -287,7 +262,7 @@ class FTPHelper(StorageAdapterBase):
         :rtype: list
         """
         if not folder:
-            folder = self.remotefolder
+            folder = self.remote_folder
         dirs = []
         new_dirs = self.get_remote_dirlist(folder)
         while len(new_dirs) > 0:

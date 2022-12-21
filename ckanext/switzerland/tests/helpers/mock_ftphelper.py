@@ -17,7 +17,7 @@ class MockFTPHelper(FTPHelper):
 
     def cdremote(self, remotedir=None):
         if not remotedir:
-            remotedir = self.remotefolder
+            remotedir = self.remote_folder
         self.cwd = remotedir
 
     def get_remote_filelist(self, folder=None):

@@ -61,7 +61,7 @@ class TestFTPHelper(unittest.TestCase):
         assert_equal(ftph._config['remotedirectory'], '/')
         assert_equal(ftph._config['localpath'], '/tmp/ftpharvest/tests/')
 
-        assert_equal(ftph.remotefolder, remotefolder.rstrip('/'))
+        assert_equal(ftph.remote_folder, remotefolder.rstrip('/'))
 
         assert os.path.exists(ftph._config['localpath'])
 
