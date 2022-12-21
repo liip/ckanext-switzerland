@@ -37,9 +37,6 @@ class FTPHelper(StorageAdapterBase):
 
     # tested
     def __init__(self, remotefolder='', config=None):
-
-        print ('### FTPHelper')
-        print(json.dumps(config))
         """
         Load the ftp configuration from ckan config file
 
