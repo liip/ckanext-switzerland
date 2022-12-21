@@ -7,7 +7,12 @@ import shutil
 from ckanext.switzerland.harvester.s3_storage_adapter import S3StorageAdapter
 # -----------------------------------------------------------------------
 
-from ckanext.switzerland.harvester.aws_keys import AWS_SECRET_KEY, AWS_ACCESS_KEY, AWS_REGION_NAME
+from ckanext.switzerland.harvester.aws_keys import (
+    AWS_SECRET_KEY, 
+    AWS_ACCESS_KEY, 
+    AWS_REGION_NAME,
+    AWS_BUCKET_NAME
+    )
 
 LOCAL_PATH='localpath'
 
@@ -18,7 +23,8 @@ class TestS3StorageAdapter(unittest.TestCase):
         LOCAL_PATH: temp_folder, 
         AWS_SECRET_KEY: "secret_key",
         AWS_ACCESS_KEY: "access_key",
-        AWS_REGION_NAME: "region_name"
+        AWS_REGION_NAME: "region_name",
+        AWS_BUCKET_NAME: "bucket_name"
     }
 
     @classmethod
@@ -86,7 +92,11 @@ class TestS3StorageAdapter(unittest.TestCase):
 
         self.assertEqual('/', storage_adapter._working_directory)
         
-
     def test_with_syntax_then_working_session_is_created(self):
         with S3StorageAdapter(self.config, self.remote_folder) as storage_adapter:
             self.assertEqual('/', storage_adapter._working_directory)
+
+    def test_get_top_folder_then_returns_bucket_name(self):
+        storage_adapter =  S3StorageAdapter(self.config, self.remote_folder)
+
+        self.assertEqual(self.config[AWS_BUCKET_NAME], storage_adapter.get_top_folder())

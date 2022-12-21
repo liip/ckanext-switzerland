@@ -16,14 +16,14 @@ class StorageAdapterBase(object):
     # tested
     def __enter__(self):
         """
-        Establishes a connection
+        Establishes a connection to the Storage
         """
         raise NotImplementedError('__enter__')
 
     # tested
     def __exit__(self, type, value, traceback):
         """
-        Closes a connection
+        Closes a connection to the Storage
         """
         raise NotImplementedError('__exit__')
     
@@ -34,7 +34,7 @@ class StorageAdapterBase(object):
         :returns: The name of the folder created by ftplib, e.g. 'mydomain.com:21'
         :rtype: string
         """
-        pass
+        raise NotImplementedError('get_top_folder')
 
     def create_local_dir(self, folder=None):
         """

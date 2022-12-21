@@ -13,7 +13,12 @@ import logging
 import boto3
 import boto3.session
 from storage_adapter_base import StorageAdapterBase
-from aws_keys import AWS_SECRET_KEY, AWS_ACCESS_KEY, AWS_REGION_NAME
+from aws_keys import (
+    AWS_SECRET_KEY, 
+    AWS_ACCESS_KEY, 
+    AWS_REGION_NAME,
+    AWS_BUCKET_NAME
+)
 
 class S3StorageAdapter(StorageAdapterBase):
     _aws_session = None
@@ -37,11 +42,6 @@ class S3StorageAdapter(StorageAdapterBase):
         pass
     
     def _connect(self):
-        """
-        Establish an Session with AWS, and stores it in _aws_session variable
-        :returns: None
-        :rtype: None
-        """
         self._aws_session = boto3.session.Session(
             aws_access_key_id=self._config[AWS_ACCESS_KEY],
             aws_secret_access_key=self._config[AWS_SECRET_KEY],
@@ -49,22 +49,14 @@ class S3StorageAdapter(StorageAdapterBase):
         )
     
     def _disconnect(self):
-        """
-        As boto3 only make API call through HTTP, there is nothing to close
-        :returns: None
-        :rtype: None
-        """
+        # as boto3 is HTTP call based, we don't need to close anything
         pass
 
     def cdremote(self, remotedir=None):
-        """
-        Change remote directory
-
-        :param remotedir: Full path on the remote server
-        :type remotedir: str or unicode
-
-        :returns: None
-        :rtype: None
-        """
+        # there is no such command on S3. We just need to keep a ref to a Working Directory
         self._working_directory = remotedir.rstrip('/') if remotedir is not None else '/'
+
+    def get_top_folder(self):
+        # the top folder is basically just the name of the bucket.
+        return self._config[AWS_BUCKET_NAME]
         
