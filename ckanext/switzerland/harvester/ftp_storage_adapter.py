@@ -5,7 +5,7 @@ FTP Helper
 Methods that help with dealing with remote ftp and local folders.
 The class is intended to be used with Python's `with` statement, e.g.
 `
-    with FTPHelper('/remote-base-path/') as ftph:
+    with FTPStorageAdapter('/remote-base-path/') as ftph:
         ...
 `
 """
@@ -28,8 +28,8 @@ import json
 log = logging.getLogger(__name__)
 
 
-class FTPHelper(StorageAdapterBase):
-    """ FTP Helper Class """
+class FTPStorageAdapter(StorageAdapterBase):
+    """ FTP Storage Adapter Class """
 
     ftps = None
 
@@ -70,8 +70,8 @@ class FTPHelper(StorageAdapterBase):
         """
         Establish an ftp connection and cd into the configured remote directory
 
-        :returns: Instance of FTPHelper
-        :rtype: FTPHelper
+        :returns: Instance of FTPStorageAdapter
+        :rtype: FTPStorageAdapter
         """
         self._connect()
         # cd into the remote directory

@@ -18,12 +18,12 @@ from pylons import config as ckanconf
 
 # The classes to test
 # -----------------------------------------------------------------------
-from ckanext.switzerland.harvester.ftp_helper import FTPHelper
+from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
 # -----------------------------------------------------------------------
 
 
 
-class TestFTPHelper(unittest.TestCase):
+class TestFTPStorageAdapter(unittest.TestCase):
 
     tmpfolder = '/tmp/ftpharvest/tests/'
     ftp = None
@@ -49,10 +49,10 @@ class TestFTPHelper(unittest.TestCase):
 
     # ---------------------------------------------------------------------
 
-    def test_FTPHelper__init__(self):
-        """ FTPHelper class correctly stores the ftp configuration from the ckan config """
+    def test_FTPStorageAdapter__init__(self):
+        """ FTPStorageAdapter class correctly stores the ftp configuration from the ckan config """
         remotefolder = '/test/'
-        ftph = FTPHelper(remotefolder)
+        ftph = FTPStorageAdapter(remotefolder)
 
         assert_equal(ftph._config['username'], 'TESTUSER')
         assert_equal(ftph._config['password'], 'TESTPASS')
@@ -67,16 +67,16 @@ class TestFTPHelper(unittest.TestCase):
 
     def test_get_top_folder(self):
         foldername = "ftp-secure.sbb.ch:990"
-        ftph = FTPHelper('/test/')
+        ftph = FTPStorageAdapter('/test/')
         assert_equal(foldername, ftph.get_top_folder())
 
     def test_mkdir_p(self):
-        ftph = FTPHelper('/test/')
+        ftph = FTPStorageAdapter('/test/')
         ftph._mkdir_p(self.tmpfolder)
         assert os.path.exists(self.tmpfolder)
 
     def test_create_local_dir(self):
-        ftph = FTPHelper('/test/')
+        ftph = FTPStorageAdapter('/test/')
         ftph.create_local_dir(self.tmpfolder)
         assert os.path.exists(self.tmpfolder)
 
@@ -89,7 +89,7 @@ class TestFTPHelper(unittest.TestCase):
         mock_ftp = MockFTP_TLS.return_value
 
         # run
-        ftph = FTPHelper('/')
+        ftph = FTPStorageAdapter('/')
         ftph._connect()
 
         # constructor was called
@@ -109,7 +109,7 @@ class TestFTPHelper(unittest.TestCase):
     @patch('ftplib.FTP_TLS', autospec=True)
     def test_connect_sets_ftp_port(self, MockFTP_TLS, MockFTP):
         # run
-        ftph = FTPHelper('/')
+        ftph = FTPStorageAdapter('/')
         ftph._connect()
         # the port was changed by the _connect method
         assert_equal(MockFTP.port, int(ckanconf.get('ckan.ftp.port', False)))
@@ -120,7 +120,7 @@ class TestFTPHelper(unittest.TestCase):
         # get ftplib instance
         mock_ftp_tls = MockFTP_TLS.return_value
         # connect
-        ftph = FTPHelper('/')
+        ftph = FTPStorageAdapter('/')
         ftph._connect()
         # disconnect
         ftph._disconnect()
@@ -133,7 +133,7 @@ class TestFTPHelper(unittest.TestCase):
         # get ftplib instance
         mock_ftp_tls = MockFTP_TLS.return_value
         # connect
-        ftph = FTPHelper('/')
+        ftph = FTPStorageAdapter('/')
         ftph._connect()
         ftph.cdremote('/foo/')
         self.assertTrue(mock_ftp_tls.cwd.called)
@@ -145,7 +145,7 @@ class TestFTPHelper(unittest.TestCase):
         # get ftplib instance
         mock_ftp_tls = MockFTP_TLS.return_value
         # connect
-        ftph = FTPHelper('/')
+        ftph = FTPStorageAdapter('/')
         ftph._connect()
         ftph.cdremote()
         self.assertTrue(mock_ftp_tls.cwd.called)
@@ -155,11 +155,11 @@ class TestFTPHelper(unittest.TestCase):
 
     @patch('ftplib.FTP', autospec=True)
     @patch('ftplib.FTP_TLS', autospec=True)
-    def test_enter_ftphelper(self, MockFTP_TLS, MockFTP):
+    def test_enter_FTPStorageAdapter(self, MockFTP_TLS, MockFTP):
         # get ftplib instance
         mock_ftp_tls = MockFTP_TLS.return_value
         # run test
-        with FTPHelper('/hello/') as ftph:
+        with FTPStorageAdapter('/hello/') as ftph:
             pass
         # check results
         self.assertTrue(mock_ftp_tls.cwd.called)
@@ -204,7 +204,7 @@ class TestFTPHelper(unittest.TestCase):
         # mock ftplib.FTP_TLS
         with Replace('ftplib.FTP_TLS', self.FTP_TLS):
             # run test
-            with FTPHelper('/') as ftph:
+            with FTPStorageAdapter('/') as ftph:
                 # get directory listing
                 dirlist = ftph.get_remote_dirlist('/myfolder/')
         # check results
@@ -214,7 +214,7 @@ class TestFTPHelper(unittest.TestCase):
     @patch('ftplib.FTP', autospec=True)
     def test_get_local_dirlist(self, MockFTP):
         with Replace('ftplib.FTP_TLS', self.FTP_TLS):
-            with FTPHelper('/') as ftph:
+            with FTPStorageAdapter('/') as ftph:
                 dirlist = ftph.get_local_dirlist(localpath="./ckanext/switzerland/tests/fixtures/testdir")
         assert_equal(type(dirlist), list)
         assert_equal(len(dirlist), 3)
@@ -224,7 +224,7 @@ class TestFTPHelper(unittest.TestCase):
         # mock ftplib.FTP_TLS
         with Replace('ftplib.FTP_TLS', self.FTP_TLS):
             # run test
-            with FTPHelper('/') as ftph:
+            with FTPStorageAdapter('/') as ftph:
                 # get directory listing
                 num = ftph.is_empty_dir('/empty/')
         # check results
@@ -236,7 +236,7 @@ class TestFTPHelper(unittest.TestCase):
     #     # mock ftplib.FTP_TLS
     #     with Replace('ftplib.FTP_TLS', self.FTP_TLS):
     #         # run test
-    #         with FTPHelper('/') as ftph:
+    #         with FTPStorageAdapter('/') as ftph:
     #             # get directory listing
     #             num = ftph.is_empty_dir('/nonemptydir/')
     #     # check results
@@ -249,7 +249,7 @@ class TestFTPHelper(unittest.TestCase):
         # mock ftplib.FTP_TLS
         with Replace('ftplib.FTP_TLS', self.FTP_TLS):
             # connect
-            with FTPHelper('/') as ftph:
+            with FTPStorageAdapter('/') as ftph:
                 ftph._connect()
                 # fetch remote file
                 arg1, arg2 = ftph.fetch(filename, localpath=testfile)
@@ -264,7 +264,7 @@ class TestFTPHelper(unittest.TestCase):
     def test_unzip(self, MockFTP_TLS, MockFTP):
         currpath = os.path.dirname(os.path.realpath(__file__))
         # run test
-        with FTPHelper('/') as ftph:
+        with FTPStorageAdapter('/') as ftph:
             num = ftph.unzip(os.path.join(currpath, 'fixtures/zip/my.zip'))
         # check results
         assert_equal(num, 2)

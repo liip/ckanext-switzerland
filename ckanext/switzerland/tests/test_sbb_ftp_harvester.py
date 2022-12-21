@@ -6,7 +6,7 @@ from ckan.lib.munge import munge_name
 from ckan.logic import get_action, NotFound
 from ckanext.harvest import model as harvester_model
 from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
-from ckanext.switzerland.tests.helpers.mock_ftphelper import MockFTPHelper
+from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import MockFTPStorageAdapter
 from mock import patch
 from nose.tools import assert_equal, assert_raises
 
@@ -14,8 +14,8 @@ from . import data
 from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 
 
-@patch('ckanext.switzerland.harvester.sbb_ftp_harvester.FTPHelper', MockFTPHelper)
-@patch('ckanext.switzerland.harvester.base_sbb_harvester.FTPHelper', MockFTPHelper)
+@patch('ckanext.switzerland.harvester.sbb_ftp_harvester.FTPStorageAdapter', MockFTPStorageAdapter)
+@patch('ckanext.switzerland.harvester.base_sbb_harvester.FTPStorageAdapter', MockFTPStorageAdapter)
 class TestSBBFTPHarvester(BaseSBBHarvesterTests):
     """
     Integration test for SBBFTPHarvester
@@ -24,7 +24,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
     harvester_class = SBBFTPHarvester
 
     def test_simple(self):
-        MockFTPHelper.filesystem = self.get_filesystem()
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
         self.run_harvester()
 
         dataset = self.get_dataset()
@@ -35,7 +35,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
     def test_existing_dataset(self):
         data.dataset(slug='testslug-other-than-munge-name')
 
-        MockFTPHelper.filesystem = self.get_filesystem()
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
         self.run_harvester()
 
         dataset1 = self.get_dataset()
@@ -53,7 +53,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
         dataset = data.dataset()
         data.resource(dataset=dataset)
 
-        MockFTPHelper.filesystem = self.get_filesystem()
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
         self.run_harvester()
 
         dataset = self.get_dataset()
@@ -78,7 +78,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
         dataset = data.dataset()
         data.resource(dataset=dataset, filename=data.filename)
 
-        MockFTPHelper.filesystem = self.get_filesystem()
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
         self.run_harvester()
 
         dataset = self.get_dataset()
@@ -93,7 +93,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
         """
         When modified date of file is older than the last harvester run date, the file should not be harvested again
         """
-        MockFTPHelper.filesystem = self.get_filesystem()
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
         self.run_harvester()
         self.run_harvester()
 
@@ -110,7 +110,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
         When modified date of file is older than the last harvester run date, the file should not be harvested again
         force_all overrides this mechanism and reharvests all files on the ftp server.
         """
-        MockFTPHelper.filesystem = self.get_filesystem()
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
         self.run_harvester(force_all=True)
         self.run_harvester(force_all=True)
 
@@ -128,7 +128,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
         except when the file is missing in the dataset, that is what we are testing here.
         """
         filesystem = self.get_filesystem()
-        MockFTPHelper.filesystem = filesystem
+        MockFTPStorageAdapter.filesystem = filesystem
         self.run_harvester()
 
         path = os.path.join(data.environment, data.folder, 'NewFile')
@@ -142,7 +142,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
 
     def test_update_version(self):
         filesystem = self.get_filesystem(filename='20160901.csv')
-        MockFTPHelper.filesystem = filesystem
+        MockFTPStorageAdapter.filesystem = filesystem
         self.run_harvester()
 
         package = self.get_package()
@@ -184,7 +184,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
         => permalink should still point to the newest file (20160902.csv), and the newest file should be on top
         """
         filesystem = self.get_filesystem(filename='20160901.csv')
-        MockFTPHelper.filesystem = filesystem
+        MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, '20160902.csv')
         filesystem.setcontents(path, data.dataset_content_2)
         self.run_harvester()
@@ -223,7 +223,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
         => updated file should be on top including permalink pointing to it
         """
         filesystem = self.get_filesystem(filename='20160901.csv')
-        MockFTPHelper.filesystem = filesystem
+        MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, '20160902.csv')
         filesystem.setcontents(path, data.dataset_content_2)
         self.run_harvester()
@@ -252,7 +252,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
 
     def test_order_permalink_regex(self):
         filesystem = self.get_filesystem(filename='20160901.csv')
-        MockFTPHelper.filesystem = filesystem
+        MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, '20160902.csv')
         filesystem.setcontents(path, data.dataset_content_2)
         path = os.path.join(data.environment, data.folder, '1111Resource.csv')
@@ -276,7 +276,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
     # cleanup tests
     def test_max_resources(self):
         filesystem = self.get_filesystem(filename='20160901.csv')
-        MockFTPHelper.filesystem = filesystem
+        MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, '20160902.csv')
         filesystem.setcontents(path, data.dataset_content_2)
         path = os.path.join(data.environment, data.folder, '20160903.csv')
@@ -308,7 +308,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
         there are multiple revisions of file 20160901.csv, all of them should be deleted
         """
         filesystem = self.get_filesystem(filename='20160901.csv')
-        MockFTPHelper.filesystem = filesystem
+        MockFTPStorageAdapter.filesystem = filesystem
         self.run_harvester(max_resources=3)
 
         path = os.path.join(data.environment, data.folder, '20160901.csv')
@@ -343,7 +343,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
         If resources get deleted by max_resources, we should not redownload them from ftp.
         """
         filesystem = self.get_filesystem(filename='20160901.csv')
-        MockFTPHelper.filesystem = filesystem
+        MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, '20160902.csv')
         filesystem.setcontents(path, data.dataset_content_3)
         path = os.path.join(data.environment, data.folder, '20160903.csv')
@@ -365,7 +365,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
 
     def test_max_revisions(self):
         filesystem = self.get_filesystem()
-        MockFTPHelper.filesystem = filesystem
+        MockFTPStorageAdapter.filesystem = filesystem
 
         path = os.path.join(data.environment, data.folder, data.filename)
         filesystem.settimes(path, modified_time=datetime.now())
@@ -412,7 +412,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
 
     def test_filter_regex(self):
         filesystem = self.get_filesystem(filename='File.zip')
-        MockFTPHelper.filesystem = filesystem
+        MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, 'Invalid.csv')
         filesystem.setcontents(path, data.dataset_content_2)
 
@@ -426,7 +426,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
         assert_equal(package.resources[0].extras['identifier'], 'File.zip')
 
     def test_validate_regex_fail(self):
-        MockFTPHelper.filesystem = self.get_filesystem()
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
         harvester = SBBFTPHarvester()
         with assert_raises(Exception):
             harvester.validate_config(json.dumps({
@@ -437,7 +437,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
             }))
 
     def test_validate_regex_ok(self):
-        MockFTPHelper.filesystem = self.get_filesystem()
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
         harvester = SBBFTPHarvester()
         harvester.validate_config(json.dumps({
             'dataset': data.dataset_name,

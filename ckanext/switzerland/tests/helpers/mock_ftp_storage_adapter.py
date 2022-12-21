@@ -1,12 +1,12 @@
 import os
 
-from ckanext.switzerland.harvester.ftp_helper import FTPHelper
+from ckanext.switzerland.harvester.ftp_helper import FTPStorageAdapter
 
 
-class MockFTPHelper(FTPHelper):
+class MockFTPStorageAdapter(FTPStorageAdapter):
 
     def __init__(self, remotefolder=''):
-        super(MockFTPHelper, self).__init__(remotefolder)
+        super(MockFTPStorageAdapter, self).__init__(remotefolder)
         self.cwd = '/'
 
     def _connect(self):
