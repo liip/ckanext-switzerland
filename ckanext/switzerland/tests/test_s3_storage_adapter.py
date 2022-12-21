@@ -110,10 +110,36 @@ class TestS3StorageAdapter(unittest.TestCase):
 
     def test_cdremote_then_working_directory_is_stored(self):
         storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
-        remote_dir = '/remote/'
-        storage_adapter.cdremote(remote_dir)
+        storage_adapter.cdremote('/foo/')
 
-        self.assertEqual('remote', storage_adapter._working_directory)
+        self.assertEqual('foo', storage_adapter._working_directory)
+    
+    def test_cdremote_twice_then_working_directory_is_stored(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter.cdremote('foo/')
+        storage_adapter.cdremote('bar')
+
+        self.assertEqual('foo/bar', storage_adapter._working_directory)
+    
+    def test_cdremote_slash_then_working_directory_is_root(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter.cdremote('foo/')
+        storage_adapter.cdremote('/')
+
+        self.assertEqual('', storage_adapter._working_directory)
+    
+    def test_cdremote_with_slashes_then_working_directory_is_root(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter.cdremote('foo/bar')
+
+        self.assertEqual('foo/bar', storage_adapter._working_directory)
+
+    def test_cdremote_empty_then_working_directory_is_unchanged(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter.cdremote('foo/')
+        storage_adapter.cdremote('')
+
+        self.assertEqual('foo', storage_adapter._working_directory)
 
     def test_cdremote_when_remotedir_is_none_then_working_directory_is_correct(self):
         storage_adapter = S3StorageAdapter(self.config, self.remote_folder)

@@ -12,6 +12,7 @@ The class is intended to be used with Python's `with` statement, e.g.
 import logging
 import boto3
 import boto3.session
+import os
 from storage_adapter_base import StorageAdapterBase
 from aws_keys import (
     AWS_SECRET_KEY, 
@@ -60,7 +61,10 @@ class S3StorageAdapter(StorageAdapterBase):
 
     def cdremote(self, remotedir=None):
         # Files are stored flat on AWS. So there is no such command on S3. We just need to keep a ref to a Working Directory
-        self._working_directory += remotedir.rstrip('/').lstrip('/') if remotedir is not None else ''
+        if remotedir == '/':
+            self._working_directory = ''
+        elif remotedir:
+            self._working_directory = os.path.join(self._working_directory, remotedir.rstrip('/').lstrip('/'))
 
     def get_top_folder(self):
         # the top folder is basically just the name of the bucket.
