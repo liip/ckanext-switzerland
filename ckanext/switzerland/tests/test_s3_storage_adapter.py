@@ -44,12 +44,8 @@ NO_CONTENT = {
 
 FOLDER_LIST = {
     'CommonPrefixes': [
-        {'Prefix': 'business_organisation/'}, 
-        {'Prefix': 'line/'}, 
-        {'Prefix': 'opendata_didok/'}, 
-        {'Prefix': 'servicepoint_didok/'}, 
         {'Prefix': 'subline/'}, 
-        {'Prefix': 'timetable_field_number/'}
+        {'Prefix': 'a/'}, 
     ]
 }
 
@@ -190,4 +186,49 @@ class TestS3StorageAdapter(unittest.TestCase):
         files_list = storage_adapter.get_remote_filelist()
 
         assert_array_equal([], files_list)
+
+    def test_get_remote_dirlist_when_no_dir_then_returns_empty_list(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", NO_CONTENT, {'Bucket': AWS_BUCKET_NAME ,'Prefix': ''})
+        stubber.add_response("list_objects", NO_CONTENT, {'Bucket': AWS_BUCKET_NAME ,'Delimiter': '/'})
+        stubber.activate()
+
+        dir_list = storage_adapter.get_remote_dirlist()
+
+        assert_array_equal([], dir_list)
+
+    def test_get_remote_dirlist_then_returns_correct_list(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", FILES_AT_ROOT, {'Bucket': AWS_BUCKET_NAME ,'Prefix': ''})
+        stubber.add_response("list_objects", FOLDER_LIST, {'Bucket': AWS_BUCKET_NAME ,'Delimiter': '/'})
+        stubber.activate()
+
+        dir_list = storage_adapter.get_remote_dirlist()
+
+        expected_dir_list = [
+            "a",
+            "actual_date_subline_versions_2022-12-20.csv",
+            "actual_date_subline_versions_2022-12-20.csv.zip",
+            "subline"
+        ]
+        assert_array_equal(expected_dir_list, dir_list)
+    
+    def test_get_remote_dirlist_with_tmp_then_returns_correct_list(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", FILES_AT_ROOT, {'Bucket': AWS_BUCKET_NAME ,'Prefix': ''})
+        stubber.add_response("list_objects", FOLDER_LIST, {'Bucket': AWS_BUCKET_NAME ,'Delimiter': '/'})
+        stubber.activate()
+
+        dir_list = storage_adapter.get_remote_dirlist()
+
+        expected_dir_list = [
+            "a",
+            "actual_date_subline_versions_2022-12-20.csv",
+            "actual_date_subline_versions_2022-12-20.csv.zip",
+            "subline"
+        ]
+        assert_array_equal(expected_dir_list, dir_list)
 

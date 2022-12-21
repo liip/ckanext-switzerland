@@ -18,7 +18,8 @@ from aws_keys import (
     AWS_ACCESS_KEY, 
     AWS_REGION_NAME,
     AWS_BUCKET_NAME,
-    AWS_RESPONSE_CONTENT
+    AWS_RESPONSE_CONTENT,
+    AWS_RESPONSE_PREFIXES
 )
 
 log = logging.getLogger(__name__)
@@ -72,3 +73,17 @@ class S3StorageAdapter(StorageAdapterBase):
             log.info("Listing files on AWS returned an empty list")
             return []
         return map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT])
+
+    def get_remote_dirlist(self, folder=None):
+        full_list = []
+        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=self._working_directory)
+        if s3_objects and AWS_RESPONSE_CONTENT in s3_objects:
+            full_list.extend(map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT]))
+        
+        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Delimiter="/")
+        if s3_objects and AWS_RESPONSE_PREFIXES in s3_objects:
+            full_list.extend(map(lambda object: object['Prefix'].rstrip('/'), s3_objects[AWS_RESPONSE_PREFIXES]))
+        
+        full_list.sort()
+
+        return full_list

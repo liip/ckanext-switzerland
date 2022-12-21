@@ -111,7 +111,7 @@ class StorageAdapterBase(object):
         :returns: Directory listing (excluding '.' and '..')
         :rtype: list
         """
-        pass
+        raise NotImplementedError('get_remote_dirlist')
 
     def get_remote_dirlist_all(self, folder=None):
         """
