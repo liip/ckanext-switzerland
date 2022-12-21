@@ -36,6 +36,16 @@ HEAD_FILE_AT_FOLDER = {'ResponseMetadata': {'RequestId': 'N1BMBN9RRV02KCP0', 'Ho
 
 HEAD_FILE_AT_ROOT = {'ResponseMetadata': {'RequestId': '2ZYCRJQ7XK8RVGPE', 'HostId': '5+CArigCaxO03lAWRezv5YIRXlFYtfdsuYjtNXOSpAOiNvnMUv/aO//18M4vjA4bPy7QGoNhxF4=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': '5+CArigCaxO03lAWRezv5YIRXlFYtfdsuYjtNXOSpAOiNvnMUv/aO//18M4vjA4bPy7QGoNhxF4=', 'x-amz-request-id': '2ZYCRJQ7XK8RVGPE', 'date': 'Wed, 21 Dec 2022 15:33:53 GMT', 'last-modified': 'Wed, 21 Dec 2022 13:52:52 GMT', 'etag': '"d5100e495ad9e4587faf8f9663677584"', 'accept-ranges': 'bytes', 'content-type': 'application/pdf', 'server': 'AmazonS3', 'content-length': '659119'}, 'RetryAttempts': 0}, 'AcceptRanges': 'bytes', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 52, tzinfo=tzutc()), 'ContentLength': 659119, 'ETag': '"d5100e495ad9e4587faf8f9663677584"', 'ContentType': 'application/pdf', 'Metadata': {}}
 
+class BodyObjectMock:
+    def read(self):
+        return FILE_CONTENT
+        
+
+GET_OBJECT = {'ResponseMetadata': {'RequestId': 'X2RVMSTRR28V1VGP', 'HostId': 'qNjPOivhpealP3A48lJcDOMaPpf6H8ewXwIn31uyxA6yc1Z/wbRHmINRl89t4oNeVqhOpsADFHQ=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': 'qNjPOivhpealP3A48lJcDOMaPpf6H8ewXwIn31uyxA6yc1Z/wbRHmINRl89t4oNeVqhOpsADFHQ=', 'x-amz-request-id': 'X2RVMSTRR28V1VGP', 'date': 'Wed, 21 Dec 2022 16:16:29 GMT', 'last-modified': 'Wed, 21 Dec 2022 16:13:17 GMT', 'etag': '"9a45adfaa943bba12b0925695efd01e1"', 'accept-ranges': 'bytes', 'content-type': 'text/csv', 'server': 'AmazonS3', 'content-length': '19'}, 'RetryAttempts': 0}, 'AcceptRanges': 'bytes', 'LastModified': datetime.datetime(2022, 12, 21, 16, 13, 17, tzinfo=tzutc()), 'ContentLength': 19, 'ETag': '"9a45adfaa943bba12b0925695efd01e1"', 'ContentType': 'text/csv', 'Metadata': {}, 
+    'Body': BodyObjectMock()
+}
+
+FILE_CONTENT = b'This;is;a;csv;file\n'
 
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = '/tmp/s3harvest/tests/'
@@ -94,7 +104,7 @@ class TestS3StorageAdapter(unittest.TestCase):
     def test_init_then_temp_folder_is_created(self):
         folder = self.config[LOCAL_PATH]
         if os.path.exists(folder):
-            os.rmdir(folder)
+            shutil.rmtree(folder)
 
         S3StorageAdapter(self.config, self.remote_folder)
 
@@ -439,3 +449,45 @@ class TestS3StorageAdapter(unittest.TestCase):
         last_modified_date = storage_adapter.get_modified_date("file_01.pdf", 'a')
 
         self.assertIsNone(last_modified_date)
+    
+    def test_fetch_then_file_is_written_on_disk(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("get_object", GET_OBJECT, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Key': 'example.csv'
+                            })
+        stubber.activate()
+        local_file = os.path.join(self.config[LOCAL_PATH], "example.csv")
+
+        storage_adapter.fetch("example.csv")
+
+        assert os.path.exists(local_file)
+   
+    def test_fetch_then_status_is_correct(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("get_object", GET_OBJECT, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Key': 'example.csv'
+                            })
+        stubber.activate()
+        
+        status = storage_adapter.fetch("example.csv")
+
+        self.assertEqual("226 Transfer complete", status)
+    
+    def test_fetch_with_local_path_then_file_is_written_on_disk(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("get_object", GET_OBJECT, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Key': 'example.csv'
+                            })
+        stubber.activate()
+        
+        local_file = os.path.join('/tmp/', "example_foo.csv")
+        
+        status = storage_adapter.fetch("example.csv", local_file)
+
+        assert os.path.exists(local_file)

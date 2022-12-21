@@ -290,25 +290,6 @@ class FTPHelper(StorageAdapterBase):
 
         return modified_date
 
-    def get_local_path(self):
-        return self._config['localpath']
-
-    # tested (with empty dir)
-    def is_empty_dir(self, folder=None):
-        """
-        Check if a remote directory is empty
-
-        :param folder: Folder name or path
-        :type folder: str or unicode
-
-        :returns: Number of files or directories in remote folder
-        :rtype: int
-        """
-        if not folder:
-            folder = None
-        num_files = len(self.get_remote_dirlist_all(folder))
-        return num_files
-
     # tested
     def fetch(self, filename, localpath=None):
         """

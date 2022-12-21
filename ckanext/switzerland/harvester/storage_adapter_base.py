@@ -7,6 +7,15 @@ class StorageAdapterBase(object):
     _config = None
     remote_folder = None
 
+    def __init__(self, remotefolder='', config=None):
+        """
+        Load the ftp configuration from ckan config file
+
+        :param remotefolder: Remote folder path
+        :type remotefolder: str or unicode
+        """
+        raise NotImplementedError('__init__')
+
     def _connect(self):
         raise NotImplementedError('_connect')
     
@@ -156,7 +165,7 @@ class StorageAdapterBase(object):
         raise NotImplementedError('get_modified_date')
 
     def get_local_path(self):
-        pass
+        return self._config['localpath']
 
 
     def is_empty_dir(self, folder=None):
@@ -169,7 +178,10 @@ class StorageAdapterBase(object):
         :returns: Number of files or directories in remote folder
         :rtype: int
         """
-        pass
+        if not folder:
+            folder = None
+        num_files = len(self.get_remote_dirlist_all(folder))
+        return num_files
 
     def fetch(self, filename, localpath=None):
         """
@@ -183,7 +195,7 @@ class StorageAdapterBase(object):
         :returns: Status of the FTP operation
         :rtype: string
         """
-        pass
+        raise NotImplementedError('fetch')
 
     def unzip(self, filepath):
         """
@@ -197,26 +209,3 @@ class StorageAdapterBase(object):
         :rtype: int
         """
         pass
-
-    def __exit__(self, type, value, traceback):
-        """
-        Disconnect the ftp connection
-        """
-        pass
-
-    def __enter__(self):
-        """
-        Establish an ftp connection and cd into the configured remote directory
-
-        :returns: Instance of FTPHelper
-        :rtype: FTPHelper
-        """
-        pass
-
-    def __init__(self, remotefolder='', config=None):
-        """
-        Load the ftp configuration from ckan config file
-
-        :param remotefolder: Remote folder path
-        :type remotefolder: str or unicode
-        """

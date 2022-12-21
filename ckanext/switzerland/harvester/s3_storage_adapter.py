@@ -34,6 +34,8 @@ class S3StorageAdapter(StorageAdapterBase):
         if config is None:
             raise Exception("The storage adapter cannot be initialized without config")
 
+        #TODO: validate config
+        #TODO: what to do with remote_folder (impact on tests of course)
         self.remote_folder = remote_folder.rstrip('/')
         self._config = config
 
@@ -132,3 +134,19 @@ class S3StorageAdapter(StorageAdapterBase):
             return s3_object['LastModified']
         except ClientError:
             return None
+    
+    def fetch(self, filename, localpath=None):
+        
+        object = self._aws_client.get_object(Bucket=self._config[AWS_BUCKET_NAME], Key=filename)
+        
+        if not localpath:
+            localpath = os.path.join(self._config['localpath'], filename)
+        
+        with open(localpath, 'wb') as binary_file:
+            bytes = object['Body'].read()
+            binary_file.write(bytes)
+
+        return "226 Transfer complete"
+
+        
+
