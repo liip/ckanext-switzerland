@@ -68,22 +68,25 @@ class S3StorageAdapter(StorageAdapterBase):
 
     def get_remote_filelist(self, folder=None):
         # files are stored flat on AWS. We use the Prefix parameter to filter the results
-        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=self._working_directory)
+        all_in_folder = self.get_remote_dirlist(folder)
+        only_files = filter(lambda name : not name.endswith('/') and name, all_in_folder)
+        return only_files
+
+    def get_remote_dirlist(self, folder=None):  
+        prefix = self._working_directory 
+        prefix = prefix + '/' if prefix != "" else ""
+        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=prefix, Delimiter="/")
         if not s3_objects or AWS_RESPONSE_CONTENT not in s3_objects:
             log.info("Listing files on AWS returned an empty list")
             return []
-        return map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT])
-
-    def get_remote_dirlist(self, folder=None):
-        full_list = []
-        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=self._working_directory)
-        if s3_objects and AWS_RESPONSE_CONTENT in s3_objects:
-            full_list.extend(map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT]))
         
-        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Delimiter="/")
-        if s3_objects and AWS_RESPONSE_PREFIXES in s3_objects:
-            full_list.extend(map(lambda object: object['Prefix'].rstrip('/'), s3_objects[AWS_RESPONSE_PREFIXES]))
-        
-        full_list.sort()
+        objects = map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT])
 
-        return full_list
+        if AWS_RESPONSE_PREFIXES in s3_objects:
+            objects.extend(map(lambda object : object['Prefix'], s3_objects[AWS_RESPONSE_PREFIXES]))
+        
+        without_prefix = map(lambda file :  file.lstrip(prefix), objects)
+        
+        without_prefix.sort()
+
+        return without_prefix

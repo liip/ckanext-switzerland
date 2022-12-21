@@ -21,32 +21,11 @@ from ckanext.switzerland.harvester.aws_keys import (
 
 LOCAL_PATH = 'localpath'
 
-FILES_AT_ROOT = {
-    "Contents": [
-        {'Key': 'actual_date_subline_versions_2022-12-20.csv', 'LastModified': datetime.datetime(2022, 12, 20, 2, 20, 1, tzinfo=tzutc(
-        )), 'ETag': '"50d4c098d919798c1be34059b1a82f3f"', 'Size': 52299, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'f72bd14b6b6f3869dd203a3ca282a618aaba2ddf8d574a810ff58ac2b578e0a9'}},
-        {'Key': 'actual_date_subline_versions_2022-12-20.csv.zip', 'LastModified': datetime.datetime(2022, 12, 20, 2, 20, 1, tzinfo=tzutc(
-        )), 'ETag': '"3d0c9020da5748f0a56cb8e13e3cd94a"', 'Size': 11373, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'f72bd14b6b6f3869dd203a3ca282a618aaba2ddf8d574a810ff58ac2b578e0a9'}},
-    ]
-}
+FILES_AT_ROOT = {'ResponseMetadata': {'RequestId': '8XVDSP6S2ZR26YE9', 'HostId': 'XZ0TbGFfbC2q+T9gm27jyG8jkyzWV4oJZmKtheUZwNPD0c5/HoZnasKalnaA6Z200HDa0lJIPYQ=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': 'XZ0TbGFfbC2q+T9gm27jyG8jkyzWV4oJZmKtheUZwNPD0c5/HoZnasKalnaA6Z200HDa0lJIPYQ=', 'x-amz-request-id': '8XVDSP6S2ZR26YE9', 'date': 'Wed, 21 Dec 2022 14:30:47 GMT', 'x-amz-bucket-region': 'eu-central-1', 'content-type': 'application/xml', 'transfer-encoding': 'chunked', 'server': 'AmazonS3'}, 'RetryAttempts': 0}, 'IsTruncated': False, 'Marker': '', 'Contents': [{'Key': 'file_01.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 52, tzinfo=tzutc()), 'ETag': '"d5100e495ad9e4587faf8f9663677584"', 'Size': 659119, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'file_02.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 53, tzinfo=tzutc()), 'ETag': '"d5100e495ad9e4587faf8f9663677584"', 'Size': 659119, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}], 'Name': 'bpy-odp-test', 'Prefix': '', 'Delimiter': '/', 'MaxKeys': 1000, 'CommonPrefixes': [{'Prefix': 'a/'}, {'Prefix': 'z/'}], 'EncodingType': 'url'}
 
-FILES_AT_FOLDER = {
-    "Contents": [
-        {'Key': 'subline/actual_date_subline_versions_2022-12-19.csv', 'LastModified': datetime.datetime(2022, 12, 20, 2, 20, 1, tzinfo=tzutc(
-        )), 'ETag': '"50d4c098d919798c1be34059b1a82f3f"', 'Size': 52299, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'f72bd14b6b6f3869dd203a3ca282a618aaba2ddf8d574a810ff58ac2b578e0a9'}},
-        {'Key': 'subline/actual_date_subline_versions_2022-12-19.csv.zip', 'LastModified': datetime.datetime(2022, 12, 20, 2, 20, 1, tzinfo=tzutc(
-        )), 'ETag': '"3d0c9020da5748f0a56cb8e13e3cd94a"', 'Size': 11373, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'f72bd14b6b6f3869dd203a3ca282a618aaba2ddf8d574a810ff58ac2b578e0a9'}},
-    ]
-}
+FILES_AT_FOLDER = {'ResponseMetadata': {'RequestId': 'WR5RWMG0ANK7HBJP', 'HostId': 'RqOynGjyaE0GaP1h1TMWLYt2TFlV0AaNduBt2dGKqZpz0vgKG3lVV1rv+i4g0n6qlp9cIo/CshY=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': 'RqOynGjyaE0GaP1h1TMWLYt2TFlV0AaNduBt2dGKqZpz0vgKG3lVV1rv+i4g0n6qlp9cIo/CshY=', 'x-amz-request-id': 'WR5RWMG0ANK7HBJP', 'date': 'Wed, 21 Dec 2022 14:30:01 GMT', 'x-amz-bucket-region': 'eu-central-1', 'content-type': 'application/xml', 'transfer-encoding': 'chunked', 'server': 'AmazonS3'}, 'RetryAttempts': 0}, 'IsTruncated': False, 'Marker': '', 'Contents': [{'Key': 'a/', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 31, tzinfo=tzutc()), 'ETag': '"d41d8cd98f00b204e9800998ecf8427e"', 'Size': 0, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/file_03.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'Size': 418809, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/file_04.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'Size': 418809, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}], 'Name': 'bpy-odp-test', 'Prefix': 'a/', 'Delimiter': '/', 'MaxKeys': 1000, 'CommonPrefixes': [{'Prefix': 'a/sub_a/'}], 'EncodingType': 'url'}
 
 NO_CONTENT = {
-}
-
-FOLDER_LIST = {
-    'CommonPrefixes': [
-        {'Prefix': 'subline/'}, 
-        {'Prefix': 'a/'}, 
-    ]
 }
 
 
@@ -151,11 +130,15 @@ class TestS3StorageAdapter(unittest.TestCase):
     def test_get_remote_filelist_at_root_then_returns_correct_list(self):
         storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
         stubber = self.__stub_aws_client__(storage_adapter)
-        stubber.add_response("list_objects", FILES_AT_ROOT, {'Bucket': AWS_BUCKET_NAME ,'Prefix': ''})
+        stubber.add_response("list_objects", FILES_AT_ROOT, {
+                                'Bucket': AWS_BUCKET_NAME,
+                                'Delimiter': '/',
+                                'Prefix': ''
+                            })
         stubber.activate()
         expected_files_list = [
-            "actual_date_subline_versions_2022-12-20.csv",
-            "actual_date_subline_versions_2022-12-20.csv.zip"
+            "file_01.pdf",
+            "file_02.pdf"
         ]
 
         files_list = storage_adapter.get_remote_filelist()
@@ -164,24 +147,32 @@ class TestS3StorageAdapter(unittest.TestCase):
 
     def test_get_remote_filelist_at_folder_then_returns_the_correct_names(self):
         storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
-        storage_adapter.cdremote('subline')
+        storage_adapter.cdremote('a')
         stubber = self.__stub_aws_client__(storage_adapter)
-        stubber.add_response("list_objects", FILES_AT_FOLDER, {'Bucket': AWS_BUCKET_NAME ,'Prefix': 'subline'})
+        stubber.add_response("list_objects", FILES_AT_FOLDER, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '/',
+                                'Prefix': 'a/'
+                            })
         stubber.activate()
         expected_files_list = [
-            "subline/actual_date_subline_versions_2022-12-19.csv",
-            "subline/actual_date_subline_versions_2022-12-19.csv.zip"
+            "file_03.pdf",
+            "file_04.pdf"
         ]
 
         files_list = storage_adapter.get_remote_filelist()
 
         assert_array_equal(expected_files_list, files_list)
-    
+
     def test_get_remote_filelist_at_empty_folder_then_returns_empty_list(self):
         storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
         storage_adapter.cdremote('empty')
         stubber = self.__stub_aws_client__(storage_adapter)
-        stubber.add_response("list_objects", NO_CONTENT, {'Bucket': AWS_BUCKET_NAME ,'Prefix': 'empty'})
+        stubber.add_response("list_objects", NO_CONTENT, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '/',
+                                'Prefix': 'empty/'
+                            })
         stubber.activate()
         files_list = storage_adapter.get_remote_filelist()
 
@@ -190,8 +181,11 @@ class TestS3StorageAdapter(unittest.TestCase):
     def test_get_remote_dirlist_when_no_dir_then_returns_empty_list(self):
         storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
         stubber = self.__stub_aws_client__(storage_adapter)
-        stubber.add_response("list_objects", NO_CONTENT, {'Bucket': AWS_BUCKET_NAME ,'Prefix': ''})
-        stubber.add_response("list_objects", NO_CONTENT, {'Bucket': AWS_BUCKET_NAME ,'Delimiter': '/'})
+        stubber.add_response("list_objects", NO_CONTENT, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '/',
+                                'Prefix': ''
+                            })
         stubber.activate()
 
         dir_list = storage_adapter.get_remote_dirlist()
@@ -201,34 +195,20 @@ class TestS3StorageAdapter(unittest.TestCase):
     def test_get_remote_dirlist_then_returns_correct_list(self):
         storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
         stubber = self.__stub_aws_client__(storage_adapter)
-        stubber.add_response("list_objects", FILES_AT_ROOT, {'Bucket': AWS_BUCKET_NAME ,'Prefix': ''})
-        stubber.add_response("list_objects", FOLDER_LIST, {'Bucket': AWS_BUCKET_NAME ,'Delimiter': '/'})
+        stubber.add_response("list_objects", FILES_AT_ROOT, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '/',
+                                'Prefix': ''
+                            })
         stubber.activate()
 
         dir_list = storage_adapter.get_remote_dirlist()
 
         expected_dir_list = [
-            "a",
-            "actual_date_subline_versions_2022-12-20.csv",
-            "actual_date_subline_versions_2022-12-20.csv.zip",
-            "subline"
-        ]
-        assert_array_equal(expected_dir_list, dir_list)
-    
-    def test_get_remote_dirlist_with_tmp_then_returns_correct_list(self):
-        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
-        stubber = self.__stub_aws_client__(storage_adapter)
-        stubber.add_response("list_objects", FILES_AT_ROOT, {'Bucket': AWS_BUCKET_NAME ,'Prefix': ''})
-        stubber.add_response("list_objects", FOLDER_LIST, {'Bucket': AWS_BUCKET_NAME ,'Delimiter': '/'})
-        stubber.activate()
-
-        dir_list = storage_adapter.get_remote_dirlist()
-
-        expected_dir_list = [
-            "a",
-            "actual_date_subline_versions_2022-12-20.csv",
-            "actual_date_subline_versions_2022-12-20.csv.zip",
-            "subline"
+            "a/",
+            "file_01.pdf",
+            "file_02.pdf",
+            "z/"
         ]
         assert_array_equal(expected_dir_list, dir_list)
 
