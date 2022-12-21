@@ -85,3 +85,8 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter.cdremote(None)
 
         self.assertEqual('/', storage_adapter._working_directory)
+        
+
+    def test_with_syntax_then_working_session_is_created(self):
+        with S3StorageAdapter(self.config, self.remote_folder) as storage_adapter:
+            self.assertEqual('/', storage_adapter._working_directory)

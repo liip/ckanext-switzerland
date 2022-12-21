@@ -27,6 +27,14 @@ class S3StorageAdapter(StorageAdapterBase):
         self._config = config
 
         self.create_local_dir()
+
+    def __enter__(self):
+        self._connect()
+        self.cdremote()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        pass
     
     def _connect(self):
         """

@@ -6,6 +6,26 @@ log = logging.getLogger(__name__)
 class StorageAdapterBase(object):
     _config = None
     remote_folder = None
+
+    def _connect(self):
+        raise NotImplementedError('_connect')
+    
+    def _disconnect(self):
+        raise NotImplementedError('_disconnect')
+
+    # tested
+    def __enter__(self):
+        """
+        Establishes a connection
+        """
+        raise NotImplementedError('__enter__')
+
+    # tested
+    def __exit__(self, type, value, traceback):
+        """
+        Closes a connection
+        """
+        raise NotImplementedError('__exit__')
     
     def get_top_folder(self):
         """
