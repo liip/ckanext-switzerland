@@ -439,6 +439,23 @@ class TestS3StorageAdapter(unittest.TestCase):
 
         assert os.path.exists(local_file)
    
+    def test_fetch_then_file_content_is_correct(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("get_object", GET_OBJECT, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Key': 'example.csv'
+                            })
+        stubber.activate()
+        local_file = os.path.join(self.config[LOCAL_PATH], "example.csv")
+
+        storage_adapter.fetch("example.csv")
+
+        with open(local_file, 'rb') as f: 
+            written_bytes = f.read()
+
+        assert_array_equal(FILE_CONTENT, written_bytes)
+   
     def test_fetch_then_status_is_correct(self):
         storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
         stubber = self.__stub_aws_client__(storage_adapter)
