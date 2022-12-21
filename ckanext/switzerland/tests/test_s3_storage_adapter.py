@@ -57,7 +57,6 @@ class TestS3StorageAdapter(unittest.TestCase):
             shutil.rmtree(self.temp_folder, ignore_errors=True)
 
     def teardown(self):
-        # remove the tmp directory
         if os.path.exists(self.temp_folder):
             shutil.rmtree(self.temp_folder, ignore_errors=True)
 

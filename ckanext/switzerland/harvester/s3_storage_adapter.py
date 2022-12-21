@@ -66,6 +66,7 @@ class S3StorageAdapter(StorageAdapterBase):
         return self._config[AWS_BUCKET_NAME]
 
     def get_remote_filelist(self, folder=None):
+        # files are stored flat on AWS. We use the Prefix parameter to filter the results
         s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=self._working_directory)
         if not s3_objects or AWS_RESPONSE_CONTENT not in s3_objects:
             log.info("Listing files on AWS returned an empty list")
