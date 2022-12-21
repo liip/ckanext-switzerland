@@ -1,4 +1,12 @@
+import os
+import logging
+import errno
+
+log = logging.getLogger(__name__)
+#TODO: Rename to S3 StorageAdapterBase 
 class StorageAdapterInterface(object):
+    _config = None
+    
     def get_top_folder(self):
         """
         Get the name of the top-most folder in /tmp
@@ -18,7 +26,36 @@ class StorageAdapterInterface(object):
         :returns: None
         :rtype: None
         """
-        pass
+        if not folder:
+            folder = self._config['localpath']
+        # create the local directory if it does not exist
+
+        folder = folder.rstrip("/")
+
+        if not os.path.isdir(folder):
+            self._mkdir_p(folder)
+            log.debug("Created folder: %s" % str(folder))
+    
+    # tested
+    def _mkdir_p(self, path, perms=0777):
+        """
+        Recursively create local directories
+        Based on http://stackoverflow.com/a/600612/426266
+
+        :param path: Folder path
+        :type path: str or unicode
+        :param perms: Folder permissions
+        :type perms: octal
+        """
+        try:
+            os.makedirs(path, perms)
+        except OSError as exc:  # Python >2.5
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                # path already exists
+                pass
+            else:
+                # something went wrong with the creation of the directories
+                raise
 
     def cdremote(self, remotedir=None):
         """

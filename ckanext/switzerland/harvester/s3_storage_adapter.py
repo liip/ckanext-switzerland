@@ -15,11 +15,12 @@ from storage_adapter_interface import StorageAdapterInterface
 class S3StorageAdapter(StorageAdapterInterface):
 
     remote_folder = None
-    config = None
 
     def __init__(self, config, remote_folder=''):
         if config is None:
             raise Exception("The storage adapter cannot be initialized without config")
 
         self.remote_folder = remote_folder.rstrip('/')
-        self.config = config
+        self._config = config
+
+        self.create_local_dir()

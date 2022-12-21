@@ -7,10 +7,13 @@ import shutil
 from ckanext.switzerland.harvester.s3_storage_adapter import S3StorageAdapter
 # -----------------------------------------------------------------------
 
+LOCAL_PATH='localpath'
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = '/tmp/s3harvest/tests/'
     remote_folder = '/tests'
-    config = {}
+    config = {
+        LOCAL_PATH: temp_folder
+    }
 
     @classmethod
     def setup_class(cls):
@@ -44,8 +47,17 @@ class TestS3StorageAdapter(unittest.TestCase):
     def test_init_when_config_then_stored(self):
         storage_adapter = S3StorageAdapter(config=self.config)
 
-        self.assertEqual(self.config, storage_adapter.config)
+        self.assertEqual(self.config, storage_adapter._config)
     
     def test_init_without_config_then_exception_is_raised(self):
         self.failUnlessRaises(Exception, S3StorageAdapter, None, self.remote_folder)
+
+    def test_init_then_temp_folder_is_created(self):
+        folder = self.config[LOCAL_PATH]
+        if os.path.exists(folder):
+            os.rmdir(folder)
+
+        S3StorageAdapter(self.config, self.remote_folder)
+
+        assert os.path.exists(folder)
 
