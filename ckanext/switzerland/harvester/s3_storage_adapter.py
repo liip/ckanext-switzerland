@@ -17,6 +17,7 @@ from aws_keys import AWS_SECRET_KEY, AWS_ACCESS_KEY, AWS_REGION_NAME
 
 class S3StorageAdapter(StorageAdapterBase):
     _aws_session = None
+    _working_directory = ''
 
     def __init__(self, config, remote_folder=''):
         if config is None:
@@ -46,4 +47,16 @@ class S3StorageAdapter(StorageAdapterBase):
         :rtype: None
         """
         pass
+
+    def cdremote(self, remotedir=None):
+        """
+        Change remote directory
+
+        :param remotedir: Full path on the remote server
+        :type remotedir: str or unicode
+
+        :returns: None
+        :rtype: None
+        """
+        self._working_directory = remotedir.rstrip('/') if remotedir is not None else ''
         
