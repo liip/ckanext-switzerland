@@ -163,6 +163,24 @@ class TestS3StorageAdapter(unittest.TestCase):
         files_list = storage_adapter.get_remote_filelist()
 
         assert_array_equal(expected_files_list, files_list)
+    
+    def test_get_remote_filelist_with_folder_then_returns_the_correct_names(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", FILES_AT_FOLDER, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '/',
+                                'Prefix': 'a/'
+                            })
+        stubber.activate()
+        expected_files_list = [
+            "file_03.pdf",
+            "file_04.pdf"
+        ]
+
+        files_list = storage_adapter.get_remote_filelist(folder='a')
+
+        assert_array_equal(expected_files_list, files_list)
 
     def test_get_remote_filelist_at_empty_folder_then_returns_empty_list(self):
         storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
@@ -209,6 +227,45 @@ class TestS3StorageAdapter(unittest.TestCase):
             "file_01.pdf",
             "file_02.pdf",
             "z/"
+        ]
+        assert_array_equal(expected_dir_list, dir_list)
+    
+    def test_get_remote_dirlist_at_folder_then_returns_correct_list(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter.cdremote('a')
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", FILES_AT_FOLDER, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '/',
+                                'Prefix': 'a/'
+                            })
+        stubber.activate()
+
+        dir_list = storage_adapter.get_remote_dirlist()
+
+        expected_dir_list = [
+            "file_03.pdf",
+            "file_04.pdf",
+            "sub_a/"
+        ]
+        assert_array_equal(expected_dir_list, dir_list)
+    
+    def test_get_remote_dirlist_with_folder_then_returns_correct_list(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", FILES_AT_FOLDER, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '/',
+                                'Prefix': 'a/'
+                            })
+        stubber.activate()
+
+        dir_list = storage_adapter.get_remote_dirlist('a')
+
+        expected_dir_list = [
+            "file_03.pdf",
+            "file_04.pdf",
+            "sub_a/"
         ]
         assert_array_equal(expected_dir_list, dir_list)
 

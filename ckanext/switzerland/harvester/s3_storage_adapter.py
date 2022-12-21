@@ -69,12 +69,12 @@ class S3StorageAdapter(StorageAdapterBase):
     def get_remote_filelist(self, folder=None):
         # files are stored flat on AWS. We use the Prefix parameter to filter the results
         all_in_folder = self.get_remote_dirlist(folder)
-        only_files = filter(lambda name : not name.endswith('/') and name, all_in_folder)
+        only_files = filter(lambda name : not name.endswith('/'), all_in_folder)
         return only_files
 
     def get_remote_dirlist(self, folder=None):  
-        prefix = self._working_directory 
-        prefix = prefix + '/' if prefix != "" else ""
+        prefix = folder if folder is not None else self._working_directory 
+        prefix = prefix + '/' if prefix else ""
         s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=prefix, Delimiter="/")
         if not s3_objects or AWS_RESPONSE_CONTENT not in s3_objects:
             log.info("Listing files on AWS returned an empty list")
@@ -86,7 +86,8 @@ class S3StorageAdapter(StorageAdapterBase):
             objects.extend(map(lambda object : object['Prefix'], s3_objects[AWS_RESPONSE_PREFIXES]))
         
         without_prefix = map(lambda file :  file.lstrip(prefix), objects)
+        without_root = filter(lambda name : name, without_prefix)
         
-        without_prefix.sort()
+        without_root.sort()
 
-        return without_prefix
+        return without_root
