@@ -32,6 +32,10 @@ ALL_AT_FOLDER = {'ResponseMetadata': {'RequestId': 'BMM2NE68YHB4G9GW', 'HostId':
 NO_CONTENT = {
 }
 
+HEAD_FILE_AT_FOLDER = {'ResponseMetadata': {'RequestId': 'N1BMBN9RRV02KCP0', 'HostId': 'Dt0lapFpP1rPL3Z9M9BdGj10IWkI8iTFBQci0bvMosJi6YaZUTkJmHeFrdANZTkx/UMIQLh8M2m1n0BzZP/2BA==', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': 'Dt0lapFpP1rPL3Z9M9BdGj10IWkI8iTFBQci0bvMosJi6YaZUTkJmHeFrdANZTkx/UMIQLh8M2m1n0BzZP/2BA==', 'x-amz-request-id': 'N1BMBN9RRV02KCP0', 'date': 'Wed, 21 Dec 2022 15:32:54 GMT', 'last-modified': 'Wed, 21 Dec 2022 13:53:08 GMT', 'etag': '"0b6858a853073a7e5a3edb54a51154b1"', 'accept-ranges': 'bytes', 'content-type': 'application/pdf', 'server': 'AmazonS3', 'content-length': '418809'}, 'RetryAttempts': 0}, 'AcceptRanges': 'bytes', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ContentLength': 418809, 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'ContentType': 'application/pdf', 'Metadata': {}}
+
+HEAD_FILE_AT_ROOT = {'ResponseMetadata': {'RequestId': '2ZYCRJQ7XK8RVGPE', 'HostId': '5+CArigCaxO03lAWRezv5YIRXlFYtfdsuYjtNXOSpAOiNvnMUv/aO//18M4vjA4bPy7QGoNhxF4=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': '5+CArigCaxO03lAWRezv5YIRXlFYtfdsuYjtNXOSpAOiNvnMUv/aO//18M4vjA4bPy7QGoNhxF4=', 'x-amz-request-id': '2ZYCRJQ7XK8RVGPE', 'date': 'Wed, 21 Dec 2022 15:33:53 GMT', 'last-modified': 'Wed, 21 Dec 2022 13:52:52 GMT', 'etag': '"d5100e495ad9e4587faf8f9663677584"', 'accept-ranges': 'bytes', 'content-type': 'application/pdf', 'server': 'AmazonS3', 'content-length': '659119'}, 'RetryAttempts': 0}, 'AcceptRanges': 'bytes', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 52, tzinfo=tzutc()), 'ContentLength': 659119, 'ETag': '"d5100e495ad9e4587faf8f9663677584"', 'ContentType': 'application/pdf', 'Metadata': {}}
+
 
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = '/tmp/s3harvest/tests/'
@@ -383,4 +387,55 @@ class TestS3StorageAdapter(unittest.TestCase):
         ]
         assert_array_equal(expected_dir_list, dir_list)
     
+    def test_get_modified_date_file_at_root_then_date_is_correct(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("head_object", HEAD_FILE_AT_ROOT, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Key': 'file_01.pdf'
+                            })
+        stubber.activate()
+
+        last_modified_date = storage_adapter.get_modified_date("file_01.pdf")
+
+        expected_date = datetime.datetime(2022,12,21,13,52,52, tzinfo=tzutc())
+        assert_array_equal(expected_date, last_modified_date)
     
+    def test_get_modified_date_file_at_folder_then_date_is_correct(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter.cdremote('a')
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("head_object", HEAD_FILE_AT_FOLDER, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Key': 'a/file_01.pdf'
+                            })
+        stubber.activate()
+
+        last_modified_date = storage_adapter.get_modified_date("file_01.pdf")
+
+        expected_date = datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc())
+        self.assertEqual(expected_date, last_modified_date)
+    
+    def test_get_modified_date_file_with_folder_then_date_is_correct(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("head_object", HEAD_FILE_AT_FOLDER, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Key': 'a/file_01.pdf'
+                            })
+        stubber.activate()
+
+        last_modified_date = storage_adapter.get_modified_date("file_01.pdf", 'a')
+
+        expected_date = datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc())
+        self.assertEqual(expected_date, last_modified_date)
+    
+    def test_get_modified_date_non_existing_file_then_date_is_correct(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_client_error('head_object')
+        stubber.activate()
+
+        last_modified_date = storage_adapter.get_modified_date("file_01.pdf", 'a')
+
+        self.assertIsNone(last_modified_date)

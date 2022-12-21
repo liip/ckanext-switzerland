@@ -11,6 +11,7 @@ The class is intended to be used with Python's `with` statement, e.g.
 """
 import logging
 import boto3
+from botocore.exceptions import ClientError
 import boto3.session
 import os
 from storage_adapter_base import StorageAdapterBase
@@ -122,3 +123,12 @@ class S3StorageAdapter(StorageAdapterBase):
         objects = self.__clean_aws_response__(s3_objects)
         
         return self.__prepare_for_return__(objects, prefix)
+    
+    def get_modified_date(self, filename, folder=None):
+        prefix = self.__determine_prefix__(folder)
+        file_full_path = os.path.join(prefix, filename)
+        try:
+            s3_object = self._aws_client.head_object(Bucket=self._config[AWS_BUCKET_NAME], Key=file_full_path)
+            return s3_object['LastModified']
+        except ClientError:
+            return None

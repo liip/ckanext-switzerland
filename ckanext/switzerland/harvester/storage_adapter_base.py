@@ -153,7 +153,7 @@ class StorageAdapterBase(object):
         :returns: Date
         :rtype: TODO
         """
-        pass
+        raise NotImplementedError('get_modified_date')
 
     def get_local_path(self):
         pass
