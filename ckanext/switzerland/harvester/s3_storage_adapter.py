@@ -16,8 +16,6 @@ from storage_adapter_base import StorageAdapterBase
 from aws_keys import AWS_SECRET_KEY, AWS_ACCESS_KEY, AWS_REGION_NAME
 
 class S3StorageAdapter(StorageAdapterBase):
-    #TODO: Move up
-    remote_folder = None
     _aws_session = None
 
     def __init__(self, config, remote_folder=''):
@@ -31,7 +29,7 @@ class S3StorageAdapter(StorageAdapterBase):
     
     def _connect(self):
         """
-        Establish an Session with AWS, and stores it in _client variable
+        Establish an Session with AWS, and stores it in _aws_session variable
         :returns: None
         :rtype: None
         """
@@ -40,3 +38,12 @@ class S3StorageAdapter(StorageAdapterBase):
             aws_secret_access_key=self._config[AWS_SECRET_KEY],
             region_name=self._config[AWS_REGION_NAME]
         )
+    
+    def _disconnect(self):
+        """
+        As boto3 only make API call through HTTP, there is nothing to close
+        :returns: None
+        :rtype: None
+        """
+        pass
+        

@@ -5,6 +5,7 @@ import errno
 log = logging.getLogger(__name__)
 class StorageAdapterBase(object):
     _config = None
+    remote_folder = None
     
     def get_top_folder(self):
         """
