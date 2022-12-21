@@ -79,3 +79,9 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter.cdremote(remote_dir)
 
         self.assertEqual('/remote', storage_adapter._working_directory)
+
+    def test_cdremote_when_remotedir_is_none_then_working_directory_is_correct(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter.cdremote(None)
+
+        self.assertEqual('/', storage_adapter._working_directory)

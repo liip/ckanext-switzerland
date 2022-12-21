@@ -58,5 +58,5 @@ class S3StorageAdapter(StorageAdapterBase):
         :returns: None
         :rtype: None
         """
-        self._working_directory = remotedir.rstrip('/') if remotedir is not None else ''
+        self._working_directory = remotedir.rstrip('/') if remotedir is not None else '/'
         
