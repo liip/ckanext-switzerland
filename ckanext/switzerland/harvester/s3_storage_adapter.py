@@ -91,3 +91,20 @@ class S3StorageAdapter(StorageAdapterBase):
         without_root.sort()
 
         return without_root
+    
+    def get_remote_dirlist_all(self, folder=None):
+        prefix = folder if folder is not None else self._working_directory 
+        prefix = prefix + '/' if prefix else ""
+        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=prefix, Delimiter="")
+        if not s3_objects or AWS_RESPONSE_CONTENT not in s3_objects:
+            log.info("Listing files on AWS returned an empty list")
+            return []
+        
+        objects = map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT])
+        
+        without_prefix = map(lambda file :  file.lstrip(prefix), objects)
+        without_root = filter(lambda name : name, without_prefix)
+        
+        without_root.sort()
+
+        return without_root

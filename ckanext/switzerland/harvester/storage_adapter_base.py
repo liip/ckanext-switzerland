@@ -123,7 +123,7 @@ class StorageAdapterBase(object):
         :returns: Directory listing (excluding '.' and '..')
         :rtype: list
         """
-        pass
+        raise NotImplementedError('get_remote_dirlist_all')
 
     def get_local_dirlist(self, localpath="."):
         """

@@ -25,6 +25,10 @@ FILES_AT_ROOT = {'ResponseMetadata': {'RequestId': '8XVDSP6S2ZR26YE9', 'HostId':
 
 FILES_AT_FOLDER = {'ResponseMetadata': {'RequestId': 'WR5RWMG0ANK7HBJP', 'HostId': 'RqOynGjyaE0GaP1h1TMWLYt2TFlV0AaNduBt2dGKqZpz0vgKG3lVV1rv+i4g0n6qlp9cIo/CshY=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': 'RqOynGjyaE0GaP1h1TMWLYt2TFlV0AaNduBt2dGKqZpz0vgKG3lVV1rv+i4g0n6qlp9cIo/CshY=', 'x-amz-request-id': 'WR5RWMG0ANK7HBJP', 'date': 'Wed, 21 Dec 2022 14:30:01 GMT', 'x-amz-bucket-region': 'eu-central-1', 'content-type': 'application/xml', 'transfer-encoding': 'chunked', 'server': 'AmazonS3'}, 'RetryAttempts': 0}, 'IsTruncated': False, 'Marker': '', 'Contents': [{'Key': 'a/', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 31, tzinfo=tzutc()), 'ETag': '"d41d8cd98f00b204e9800998ecf8427e"', 'Size': 0, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/file_03.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'Size': 418809, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/file_04.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'Size': 418809, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}], 'Name': 'bpy-odp-test', 'Prefix': 'a/', 'Delimiter': '/', 'MaxKeys': 1000, 'CommonPrefixes': [{'Prefix': 'a/sub_a/'}], 'EncodingType': 'url'}
 
+ALL = {'ResponseMetadata': {'RequestId': 'KKHHB7HAEM1197ST', 'HostId': '2zVprN73/6LBDtQ3mfgG+JcWE1IMzSijOoG0JpjVi0XSz72FTD5qr+ojQgFMtZRlasAoQ34e6+0=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': '2zVprN73/6LBDtQ3mfgG+JcWE1IMzSijOoG0JpjVi0XSz72FTD5qr+ojQgFMtZRlasAoQ34e6+0=', 'x-amz-request-id': 'KKHHB7HAEM1197ST', 'date': 'Wed, 21 Dec 2022 14:49:33 GMT', 'x-amz-bucket-region': 'eu-central-1', 'content-type': 'application/xml', 'transfer-encoding': 'chunked', 'server': 'AmazonS3'}, 'RetryAttempts': 0}, 'IsTruncated': False, 'Marker': '', 'Contents': [{'Key': 'a/', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 31, tzinfo=tzutc()), 'ETag': '"d41d8cd98f00b204e9800998ecf8427e"', 'Size': 0, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/file_03.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'Size': 418809, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/file_04.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'Size': 418809, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/sub_a/', 'LastModified': datetime.datetime(2022, 12, 21, 13, 54, 4, tzinfo=tzutc()), 'ETag': '"d41d8cd98f00b204e9800998ecf8427e"', 'Size': 0, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/sub_a/file_07.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 54, 22, tzinfo=tzutc()), 'ETag': '"d4f62b395733ab379de0075f209b5aef"', 'Size': 461428, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/sub_a/file_08.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 54, 22, tzinfo=tzutc()), 'ETag': '"d4f62b395733ab379de0075f209b5aef"', 'Size': 461428, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'file_01.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 52, tzinfo=tzutc()), 'ETag': '"d5100e495ad9e4587faf8f9663677584"', 'Size': 659119, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'file_02.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 53, tzinfo=tzutc()), 'ETag': '"d5100e495ad9e4587faf8f9663677584"', 'Size': 659119, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'z/', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 42, tzinfo=tzutc()), 'ETag': '"d41d8cd98f00b204e9800998ecf8427e"', 'Size': 0, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'z/file_05.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 49, tzinfo=tzutc()), 'ETag': '"1f11c2cb8739d05738c1c08a111a93e5"', 'Size': 860443, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'z/file_06.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 49, tzinfo=tzutc()), 'ETag': '"1f11c2cb8739d05738c1c08a111a93e5"', 'Size': 860443, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}], 'Name': 'bpy-odp-test', 'Prefix': '', 'MaxKeys': 1000, 'EncodingType': 'url'}
+
+ALL_AT_FOLDER = {'ResponseMetadata': {'RequestId': 'BMM2NE68YHB4G9GW', 'HostId': 'bGQnwz9QCSxyoI+Nr38euRaKCptuehZlbQLj4K06AgM7biYgB1mSzs75MC70kgLaEjGyLtEjaNI=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': 'bGQnwz9QCSxyoI+Nr38euRaKCptuehZlbQLj4K06AgM7biYgB1mSzs75MC70kgLaEjGyLtEjaNI=', 'x-amz-request-id': 'BMM2NE68YHB4G9GW', 'date': 'Wed, 21 Dec 2022 14:52:58 GMT', 'x-amz-bucket-region': 'eu-central-1', 'content-type': 'application/xml', 'transfer-encoding': 'chunked', 'server': 'AmazonS3'}, 'RetryAttempts': 0}, 'IsTruncated': False, 'Marker': '', 'Contents': [{'Key': 'a/', 'LastModified': datetime.datetime(2022, 12, 21, 13, 52, 31, tzinfo=tzutc()), 'ETag': '"d41d8cd98f00b204e9800998ecf8427e"', 'Size': 0, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/file_03.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'Size': 418809, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/file_04.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'Size': 418809, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/sub_a/', 'LastModified': datetime.datetime(2022, 12, 21, 13, 54, 4, tzinfo=tzutc()), 'ETag': '"d41d8cd98f00b204e9800998ecf8427e"', 'Size': 0, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/sub_a/file_07.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 54, 22, tzinfo=tzutc()), 'ETag': '"d4f62b395733ab379de0075f209b5aef"', 'Size': 461428, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/sub_a/file_08.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 54, 22, tzinfo=tzutc()), 'ETag': '"d4f62b395733ab379de0075f209b5aef"', 'Size': 461428, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}], 'Name': 'bpy-odp-test', 'Prefix': 'a/', 'MaxKeys': 1000, 'EncodingType': 'url'}
+
 NO_CONTENT = {
 }
 
@@ -268,4 +272,89 @@ class TestS3StorageAdapter(unittest.TestCase):
             "sub_a/"
         ]
         assert_array_equal(expected_dir_list, dir_list)
+    
+    def test_get_remote_dirlist_all_when_no_dir_then_returns_empty_list(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", NO_CONTENT, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '',
+                                'Prefix': ''
+                            })
+        stubber.activate()
 
+        dir_list = storage_adapter.get_remote_dirlist_all()
+
+        assert_array_equal([], dir_list)
+
+    def test_get_remote_dirlist_all_then_returns_correct_list(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", ALL, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '',
+                                'Prefix': ''
+                            })
+        stubber.activate()
+
+        dir_list = storage_adapter.get_remote_dirlist_all()
+
+        expected_dir_list = [
+            "a/",
+            "a/file_03.pdf",
+            "a/file_04.pdf",
+            "a/sub_a/",
+            "a/sub_a/file_07.pdf",
+            "a/sub_a/file_08.pdf",
+            "file_01.pdf",
+            "file_02.pdf",
+            "z/",
+            "z/file_05.pdf",
+            "z/file_06.pdf"
+        ]
+        assert_array_equal(expected_dir_list, dir_list)
+    
+    def test_get_remote_dirlist_all_at_folder_then_returns_correct_list(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        storage_adapter.cdremote('a')
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", ALL_AT_FOLDER, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '',
+                                'Prefix': 'a/'
+                            })
+        stubber.activate()
+
+        dir_list = storage_adapter.get_remote_dirlist_all()
+
+        expected_dir_list = [
+            "file_03.pdf",
+            "file_04.pdf",
+            "sub_a/",
+            "sub_a/file_07.pdf",
+            "sub_a/file_08.pdf",
+        ]
+        assert_array_equal(expected_dir_list, dir_list)
+    
+    def test_get_remote_dirlist_all_with_folder_then_returns_correct_list(self):
+        storage_adapter = S3StorageAdapter(self.config, self.remote_folder)
+        stubber = self.__stub_aws_client__(storage_adapter)
+        stubber.add_response("list_objects", ALL_AT_FOLDER, {
+                                'Bucket': AWS_BUCKET_NAME, 
+                                'Delimiter': '',
+                                'Prefix': 'a/'
+                            })
+        stubber.activate()
+
+        dir_list = storage_adapter.get_remote_dirlist_all('a')
+
+        expected_dir_list = [
+            "file_03.pdf",
+            "file_04.pdf",
+            "sub_a/",
+            "sub_a/file_07.pdf",
+            "sub_a/file_08.pdf",
+        ]
+        assert_array_equal(expected_dir_list, dir_list)
+    
+    
