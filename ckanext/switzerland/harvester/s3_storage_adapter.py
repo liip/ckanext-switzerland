@@ -59,52 +59,62 @@ class S3StorageAdapter(StorageAdapterBase):
         pass
 
     def cdremote(self, remotedir=None):
-        # there is no such command on S3. We just need to keep a ref to a Working Directory
-        self._working_directory = remotedir.rstrip('/').lstrip('/') if remotedir is not None else ''
+        # Files are stored flat on AWS. So there is no such command on S3. We just need to keep a ref to a Working Directory
+        self._working_directory += remotedir.rstrip('/').lstrip('/') if remotedir is not None else ''
 
     def get_top_folder(self):
         # the top folder is basically just the name of the bucket.
         return self._config[AWS_BUCKET_NAME]
 
     def get_remote_filelist(self, folder=None):
-        # files are stored flat on AWS. We use the Prefix parameter to filter the results
         all_in_folder = self.get_remote_dirlist(folder)
         only_files = filter(lambda name : not name.endswith('/'), all_in_folder)
         return only_files
 
-    def get_remote_dirlist(self, folder=None):  
+    def __prepare_for_return__(self, elements, prefix):
+        # AWS returns the element with their full name from root, so we need to remove the prefix
+        without_prefix = map(lambda file :  file.lstrip(prefix), elements)
+        # Of course, we will now have a empty string in the set, let's remove it
+        without_root = filter(lambda name : name, without_prefix)
+        return without_root
+
+    def __determine_prefix__(self, folder):
         prefix = folder if folder is not None else self._working_directory 
         prefix = prefix + '/' if prefix else ""
-        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=prefix, Delimiter="/")
+        return prefix
+
+    def __clean_aws_response__(self, s3_objects):
         if not s3_objects or AWS_RESPONSE_CONTENT not in s3_objects:
-            log.info("Listing files on AWS returned an empty list")
             return []
         
-        objects = map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT])
+        return map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT])
 
+
+    def get_remote_dirlist(self, folder=None):  
+        prefix = self.__determine_prefix__(folder)
+
+        # By fixing the delimiter to '/', we limit the results to the current folder
+        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=prefix, Delimiter="/")
+        
+        objects = self.__clean_aws_response__(s3_objects)
+
+        # But the previous call, did not return the folders (because of setting a delimiter), so lets look in the prefixes to add them
         if AWS_RESPONSE_PREFIXES in s3_objects:
             objects.extend(map(lambda object : object['Prefix'], s3_objects[AWS_RESPONSE_PREFIXES]))
-        
-        without_prefix = map(lambda file :  file.lstrip(prefix), objects)
-        without_root = filter(lambda name : name, without_prefix)
-        
-        without_root.sort()
 
-        return without_root
+        files_and_folder = self.__prepare_for_return__(objects, prefix)
+
+        # AWS always returns sorted items. Usually no need to sort. In this case we need to sort as we aggregated two sources
+        files_and_folder.sort()
+        
+        return files_and_folder
     
     def get_remote_dirlist_all(self, folder=None):
-        prefix = folder if folder is not None else self._working_directory 
-        prefix = prefix + '/' if prefix else ""
-        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=prefix, Delimiter="")
-        if not s3_objects or AWS_RESPONSE_CONTENT not in s3_objects:
-            log.info("Listing files on AWS returned an empty list")
-            return []
-        
-        objects = map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT])
-        
-        without_prefix = map(lambda file :  file.lstrip(prefix), objects)
-        without_root = filter(lambda name : name, without_prefix)
-        
-        without_root.sort()
+        prefix = self.__determine_prefix__(folder)
 
-        return without_root
+        # By fixing the delimiter to '', we list full depth, starting at the prefix depth
+        s3_objects = self._aws_client.list_objects(Bucket=self._config[AWS_BUCKET_NAME], Prefix=prefix, Delimiter="")
+        
+        objects = self.__clean_aws_response__(s3_objects)
+        
+        return self.__prepare_for_return__(objects, prefix)
