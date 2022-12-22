@@ -36,9 +36,6 @@ class S3StorageAdapter(StorageAdapterBase):
         
         super(S3StorageAdapter, self).__init__(config_resolver, config, remote_folder)
 
-        #TODO: validate config
-        #TODO: what to do with remote_folder (impact on tests of course)
-
         if S3_CONFIG_KEY not in self._config:
             raise KeyError(S3_CONFIG_KEY)
 

@@ -23,11 +23,15 @@ class StorageAdapterBase(object):
         """
         if config is None:
             raise Exception('Cannot build a Storage Adapter without an initial configuration')
+        
+        #TODO: Call here an abstract method, that would validate the configuration and throw when invalid
+        # with an abstract method, we force the adapter to validate itself its configuration, depending on the needs
         self._config = config
 
         self._ckan_config_resolver = ckan_config_resolver
         
-        # prepare the remote path
+        #TODO: what to do with remote_folder (impact on tests of course)
+        # I have the impression that it should be considered as the root of any other command
         self.remote_folder = remote_folder.rstrip("/")
 
 
@@ -233,7 +237,7 @@ class StorageAdapterBase(object):
             zfile.extractall(target_folder)
             return len(filelist)
 
-    #tested in S3StorageAdapter
+    #tested in TestS3StorageAdapter
     def __load_storage_config__(self, keys, key_prefix=""):
         for key in keys:
             self._config[key] = self._ckan_config_resolver.get(key_prefix+'.%s' % key, '')

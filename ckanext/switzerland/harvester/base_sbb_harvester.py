@@ -487,14 +487,8 @@ class BaseSBBHarvester(HarvesterBase):
 
         log.info("Remote directory: %s", remotefolder)
         log.info("Local directory: %s", tmpfolder)
-        
-        # TODO: See if we can replace this (that validates only the 'ftp_server')
-        # ftp_config = {}
-        # ftp_config['ftp_server'] = self.validate_config('ftp_server')
 
-
-        # By this (used in all other classes)
-        # set harvester config
+        # TODO: Here we are missing the "validate configuration". I would put this in the storage adapter itself
         self.config = self.load_config(harvest_object.job.source.config)
 
         try:
