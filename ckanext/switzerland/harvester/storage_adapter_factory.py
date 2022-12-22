@@ -7,7 +7,7 @@ class StorageAdapterFactory(object):
 
     def __init__(self, config_resolver):
         if not config_resolver:
-            raise Exception('Cannot create adapter withou config resolver')
+            raise Exception('Cannot create adapter without config resolver')
         self.config_resolver = config_resolver
 
     def __is_legacy_config__(self, config):

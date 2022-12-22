@@ -52,7 +52,7 @@ class TestStorageAdapterFactory(unittest.TestCase):
     def __build_adapter_type_none_config__(self):
         self.config["storage_adapter"] = None
 
-    def test_get_storage_adapter_when_legacy_config_then_return_ftp_adapted(self):
+    def test_get_storage_adapter_when_legacy_config_then_returns_ftp_adapter(self):
         self.__build_legacy_config__()
         config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
         factory = StorageAdapterFactory(config_resolver)
@@ -61,7 +61,7 @@ class TestStorageAdapterFactory(unittest.TestCase):
 
         assert isinstance(adapter, FTPStorageAdapter)
 
-    def test_get_storage_adapter_when_s3_config_then_return_s3_adapter(self):
+    def test_get_storage_adapter_when_s3_config_then_returns_s3_adapter(self):
         self.__build_s3_config__()
         config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
         factory = StorageAdapterFactory(config_resolver)
@@ -80,7 +80,7 @@ class TestStorageAdapterFactory(unittest.TestCase):
 
         assert isinstance(adapter, S3StorageAdapter)
 
-    def test_get_storage_adapter_when_ftp_config_then_return_ftp_adapter(self):
+    def test_get_storage_adapter_when_ftp_config_then_returns_ftp_adapter(self):
         self.__build_ftp_config__()
         config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
         factory = StorageAdapterFactory(config_resolver)
@@ -89,14 +89,14 @@ class TestStorageAdapterFactory(unittest.TestCase):
 
         assert isinstance(adapter, FTPStorageAdapter)
 
-    def test_get_storage_adapter_when_unsupported_config_then_throw_exception(self):
+    def test_get_storage_adapter_when_unsupported_config_then_throws_exception(self):
         self.__build_unsupported_config__()
         config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
         factory = StorageAdapterFactory(config_resolver)
 
         self.assertRaises(Exception, factory.get_storage_adapter, self.remote_folder, self.config)
     
-    def test_get_storage_adapter_when_storage_adapter_type_none_then_throw_exception(self):
+    def test_get_storage_adapter_when_storage_adapter_type_none_then_throws_exception(self):
         self.__build_adapter_type_none_config__()
         config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
         factory = StorageAdapterFactory(config_resolver)
