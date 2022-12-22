@@ -26,7 +26,7 @@ from aws_keys import (
 
 log = logging.getLogger(__name__)
 S3_CONFIG_KEY = 'bucket'
-CONFIG_KEYS = [AWS_BUCKET_NAME, AWS_ACCESS_KEY, AWS_REGION_NAME, AWS_SECRET_KEY, "localpath"]
+CONFIG_KEYS = [AWS_BUCKET_NAME, AWS_ACCESS_KEY, AWS_REGION_NAME, AWS_SECRET_KEY, "localpath", "remotedirectory"]
 class S3StorageAdapter(StorageAdapterBase):
     _aws_session = None
     _aws_client = None
