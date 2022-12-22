@@ -17,7 +17,6 @@ import os
 from storage_adapter_base import StorageAdapterBase
 
 import pysftp
-from ckan.plugins.toolkit import config as ckanconf
 import ftplib
 import zipfile
 import errno
@@ -36,24 +35,28 @@ class FTPStorageAdapter(StorageAdapterBase):
     tmpfile_extension = '.TMP'
 
     # tested
-    def __init__(self, remotefolder='', config=None):
+    def __init__(self, config_resolver, remotefolder='', config=None):
         """
         Load the ftp configuration from ckan config file
 
         :param remotefolder: Remote folder path
         :type remotefolder: str or unicode
         """
+        super(FTPStorageAdapter, self).__init__(config_resolver, remotefolder)
 
         if config:
             # read ftpconfig from harvester-config
             ftpconfig = config
+
             # all server related information is read from the ckan-config
             ftp_server_ = 'ckan.ftp.' + ftpconfig['ftp_server']
+            # would not us it anymore as the full config would be passed in CTOR
             for key in ['username', 'password', 'keyfile', 'host', 'port', 'remotedirectory', 'localpath']:
-                ftpconfig[key] = ckanconf.get(ftp_server_+'.%s' % key, '')
+                ftpconfig[key] = self._config_resolver.get(ftp_server_+'.%s' % key, '')
         else:
             raise Exception('The ftp server must be specified in the harvester configuration')
 
+        print(ftpconfig)
         ftpconfig['host'] = str(ftpconfig['host'])
         ftpconfig['port'] = int(ftpconfig['port'])
 

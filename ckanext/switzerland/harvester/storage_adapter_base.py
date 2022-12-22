@@ -6,16 +6,22 @@ import zipfile
 log = logging.getLogger(__name__)
 class StorageAdapterBase(object):
     _config = None
+    _config_resolver= None
     remote_folder = None
 
-    def __init__(self, remotefolder='', config=None):
+    def __init__(self, config_resolver, remotefolder=''):
         """
         Load the ftp configuration from ckan config file
 
         :param remotefolder: Remote folder path
         :type remotefolder: str or unicode
+        :param config_resolver: The object able to provide values from CKAN ini configuration
+        :type config_resolver: ckan.plugins.toolkit.config
+        :param config: The storage config coming from the database
+        :type config: Any
         """
-        raise NotImplementedError('__init__')
+        self._config_resolver = config_resolver
+        self.remote_folder = remotefolder
 
     def _connect(self):
         raise NotImplementedError('_connect')

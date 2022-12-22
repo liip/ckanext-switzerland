@@ -11,6 +11,7 @@ from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
 from ckan.model import Session
+from ckan.plugins.toolkit import config as ckanconf
 from ckan import model
 from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_sbb_harvester import BaseSBBHarvester, validate_regex
@@ -73,7 +74,7 @@ class SBBFTPHarvester(BaseSBBHarvester):
         log.info("Getting listing from remotefolder: %s" % remotefolder)
 
         try:
-            with StorageAdapterFactory().get_storage_adapter(remotefolder, self.config) as ftph:
+            with StorageAdapterFactory().get_storage_adapter(ckanconf, remotefolder, self.config) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 
