@@ -32,16 +32,10 @@ class S3StorageAdapter(StorageAdapterBase):
 
     def __init__(self, config_resolver, config, remote_folder=''):
         
-        super(S3StorageAdapter, self).__init__(config_resolver, remote_folder)
-
-        if config is None:
-            raise Exception("The storage adapter cannot be initialized without config")
+        super(S3StorageAdapter, self).__init__(config_resolver, config, remote_folder)
 
         #TODO: validate config
         #TODO: what to do with remote_folder (impact on tests of course)
-        self.remote_folder = remote_folder.rstrip('/')
-        
-        self._config = config
 
         #TODO : Load the config from .ini file
         self._config['localpath'] = 'change_me'

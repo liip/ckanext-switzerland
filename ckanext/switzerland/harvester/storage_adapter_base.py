@@ -9,7 +9,7 @@ class StorageAdapterBase(object):
     _config_resolver= None
     remote_folder = None
 
-    def __init__(self, config_resolver, remotefolder=''):
+    def __init__(self, config_resolver, config, remotefolder=''):
         """
         Load the ftp configuration from ckan config file
 
@@ -20,6 +20,10 @@ class StorageAdapterBase(object):
         :param config: The storage config coming from the database
         :type config: Any
         """
+        if not config:
+            raise Exception('Cannot build a Storage Adapter without an initial configuration')
+        self._config = config
+
         self._config_resolver = config_resolver
         
         # prepare the remote path

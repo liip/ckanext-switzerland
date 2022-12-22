@@ -36,21 +36,13 @@ class FTPStorageAdapter(StorageAdapterBase):
     tmpfile_extension = '.TMP'
 
     # tested
-    def __init__(self, config_resolver, remotefolder='', config=None):
-        """
-        Load the ftp configuration from ckan config file
+    #TODO: CHange order of params
+    def __init__(self, config_resolver, remote_folder='', config=None):
+        super(FTPStorageAdapter, self).__init__(config_resolver, config, remote_folder)
 
-        :param remotefolder: Remote folder path
-        :type remotefolder: str or unicode
-        """
-        super(FTPStorageAdapter, self).__init__(config_resolver, remotefolder)
-
-        if not config or FTP_SERVER_KEY not in config:
+        if FTP_SERVER_KEY not in config:
             raise Exception('The ftp server must be specified in the harvester configuration')
-
-        #TO Super class
-        self._config = config
-            
+           
         # all server related information is read from the ckan-config
         ftp_server_key_prefix = 'ckan.ftp.' + self._config[FTP_SERVER_KEY]
         
