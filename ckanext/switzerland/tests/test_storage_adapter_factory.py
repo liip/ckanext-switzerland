@@ -63,6 +63,20 @@ class TestStorageAdapterFactory(unittest.TestCase):
             "resource_regex": "\\d{8}-Ist-File\\.xls",
             "ist_file": True
         }
+    
+    def __build_unsupported_config__(self):
+        self.config = {
+            "storage_adapter": "unsupported",
+            "ftp_server": "mainserver",
+            "environment": "Test",
+            "folder": "DiDok",
+            "dataset": "DiDok",
+            "max_resources": 30,
+            "max_revisions": 30,
+            "filter_regex": ".*\\.xls",
+            "resource_regex": "\\d{8}-Ist-File\\.xls",
+            "ist_file": True
+        }
 
     def test_get_storage_adapter_when_legacy_config_then_return_ftp_adapted(self):
         self.__build_legacy_config__()
@@ -90,5 +104,12 @@ class TestStorageAdapterFactory(unittest.TestCase):
         adapter = factory.get_storage_adapter(self.remote_folder, self.config)
 
         assert isinstance(adapter, FTPStorageAdapter)
+
+    def test_get_storage_adapter_when_unsupported_config_then_throw_exception(self):
+        self.__build_unsupported_config__()
+        config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
+        factory = StorageAdapterFactory(config_resolver)
+
+        self.assertRaises(Exception, factory.get_storage_adapter, self.remote_folder, self.config)
 
 
