@@ -21,7 +21,8 @@ class StorageAdapterBase(object):
         :param config: The storage config coming from the database
         :type config: Any
         """
-        if not config:
+        print(config)
+        if config is None:
             raise Exception('Cannot build a Storage Adapter without an initial configuration')
         self._config = config
 

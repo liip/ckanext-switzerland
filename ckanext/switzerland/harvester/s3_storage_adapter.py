@@ -25,6 +25,7 @@ from aws_keys import (
 )
 
 log = logging.getLogger(__name__)
+S3_CONFIG_KEY = 'bucket'
 class S3StorageAdapter(StorageAdapterBase):
     _aws_session = None
     _aws_client = None
@@ -37,7 +38,9 @@ class S3StorageAdapter(StorageAdapterBase):
         #TODO: validate config
         #TODO: what to do with remote_folder (impact on tests of course)
 
-        #TODO : Load the config from .ini file
+        if S3_CONFIG_KEY not in self._config:
+            raise KeyError(S3_CONFIG_KEY)
+
         self._config['localpath'] = 'change_me'
 
         self.create_local_dir()

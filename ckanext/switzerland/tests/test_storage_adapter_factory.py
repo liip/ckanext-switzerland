@@ -39,6 +39,7 @@ class TestStorageAdapterFactory(unittest.TestCase):
     def __build_s3_config__(self):
         self.config = {
             "storage_adapter": "S3",
+            "bucket": "main_bucket",
             "environment": "Test",
             "folder": "DiDok",
             "dataset": "DiDok",

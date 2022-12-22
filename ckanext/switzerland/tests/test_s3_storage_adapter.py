@@ -34,7 +34,8 @@ class TestS3StorageAdapter(unittest.TestCase):
         AWS_SECRET_KEY: "secret_key",
         AWS_ACCESS_KEY: "access_key",
         AWS_REGION_NAME: "eu-central-1",
-        AWS_BUCKET_NAME: AWS_BUCKET_NAME
+        AWS_BUCKET_NAME: AWS_BUCKET_NAME,
+        "bucket": 'main_bucket'
     }
 
     @classmethod
@@ -496,4 +497,10 @@ class TestS3StorageAdapter(unittest.TestCase):
 
     def test_init_when_no_config_then_throws_exception(self):
         self.config = None
-        self.assertRaises(Exception, self.__build_tested_object__, self.remote_folder)
+        self.assertRaises(Exception, self.__build_tested_object__)
+
+    def test_init_config_without_bucket_then_exception_is_raised(self):
+        self.config = {}
+
+        self.assertRaises(KeyError, self.__build_tested_object__)
+        
