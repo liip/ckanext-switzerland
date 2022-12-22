@@ -30,9 +30,9 @@ class S3StorageAdapter(StorageAdapterBase):
     _aws_client = None
     _working_directory = ''
 
-    def __init__(self, config, remote_folder=''):
+    def __init__(self, config_resolver, config, remote_folder=''):
         
-        super(S3StorageAdapter, self).__init__(None, remote_folder)
+        super(S3StorageAdapter, self).__init__(config_resolver, remote_folder)
 
         if config is None:
             raise Exception("The storage adapter cannot be initialized without config")
@@ -43,6 +43,7 @@ class S3StorageAdapter(StorageAdapterBase):
         
         self._config = config
 
+        #TODO : Load the config from .ini file
         self._config['localpath'] = 'change_me'
 
         self.create_local_dir()

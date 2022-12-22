@@ -3,7 +3,7 @@ from s3_storage_adapter import S3StorageAdapter
 
 STORAGE_ADAPTER_KEY = 'storage_adapter'
 class StorageAdapterFactory(object):
-    config_resolver: None
+    config_resolver = None
 
     def __init__(self, config_resolver):
         if not config_resolver:
@@ -20,7 +20,7 @@ class StorageAdapterFactory(object):
         storage_adapter = config[STORAGE_ADAPTER_KEY]
 
         if storage_adapter == 'S3':
-            return S3StorageAdapter(config, remote_folder)
+            return S3StorageAdapter(self.config_resolver, config, remote_folder)
         
         if storage_adapter == 'FTP':
             return FTPStorageAdapter(self.config_resolver, remote_folder, config=config)
