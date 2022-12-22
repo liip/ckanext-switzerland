@@ -26,7 +26,8 @@ import json
 
 log = logging.getLogger(__name__)
 
-
+FTP_SERVER_KEY = 'ftp_server'
+SERVER_CONFIG_KEYS = ['username', 'password', 'keyfile', 'host', 'port', 'remotedirectory', 'localpath']
 class FTPStorageAdapter(StorageAdapterBase):
     """ FTP Storage Adapter Class """
 
@@ -44,27 +45,24 @@ class FTPStorageAdapter(StorageAdapterBase):
         """
         super(FTPStorageAdapter, self).__init__(config_resolver, remotefolder)
 
-        if config:
-            # read ftpconfig from harvester-config
-            ftpconfig = config
-
-            # all server related information is read from the ckan-config
-            ftp_server_ = 'ckan.ftp.' + ftpconfig['ftp_server']
-            # would not us it anymore as the full config would be passed in CTOR
-            for key in ['username', 'password', 'keyfile', 'host', 'port', 'remotedirectory', 'localpath']:
-                ftpconfig[key] = self._config_resolver.get(ftp_server_+'.%s' % key, '')
-        else:
+        if not config or FTP_SERVER_KEY not in config:
             raise Exception('The ftp server must be specified in the harvester configuration')
 
-        print(ftpconfig)
-        ftpconfig['host'] = str(ftpconfig['host'])
-        ftpconfig['port'] = int(ftpconfig['port'])
-
-        log.info('Using FTP-Config: %s' % pformat(config))
+        #TO Super class
+        self._config = config
+            
+        # all server related information is read from the ckan-config
+        ftp_server_key_prefix = 'ckan.ftp.' + self._config[FTP_SERVER_KEY]
         
-        self._config = ftpconfig
+        self.__load_storage_config__(SERVER_CONFIG_KEYS, ftp_server_key_prefix)
+        
+        #To method in super class ?
+        self._config['host'] = str(self._config['host'])
+        self._config['port'] = int(self._config['port'])
 
-        # create the local directory, if it does not exist
+        #To Super class
+        log.info('Using FTP-Config: %s' % pformat(self._config))
+
         self.create_local_dir()
 
     # tested

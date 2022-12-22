@@ -227,3 +227,7 @@ class StorageAdapterBase(object):
             filelist = zfile.namelist()
             zfile.extractall(target_folder)
             return len(filelist)
+
+    def __load_storage_config__(self, keys, key_prefix=""):
+        for key in keys:
+            self._config[key] = self._config_resolver.get(key_prefix+'.%s' % key, '')
