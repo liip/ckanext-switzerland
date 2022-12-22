@@ -53,9 +53,9 @@ class TestS3StorageAdapter(unittest.TestCase):
         if os.path.exists(self.temp_folder):
             shutil.rmtree(self.temp_folder, ignore_errors=True)
 
-    def __build_tested_object__(self, remote_folder):
+    def __build_tested_object__(self):
         config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
-        return S3StorageAdapter(config_resolver, self.config, remote_folder)
+        return S3StorageAdapter(config_resolver, self.config, self.remote_folder)
 
     def __stub_aws_client__(self, storage_adapter):
         client = boto3.client('s3')
@@ -64,19 +64,21 @@ class TestS3StorageAdapter(unittest.TestCase):
         return stubber
 
     def test_init_when_remote_folder_then_stored_without_trailing_slash(self):
-        remote_folder = '/test/'
+        self.remote_folder = '/test/'
 
-        storage_adapter = self.__build_tested_object__(remote_folder)
+        storage_adapter = self.__build_tested_object__()
 
         self.assertEqual('/test', storage_adapter.remote_folder)
 
     def test_init_without_remote_folder_then_empty(self):
-        storage_adapter = self.__build_tested_object__('')
+        self.remote_folder = ''
+        storage_adapter = self.__build_tested_object__()
 
         self.assertEqual('', storage_adapter.remote_folder)
 
     def test_init_when_config_then_stored(self):
-        storage_adapter = self.__build_tested_object__('')
+        self.remote_folder = ''
+        storage_adapter = self.__build_tested_object__()
 
         self.assertEqual(self.config, storage_adapter._config)
 
@@ -89,73 +91,73 @@ class TestS3StorageAdapter(unittest.TestCase):
         if os.path.exists(folder):
             shutil.rmtree(folder)
 
-        self.__build_tested_object__(self.remote_folder)
+        self.__build_tested_object__()
 
         assert os.path.exists(folder)
 
     def test_connect_then_session_is_initialized(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter._connect()
 
         self.assertIsNotNone(storage_adapter._aws_session)
 
     def test_connect_then_client_is_initialized(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter._connect()
 
         self.assertIsNotNone(storage_adapter._aws_client)
 
     def test_cdremote_then_working_directory_is_stored(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote('/foo/')
 
         self.assertEqual('foo', storage_adapter._working_directory)
     
     def test_cdremote_twice_then_working_directory_is_stored(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote('foo/')
         storage_adapter.cdremote('bar')
 
         self.assertEqual('foo/bar', storage_adapter._working_directory)
     
     def test_cdremote_slash_then_working_directory_is_root(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote('foo/')
         storage_adapter.cdremote('/')
 
         self.assertEqual('', storage_adapter._working_directory)
     
     def test_cdremote_with_slashes_then_working_directory_is_root(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote('foo/bar')
 
         self.assertEqual('foo/bar', storage_adapter._working_directory)
 
     def test_cdremote_empty_then_working_directory_is_unchanged(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote('foo/')
         storage_adapter.cdremote('')
 
         self.assertEqual('foo', storage_adapter._working_directory)
 
     def test_cdremote_when_remotedir_is_none_then_working_directory_is_correct(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote(None)
 
         self.assertEqual('', storage_adapter._working_directory)
 
     def test_with_syntax_then_working_session_is_created(self):
-        with self.__build_tested_object__(self.remote_folder) as storage_adapter:
+        with self.__build_tested_object__() as storage_adapter:
             self.assertEqual('', storage_adapter._working_directory)
 
     def test_get_top_folder_then_returns_bucket_name(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
 
         self.assertEqual(self.config[AWS_BUCKET_NAME],
                          storage_adapter.get_top_folder())
 
     def test_get_remote_filelist_at_root_then_returns_correct_list(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_ROOT, {
                                 'Bucket': AWS_BUCKET_NAME,
@@ -173,7 +175,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(expected_files_list, files_list)
 
     def test_get_remote_filelist_at_folder_then_returns_the_correct_names(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote('a')
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_FOLDER, {
@@ -192,7 +194,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(expected_files_list, files_list)
     
     def test_get_remote_filelist_with_folder_then_returns_the_correct_names(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_FOLDER, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -210,7 +212,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(expected_files_list, files_list)
 
     def test_get_remote_filelist_at_empty_folder_then_returns_empty_list(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote('empty')
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", NO_CONTENT, {
@@ -224,7 +226,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal([], files_list)
 
     def test_get_remote_dirlist_when_no_dir_then_returns_empty_list(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", NO_CONTENT, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -238,7 +240,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal([], dir_list)
 
     def test_get_remote_dirlist_then_returns_correct_list(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_ROOT, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -258,7 +260,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(expected_dir_list, dir_list)
     
     def test_get_remote_dirlist_at_folder_then_returns_correct_list(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote('a')
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_FOLDER, {
@@ -278,7 +280,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(expected_dir_list, dir_list)
     
     def test_get_remote_dirlist_with_folder_then_returns_correct_list(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_FOLDER, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -297,7 +299,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(expected_dir_list, dir_list)
     
     def test_get_remote_dirlist_all_when_no_dir_then_returns_empty_list(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", NO_CONTENT, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -311,7 +313,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal([], dir_list)
 
     def test_get_remote_dirlist_all_then_returns_correct_list(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", ALL, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -338,7 +340,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(expected_dir_list, dir_list)
     
     def test_get_remote_dirlist_all_at_folder_then_returns_correct_list(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote('a')
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", ALL_AT_FOLDER, {
@@ -360,7 +362,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(expected_dir_list, dir_list)
     
     def test_get_remote_dirlist_all_with_folder_then_returns_correct_list(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", ALL_AT_FOLDER, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -381,7 +383,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(expected_dir_list, dir_list)
     
     def test_get_modified_date_file_at_root_then_date_is_correct(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("head_object", HEAD_FILE_AT_ROOT, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -395,7 +397,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(expected_date, last_modified_date)
     
     def test_get_modified_date_file_at_folder_then_date_is_correct(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         storage_adapter.cdremote('a')
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("head_object", HEAD_FILE_AT_FOLDER, {
@@ -410,7 +412,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         self.assertEqual(expected_date, last_modified_date)
     
     def test_get_modified_date_file_with_folder_then_date_is_correct(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("head_object", HEAD_FILE_AT_FOLDER, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -424,7 +426,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         self.assertEqual(expected_date, last_modified_date)
     
     def test_get_modified_date_non_existing_file_then_date_is_correct(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_client_error('head_object')
         stubber.activate()
@@ -434,7 +436,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         self.assertIsNone(last_modified_date)
     
     def test_fetch_then_file_is_written_on_disk(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("get_object", GET_OBJECT, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -448,7 +450,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert os.path.exists(local_file)
    
     def test_fetch_then_file_content_is_correct(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("get_object", GET_OBJECT, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -465,7 +467,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         assert_array_equal(FILE_CONTENT, written_bytes)
    
     def test_fetch_then_status_is_correct(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("get_object", GET_OBJECT, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -478,7 +480,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         self.assertEqual("226 Transfer complete", status)
     
     def test_fetch_with_local_path_then_file_is_written_on_disk(self):
-        storage_adapter = self.__build_tested_object__(self.remote_folder)
+        storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("get_object", GET_OBJECT, {
                                 'Bucket': AWS_BUCKET_NAME, 
@@ -491,3 +493,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         status = storage_adapter.fetch("example.csv", local_file)
 
         assert os.path.exists(local_file)
+
+    def test_init_when_no_config_then_throws_exception(self):
+        self.config = None
+        self.assertRaises(Exception, self.__build_tested_object__, self.remote_folder)
