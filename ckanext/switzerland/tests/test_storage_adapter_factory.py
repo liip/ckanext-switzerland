@@ -51,8 +51,8 @@ class TestStorageAdapterFactory(unittest.TestCase):
     
     def __build_ftp_config__(self):
         self.config = {
-            "storage_adapter": "S3",
-            "ftp_server": "FTP",
+            "storage_adapter": "FTP",
+            "ftp_server": "mainserver",
             "environment": "Test",
             "folder": "DiDok",
             "dataset": "DiDok",
@@ -88,6 +88,6 @@ class TestStorageAdapterFactory(unittest.TestCase):
 
         adapter = factory.get_storage_adapter(self.remote_folder, self.config)
 
-        assert isinstance(adapter, S3StorageAdapter)
+        assert isinstance(adapter, FTPStorageAdapter)
 
 
