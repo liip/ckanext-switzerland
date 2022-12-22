@@ -29,7 +29,7 @@ TEST_BUCKET_NAME = 'test-bucket'
 
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = '/tmp/s3harvest/tests/'
-    ini_file_path = './config/nosetest.ini'
+    ini_file_path = './ckanext/switzerland/tests/config/nosetest.ini'
     remote_folder = '/tests'
     config = {
         LOCAL_PATH: temp_folder,

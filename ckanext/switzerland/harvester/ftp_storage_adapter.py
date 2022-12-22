@@ -33,8 +33,7 @@ class FTPStorageAdapter(StorageAdapterBase):
     tmpfile_extension = '.TMP'
 
     # tested
-    #TODO: CHange order of params
-    def __init__(self, config_resolver, remote_folder='', config=None):
+    def __init__(self, config_resolver, config, remote_folder=''):
         super(FTPStorageAdapter, self).__init__(config_resolver, config, remote_folder)
 
         if FTP_SERVER_KEY not in config:

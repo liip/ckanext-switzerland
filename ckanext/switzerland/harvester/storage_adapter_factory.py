@@ -15,7 +15,7 @@ class StorageAdapterFactory(object):
 
     def get_storage_adapter(self, remote_folder, config):
         if self.__is_legacy_config__(config):
-            return FTPStorageAdapter(self.config_resolver, remote_folder, config)
+            return FTPStorageAdapter(self.config_resolver, config, remote_folder)
 
         storage_adapter = config[STORAGE_ADAPTER_KEY]
 
@@ -23,6 +23,6 @@ class StorageAdapterFactory(object):
             return S3StorageAdapter(self.config_resolver, config, remote_folder)
         
         if storage_adapter == 'FTP':
-            return FTPStorageAdapter(self.config_resolver, remote_folder, config)
+            return FTPStorageAdapter(self.config_resolver, config, remote_folder)
         
         raise Exception('This type of storage is not supported: ' + storage_adapter)

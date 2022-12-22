@@ -14,19 +14,31 @@ from nose.tools import assert_equal, raises, nottest, with_setup
 from mock import patch, Mock, MagicMock, PropertyMock
 from testfixtures import Replace
 
-from pylons import config as ckanconf
+from helpers.mock_config_resolver import MockConfigResolver
 
 # The classes to test
 # -----------------------------------------------------------------------
 from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
 # -----------------------------------------------------------------------
 
-
+CONFIG_SECTION = 'app:main'
 
 class TestFTPStorageAdapter(unittest.TestCase):
-
+    ini_file_path = './ckanext/switzerland/tests/config/nosetest.ini'
     tmpfolder = '/tmp/ftpharvest/tests/'
     ftp = None
+    ckan_config_resolver = None
+    config = {
+            "ftp_server": "mainserver",
+            "environment": "Test",
+            "folder": "DiDok",
+            "dataset": "DiDok",
+            "max_resources": 30,
+            "max_revisions": 30,
+            "filter_regex": ".*\\.xls",
+            "resource_regex": "\\d{8}-Ist-File\\.xls",
+            "ist_file": True
+        }
 
     @classmethod
     def setup_class(cls):
@@ -49,10 +61,14 @@ class TestFTPStorageAdapter(unittest.TestCase):
 
     # ---------------------------------------------------------------------
 
+    def __build_tested_object__(self, remote_dir):
+        self.ckan_config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
+        return FTPStorageAdapter(self.ckan_config_resolver, self.config, remote_dir)
+
     def test_FTPStorageAdapter__init__(self):
         """ FTPStorageAdapter class correctly stores the ftp configuration from the ckan config """
         remotefolder = '/test/'
-        ftph = FTPStorageAdapter(ckanconf, remotefolder)
+        ftph = self.__build_tested_object__(remotefolder)
 
         assert_equal(ftph._config['username'], 'TESTUSER')
         assert_equal(ftph._config['password'], 'TESTPASS')
@@ -67,16 +83,16 @@ class TestFTPStorageAdapter(unittest.TestCase):
 
     def test_get_top_folder(self):
         foldername = "ftp-secure.sbb.ch:990"
-        ftph = FTPStorageAdapter(ckanconf, '/test/')
+        ftph = self.__build_tested_object__('/test/')
         assert_equal(foldername, ftph.get_top_folder())
 
     def test_mkdir_p(self):
-        ftph = FTPStorageAdapter(ckanconf,'/test/')
+        ftph = self.__build_tested_object__('/test/')
         ftph._mkdir_p(self.tmpfolder)
         assert os.path.exists(self.tmpfolder)
 
     def test_create_local_dir(self):
-        ftph = FTPStorageAdapter(ckanconf,'/test/')
+        ftph = self.__build_tested_object__('/test/')
         ftph.create_local_dir(self.tmpfolder)
         assert os.path.exists(self.tmpfolder)
 
@@ -89,14 +105,14 @@ class TestFTPStorageAdapter(unittest.TestCase):
         mock_ftp = MockFTP_TLS.return_value
 
         # run
-        ftph = FTPStorageAdapter(ckanconf,'/')
+        ftph = self.__build_tested_object__('/')
         ftph._connect()
 
         # constructor was called
         vars = {
-            'host': ckanconf.get('ckan.ftp.host', ''),
-            'username': ckanconf.get('ckan.ftp.username', ''),
-            'password': ckanconf.get('ckan.ftp.password', ''),
+            'host': self.ckan_config_resolver.get('ckan.ftp.mainserver.host', ''),
+            'username': self.ckan_config_resolver.get('ckan.ftp.mainserver.username', ''),
+            'password': self.ckan_config_resolver.get('ckan.ftp.mainserver.password', ''),
         }
         MockFTP_TLS.assert_called_with(vars['host'], vars['username'], vars['password'])
 
@@ -109,10 +125,10 @@ class TestFTPStorageAdapter(unittest.TestCase):
     @patch('ftplib.FTP_TLS', autospec=True)
     def test_connect_sets_ftp_port(self, MockFTP_TLS, MockFTP):
         # run
-        ftph = FTPStorageAdapter(ckanconf,'/')
+        ftph = self.__build_tested_object__('/')
         ftph._connect()
         # the port was changed by the _connect method
-        assert_equal(MockFTP.port, int(ckanconf.get('ckan.ftp.port', False)))
+        assert_equal(MockFTP.port, int(self.ckan_config_resolver.get('ckan.ftp.mainserver.port', False)))
 
     @patch('ftplib.FTP', autospec=True)
     @patch('ftplib.FTP_TLS', autospec=True)
@@ -120,7 +136,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         # get ftplib instance
         mock_ftp_tls = MockFTP_TLS.return_value
         # connect
-        ftph = FTPStorageAdapter(ckanconf,'/')
+        ftph = self.__build_tested_object__('/')
         ftph._connect()
         # disconnect
         ftph._disconnect()
@@ -133,7 +149,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         # get ftplib instance
         mock_ftp_tls = MockFTP_TLS.return_value
         # connect
-        ftph = FTPStorageAdapter(ckanconf,'/')
+        ftph = self.__build_tested_object__('/')
         ftph._connect()
         ftph.cdremote('/foo/')
         self.assertTrue(mock_ftp_tls.cwd.called)
@@ -145,11 +161,11 @@ class TestFTPStorageAdapter(unittest.TestCase):
         # get ftplib instance
         mock_ftp_tls = MockFTP_TLS.return_value
         # connect
-        ftph = FTPStorageAdapter(ckanconf,'/')
+        ftph = self.__build_tested_object__('/')
         ftph._connect()
         ftph.cdremote()
         self.assertTrue(mock_ftp_tls.cwd.called)
-        remotefolder = ckanconf.get('ckan.ftp.remotedirectory', False)
+        remotefolder = self.ckan_config_resolver.get('ckan.ftp.mainserver.remotedirectory', False)
         assert_equal(remotefolder, ftph._config['remotedirectory'])
         mock_ftp_tls.cwd.assert_called_with('')
 
@@ -159,16 +175,16 @@ class TestFTPStorageAdapter(unittest.TestCase):
         # get ftplib instance
         mock_ftp_tls = MockFTP_TLS.return_value
         # run test
-        with FTPStorageAdapter(ckanconf,'/hello/') as ftph:
+        with self.__build_tested_object__('/hello/') as ftph:
             pass
         # check results
         self.assertTrue(mock_ftp_tls.cwd.called)
         mock_ftp_tls.cwd.assert_called_with('/hello')
         # class was instantiated with the correct values
         vars = {
-            'host': ckanconf.get('ckan.ftp.host', ''),
-            'username': ckanconf.get('ckan.ftp.username', ''),
-            'password': ckanconf.get('ckan.ftp.password', ''),
+            'host': self.ckan_config_resolver.get('ckan.ftp.mainserver.host', ''),
+            'username': self.ckan_config_resolver.get('ckan.ftp.mainserver.username', ''),
+            'password': self.ckan_config_resolver.get('ckan.ftp.mainserver.password', ''),
         }
         MockFTP_TLS.assert_called_with(vars['host'], vars['username'], vars['password'])
         # prot_p method was called
@@ -204,7 +220,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         # mock ftplib.FTP_TLS
         with Replace('ftplib.FTP_TLS', self.FTP_TLS):
             # run test
-            with FTPStorageAdapter(ckanconf,'/') as ftph:
+            with self.__build_tested_object__('/') as ftph:
                 # get directory listing
                 dirlist = ftph.get_remote_dirlist('/myfolder/')
         # check results
@@ -214,7 +230,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
     @patch('ftplib.FTP', autospec=True)
     def test_get_local_dirlist(self, MockFTP):
         with Replace('ftplib.FTP_TLS', self.FTP_TLS):
-            with FTPStorageAdapter(ckanconf,'/') as ftph:
+            with self.__build_tested_object__('/') as ftph:
                 dirlist = ftph.get_local_dirlist(localpath="./ckanext/switzerland/tests/fixtures/testdir")
         assert_equal(type(dirlist), list)
         assert_equal(len(dirlist), 3)
@@ -224,7 +240,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         # mock ftplib.FTP_TLS
         with Replace('ftplib.FTP_TLS', self.FTP_TLS):
             # run test
-            with FTPStorageAdapter(ckanconf,'/') as ftph:
+            with self.__build_tested_object__('/') as ftph:
                 # get directory listing
                 num = ftph.is_empty_dir('/empty/')
         # check results
@@ -236,7 +252,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
     #     # mock ftplib.FTP_TLS
     #     with Replace('ftplib.FTP_TLS', self.FTP_TLS):
     #         # run test
-    #         with FTPStorageAdapter(ckanconf,'/') as ftph:
+    #         with self.__build_tested_object__('/') as ftph:
     #             # get directory listing
     #             num = ftph.is_empty_dir('/nonemptydir/')
     #     # check results
@@ -249,7 +265,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         # mock ftplib.FTP_TLS
         with Replace('ftplib.FTP_TLS', self.FTP_TLS):
             # connect
-            with FTPStorageAdapter(ckanconf,'/') as ftph:
+            with self.__build_tested_object__('/') as ftph:
                 ftph._connect()
                 # fetch remote file
                 arg1, arg2 = ftph.fetch(filename, localpath=testfile)
@@ -264,7 +280,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
     def test_unzip(self, MockFTP_TLS, MockFTP):
         currpath = os.path.dirname(os.path.realpath(__file__))
         # run test
-        with FTPStorageAdapter(ckanconf,'/') as ftph:
+        with self.__build_tested_object__('/') as ftph:
             num = ftph.unzip(os.path.join(currpath, 'fixtures/zip/my.zip'))
         # check results
         assert_equal(num, 2)
