@@ -39,9 +39,12 @@ class S3StorageAdapter(StorageAdapterBase):
 
         #TODO: validate config
         #TODO: what to do with remote_folder (impact on tests of course)
+        self.remote_folder = remote_folder.rstrip('/')
+        
         self._config = config
 
-        # create the local directory, if it does not exist
+        self._config['localpath'] = 'change_me'
+
         self.create_local_dir()
 
     def __enter__(self):
