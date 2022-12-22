@@ -7,26 +7,25 @@ log = logging.getLogger(__name__)
 #TODO: Rewrite documentation
 class StorageAdapterBase(object):
     _config = None
-    _config_resolver= None
+    _ckan_config_resolver= None
     remote_folder = None
 
-    def __init__(self, config_resolver, config, remote_folder=''):
+    def __init__(self, ckan_config_resolver, config, remote_folder=''):
         """
         Load the ftp configuration from ckan config file
 
         :param remotefolder: Remote folder path
         :type remotefolder: str or unicode
-        :param config_resolver: The object able to provide values from CKAN ini configuration
-        :type config_resolver: ckan.plugins.toolkit.config
-        :param config: The storage config coming from the database
+        :param ckan_config_resolver: The object able to provide values from CKAN ini configuration
+        :type ckan_config_resolver: ckan.plugins.toolkit.config
+        :param config: The harvester config coming from the database
         :type config: Any
         """
-        print(config)
         if config is None:
             raise Exception('Cannot build a Storage Adapter without an initial configuration')
         self._config = config
 
-        self._config_resolver = config_resolver
+        self._ckan_config_resolver = ckan_config_resolver
         
         # prepare the remote path
         self.remote_folder = remote_folder.rstrip("/")
@@ -234,9 +233,7 @@ class StorageAdapterBase(object):
             zfile.extractall(target_folder)
             return len(filelist)
 
-    #TODO: Add tests
+    #tested in S3StorageAdapter
     def __load_storage_config__(self, keys, key_prefix=""):
         for key in keys:
-            print(key)
-            print(key_prefix)
-            self._config[key] = self._config_resolver.get(key_prefix+'.%s' % key, '')
+            self._config[key] = self._ckan_config_resolver.get(key_prefix+'.%s' % key, '')
