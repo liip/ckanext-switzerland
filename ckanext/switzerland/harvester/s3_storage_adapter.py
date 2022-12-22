@@ -31,14 +31,17 @@ class S3StorageAdapter(StorageAdapterBase):
     _working_directory = ''
 
     def __init__(self, config, remote_folder=''):
+        
+        super(S3StorageAdapter, self).__init__(None, remote_folder)
+
         if config is None:
             raise Exception("The storage adapter cannot be initialized without config")
 
         #TODO: validate config
         #TODO: what to do with remote_folder (impact on tests of course)
-        self.remote_folder = remote_folder.rstrip('/')
         self._config = config
 
+        # create the local directory, if it does not exist
         self.create_local_dir()
 
     def __enter__(self):

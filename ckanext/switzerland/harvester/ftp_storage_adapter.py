@@ -63,8 +63,7 @@ class FTPStorageAdapter(StorageAdapterBase):
         log.info('Using FTP-Config: %s' % pformat(config))
         
         self._config = ftpconfig
-        # prepare the remote path
-        self.remote_folder = remotefolder.rstrip("/")
+
         # create the local directory, if it does not exist
         self.create_local_dir()
 

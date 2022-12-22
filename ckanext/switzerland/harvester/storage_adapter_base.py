@@ -21,7 +21,10 @@ class StorageAdapterBase(object):
         :type config: Any
         """
         self._config_resolver = config_resolver
-        self.remote_folder = remotefolder
+        
+        # prepare the remote path
+        self.remote_folder = remotefolder.rstrip("/")
+
 
     def _connect(self):
         raise NotImplementedError('_connect')
