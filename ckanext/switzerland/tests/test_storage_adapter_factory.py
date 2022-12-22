@@ -22,75 +22,35 @@ class TestStorageAdapterFactory(unittest.TestCase):
     @classmethod
     def teardown_class(cls):
         pass
+
+    def __build_base_config__(self):
+        self.config = {
+            "environment": "Test",
+            "folder": "DiDok",
+            "dataset": "DiDok",
+            "max_resources": 30,
+            "max_revisions": 30,
+            "filter_regex": ".*\\.xls",
+            "resource_regex": "\\d{8}-Ist-File\\.xls",
+            "ist_file": True
+        }
     
     def __build_legacy_config__(self):
-        self.config = {
-            "ftp_server": "mainserver",
-            "environment": "Test",
-            "folder": "DiDok",
-            "dataset": "DiDok",
-            "max_resources": 30,
-            "max_revisions": 30,
-            "filter_regex": ".*\\.xls",
-            "resource_regex": "\\d{8}-Ist-File\\.xls",
-            "ist_file": True
-        }
+        self.config["ftp_server"] = "mainserver"
     
     def __build_s3_config__(self):
-        self.config = {
-            "storage_adapter": "S3",
-            "bucket": "main_bucket",
-            "environment": "Test",
-            "folder": "DiDok",
-            "dataset": "DiDok",
-            "max_resources": 30,
-            "max_revisions": 30,
-            "filter_regex": ".*\\.xls",
-            "resource_regex": "\\d{8}-Ist-File\\.xls",
-            "ist_file": True
-        }
+        self.config["storage_adapter"] = "S3"
+        self.config["bucket"] = "main_bucket"
     
     def __build_ftp_config__(self):
-        self.config = {
-            "storage_adapter": "FTP",
-            "ftp_server": "mainserver",
-            "environment": "Test",
-            "folder": "DiDok",
-            "dataset": "DiDok",
-            "max_resources": 30,
-            "max_revisions": 30,
-            "filter_regex": ".*\\.xls",
-            "resource_regex": "\\d{8}-Ist-File\\.xls",
-            "ist_file": True
-        }
+        self.config["storage_adapter"] = "FTP"
+        self.config["ftp_server"] = "mainserver"
     
     def __build_unsupported_config__(self):
-        self.config = {
-            "storage_adapter": "unsupported",
-            "ftp_server": "mainserver",
-            "environment": "Test",
-            "folder": "DiDok",
-            "dataset": "DiDok",
-            "max_resources": 30,
-            "max_revisions": 30,
-            "filter_regex": ".*\\.xls",
-            "resource_regex": "\\d{8}-Ist-File\\.xls",
-            "ist_file": True
-        }
+        self.config["storage_adapter"] = "unsupported"
 
     def __build_adapter_type_none_config__(self):
-        self.config = {
-            "storage_adapter": None,
-            "ftp_server": "mainserver",
-            "environment": "Test",
-            "folder": "DiDok",
-            "dataset": "DiDok",
-            "max_resources": 30,
-            "max_revisions": 30,
-            "filter_regex": ".*\\.xls",
-            "resource_regex": "\\d{8}-Ist-File\\.xls",
-            "ist_file": True
-        }
+        self.config["storage_adapter"] = None
 
     def test_get_storage_adapter_when_legacy_config_then_return_ftp_adapted(self):
         self.__build_legacy_config__()
