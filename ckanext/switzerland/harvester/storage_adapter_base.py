@@ -9,7 +9,7 @@ class StorageAdapterBase(object):
     _config_resolver= None
     remote_folder = None
 
-    def __init__(self, config_resolver, config, remotefolder=''):
+    def __init__(self, config_resolver, config, remote_folder=''):
         """
         Load the ftp configuration from ckan config file
 
@@ -27,7 +27,7 @@ class StorageAdapterBase(object):
         self._config_resolver = config_resolver
         
         # prepare the remote path
-        self.remote_folder = remotefolder.rstrip("/")
+        self.remote_folder = remote_folder.rstrip("/")
 
 
     def _connect(self):
