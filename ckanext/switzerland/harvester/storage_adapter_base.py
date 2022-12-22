@@ -237,4 +237,6 @@ class StorageAdapterBase(object):
     #TODO: Add tests
     def __load_storage_config__(self, keys, key_prefix=""):
         for key in keys:
+            print(key)
+            print(key_prefix)
             self._config[key] = self._config_resolver.get(key_prefix+'.%s' % key, '')

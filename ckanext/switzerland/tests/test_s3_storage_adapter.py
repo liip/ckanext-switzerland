@@ -24,6 +24,8 @@ from ckanext.switzerland.harvester.aws_keys import (
 
 LOCAL_PATH = 'localpath'
 CONFIG_SECTION = 'app:main'
+CONFIG_BUCKET = 'bucket'
+TEST_BUCKET_NAME = 'test-bucket'
 
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = '/tmp/s3harvest/tests/'
@@ -31,11 +33,7 @@ class TestS3StorageAdapter(unittest.TestCase):
     remote_folder = '/tests'
     config = {
         LOCAL_PATH: temp_folder,
-        AWS_SECRET_KEY: "secret_key",
-        AWS_ACCESS_KEY: "access_key",
-        AWS_REGION_NAME: "eu-central-1",
-        AWS_BUCKET_NAME: AWS_BUCKET_NAME,
-        "bucket": 'main_bucket'
+        CONFIG_BUCKET: 'main_bucket'
     }
 
     @classmethod
@@ -161,7 +159,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_ROOT, {
-                                'Bucket': AWS_BUCKET_NAME,
+                                'Bucket': TEST_BUCKET_NAME,
                                 'Delimiter': '/',
                                 'Prefix': ''
                             })
@@ -180,7 +178,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter.cdremote('a')
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_FOLDER, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '/',
                                 'Prefix': 'a/'
                             })
@@ -198,7 +196,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_FOLDER, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '/',
                                 'Prefix': 'a/'
                             })
@@ -217,7 +215,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter.cdremote('empty')
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", NO_CONTENT, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '/',
                                 'Prefix': 'empty/'
                             })
@@ -230,7 +228,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", NO_CONTENT, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '/',
                                 'Prefix': ''
                             })
@@ -244,7 +242,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_ROOT, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '/',
                                 'Prefix': ''
                             })
@@ -265,7 +263,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter.cdremote('a')
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_FOLDER, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '/',
                                 'Prefix': 'a/'
                             })
@@ -284,7 +282,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", FILES_AT_FOLDER, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '/',
                                 'Prefix': 'a/'
                             })
@@ -303,7 +301,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", NO_CONTENT, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '',
                                 'Prefix': ''
                             })
@@ -317,7 +315,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", ALL, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '',
                                 'Prefix': ''
                             })
@@ -345,7 +343,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter.cdremote('a')
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", ALL_AT_FOLDER, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '',
                                 'Prefix': 'a/'
                             })
@@ -366,7 +364,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("list_objects", ALL_AT_FOLDER, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Delimiter': '',
                                 'Prefix': 'a/'
                             })
@@ -387,7 +385,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("head_object", HEAD_FILE_AT_ROOT, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Key': 'file_01.pdf'
                             })
         stubber.activate()
@@ -402,7 +400,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter.cdremote('a')
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("head_object", HEAD_FILE_AT_FOLDER, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Key': 'a/file_01.pdf'
                             })
         stubber.activate()
@@ -416,7 +414,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("head_object", HEAD_FILE_AT_FOLDER, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Key': 'a/file_01.pdf'
                             })
         stubber.activate()
@@ -440,7 +438,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("get_object", GET_OBJECT, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Key': 'example.csv'
                             })
         stubber.activate()
@@ -454,7 +452,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("get_object", GET_OBJECT, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Key': 'example.csv'
                             })
         stubber.activate()
@@ -471,7 +469,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("get_object", GET_OBJECT, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Key': 'example.csv'
                             })
         stubber.activate()
@@ -484,7 +482,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
         stubber = self.__stub_aws_client__(storage_adapter)
         stubber.add_response("get_object", GET_OBJECT, {
-                                'Bucket': AWS_BUCKET_NAME, 
+                                'Bucket': TEST_BUCKET_NAME, 
                                 'Key': 'example.csv'
                             })
         stubber.activate()
@@ -503,4 +501,30 @@ class TestS3StorageAdapter(unittest.TestCase):
         self.config = {}
 
         self.assertRaises(KeyError, self.__build_tested_object__)
+
+    
+    def test_init_config_then_bucket_name_is_correct(self):
+        storage_adapter = self.__build_tested_object__()
+
+        self.assertEqual(storage_adapter._config[AWS_BUCKET_NAME], 'test-bucket')
+    
+    def test_init_config_then_access_key_is_correct(self):
+        storage_adapter = self.__build_tested_object__()
+
+        self.assertEqual(storage_adapter._config[AWS_ACCESS_KEY], 'test-access-key')
+    
+    def test_init_config_then_secret_key_is_correct(self):
+        storage_adapter = self.__build_tested_object__()
+
+        self.assertEqual(storage_adapter._config[AWS_SECRET_KEY], 'test-secret-key')
+    
+    def test_init_config_then_region_name_is_correct(self):
+        storage_adapter = self.__build_tested_object__()
+
+        self.assertEqual(storage_adapter._config[AWS_REGION_NAME], 'eu-central-1')
+
+    def test_init_config_then_local_path_is_correct(self):
+        storage_adapter = self.__build_tested_object__()
+
+        self.assertEqual(storage_adapter._config[LOCAL_PATH], '/tmp/s3harvest/')
         

@@ -26,6 +26,7 @@ from aws_keys import (
 
 log = logging.getLogger(__name__)
 S3_CONFIG_KEY = 'bucket'
+CONFIG_KEYS = [AWS_BUCKET_NAME, AWS_ACCESS_KEY, AWS_REGION_NAME, AWS_SECRET_KEY, "localpath"]
 class S3StorageAdapter(StorageAdapterBase):
     _aws_session = None
     _aws_client = None
@@ -41,7 +42,9 @@ class S3StorageAdapter(StorageAdapterBase):
         if S3_CONFIG_KEY not in self._config:
             raise KeyError(S3_CONFIG_KEY)
 
-        self._config['localpath'] = 'change_me'
+        s3_bucket_key_prefix = 'ckan.s3.' + self._config[S3_CONFIG_KEY]
+        
+        self.__load_storage_config__(CONFIG_KEYS, s3_bucket_key_prefix)
 
         self.create_local_dir()
 
@@ -53,6 +56,7 @@ class S3StorageAdapter(StorageAdapterBase):
     def __exit__(self, type, value, traceback):
         pass
     
+    #TODO: do we want to support other types of credentials configuration => .aws file, with profiles
     def _connect(self):
         self._aws_session = boto3.session.Session(
             aws_access_key_id=self._config[AWS_ACCESS_KEY],
