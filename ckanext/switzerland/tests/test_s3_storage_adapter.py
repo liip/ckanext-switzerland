@@ -27,7 +27,7 @@ CONFIG_SECTION = 'app:main'
 
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = '/tmp/s3harvest/tests/'
-    ini_file_path = '../../../templates/ckan/development.ini'
+    ini_file_path = './config/nosetest.ini'
     remote_folder = '/tests'
     config = {
         LOCAL_PATH: temp_folder,

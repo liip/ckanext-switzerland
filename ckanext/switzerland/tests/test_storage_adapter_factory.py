@@ -12,7 +12,7 @@ CONFIG_SECTION = 'app:main'
 class TestStorageAdapterFactory(unittest.TestCase):
     config = {}
     remote_folder = ''
-    ini_file_path = '../../../templates/ckan/development.ini'
+    ini_file_path = './config/nosetest.ini'
    
 
     @classmethod
