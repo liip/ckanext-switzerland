@@ -4,6 +4,7 @@ import errno
 import zipfile
 
 log = logging.getLogger(__name__)
+#TODO: Rewrite documentation
 class StorageAdapterBase(object):
     _config = None
     _config_resolver= None
@@ -232,6 +233,7 @@ class StorageAdapterBase(object):
             zfile.extractall(target_folder)
             return len(filelist)
 
+    #TODO: Add tests
     def __load_storage_config__(self, keys, key_prefix=""):
         for key in keys:
             self._config[key] = self._config_resolver.get(key_prefix+'.%s' % key, '')
