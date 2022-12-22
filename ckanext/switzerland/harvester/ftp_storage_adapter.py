@@ -18,11 +18,8 @@ from storage_adapter_base import StorageAdapterBase
 
 import pysftp
 import ftplib
-import zipfile
-import errno
 import datetime
 import ssl
-import json
 
 log = logging.getLogger(__name__)
 
