@@ -74,7 +74,7 @@ class SBBFTPHarvester(BaseSBBHarvester):
         log.info("Getting listing from remotefolder: %s" % remotefolder)
 
         try:
-            with StorageAdapterFactory().get_storage_adapter(ckanconf, remotefolder, self.config) as ftph:
+            with StorageAdapterFactory(ckanconf).get_storage_adapter(remotefolder, self.config) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 

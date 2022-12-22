@@ -8,6 +8,7 @@ from helpers.mock_config_resolver import MockConfigResolver
 from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
 # -----------------------------------------------------------------------
 
+CONFIG_SECTION = 'app:main'
 class TestStorageAdapterFactory(unittest.TestCase):
     config = {}
     remote_folder = ''
@@ -64,29 +65,28 @@ class TestStorageAdapterFactory(unittest.TestCase):
 
     def test_get_storage_adapter_when_legacy_config_then_return_ftp_adapted(self):
         self.__build_legacy_config__()
-        print(os.getcwd())
-        config_resolver = MockConfigResolver(self.ini_file_path, 'app:main')
-        factory = StorageAdapterFactory()
+        config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
+        factory = StorageAdapterFactory(config_resolver)
 
-        adapter = factory.get_storage_adapter(config_resolver, self.remote_folder, self.config)
+        adapter = factory.get_storage_adapter(self.remote_folder, self.config)
 
         assert isinstance(adapter, FTPStorageAdapter)
 
     def test_get_storage_adapter_when_s3_config_then_return_s3_adapter(self):
         self.__build_s3_config__()
-        config_resolver = MockConfigResolver(self.ini_file_path, 'app:main')
-        factory = StorageAdapterFactory()
+        config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
+        factory = StorageAdapterFactory(config_resolver)
 
-        adapter = factory.get_storage_adapter(config_resolver, self.remote_folder, self.config)
+        adapter = factory.get_storage_adapter(self.remote_folder, self.config)
 
         assert isinstance(adapter, S3StorageAdapter)
 
     def test_get_storage_adapter_when_ftp_config_then_return_ftp_adapter(self):
         self.__build_ftp_config__()
-        config_resolver = MockConfigResolver(self.ini_file_path, 'app:main')
-        factory = StorageAdapterFactory()
+        config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
+        factory = StorageAdapterFactory(config_resolver)
 
-        adapter = factory.get_storage_adapter(config_resolver, self.remote_folder, self.config)
+        adapter = factory.get_storage_adapter(self.remote_folder, self.config)
 
         assert isinstance(adapter, S3StorageAdapter)
 

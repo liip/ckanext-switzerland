@@ -498,7 +498,7 @@ class BaseSBBHarvester(HarvesterBase):
         self.config = self.load_config(harvest_object.job.source.config)
 
         try:
-            with StorageAdapterFactory().get_storage_adapter(ckanconf, remotefolder, self.config) as ftph:
+            with StorageAdapterFactory(ckanconf).get_storage_adapter(remotefolder, self.config) as ftph:
 
                 # fetch file via ftplib
                 # -------------------------------------------------------------------
