@@ -153,7 +153,11 @@ class BaseSBBHarvester(HarvesterBase):
     filters = {}
 
     def get_remote_folder(self):
-        return os.path.join('/', self.config['environment'], self.config['folder'])
+        # in the future we want to get directly a path to the folder in the config file
+        if self.config.get('environment') is not None:
+            return os.path.join('/', self.config['environment'], self.config['folder'])
+        else:
+            return os.path.join('/', self.config['folder'])
 
     def validate_config(self, config_str):
         """
@@ -172,14 +176,16 @@ class BaseSBBHarvester(HarvesterBase):
 
     def get_config_validation_schema(self):
         return voluptuous.Schema({
-            voluptuous.Required('environment'): basestring,
+            'environment': basestring,
             voluptuous.Required('folder'): basestring,
             voluptuous.Required('dataset'): basestring,
             voluptuous.Required('resource_regex', default='.*'): validate_regex,
             voluptuous.Required('force_all', default=False): bool,
             'max_resources': int,
             'max_revisions': int,
-            voluptuous.Required('ftp_server'): basestring,
+            'ftp_server': basestring,
+            'storage_adapter': basestring,
+            'bucket': basestring,
         })
 
     def load_config(self, config_str):
