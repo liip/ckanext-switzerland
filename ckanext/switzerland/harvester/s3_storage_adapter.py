@@ -10,14 +10,15 @@ The class is intended to be used with Python's `with` statement, e.g.
 `
 """
 import logging
+from pprint import pformat
 import boto3
 from botocore.exceptions import ClientError
 import boto3.session
 import os
 from storage_adapter_base import StorageAdapterBase
 from aws_keys import (
-    AWS_SECRET_KEY, 
-    AWS_ACCESS_KEY, 
+    AWS_SECRET_KEY,
+    AWS_ACCESS_KEY,
     AWS_REGION_NAME,
     AWS_BUCKET_NAME,
     AWS_RESPONSE_CONTENT,
@@ -39,9 +40,13 @@ class S3StorageAdapter(StorageAdapterBase):
         if S3_CONFIG_KEY not in self._config:
             raise KeyError(S3_CONFIG_KEY)
 
+        # all aws s3 server related information is read from the ckan-config
         s3_bucket_key_prefix = 'ckan.s3.' + self._config[S3_CONFIG_KEY]
         
         self.__load_storage_config__(CONFIG_KEYS, s3_bucket_key_prefix)
+
+        # To Super class
+        log.info('Using S3-Config: %s' % pformat(self._config))
 
         self.create_local_dir()
 
@@ -79,6 +84,9 @@ class S3StorageAdapter(StorageAdapterBase):
         return self._config[AWS_BUCKET_NAME]
 
     def get_remote_filelist(self, folder=None):
+        # get list of the files in the remote folder
+        if not folder:
+            folder = self._config['folder']
         all_in_folder = self.get_remote_dirlist(folder)
         only_files = filter(lambda name : not name.endswith('/'), all_in_folder)
         return only_files
@@ -141,9 +149,11 @@ class S3StorageAdapter(StorageAdapterBase):
             return None
     
     def fetch(self, filename, localpath=None):
-        
+        # make a full path to the file, works as a key for didok, subline, but not fortimetable_field_number
+        filename = os.path.join(self._config['folder'], filename)
+
         object = self._aws_client.get_object(Bucket=self._config[AWS_BUCKET_NAME], Key=filename)
-        
+
         if not localpath:
             localpath = os.path.join(self._config['localpath'], filename)
         
