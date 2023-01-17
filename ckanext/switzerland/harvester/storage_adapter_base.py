@@ -30,8 +30,6 @@ class StorageAdapterBase(object):
 
         self._ckan_config_resolver = ckan_config_resolver
         
-        #TODO: what to do with remote_folder (impact on tests of course)
-        # I have the impression that it should be considered as the root of any other command
         self.remote_folder = remote_folder.rstrip("/")
 
 
