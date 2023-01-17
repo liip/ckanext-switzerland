@@ -26,15 +26,13 @@ LOCAL_PATH = 'localpath'
 CONFIG_SECTION = 'app:main'
 CONFIG_BUCKET = 'bucket'
 TEST_BUCKET_NAME = 'test-bucket'
-FOLDER = 'folder'
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = '/tmp/s3harvest/tests/'
     ini_file_path = './ckanext/switzerland/tests/config/nosetest.ini'
     remote_folder = 'a'
     config = {
         LOCAL_PATH: temp_folder,
-        CONFIG_BUCKET: 'main_bucket', 
-        FOLDER: remote_folder
+        CONFIG_BUCKET: 'main_bucket'
     }
 
     @classmethod
@@ -185,6 +183,7 @@ class TestS3StorageAdapter(unittest.TestCase):
                             })
         stubber.activate()
         expected_files_list = [
+            "a_file_05.pdf",
             "file_03.pdf",
             "file_04.pdf"
         ]
@@ -203,6 +202,7 @@ class TestS3StorageAdapter(unittest.TestCase):
                             })
         stubber.activate()
         expected_files_list = [
+            "a_file_05.pdf",
             "file_03.pdf",
             "file_04.pdf"
         ]
@@ -273,6 +273,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         dir_list = storage_adapter.get_remote_dirlist()
 
         expected_dir_list = [
+            "a_file_05.pdf",
             "file_03.pdf",
             "file_04.pdf",
             "sub_a/"
@@ -292,6 +293,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         dir_list = storage_adapter.get_remote_dirlist('a')
 
         expected_dir_list = [
+            "a_file_05.pdf",
             "file_03.pdf",
             "file_04.pdf",
             "sub_a/"
@@ -528,4 +530,3 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
 
         self.assertEqual(storage_adapter._config[LOCAL_PATH], '/tmp/s3harvest/')
-        

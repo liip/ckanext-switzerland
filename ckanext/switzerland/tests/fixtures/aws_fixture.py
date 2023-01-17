@@ -82,9 +82,38 @@ FILES_AT_FOLDER = {
             'Size': 0,
             'StorageClass': 'STANDARD',
             'Owner': {
-                'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/file_03.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'Size': 418809, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}}, {'Key': 'a/file_04.pdf', 'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 'Size': 418809, 'StorageClass': 'STANDARD', 'Owner': {'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }
-                                                                                                                                                                                                                                                                                                                                                                                  }
+                'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'}
+        }, 
+        {
+            'Key': 'a/file_03.pdf', 
+            'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 
+            'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 
+            'Size': 418809, 
+            'StorageClass': 'STANDARD', 
+            'Owner': {
+                'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'
+            }
+        }, 
+        {
+            'Key': 'a/file_04.pdf', 
+            'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 
+            'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 
+            'Size': 418809, 
+            'StorageClass': 'STANDARD', 
+            'Owner': {
+                'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'
+                }
+        },
+        {
+            'Key': 'a/a_file_05.pdf', 
+            'LastModified': datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc()), 
+            'ETag': '"0b6858a853073a7e5a3edb54a51154b1"', 
+            'Size': 418809, 
+            'StorageClass': 'STANDARD', 
+            'Owner': {
+                'ID': 'eaef31b5be35361297b84855f0bfd7e90e6e79d76430d538cdd1264ce37d3954'
+                }
+        }
     ],
     'Name': 'bpy-odp-test',
     'Prefix': 'a/',

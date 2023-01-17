@@ -77,7 +77,6 @@ class S3StorageAdapter(StorageAdapterBase):
         if remotedir == '/':
             self._working_directory = ''
         elif remotedir:
-            print(remotedir)
             self._working_directory = os.path.join(self._working_directory, remotedir.rstrip('/').lstrip('/'))
 
     def get_top_folder(self):
@@ -90,9 +89,18 @@ class S3StorageAdapter(StorageAdapterBase):
         only_files = filter(lambda name : not name.endswith('/'), all_in_folder)
         return only_files
 
+    def __remove_prefix__(self, file, prefix):
+        if not file.startswith(prefix):
+            return file
+        
+        if (prefix is None or len(prefix) == 0):
+            return file
+
+        return file[len(prefix):]
+
     def __prepare_for_return__(self, elements, prefix):
         # AWS returns the element with their full name from root, so we need to remove the prefix
-        without_prefix = map(lambda file :  file.lstrip(prefix), elements)
+        without_prefix = map(lambda file : self.__remove_prefix__(file, prefix), elements)
         # Of course, we will now have a empty string in the set, let's remove it
         without_root = filter(lambda name : name, without_prefix)
         return without_root
