@@ -52,7 +52,7 @@ class S3StorageAdapter(StorageAdapterBase):
 
     def __enter__(self):
         self._connect()
-        self.cdremote()
+        self.cdremote(self.remote_folder)
         return self
 
     def __exit__(self, type, value, traceback):
@@ -77,6 +77,7 @@ class S3StorageAdapter(StorageAdapterBase):
         if remotedir == '/':
             self._working_directory = ''
         elif remotedir:
+            print(remotedir)
             self._working_directory = os.path.join(self._working_directory, remotedir.rstrip('/').lstrip('/'))
 
     def get_top_folder(self):
@@ -85,8 +86,6 @@ class S3StorageAdapter(StorageAdapterBase):
 
     def get_remote_filelist(self, folder=None):
         # get list of the files in the remote folder
-        if not folder:
-            folder = self._config['folder']
         all_in_folder = self.get_remote_dirlist(folder)
         only_files = filter(lambda name : not name.endswith('/'), all_in_folder)
         return only_files
@@ -149,10 +148,10 @@ class S3StorageAdapter(StorageAdapterBase):
             return None
     
     def fetch(self, filename, localpath=None):
-        # make a full path to the file, works as a key for didok, subline, but not fortimetable_field_number
-        filename = os.path.join(self._config['folder'], filename)
+        prefix = self.__determine_prefix__(None)
+        file_full_path = os.path.join(prefix, filename)
 
-        object = self._aws_client.get_object(Bucket=self._config[AWS_BUCKET_NAME], Key=filename)
+        object = self._aws_client.get_object(Bucket=self._config[AWS_BUCKET_NAME], Key=file_full_path)
 
         if not localpath:
             localpath = os.path.join(self._config['localpath'], filename)

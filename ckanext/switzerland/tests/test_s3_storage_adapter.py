@@ -26,14 +26,15 @@ LOCAL_PATH = 'localpath'
 CONFIG_SECTION = 'app:main'
 CONFIG_BUCKET = 'bucket'
 TEST_BUCKET_NAME = 'test-bucket'
-
+FOLDER = 'folder'
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = '/tmp/s3harvest/tests/'
     ini_file_path = './ckanext/switzerland/tests/config/nosetest.ini'
-    remote_folder = '/tests'
+    remote_folder = 'a'
     config = {
         LOCAL_PATH: temp_folder,
-        CONFIG_BUCKET: 'main_bucket'
+        CONFIG_BUCKET: 'main_bucket', 
+        FOLDER: remote_folder
     }
 
     @classmethod
@@ -147,7 +148,7 @@ class TestS3StorageAdapter(unittest.TestCase):
 
     def test_with_syntax_then_working_session_is_created(self):
         with self.__build_tested_object__() as storage_adapter:
-            self.assertEqual('', storage_adapter._working_directory)
+            self.assertEqual(self.remote_folder, storage_adapter._working_directory)
 
     def test_get_top_folder_then_returns_bucket_name(self):
         storage_adapter = self.__build_tested_object__()
