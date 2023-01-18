@@ -493,8 +493,8 @@ class BaseSBBHarvester(HarvesterBase):
 
         log.info("Remote directory: %s", remotefolder)
         log.info("Local directory: %s", tmpfolder)
-
-        # TODO: Here we are missing the "validate configuration". I would put this in the storage adapter itself
+        
+        # Here we removed "validate configuration". This is now done inside of the StorageAdapter, that knows what it needs
         self.config = self.load_config(harvest_object.job.source.config)
 
         try:
