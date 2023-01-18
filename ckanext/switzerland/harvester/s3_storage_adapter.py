@@ -26,11 +26,12 @@ from keys import (
     AWS_RESPONSE_CONTENT,
     AWS_RESPONSE_PREFIXES, 
     LOCAL_PATH, 
-    REMOTE_DIRECTORY
+    REMOTE_DIRECTORY,
+    S3_CONFIG_KEY
 )
 
 log = logging.getLogger(__name__)
-S3_CONFIG_KEY = 'bucket'
+
 CONFIG_KEYS = [
     ConfigKey(AWS_BUCKET_NAME, str, True),
     ConfigKey(AWS_ACCESS_KEY, str, True),
@@ -45,21 +46,14 @@ class S3StorageAdapter(StorageAdapterBase):
     _working_directory = ''
 
     def __init__(self, config_resolver, config, remote_folder=''):
-        
-        super(S3StorageAdapter, self).__init__(config_resolver, config, remote_folder, CONFIG_KEYS)
-
-        if S3_CONFIG_KEY not in self._config:
-            raise KeyError(S3_CONFIG_KEY)
-
-        # all aws s3 server related information is read from the ckan-config
-        s3_bucket_key_prefix = 'ckan.s3.' + self._config[S3_CONFIG_KEY]
-        
-        self.__load_storage_config__(s3_bucket_key_prefix)
-
-        # To Super class
-        log.info('Using S3-Config: %s' % pformat(self._config))
-
-        self.create_local_dir()
+        super(S3StorageAdapter, self).__init__(
+            config_resolver, 
+            config, 
+            remote_folder, 
+            S3_CONFIG_KEY, 
+            CONFIG_KEYS, 
+            'ckan.s3'
+        )
 
     def __enter__(self):
         self._connect()

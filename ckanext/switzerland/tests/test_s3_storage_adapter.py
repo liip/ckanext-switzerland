@@ -504,12 +504,12 @@ class TestS3StorageAdapter(unittest.TestCase):
 
     def test_init_when_no_config_then_throws_exception(self):
         self.config = None
-        self.assertRaises(Exception, self.__build_tested_object__)
+        self.assertRaises(StorageAdapterConfigurationException, self.__build_tested_object__)
 
     def test_init_config_without_bucket_then_exception_is_raised(self):
         self.config = {}
 
-        self.assertRaises(KeyError, self.__build_tested_object__)
+        self.assertRaises(StorageAdapterConfigurationException, self.__build_tested_object__)
 
     
     def test_init_config_then_bucket_name_is_correct(self):

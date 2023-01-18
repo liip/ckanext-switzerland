@@ -1,3 +1,4 @@
+S3_CONFIG_KEY = 'bucket'
 AWS_ACCESS_KEY = 'access_key'
 AWS_SECRET_KEY = 'secret_key'
 AWS_REGION_NAME = 'region_name'

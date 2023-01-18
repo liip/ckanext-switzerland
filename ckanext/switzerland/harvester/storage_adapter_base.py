@@ -1,4 +1,5 @@
 import json
+from pprint import pformat
 import os
 import logging
 import errno
@@ -13,7 +14,7 @@ class StorageAdapterBase(object):
     remote_folder = None
     _config_keys = []
 
-    def __init__(self, ckan_config_resolver, config, remote_folder='', config_keys = []):
+    def __init__(self, ckan_config_resolver, config, remote_folder='', root_config_key = None, config_keys = [], config_key_prefix = ''):
         """
         Load the ftp configuration from ckan config file
 
@@ -25,8 +26,14 @@ class StorageAdapterBase(object):
         :type config: Any
         """
         if config is None:
-            raise Exception('Cannot build a Storage Adapter without an initial configuration')
+            raise StorageAdapterConfigurationException(['Cannot build a Storage Adapter without an initial configuration'])
         
+        if root_config_key is None:
+            raise StorageAdapterConfigurationException(['Cannot build a Storage Adapter without an root config key'])
+
+        if root_config_key not in config:
+            raise StorageAdapterConfigurationException(["The root config key '{key}' is not present in the configuration".format(key=root_config_key)])
+
         #TODO: Call here an abstract method, that would validate the configuration and throw when invalid
         # with an abstract method, we force the adapter to validate itself its configuration, depending on the needs
         self._config = config
@@ -34,9 +41,16 @@ class StorageAdapterBase(object):
         self._config_keys = config_keys
 
         self._ckan_config_resolver = ckan_config_resolver
+
+        config_key_prefix = "{key_prefix}.{key}".format(key_prefix = config_key_prefix, key =self._config[root_config_key])
+
+        self.__load_storage_config__(config_key_prefix)
         
         self.remote_folder = remote_folder.rstrip("/")
 
+        log.info('Using Config: %s' % pformat(self._config))
+
+        self.create_local_dir()
 
     def _connect(self):
         raise NotImplementedError('_connect')
@@ -267,7 +281,7 @@ class StorageAdapterBase(object):
                 continue
             
             self._config[key.name] = converted_value
-        
+
         if len(configuration_errors) > 0:
             raise StorageAdapterConfigurationException(configuration_errors)
 

@@ -56,27 +56,14 @@ class FTPStorageAdapter(StorageAdapterBase):
 
     # tested
     def __init__(self, config_resolver, config, remote_folder=''):
-        
-        super(FTPStorageAdapter, self).__init__(config_resolver, config, remote_folder, CONFIG_KEYS)
-
-        if FTP_SERVER_KEY not in config:
-            raise Exception('The ftp server must be specified in the harvester configuration')
-           
-        # all server related information is read from the ckan-config
-        ftp_server_key_prefix = 'ckan.ftp.' + self._config[FTP_SERVER_KEY]
-        
-        self.__load_storage_config__(ftp_server_key_prefix)
-
-        print(json.dumps(self._config))
-        
-        #To method in super class ?
-        self._config[FTP_HOST] = str(self._config[FTP_HOST])
-        self._config[FTP_PORT] = int(self._config[FTP_PORT])
-
-        #To Super class
-        log.info('Using FTP-Config: %s' % pformat(self._config))
-
-        self.create_local_dir()
+        super(FTPStorageAdapter, self).__init__(
+            config_resolver, 
+            config, 
+            remote_folder, 
+            FTP_SERVER_KEY, 
+            CONFIG_KEYS, 
+            'ckan.ftp'
+        )
 
     # tested
     def __enter__(self):
