@@ -4,6 +4,7 @@ import shutil
 import datetime
 
 from helpers.mock_config_resolver import MockConfigResolver
+from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
 from fixtures.aws_fixture import FILES_AT_ROOT, FILE_CONTENT, FILES_AT_FOLDER, HEAD_FILE_AT_FOLDER, HEAD_FILE_AT_ROOT, NO_CONTENT, ALL, ALL_AT_FOLDER, GET_OBJECT
 import boto3
 from dateutil.tz import tzutc
@@ -29,6 +30,7 @@ TEST_BUCKET_NAME = 'test-bucket'
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = '/tmp/s3harvest/tests/'
     ini_file_path = './ckanext/switzerland/tests/config/nosetest.ini'
+    invalid_ini_file_path = './ckanext/switzerland/tests/config/invalid.ini'
     remote_folder = 'a'
     config = {
         LOCAL_PATH: temp_folder,
@@ -53,6 +55,10 @@ class TestS3StorageAdapter(unittest.TestCase):
 
     def __build_tested_object__(self):
         config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
+        return S3StorageAdapter(config_resolver, self.config, self.remote_folder)
+
+    def __build_tested_object_with_wrong_config__(self):
+        config_resolver = MockConfigResolver(self.invalid_ini_file_path, CONFIG_SECTION)
         return S3StorageAdapter(config_resolver, self.config, self.remote_folder)
 
     def __stub_aws_client__(self, storage_adapter):
@@ -530,3 +536,13 @@ class TestS3StorageAdapter(unittest.TestCase):
         storage_adapter = self.__build_tested_object__()
 
         self.assertEqual(storage_adapter._config[LOCAL_PATH], '/tmp/s3harvest/')
+    
+    def test_validate_config_with_valid_config_then_no_error (self):
+        storage_adapter = self.__build_tested_object__()
+        storage_adapter.validate_config()
+        assert True
+
+    def test_validate_config_with_invalid_config_then_error (self):
+        storage_adapter = self.__build_tested_object_with_wrong_config__()
+
+        self.assertRaises(StorageAdapterConfigurationException, storage_adapter.validate_config)
