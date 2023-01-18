@@ -15,6 +15,7 @@ from mock import patch, Mock, MagicMock, PropertyMock
 from testfixtures import Replace
 
 from helpers.mock_config_resolver import MockConfigResolver
+from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
 
 # The classes to test
 # -----------------------------------------------------------------------
@@ -25,6 +26,7 @@ CONFIG_SECTION = 'app:main'
 
 class TestFTPStorageAdapter(unittest.TestCase):
     ini_file_path = './ckanext/switzerland/tests/config/nosetest.ini'
+    invalid_ini_file_path = './ckanext/switzerland/tests/config/invalid.ini'
     tmpfolder = '/tmp/ftpharvest/tests/'
     ftp = None
     ckan_config_resolver = None
@@ -63,6 +65,10 @@ class TestFTPStorageAdapter(unittest.TestCase):
 
     def __build_tested_object__(self, remote_dir):
         self.ckan_config_resolver = MockConfigResolver(self.ini_file_path, CONFIG_SECTION)
+        return FTPStorageAdapter(self.ckan_config_resolver, self.config, remote_dir)
+
+    def __build_tested_object_with_wrong_config__(self, remote_dir):
+        self.ckan_config_resolver = MockConfigResolver(self.invalid_ini_file_path, CONFIG_SECTION)
         return FTPStorageAdapter(self.ckan_config_resolver, self.config, remote_dir)
 
     def test_FTPStorageAdapter__init__(self):
@@ -291,4 +297,14 @@ class TestFTPStorageAdapter(unittest.TestCase):
             except:
                 pass
 
+    def test_validate_config_with_invalid_config_then_error (self):
+        storage_adapter = self.__build_tested_object_with_wrong_config__('/')
+
+        self.assertRaises(StorageAdapterConfigurationException, storage_adapter.validate_config)
+
+    def test_validate_config_with_valid_config_then_no_error (self):
+        storage_adapter = self.__build_tested_object__('/')
+        storage_adapter.validate_config()
+
+        assert True
 

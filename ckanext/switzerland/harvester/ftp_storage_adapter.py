@@ -15,6 +15,7 @@ from pprint import pformat
 
 import os
 from storage_adapter_base import StorageAdapterBase
+from exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
 
 import pysftp
 import ftplib
@@ -24,7 +25,13 @@ import ssl
 log = logging.getLogger(__name__)
 
 FTP_SERVER_KEY = 'ftp_server'
-SERVER_CONFIG_KEYS = ['username', 'password', 'keyfile', 'host', 'port', 'remotedirectory', 'localpath']
+FTP_USER_NAME = 'username'
+FTP_PASSWORD = 'password'
+FTP_KEY_FILE = 'keyfile'
+FTP_HOST = 'host'
+FTP_PORT = 'port'
+
+SERVER_CONFIG_KEYS = [FTP_USER_NAME, FTP_PASSWORD, FTP_KEY_FILE, FTP_HOST, FTP_PORT, 'remotedirectory', 'localpath']
 class FTPStorageAdapter(StorageAdapterBase):
     """ FTP Storage Adapter Class """
 
@@ -45,13 +52,22 @@ class FTPStorageAdapter(StorageAdapterBase):
         self.__load_storage_config__(SERVER_CONFIG_KEYS, ftp_server_key_prefix)
         
         #To method in super class ?
-        self._config['host'] = str(self._config['host'])
-        self._config['port'] = int(self._config['port'])
+        self._config[FTP_HOST] = str(self._config[FTP_HOST])
+        self._config[FTP_PORT] = int(self._config[FTP_PORT] if self._config[FTP_PORT] else 0)
 
         #To Super class
         log.info('Using FTP-Config: %s' % pformat(self._config))
 
         self.create_local_dir()
+
+    def validate_config(self):
+        mandatory_fields = [FTP_USER_NAME, FTP_PASSWORD, FTP_HOST, FTP_PORT, 'remotedirectory', 'localpath']
+        missing_fields = []
+        for key in mandatory_fields:
+            if not key in self._config or not self.__is_value_valid__(self._config[key]):
+                missing_fields.append(key)
+        if len(missing_fields) > 0:
+            raise StorageAdapterConfigurationException(missing_fields)
 
     # tested
     def __enter__(self):
@@ -82,7 +98,7 @@ class FTPStorageAdapter(StorageAdapterBase):
         :returns: The name of the folder created by ftplib, e.g. 'mydomain.com:21'
         :rtype: string
         """
-        return "%s:%d" % (self._config['host'], self._config['port'])
+        return "%s:%d" % (self._config[FTP_HOST], self._config[FTP_PORT])
 
     # tested
     def _connect(self):
@@ -94,32 +110,32 @@ class FTPStorageAdapter(StorageAdapterBase):
         :rtype: None
         """
 
-        if self._config['password']:
+        if self._config[FTP_PASSWORD]:
             # overwrite the default port (21)
-            ftplib.FTP.port = int(self._config['port'])
+            ftplib.FTP.port = int(self._config[FTP_PORT])
             # we need to set the TLS version explicitly to allow connection
             # to newer servers who have disabled older TLS versions (< TLSv1.2)
             ftplib.FTP_TLS.ssl_version = ssl.PROTOCOL_TLSv1_2
             # connect
             # check SFTP protocol is used, pysftp defaults to 22
-            if int(self._config['port']) == 22:
-                self.sftp = pysftp.Connection(host=self._config['host'],
-                                              username=self._config['username'],
-                                              password=self._config['password'],
-                                              port=int(self._config['port']),
+            if int(self._config[FTP_PORT]) == 22:
+                self.sftp = pysftp.Connection(host=self._config[FTP_HOST],
+                                              username=self._config[FTP_USER_NAME],
+                                              password=self._config[FTP_PASSWORD],
+                                              port=int(self._config[FTP_PORT]),
                                               )
             else:
-                self.ftps = ftplib.FTP_TLS(self._config['host'],
-                                           self._config['username'],
-                                           self._config['password'])
+                self.ftps = ftplib.FTP_TLS(self._config[FTP_HOST],
+                                           self._config[FTP_USER_NAME],
+                                           self._config[FTP_PASSWORD])
                 # switch to secure data connection
                 self.ftps.prot_p()
-        elif self._config['keyfile']:
+        elif self._config[FTP_KEY_FILE]:
             # connecting via SSH
-            self.sftp = pysftp.Connection(host=self._config['host'],
-                                          username=self._config['username'],
-                                          private_key=self._config['keyfile'],
-                                          port=int(self._config['port']),
+            self.sftp = pysftp.Connection(host=self._config[FTP_HOST],
+                                          username=self._config[FTP_USER_NAME],
+                                          private_key=self._config[FTP_KEY_FILE],
+                                          port=int(self._config[FTP_PORT]),
                                           )
     # tested
     def _disconnect(self):

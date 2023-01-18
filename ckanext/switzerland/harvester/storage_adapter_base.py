@@ -239,3 +239,14 @@ class StorageAdapterBase(object):
     def __load_storage_config__(self, keys, key_prefix=""):
         for key in keys:
             self._config[key] = self._ckan_config_resolver.get(key_prefix+'.%s' % key, '')
+
+    def __is_value_valid__(self, value):
+        print(value)
+        if value is None:
+            return False
+
+        if isinstance(value, str):
+            return len(value.strip()) > 0
+
+        return value
+

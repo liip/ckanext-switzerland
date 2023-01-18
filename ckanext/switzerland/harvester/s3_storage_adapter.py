@@ -77,7 +77,7 @@ class S3StorageAdapter(StorageAdapterBase):
         mandatory_fields = [AWS_ACCESS_KEY, AWS_BUCKET_NAME, AWS_REGION_NAME, AWS_SECRET_KEY, S3_CONFIG_KEY]
         missing_fields = []
         for key in mandatory_fields:
-            if not key in self._config or not self._config[key].strip():
+            if not key in self._config or not self.__is_value_valid__(self._config[key]):
                 missing_fields.append(key)
         if len(missing_fields) > 0:
             raise StorageAdapterConfigurationException(missing_fields)
