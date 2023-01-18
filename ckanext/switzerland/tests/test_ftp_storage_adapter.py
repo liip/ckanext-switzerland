@@ -298,13 +298,10 @@ class TestFTPStorageAdapter(unittest.TestCase):
                 pass
 
     def test_validate_config_with_invalid_config_then_error (self):
-        storage_adapter = self.__build_tested_object_with_wrong_config__('/')
-
-        self.assertRaises(StorageAdapterConfigurationException, storage_adapter.validate_config)
+        self.assertRaises(StorageAdapterConfigurationException, self.__build_tested_object_with_wrong_config__, '/')
 
     def test_validate_config_with_valid_config_then_no_error (self):
-        storage_adapter = self.__build_tested_object__('/')
-        storage_adapter.validate_config()
+        self.__build_tested_object__('/')
 
         assert True
 

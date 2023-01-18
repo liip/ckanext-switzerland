@@ -10,8 +10,9 @@ class StorageAdapterBase(object):
     _config = None
     _ckan_config_resolver= None
     remote_folder = None
+    _mandatory_fields = []
 
-    def __init__(self, ckan_config_resolver, config, remote_folder=''):
+    def __init__(self, ckan_config_resolver, config, remote_folder='', mandatory_fields = []):
         """
         Load the ftp configuration from ckan config file
 
@@ -28,6 +29,8 @@ class StorageAdapterBase(object):
         #TODO: Call here an abstract method, that would validate the configuration and throw when invalid
         # with an abstract method, we force the adapter to validate itself its configuration, depending on the needs
         self._config = config
+
+        self._mandatory_fields = mandatory_fields
 
         self._ckan_config_resolver = ckan_config_resolver
         
@@ -241,13 +244,11 @@ class StorageAdapterBase(object):
         for key in keys:
             self._config[key] = self._ckan_config_resolver.get(key_prefix+'.%s' % key, '')
 
-    def __get_mandatory_fields__(self):
-        raise NotImplementedError('__get_mandatory_fields__')
+        self.__validate_config__()
 
-    def validate_config(self):
-        mandatory_fields = self.__get_mandatory_fields__()
+    def __validate_config__(self):
         missing_fields = []
-        for key in mandatory_fields:
+        for key in self._mandatory_fields:
             if not key in self._config or not self.__is_value_valid__(self._config[key]):
                 missing_fields.append(key)
         if len(missing_fields) > 0:

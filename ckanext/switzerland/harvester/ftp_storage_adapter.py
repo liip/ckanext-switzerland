@@ -22,16 +22,20 @@ import ftplib
 import datetime
 import ssl
 
+from keys import (
+    FTP_USER_NAME,
+    FTP_PASSWORD, 
+    FTP_KEY_FILE,
+    FTP_HOST,
+    FTP_PORT, 
+    FTP_SERVER_KEY,
+    LOCAL_PATH, 
+    REMOTE_DIRECTORY
+)
+
 log = logging.getLogger(__name__)
 
-FTP_SERVER_KEY = 'ftp_server'
-FTP_USER_NAME = 'username'
-FTP_PASSWORD = 'password'
-FTP_KEY_FILE = 'keyfile'
-FTP_HOST = 'host'
-FTP_PORT = 'port'
-
-SERVER_CONFIG_KEYS = [FTP_USER_NAME, FTP_PASSWORD, FTP_KEY_FILE, FTP_HOST, FTP_PORT, 'remotedirectory', 'localpath']
+SERVER_CONFIG_KEYS = [FTP_USER_NAME, FTP_PASSWORD, FTP_KEY_FILE, FTP_HOST, FTP_PORT, REMOTE_DIRECTORY, LOCAL_PATH]
 class FTPStorageAdapter(StorageAdapterBase):
     """ FTP Storage Adapter Class """
 
@@ -41,7 +45,9 @@ class FTPStorageAdapter(StorageAdapterBase):
 
     # tested
     def __init__(self, config_resolver, config, remote_folder=''):
-        super(FTPStorageAdapter, self).__init__(config_resolver, config, remote_folder)
+        mandatory_fields = [FTP_USER_NAME, FTP_PASSWORD, FTP_HOST, FTP_PORT, REMOTE_DIRECTORY, LOCAL_PATH]
+        
+        super(FTPStorageAdapter, self).__init__(config_resolver, config, remote_folder, mandatory_fields)
 
         if FTP_SERVER_KEY not in config:
             raise Exception('The ftp server must be specified in the harvester configuration')
@@ -53,15 +59,12 @@ class FTPStorageAdapter(StorageAdapterBase):
         
         #To method in super class ?
         self._config[FTP_HOST] = str(self._config[FTP_HOST])
-        self._config[FTP_PORT] = int(self._config[FTP_PORT] if self._config[FTP_PORT] else 0)
+        self._config[FTP_PORT] = int(self._config[FTP_PORT])
 
         #To Super class
         log.info('Using FTP-Config: %s' % pformat(self._config))
 
         self.create_local_dir()
-
-    def __get_mandatory_fields__(self):
-        return [FTP_USER_NAME, FTP_PASSWORD, FTP_HOST, FTP_PORT, 'remotedirectory', 'localpath']
 
     # tested
     def __enter__(self):
@@ -302,7 +305,7 @@ class FTPStorageAdapter(StorageAdapterBase):
         :rtype: string
         """
         if not localpath:
-            localpath = os.path.join(self._config['localpath'], filename)
+            localpath = os.path.join(self._config[LOCAL_PATH], filename)
 
         localfile = open(localpath, 'wb')
 

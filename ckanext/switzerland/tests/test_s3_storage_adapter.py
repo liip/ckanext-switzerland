@@ -539,10 +539,7 @@ class TestS3StorageAdapter(unittest.TestCase):
     
     def test_validate_config_with_valid_config_then_no_error (self):
         storage_adapter = self.__build_tested_object__()
-        storage_adapter.validate_config()
         assert True
 
     def test_validate_config_with_invalid_config_then_error (self):
-        storage_adapter = self.__build_tested_object_with_wrong_config__()
-
-        self.assertRaises(StorageAdapterConfigurationException, storage_adapter.validate_config)
+        self.assertRaises(StorageAdapterConfigurationException, self.__build_tested_object_with_wrong_config__)

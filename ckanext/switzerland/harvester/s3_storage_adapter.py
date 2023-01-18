@@ -17,26 +17,30 @@ from botocore.exceptions import ClientError
 import boto3.session
 import os
 from storage_adapter_base import StorageAdapterBase
-from aws_keys import (
+from keys import (
     AWS_SECRET_KEY,
     AWS_ACCESS_KEY,
     AWS_REGION_NAME,
     AWS_BUCKET_NAME,
     AWS_RESPONSE_CONTENT,
-    AWS_RESPONSE_PREFIXES
+    AWS_RESPONSE_PREFIXES, 
+    LOCAL_PATH, 
+    REMOTE_DIRECTORY
 )
 
 log = logging.getLogger(__name__)
 S3_CONFIG_KEY = 'bucket'
-CONFIG_KEYS = [AWS_BUCKET_NAME, AWS_ACCESS_KEY, AWS_REGION_NAME, AWS_SECRET_KEY, "localpath", "remotedirectory"]
+CONFIG_KEYS = [AWS_BUCKET_NAME, AWS_ACCESS_KEY, AWS_REGION_NAME, AWS_SECRET_KEY, LOCAL_PATH, REMOTE_DIRECTORY]
 class S3StorageAdapter(StorageAdapterBase):
     _aws_session = None
     _aws_client = None
     _working_directory = ''
 
     def __init__(self, config_resolver, config, remote_folder=''):
+
+        mandatory_fields = [AWS_ACCESS_KEY, AWS_BUCKET_NAME, AWS_REGION_NAME, AWS_SECRET_KEY, S3_CONFIG_KEY]
         
-        super(S3StorageAdapter, self).__init__(config_resolver, config, remote_folder)
+        super(S3StorageAdapter, self).__init__(config_resolver, config, remote_folder, mandatory_fields)
 
         if S3_CONFIG_KEY not in self._config:
             raise KeyError(S3_CONFIG_KEY)
@@ -72,9 +76,6 @@ class S3StorageAdapter(StorageAdapterBase):
     def _disconnect(self):
         # as boto3 is HTTP call based, we don't need to close anything
         pass
-
-    def __get_mandatory_fields__(self):
-        return [AWS_ACCESS_KEY, AWS_BUCKET_NAME, AWS_REGION_NAME, AWS_SECRET_KEY, S3_CONFIG_KEY]
 
     def cdremote(self, remotedir=None):
         # Files are stored flat on AWS. So there is no such command on S3. We just need to keep a ref to a Working Directory
@@ -166,7 +167,7 @@ class S3StorageAdapter(StorageAdapterBase):
         object = self._aws_client.get_object(Bucket=self._config[AWS_BUCKET_NAME], Key=file_full_path)
 
         if not localpath:
-            localpath = os.path.join(self._config['localpath'], filename)
+            localpath = os.path.join(self._config[LOCAL_PATH], filename)
         
         with open(localpath, 'wb') as binary_file:
             bytes = object['Body'].read()
