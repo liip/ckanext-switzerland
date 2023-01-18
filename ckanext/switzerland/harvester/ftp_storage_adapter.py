@@ -10,10 +10,13 @@ The class is intended to be used with Python's `with` statement, e.g.
 `
 """
 
+import json
 import logging
 from pprint import pformat
 
 import os
+
+from config.config_key import ConfigKey
 from storage_adapter_base import StorageAdapterBase
 from exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
 
@@ -35,7 +38,15 @@ from keys import (
 
 log = logging.getLogger(__name__)
 
-SERVER_CONFIG_KEYS = [FTP_USER_NAME, FTP_PASSWORD, FTP_KEY_FILE, FTP_HOST, FTP_PORT, REMOTE_DIRECTORY, LOCAL_PATH]
+CONFIG_KEYS = [
+    ConfigKey(FTP_USER_NAME, str, True),
+    ConfigKey(FTP_PASSWORD, str, True),
+    ConfigKey(FTP_KEY_FILE, str),
+    ConfigKey(FTP_HOST, str, True),
+    ConfigKey(FTP_PORT, int, True, lambda x: x > 0, 'Port should be a positive number'),
+    ConfigKey(LOCAL_PATH, str, True),
+    ConfigKey(REMOTE_DIRECTORY, str, True),
+]
 class FTPStorageAdapter(StorageAdapterBase):
     """ FTP Storage Adapter Class """
 
@@ -45,9 +56,8 @@ class FTPStorageAdapter(StorageAdapterBase):
 
     # tested
     def __init__(self, config_resolver, config, remote_folder=''):
-        mandatory_fields = [FTP_USER_NAME, FTP_PASSWORD, FTP_HOST, FTP_PORT, REMOTE_DIRECTORY, LOCAL_PATH]
         
-        super(FTPStorageAdapter, self).__init__(config_resolver, config, remote_folder, mandatory_fields)
+        super(FTPStorageAdapter, self).__init__(config_resolver, config, remote_folder, CONFIG_KEYS)
 
         if FTP_SERVER_KEY not in config:
             raise Exception('The ftp server must be specified in the harvester configuration')
@@ -55,7 +65,9 @@ class FTPStorageAdapter(StorageAdapterBase):
         # all server related information is read from the ckan-config
         ftp_server_key_prefix = 'ckan.ftp.' + self._config[FTP_SERVER_KEY]
         
-        self.__load_storage_config__(SERVER_CONFIG_KEYS, ftp_server_key_prefix)
+        self.__load_storage_config__(ftp_server_key_prefix)
+
+        print(json.dumps(self._config))
         
         #To method in super class ?
         self._config[FTP_HOST] = str(self._config[FTP_HOST])

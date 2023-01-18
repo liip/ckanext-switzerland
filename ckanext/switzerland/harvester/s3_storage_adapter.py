@@ -11,11 +11,12 @@ The class is intended to be used with Python's `with` statement, e.g.
 """
 import logging
 from pprint import pformat
-from exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
+from config.config_key import ConfigKey
 import boto3
 from botocore.exceptions import ClientError
 import boto3.session
 import os
+import sys
 from storage_adapter_base import StorageAdapterBase
 from keys import (
     AWS_SECRET_KEY,
@@ -30,17 +31,22 @@ from keys import (
 
 log = logging.getLogger(__name__)
 S3_CONFIG_KEY = 'bucket'
-CONFIG_KEYS = [AWS_BUCKET_NAME, AWS_ACCESS_KEY, AWS_REGION_NAME, AWS_SECRET_KEY, LOCAL_PATH, REMOTE_DIRECTORY]
+CONFIG_KEYS = [
+    ConfigKey(AWS_BUCKET_NAME, str, True),
+    ConfigKey(AWS_ACCESS_KEY, str, True),
+    ConfigKey(AWS_REGION_NAME, str, True),
+    ConfigKey(AWS_SECRET_KEY, str, True),
+    ConfigKey(LOCAL_PATH, str, True),
+    ConfigKey(REMOTE_DIRECTORY, str, True),
+]
 class S3StorageAdapter(StorageAdapterBase):
     _aws_session = None
     _aws_client = None
     _working_directory = ''
 
     def __init__(self, config_resolver, config, remote_folder=''):
-
-        mandatory_fields = [AWS_ACCESS_KEY, AWS_BUCKET_NAME, AWS_REGION_NAME, AWS_SECRET_KEY, S3_CONFIG_KEY]
         
-        super(S3StorageAdapter, self).__init__(config_resolver, config, remote_folder, mandatory_fields)
+        super(S3StorageAdapter, self).__init__(config_resolver, config, remote_folder, CONFIG_KEYS)
 
         if S3_CONFIG_KEY not in self._config:
             raise KeyError(S3_CONFIG_KEY)
@@ -48,7 +54,7 @@ class S3StorageAdapter(StorageAdapterBase):
         # all aws s3 server related information is read from the ckan-config
         s3_bucket_key_prefix = 'ckan.s3.' + self._config[S3_CONFIG_KEY]
         
-        self.__load_storage_config__(CONFIG_KEYS, s3_bucket_key_prefix)
+        self.__load_storage_config__(s3_bucket_key_prefix)
 
         # To Super class
         log.info('Using S3-Config: %s' % pformat(self._config))

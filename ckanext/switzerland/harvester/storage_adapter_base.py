@@ -1,3 +1,4 @@
+import json
 import os
 import logging
 import errno
@@ -10,9 +11,9 @@ class StorageAdapterBase(object):
     _config = None
     _ckan_config_resolver= None
     remote_folder = None
-    _mandatory_fields = []
+    _config_keys = []
 
-    def __init__(self, ckan_config_resolver, config, remote_folder='', mandatory_fields = []):
+    def __init__(self, ckan_config_resolver, config, remote_folder='', config_keys = []):
         """
         Load the ftp configuration from ckan config file
 
@@ -30,7 +31,7 @@ class StorageAdapterBase(object):
         # with an abstract method, we force the adapter to validate itself its configuration, depending on the needs
         self._config = config
 
-        self._mandatory_fields = mandatory_fields
+        self._config_keys = config_keys
 
         self._ckan_config_resolver = ckan_config_resolver
         
@@ -240,27 +241,33 @@ class StorageAdapterBase(object):
             return len(filelist)
 
     #tested in TestS3StorageAdapter
-    def __load_storage_config__(self, keys, key_prefix=""):
-        for key in keys:
-            self._config[key] = self._ckan_config_resolver.get(key_prefix+'.%s' % key, '')
+    def __load_storage_config__(self, key_prefix=""):
+        configuration_errors = []
+        for key in self._config_keys:
+            raw_value = self._ckan_config_resolver.get(key_prefix+'.%s' % key.name, '')
 
-        self.__validate_config__()
+            if key.is_mandatory and (raw_value is None or len(raw_value) == 0):
+                configuration_errors.append("Configuration is missing the field {key}".format(key=key.name))
+                continue
+            
+            converted_value = None
+            
+            try:
+                converted_value = key.type(raw_value)
+                
+            except ValueError:
+                configuration_errors.append("Cannot convert '{value}' for the field '{key}' into type {type}".format(value=raw_value, key=key.name, type=key.type))
+                continue
 
-    def __validate_config__(self):
-        missing_fields = []
-        for key in self._mandatory_fields:
-            if not key in self._config or not self.__is_value_valid__(self._config[key]):
-                missing_fields.append(key)
-        if len(missing_fields) > 0:
-            raise StorageAdapterConfigurationException(missing_fields)
-
-    def __is_value_valid__(self, value):
-        print(value)
-        if value is None:
-            return False
-
-        if isinstance(value, str):
-            return len(value.strip()) > 0
-
-        return value
+            if not key.is_valid(converted_value):
+                if key.custom_error_message is not None:
+                    configuration_errors.append(key.custom_error_message)    
+                else:
+                    configuration_errors.append("The value '{value}' does not match the constraints for the field '{key}'".format(value=raw_value, key=key.name))
+                continue
+            
+            self._config[key.name] = converted_value
+        
+        if len(configuration_errors) > 0:
+            raise StorageAdapterConfigurationException(configuration_errors)
 
