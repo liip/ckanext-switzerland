@@ -175,6 +175,10 @@ In order to use a S3, the configuration should look like
 ```
 For a S3 server, the property `bucket` is mandatory. If the property is not set, an exception will be raised.
 
+### Validation
+The `StorageAdapterBase` holds the logic for loading and validating the configuration. This logic is able to verify that a certain property is present, read the value, convert the value to the given type (eg: a port number is an `int`) and check some constraints on the value (eg: the `port` should be greater than 0).
+
+Each Storage Adapter is responsible to define the configuration properties it needs, and define the type, the name, the constraints... This is done through the class `ConfigKey`. This class allows to define the name of the configuration property, its type, if it's a mandatory configuration, a validation function and a custom message.
 
 ## How it works
 
