@@ -2,6 +2,7 @@ import os
 import logging
 import errno
 import zipfile
+from exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
 
 log = logging.getLogger(__name__)
 #TODO: Rewrite documentation
@@ -239,6 +240,18 @@ class StorageAdapterBase(object):
     def __load_storage_config__(self, keys, key_prefix=""):
         for key in keys:
             self._config[key] = self._ckan_config_resolver.get(key_prefix+'.%s' % key, '')
+
+    def __get_mandatory_fields__(self):
+        raise NotImplementedError('__get_mandatory_fields__')
+
+    def validate_config(self):
+        mandatory_fields = self.__get_mandatory_fields__()
+        missing_fields = []
+        for key in mandatory_fields:
+            if not key in self._config or not self.__is_value_valid__(self._config[key]):
+                missing_fields.append(key)
+        if len(missing_fields) > 0:
+            raise StorageAdapterConfigurationException(missing_fields)
 
     def __is_value_valid__(self, value):
         print(value)

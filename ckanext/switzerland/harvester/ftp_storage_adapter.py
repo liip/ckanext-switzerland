@@ -60,14 +60,8 @@ class FTPStorageAdapter(StorageAdapterBase):
 
         self.create_local_dir()
 
-    def validate_config(self):
-        mandatory_fields = [FTP_USER_NAME, FTP_PASSWORD, FTP_HOST, FTP_PORT, 'remotedirectory', 'localpath']
-        missing_fields = []
-        for key in mandatory_fields:
-            if not key in self._config or not self.__is_value_valid__(self._config[key]):
-                missing_fields.append(key)
-        if len(missing_fields) > 0:
-            raise StorageAdapterConfigurationException(missing_fields)
+    def __get_mandatory_fields__(self):
+        return [FTP_USER_NAME, FTP_PASSWORD, FTP_HOST, FTP_PORT, 'remotedirectory', 'localpath']
 
     # tested
     def __enter__(self):

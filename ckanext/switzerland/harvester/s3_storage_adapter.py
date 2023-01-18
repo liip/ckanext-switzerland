@@ -73,14 +73,8 @@ class S3StorageAdapter(StorageAdapterBase):
         # as boto3 is HTTP call based, we don't need to close anything
         pass
 
-    def validate_config(self):
-        mandatory_fields = [AWS_ACCESS_KEY, AWS_BUCKET_NAME, AWS_REGION_NAME, AWS_SECRET_KEY, S3_CONFIG_KEY]
-        missing_fields = []
-        for key in mandatory_fields:
-            if not key in self._config or not self.__is_value_valid__(self._config[key]):
-                missing_fields.append(key)
-        if len(missing_fields) > 0:
-            raise StorageAdapterConfigurationException(missing_fields)
+    def __get_mandatory_fields__(self):
+        return [AWS_ACCESS_KEY, AWS_BUCKET_NAME, AWS_REGION_NAME, AWS_SECRET_KEY, S3_CONFIG_KEY]
 
     def cdremote(self, remotedir=None):
         # Files are stored flat on AWS. So there is no such command on S3. We just need to keep a ref to a Working Directory
