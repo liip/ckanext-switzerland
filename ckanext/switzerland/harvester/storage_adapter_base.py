@@ -1,15 +1,13 @@
-import json
 from pprint import pformat
 import os
 import logging
 import errno
 import zipfile
 from exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
-
 from keys import (LOCAL_PATH)
 
 log = logging.getLogger(__name__)
-#TODO: Rewrite documentation
+
 class StorageAdapterBase(object):
     _config = None
     _ckan_config_resolver= None

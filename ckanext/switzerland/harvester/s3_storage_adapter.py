@@ -5,7 +5,7 @@ S3 Storage Adapter
 Methods that help with dealing with remote AWS S3 Storage and local folders.
 The class is intended to be used with Python's `with` statement, e.g.
 `
-    with S3StorageAdapter('/remote-base-path/', config) as storage_adapter:
+    with S3StorageAdapter('/remote-base-path/', config, ...) as storage_adapter:
         ...
 `
 """
@@ -16,7 +16,6 @@ import boto3
 from botocore.exceptions import ClientError
 import boto3.session
 import os
-import sys
 from storage_adapter_base import StorageAdapterBase
 from keys import (
     AWS_SECRET_KEY,
@@ -63,7 +62,6 @@ class S3StorageAdapter(StorageAdapterBase):
     def __exit__(self, type, value, traceback):
         pass
     
-    #TODO: do we want to support other types of credentials configuration => .aws file, with profiles
     def _connect(self):
         self._aws_session = boto3.session.Session(
             aws_access_key_id=self._config[AWS_ACCESS_KEY],
