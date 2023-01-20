@@ -488,7 +488,10 @@ class BaseFTPHarvester(HarvesterBase):
         log.info("Local directory: %s", tmpfolder)
 
         ftp_config = {}
-        ftp_config['ftp_server'] = self.config.get('ftp_server')
+        try:
+            ftp_config['ftp_server'] = self.validate_config('ftp_server')
+        except JSONDecodeError:
+            ftp_config['ftp_server'] = self.config.get('ftp_server')
 
         try:
 
