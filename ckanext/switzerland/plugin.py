@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 class OgdchPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IValidators)
-    plugins.implements(plugins.IFacets)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.ITranslation)
@@ -54,34 +53,6 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'parse_json': sh.parse_json,
             'url': v.url_validator,
         }
-
-    # IFacets
-
-    def dataset_facets(self, facets_dict, package_type):
-        lang_code = toolkit.request.environ['CKAN_LANG']
-        facets_dict = collections.OrderedDict()
-        facets_dict['keywords_' + lang_code] = plugins.toolkit._('Keywords')
-        facets_dict['organization'] = plugins.toolkit._('Organizations')
-        facets_dict['res_format'] = plugins.toolkit._('Formats')
-        return facets_dict
-
-    def group_facets(self, facets_dict, group_type, package_type):
-        lang_code = toolkit.request.environ['CKAN_LANG']
-        # the IFacets implementation of CKAN 2.4 is broken,
-        # clear the dict instead and change the passed in argument
-        facets_dict.clear()
-        facets_dict['keywords_' + lang_code] = plugins.toolkit._('Keywords')
-        facets_dict['organization'] = plugins.toolkit._('Organizations')
-        facets_dict['res_format'] = plugins.toolkit._('Formats')
-
-    def organization_facets(self, facets_dict, organization_type,
-                            package_type):
-        lang_code = toolkit.request.environ['CKAN_LANG']
-        # the IFacets implementation of CKAN 2.4 is broken,
-        # clear the dict instead and change the passed in argument
-        facets_dict.clear()
-        facets_dict['keywords_' + lang_code] = plugins.toolkit._('Keywords')
-        facets_dict['res_format'] = plugins.toolkit._('Formats')
 
     # IActions
 
