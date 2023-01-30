@@ -5,75 +5,73 @@ FTP Helper
 Methods that help with dealing with remote ftp and local folders.
 The class is intended to be used with Python's `with` statement, e.g.
 `
-    with FTPHelper('/remote-base-path/') as ftph:
+    with FTPStorageAdapter('/remote-base-path/') as ftph:
         ...
 `
 """
 
+import json
 import logging
 from pprint import pformat
 
 import os
 
+from config.config_key import ConfigKey
+from storage_adapter_base import StorageAdapterBase
+from exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
+
 import pysftp
-from ckan.plugins.toolkit import config as ckanconf
 import ftplib
-import zipfile
-import errno
 import datetime
 import ssl
 
+from keys import (
+    FTP_USER_NAME,
+    FTP_PASSWORD, 
+    FTP_KEY_FILE,
+    FTP_HOST,
+    FTP_PORT, 
+    FTP_SERVER_KEY,
+    LOCAL_PATH, 
+    REMOTE_DIRECTORY
+)
+
 log = logging.getLogger(__name__)
 
-
-class FTPHelper(object):
-    """ FTP Helper Class """
-
-    _config = None
+CONFIG_KEYS = [
+    ConfigKey(FTP_USER_NAME, str, True),
+    ConfigKey(FTP_PASSWORD, str, True),
+    ConfigKey(FTP_KEY_FILE, str),
+    ConfigKey(FTP_HOST, str, True),
+    ConfigKey(FTP_PORT, int, True, lambda x: x > 0, 'Port should be a positive number'),
+    ConfigKey(LOCAL_PATH, str, True),
+    ConfigKey(REMOTE_DIRECTORY, str, True),
+]
+class FTPStorageAdapter(StorageAdapterBase):
+    """ FTP Storage Adapter Class """
 
     ftps = None
-
-    remotefolder = ''
 
     tmpfile_extension = '.TMP'
 
     # tested
-    def __init__(self, remotefolder='', config=None):
-        """
-        Load the ftp configuration from ckan config file
-
-        :param remotefolder: Remote folder path
-        :type remotefolder: str or unicode
-        """
-
-        if config:
-            # read ftpconfig from harvester-config
-            ftpconfig = config
-            # all server related information is read from the ckan-config
-            ftp_server_ = 'ckan.ftp.' + ftpconfig['ftp_server']
-            for key in ['username', 'password', 'keyfile', 'host', 'port', 'remotedirectory', 'localpath']:
-                ftpconfig[key] = ckanconf.get(ftp_server_+'.%s' % key, '')
-        else:
-            raise Exception('The ftp server must be specified in the harvester configuration')
-
-        ftpconfig['host'] = str(ftpconfig['host'])
-        ftpconfig['port'] = int(ftpconfig['port'])
-
-        log.info('Using FTP-Config: %s' % pformat(config))
-        
-        self._config = ftpconfig
-        # prepare the remote path
-        self.remotefolder = remotefolder.rstrip("/")
-        # create the local directory, if it does not exist
-        self.create_local_dir()
+    def __init__(self, config_resolver, config, remote_folder=''):
+        super(FTPStorageAdapter, self).__init__(
+            config_resolver, 
+            config, 
+            remote_folder, 
+            FTP_SERVER_KEY, 
+            CONFIG_KEYS, 
+            'ckan.ftp'
+        )
 
     # tested
     def __enter__(self):
         """
         Establish an ftp connection and cd into the configured remote directory
 
-        :returns: Instance of FTPHelper
-        :rtype: FTPHelper
+        :returns: Instance of FTPStorageAdapter
+        :rtype: FTPStorageAdapter
         """
         self._connect()
         # cd into the remote directory
@@ -96,49 +94,7 @@ class FTPHelper(object):
         :returns: The name of the folder created by ftplib, e.g. 'mydomain.com:21'
         :rtype: string
         """
-        return "%s:%d" % (self._config['host'], self._config['port'])
-
-    # tested
-    def _mkdir_p(self, path, perms=0777):
-        """
-        Recursively create local directories
-        Based on http://stackoverflow.com/a/600612/426266
-
-        :param path: Folder path
-        :type path: str or unicode
-        :param perms: Folder permissions
-        :type perms: octal
-        """
-        try:
-            os.makedirs(path, perms)
-        except OSError as exc:  # Python >2.5
-            if exc.errno == errno.EEXIST and os.path.isdir(path):
-                # path already exists
-                pass
-            else:
-                # something went wrong with the creation of the directories
-                raise
-
-    # tested
-    def create_local_dir(self, folder=None):
-        """
-        Create a local folder
-
-        :param folder: Folder path
-        :type folder: str or unicode
-
-        :returns: None
-        :rtype: None
-        """
-        if not folder:
-            folder = self._config['localpath']
-        # create the local directory if it does not exist
-
-        folder = folder.rstrip("/")
-
-        if not os.path.isdir(folder):
-            self._mkdir_p(folder)
-            log.debug("Created folder: %s" % str(folder))
+        return "%s:%d" % (self._config[FTP_HOST], self._config[FTP_PORT])
 
     # tested
     def _connect(self):
@@ -150,32 +106,32 @@ class FTPHelper(object):
         :rtype: None
         """
 
-        if self._config['password']:
+        if self._config[FTP_PASSWORD]:
             # overwrite the default port (21)
-            ftplib.FTP.port = int(self._config['port'])
+            ftplib.FTP.port = int(self._config[FTP_PORT])
             # we need to set the TLS version explicitly to allow connection
             # to newer servers who have disabled older TLS versions (< TLSv1.2)
             ftplib.FTP_TLS.ssl_version = ssl.PROTOCOL_TLSv1_2
             # connect
             # check SFTP protocol is used, pysftp defaults to 22
-            if int(self._config['port']) == 22:
-                self.sftp = pysftp.Connection(host=self._config['host'],
-                                              username=self._config['username'],
-                                              password=self._config['password'],
-                                              port=int(self._config['port']),
+            if int(self._config[FTP_PORT]) == 22:
+                self.sftp = pysftp.Connection(host=self._config[FTP_HOST],
+                                              username=self._config[FTP_USER_NAME],
+                                              password=self._config[FTP_PASSWORD],
+                                              port=int(self._config[FTP_PORT]),
                                               )
             else:
-                self.ftps = ftplib.FTP_TLS(self._config['host'],
-                                           self._config['username'],
-                                           self._config['password'])
+                self.ftps = ftplib.FTP_TLS(self._config[FTP_HOST],
+                                           self._config[FTP_USER_NAME],
+                                           self._config[FTP_PASSWORD])
                 # switch to secure data connection
                 self.ftps.prot_p()
-        elif self._config['keyfile']:
+        elif self._config[FTP_KEY_FILE]:
             # connecting via SSH
-            self.sftp = pysftp.Connection(host=self._config['host'],
-                                          username=self._config['username'],
-                                          private_key=self._config['keyfile'],
-                                          port=int(self._config['port']),
+            self.sftp = pysftp.Connection(host=self._config[FTP_HOST],
+                                          username=self._config[FTP_USER_NAME],
+                                          private_key=self._config[FTP_KEY_FILE],
+                                          port=int(self._config[FTP_PORT]),
                                           )
     # tested
     def _disconnect(self):
@@ -202,7 +158,7 @@ class FTPHelper(object):
         :rtype: None
         """
         if not remotedir:
-            remotedir = self.remotefolder
+            remotedir = self.remote_folder
         if self.ftps:
             self.ftps.cwd(remotedir)
         elif self.sftp:
@@ -233,7 +189,7 @@ class FTPHelper(object):
                     if key == 'type' and value == 'file':
                         files.append(filename)
         elif self.sftp:
-            files = self.sftp.listdir(self.remotefolder)
+            files = self.sftp.listdir(self.remote_folder)
 
         return files
 
@@ -260,7 +216,7 @@ class FTPHelper(object):
             if self.ftps:
                 dirlist = self.ftps.nlst()
             elif self.sftp:
-                dirlist = self.sftp.listdir(self.remotefolder)
+                dirlist = self.sftp.listdir(self.remote_folder)
 
         # filter out '.' and '..' and return the list
         dirlist = filter(lambda entry: entry not in ['.', '..'], dirlist)
@@ -282,7 +238,7 @@ class FTPHelper(object):
         :rtype: list
         """
         if not folder:
-            folder = self.remotefolder
+            folder = self.remote_folder
         dirs = []
         new_dirs = self.get_remote_dirlist(folder)
         while len(new_dirs) > 0:
@@ -295,23 +251,6 @@ class FTPHelper(object):
                     new_dirs.append(new_dir)
         dirs.sort()
         return dirs
-
-    # tested
-    def get_local_dirlist(self, localpath="."):
-        """
-        Get directory listing, including all sub-folders
-
-        :param localpath: Path to a local folder
-        :type localpath: str or unicode
-
-        :returns: Directory listing
-        :rtype: list
-        """
-        dirlist = []
-        for dirpath, dirnames, filenames in os.walk(localpath):
-            for filename in [f for f in filenames]:
-                dirlist.append(os.path.join(dirpath, filename))
-        return dirlist
 
     def get_modified_date(self, filename, folder=None):
         """
@@ -351,25 +290,6 @@ class FTPHelper(object):
 
         return modified_date
 
-    def get_local_path(self):
-        return self._config['localpath']
-
-    # tested (with empty dir)
-    def is_empty_dir(self, folder=None):
-        """
-        Check if a remote directory is empty
-
-        :param folder: Folder name or path
-        :type folder: str or unicode
-
-        :returns: Number of files or directories in remote folder
-        :rtype: int
-        """
-        if not folder:
-            folder = None
-        num_files = len(self.get_remote_dirlist_all(folder))
-        return num_files
-
     # tested
     def fetch(self, filename, localpath=None):
         """
@@ -384,7 +304,7 @@ class FTPHelper(object):
         :rtype: string
         """
         if not localpath:
-            localpath = os.path.join(self._config['localpath'], filename)
+            localpath = os.path.join(self._config[LOCAL_PATH], filename)
 
         localfile = open(localpath, 'wb')
 
@@ -402,23 +322,3 @@ class FTPHelper(object):
 
         return status
 
-    # tested
-    def unzip(self, filepath):
-        """
-        Extract a single zip file
-        E.g. will extract a file /tmp/somedir/myfile.zip into /tmp/somedir/
-
-        :param filepath: Path to a local file
-        :type filepath: str or unicode
-
-        :returns: Number of extracted files
-        :rtype: int
-        """
-        na, file_extension = os.path.splitext(filepath)
-        if file_extension.lower() == '.zip':
-            log.info("Unzipping: %s" % filepath)
-            target_folder = os.path.dirname(filepath)
-            zfile = zipfile.ZipFile(filepath)
-            filelist = zfile.namelist()
-            zfile.extractall(target_folder)
-            return len(filelist)

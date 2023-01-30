@@ -12,13 +12,14 @@ from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
 from ckan.model import Session
 from ckan import model
+from ckan.plugins.toolkit import config as ckanconf
 from ckanext.harvest.model import HarvestJob, HarvestObject
-from ckanext.switzerland.harvester.base_ftp_harvester import validate_regex
+from ckanext.switzerland.harvester.base_sbb_harvester import validate_regex
 from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
 from ckanext.switzerland.harvester import infoplus
 import voluptuous
 
-from ftp_helper import FTPHelper
+from storage_adapter_factory import StorageAdapterFactory
 
 log = logging.getLogger(__name__)
 
@@ -74,11 +75,8 @@ class TimetableHarvester(SBBFTPHarvester):
         remotefolder = self.get_remote_folder()
         log.info("Getting listing from remotefolder: %s" % remotefolder)
 
-        ftp_config = {}
-        ftp_config['ftp_server'] = self.config.get('ftp_server')
-
         try:
-            with FTPHelper(remotefolder, config=ftp_config) as ftph:
+            with StorageAdapterFactory(ckanconf).get_storage_adapter(remotefolder, self.config) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 

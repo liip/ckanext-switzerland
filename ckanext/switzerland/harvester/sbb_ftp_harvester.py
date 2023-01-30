@@ -11,17 +11,18 @@ from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
 from ckan.model import Session
+from ckan.plugins.toolkit import config as ckanconf
 from ckan import model
 from ckanext.harvest.model import HarvestJob, HarvestObject
-from ckanext.switzerland.harvester.base_ftp_harvester import BaseFTPHarvester, validate_regex
+from ckanext.switzerland.harvester.base_sbb_harvester import BaseSBBHarvester, validate_regex
 from ckanext.switzerland.harvester.ist_file import ist_file_filter
 
-from ftp_helper import FTPHelper
+from storage_adapter_factory import StorageAdapterFactory
 
 log = logging.getLogger(__name__)
 
 
-class SBBFTPHarvester(BaseFTPHarvester):
+class SBBFTPHarvester(BaseSBBHarvester):
     harvester_name = 'SBB FTP Harvester'
 
     filters = {
@@ -72,11 +73,8 @@ class SBBFTPHarvester(BaseFTPHarvester):
         remotefolder = self.get_remote_folder()
         log.info("Getting listing from remotefolder: %s" % remotefolder)
 
-        ftp_config = {}
-        ftp_config['ftp_server'] = self.config.get('ftp_server')
-
         try:
-            with FTPHelper(remotefolder, config=ftp_config) as ftph:
+            with StorageAdapterFactory(ckanconf).get_storage_adapter(remotefolder, self.config) as ftph:
                 filelist = ftph.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 
