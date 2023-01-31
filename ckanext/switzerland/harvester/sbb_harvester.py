@@ -22,8 +22,8 @@ from storage_adapter_factory import StorageAdapterFactory
 log = logging.getLogger(__name__)
 
 
-class SBBFTPHarvester(BaseSBBHarvester):
-    harvester_name = 'SBB FTP Harvester'
+class SBBHarvester(BaseSBBHarvester):
+    harvester_name = 'SBB Harvester'
 
     filters = {
         'ist_file': ist_file_filter
@@ -45,7 +45,7 @@ class SBBFTPHarvester(BaseSBBHarvester):
         }
 
     def get_config_validation_schema(self):
-        schema = super(SBBFTPHarvester, self).get_config_validation_schema()
+        schema = super(SBBHarvester, self).get_config_validation_schema()
         return schema.extend({
             voluptuous.Required('filter_regex', default='.*'): validate_regex,
             voluptuous.Required('ist_file', default=False): bool,
