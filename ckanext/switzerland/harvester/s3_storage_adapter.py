@@ -163,6 +163,7 @@ class S3StorageAdapter(StorageAdapterBase):
                     and s3_object['LastModified'].tzinfo == tzutc():
                 modified_date = str(s3_object['LastModified'])
                 modified_date = datetime.datetime.strptime(modified_date[:-6], '%Y-%m-%d %H:%M:%S')
+                # example: 2022-11-02 13:46:07
                 return modified_date
             else:
                 log.info("S3 bucket modified date information is not available or timezone is not in UTC")

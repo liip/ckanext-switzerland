@@ -5,7 +5,7 @@ import os
 from ckan.lib.munge import munge_name
 from ckan.logic import get_action, NotFound
 from ckanext.harvest import model as harvester_model
-from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
+from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import MockFTPStorageAdapter
 from mock import patch
 from nose.tools import assert_equal, assert_raises
@@ -14,14 +14,14 @@ from . import data
 from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 
 
-@patch('ckanext.switzerland.harvester.sbb_ftp_harvester.FTPStorageAdapter', MockFTPStorageAdapter)
+@patch('ckanext.switzerland.harvester.sbb_harvester.FTPStorageAdapter', MockFTPStorageAdapter)
 @patch('ckanext.switzerland.harvester.base_sbb_harvester.FTPStorageAdapter', MockFTPStorageAdapter)
-class TestSBBFTPHarvester(BaseSBBHarvesterTests):
+class TestSBBHarvester(BaseSBBHarvesterTests):
     """
-    Integration test for SBBFTPHarvester
+    Integration test for SBBHarvester
     """
 
-    harvester_class = SBBFTPHarvester
+    harvester_class = SBBHarvester
 
     def test_simple(self):
         MockFTPStorageAdapter.filesystem = self.get_filesystem()
@@ -427,7 +427,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
 
     def test_validate_regex_fail(self):
         MockFTPStorageAdapter.filesystem = self.get_filesystem()
-        harvester = SBBFTPHarvester()
+        harvester = SBBHarvester()
         with assert_raises(Exception):
             harvester.validate_config(json.dumps({
                 'dataset': data.dataset_name,
@@ -438,7 +438,7 @@ class TestSBBFTPHarvester(BaseSBBHarvesterTests):
 
     def test_validate_regex_ok(self):
         MockFTPStorageAdapter.filesystem = self.get_filesystem()
-        harvester = SBBFTPHarvester()
+        harvester = SBBHarvester()
         harvester.validate_config(json.dumps({
             'dataset': data.dataset_name,
             'environment': data.environment,
