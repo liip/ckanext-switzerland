@@ -60,7 +60,7 @@ class BaseSBBHarvester(HarvesterBase):
     """
     A Base SBB Harvester for harvesting data from ftp/s3 aws server.
     This is a generic harvester, which can be configured
-    for specif datasets using the ckan harvester webinterface.
+    for specific datasets using the ckan harvester webinterface.
     """
 
     config = None  # ckan harvester config, not ftp/s3 config
@@ -419,9 +419,6 @@ class BaseSBBHarvester(HarvesterBase):
 
     def gather_stage(self, harvest_job):
         self._setup_logging(harvest_job)
-        log.info("harvest_job")
-        log.info(harvest_job)
-        log.info(self._setup_logging(harvest_job))
         try:
             return self.gather_stage_impl(harvest_job)
         except Exception:

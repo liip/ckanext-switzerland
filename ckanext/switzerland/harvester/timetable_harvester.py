@@ -172,7 +172,7 @@ class TimetableHarvester(SBBHarvester):
                     log.info('No files have been updated on the ftp/s3 aws server since the last harvest job')
                     return []  # no files to harvest this time
             else:
-                log.warning('force_all is activate, downloading all files from ftp/s3 without modification date checking')
+                log.warning('force_all is activated, downloading all files from ftp/s3 without modification date checking')
 
             # ------------------------------------------------------
 

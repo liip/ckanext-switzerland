@@ -155,7 +155,7 @@ class SBBHarvester(BaseSBBHarvester):
                 except NotFound:  # dataset does not exist yet, download all files
                     pass
             else:
-                log.warning('force_all is activate, downloading all files from ftp/s3 without modification date checking')
+                log.warning('force_all is activated, downloading all files from ftp/s3 without modification date checking')
 
             # ------------------------------------------------------
 
