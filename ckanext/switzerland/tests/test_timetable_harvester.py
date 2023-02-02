@@ -13,7 +13,7 @@ from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 @patch('ckanext.switzerland.harvester.base_sbb_harvester.FTPStorageAdapter', MockFTPStorageAdapter)
 class TestTimetableHarvester(BaseSBBHarvesterTests):
     """
-    Integration test for SBBFTPHarvester
+    Integration test for SBBHarvester
     """
 
     harvester_class = TimetableHarvester

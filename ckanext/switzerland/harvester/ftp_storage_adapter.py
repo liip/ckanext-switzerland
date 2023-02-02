@@ -1,11 +1,11 @@
 """
-FTP Helper
+FTP Storage Adapter
 ==================
 
-Methods that help with dealing with remote ftp and local folders.
+Methods that help with dealing with remote ftp/sftp and local folders.
 The class is intended to be used with Python's `with` statement, e.g.
 `
-    with FTPStorageAdapter('/remote-base-path/') as ftph:
+    with FTPStorageAdapter('/remote-base-path/') as storage:
         ...
 `
 """
@@ -51,7 +51,7 @@ class FTPStorageAdapter(StorageAdapterBase):
     """ FTP Storage Adapter Class """
 
     ftps = None
-
+    sftp = None
     tmpfile_extension = '.TMP'
 
     # tested
@@ -100,18 +100,13 @@ class FTPStorageAdapter(StorageAdapterBase):
     def _connect(self):
         """
         Establish an FTP connection
-        ftps - to connect with password
-        sftp - to connect with keyfile
+        ftps - to connect to FTP Server using password
+        sftp - to connect to SFTP Server using keyfile/password
         :returns: None
         :rtype: None
         """
 
         if self._config[FTP_PASSWORD]:
-            # overwrite the default port (21)
-            ftplib.FTP.port = int(self._config[FTP_PORT])
-            # we need to set the TLS version explicitly to allow connection
-            # to newer servers who have disabled older TLS versions (< TLSv1.2)
-            ftplib.FTP_TLS.ssl_version = ssl.PROTOCOL_TLSv1_2
             # connect
             # check SFTP protocol is used, pysftp defaults to 22
             if int(self._config[FTP_PORT]) == 22:
@@ -121,6 +116,11 @@ class FTPStorageAdapter(StorageAdapterBase):
                                               port=int(self._config[FTP_PORT]),
                                               )
             else:
+                # overwrite the default port (21)
+                ftplib.FTP.port = int(self._config[FTP_PORT])
+                # we need to set the TLS version explicitly to allow connection
+                # to newer servers who have disabled older TLS versions (< TLSv1.2)
+                ftplib.FTP_TLS.ssl_version = ssl.PROTOCOL_TLSv1_2
                 self.ftps = ftplib.FTP_TLS(self._config[FTP_HOST],
                                            self._config[FTP_USER_NAME],
                                            self._config[FTP_PASSWORD])
@@ -162,7 +162,7 @@ class FTPStorageAdapter(StorageAdapterBase):
         if self.ftps:
             self.ftps.cwd(remotedir)
         elif self.sftp:
-            self.sftp.cwd(remotedir)
+            self.sftp.chdir(remotedir)
 
     def get_remote_filelist(self, folder=None):
         """

@@ -85,7 +85,7 @@ setup(
         ogdch_org=ckanext.switzerland.plugin:OgdchOrganizationPlugin
         ogdch_cmd=ckanext.switzerland.plugin:OgdchCommandsPlugin
         dcat_ch_rdf_harvester=ckanext.switzerland.dcat.harvesters:SwissDCATRDFHarvester
-        sbb_ftp_harvester=ckanext.switzerland.harvester.sbb_ftp_harvester:SBBFTPHarvester
+        sbb_harvester=ckanext.switzerland.harvester.sbb_harvester:SBBHarvester
         timetable_harvester=ckanext.switzerland.harvester.timetable_harvester:TimetableHarvester
 
         [paste.paster_command]

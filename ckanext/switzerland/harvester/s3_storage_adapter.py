@@ -5,17 +5,22 @@ S3 Storage Adapter
 Methods that help with dealing with remote AWS S3 Storage and local folders.
 The class is intended to be used with Python's `with` statement, e.g.
 `
-    with S3StorageAdapter('/remote-base-path/', config, ...) as storage_adapter:
+    with S3StorageAdapter('/remote-base-path/', config, ...) as storage:
         ...
 `
 """
 import logging
+import os
+import datetime
+
+from dateutil.tz import tzutc
 from pprint import pformat
 from config.config_key import ConfigKey
+
 import boto3
-from botocore.exceptions import ClientError
 import boto3.session
-import os
+from botocore.exceptions import ClientError
+
 from storage_adapter_base import StorageAdapterBase
 from keys import (
     AWS_SECRET_KEY,
@@ -154,7 +159,14 @@ class S3StorageAdapter(StorageAdapterBase):
         file_full_path = os.path.join(prefix, filename)
         try:
             s3_object = self._aws_client.head_object(Bucket=self._config[AWS_BUCKET_NAME], Key=file_full_path)
-            return s3_object['LastModified']
+            if s3_object['LastModified'].tzinfo is not None\
+                    and s3_object['LastModified'].tzinfo == tzutc():
+                modified_date = str(s3_object['LastModified'])
+                modified_date = datetime.datetime.strptime(modified_date[:-6], '%Y-%m-%d %H:%M:%S')
+                # example: 2022-11-02 13:46:07
+                return modified_date
+            else:
+                log.info("S3 bucket modified date information is not available or timezone is not in UTC")
         except ClientError:
             return None
     
