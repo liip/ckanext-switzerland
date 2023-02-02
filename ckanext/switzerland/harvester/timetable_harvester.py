@@ -15,7 +15,7 @@ from ckan import model
 from ckan.plugins.toolkit import config as ckanconf
 from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_sbb_harvester import validate_regex
-from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
+from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
 from ckanext.switzerland.harvester import infoplus
 import voluptuous
 
@@ -24,8 +24,8 @@ from storage_adapter_factory import StorageAdapterFactory
 log = logging.getLogger(__name__)
 
 
-class TimetableHarvester(SBBFTPHarvester):
-    harvester_name = 'Timetable FTP Harvester'
+class TimetableHarvester(SBBHarvester):
+    harvester_name = 'Timetable SBB Harvester'
 
     filters = {
         'infoplus': infoplus.file_filter,
@@ -42,7 +42,7 @@ class TimetableHarvester(SBBFTPHarvester):
         return {
             'name': '%sharvest' % self.harvester_name.lower(),
             'title': self.harvester_name,
-            'description': 'Fetches timetables from the SBB FTP Server',
+            'description': 'Fetches timetables from the SBB FTP/S3 AWS Server',
             'form_config_interface': 'Text'
         }
 
@@ -63,7 +63,7 @@ class TimetableHarvester(SBBFTPHarvester):
         :rtype: list
         """
         log.info('=====================================================')
-        log.info('In %s FTPHarvester gather_stage' % self.harvester_name)  # harvest_job.source.url
+        log.info('In %s Harvester gather_stage' % self.harvester_name)  # harvest_job.source.url
 
         # set harvester config
         self.config = self.load_config(harvest_job.source.config)
@@ -76,28 +76,30 @@ class TimetableHarvester(SBBFTPHarvester):
         log.info("Getting listing from remotefolder: %s" % remotefolder)
 
         try:
-            with StorageAdapterFactory(ckanconf).get_storage_adapter(remotefolder, self.config) as ftph:
-                filelist = ftph.get_remote_filelist()
+            with StorageAdapterFactory(ckanconf).get_storage_adapter(remotefolder, self.config) as storage:
+                filelist = storage.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 
                 filelist = filter(lambda filename: re.match(self.config['filter_regex'], filename), filelist)
 
                 # get last-modified date of each file
                 for f in filelist:
-                    modified_dates[f] = ftph.get_modified_date(f)
+                    modified_dates[f] = storage.get_modified_date(f)
 
                 # store some config for the next step
 
-                # ftplib stores retrieved files in a folder, e.g. 'ftp-secure.sbb.ch:990'
-                ftplibfolder = ftph.get_top_folder()
+                # store retrieved files in a folder, e.g. 'ftp-secure.sbb.ch:990'
+                storagelibfolder = storage.get_top_folder()
 
                 # set base directory of the tmp folder
-                tmpdirbase = os.path.join(ftph.get_local_path(), ftplibfolder.strip('/'), remotefolder.lstrip('/'))
+                tmpdirbase = os.path.join(
+                    storage.get_local_path(), storagelibfolder.strip('/'), remotefolder.lstrip('/')
+                )
                 tempfile.tempdir = tmpdirbase
 
                 # the base tmp folder needs to be created for the tempfile library
                 if not os.path.exists(tmpdirbase):
-                    ftph.create_local_dir(tmpdirbase)
+                    storage.create_local_dir(tmpdirbase)
 
                 # set prefix for tmp folder
                 prefix = datetime.now().strftime(self.tmpfolder_prefix)
@@ -155,7 +157,9 @@ class TimetableHarvester(SBBFTPHarvester):
                     package = model.Package.get(existing_dataset['id'])
                     existing_resources = map(lambda r: os.path.basename(r.url), package.resources_all)
 
-                    log.info('Existing resources on dataset: {}', ', '.join(existing_dataset))
+                    log.info('Existing resources on dataset with id {}: {}'.format(
+                        existing_dataset['id'], existing_resources)
+                    )
 
                     # skip file if its older than last harvester run date and it actually exists on the dataset
                     # only skip when file was already downloaded once
@@ -165,10 +169,10 @@ class TimetableHarvester(SBBFTPHarvester):
                         filelist_with_dataset.remove(f)
 
                 if not len(filelist_with_dataset):
-                    log.info('No files have been updated on the ftp server since the last harvest job')
+                    log.info('No files have been updated on the ftp/s3 aws server since the last harvest job')
                     return []  # no files to harvest this time
             else:
-                log.warning('force_all is activate, downloading all files from ftp without modification date checking')
+                log.warning('force_all is activate, downloading all files from ftp/s3 without modification date checking')
 
             # ------------------------------------------------------
 

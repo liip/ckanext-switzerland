@@ -1,5 +1,5 @@
 import os
-from ckanext.switzerland.harvester.sbb_ftp_harvester import SBBFTPHarvester
+from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import MockFTPStorageAdapter
 from mock import patch
 from nose.tools import assert_equal
@@ -8,14 +8,14 @@ from . import data
 from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 
 
-@patch('ckanext.switzerland.harvester.sbb_ftp_harvester.FTPStorageAdapter', MockFTPStorageAdapter)
+@patch('ckanext.switzerland.harvester.sbb_harvester.FTPStorageAdapter', MockFTPStorageAdapter)
 @patch('ckanext.switzerland.harvester.base_sbb_harvester.FTPStorageAdapter', MockFTPStorageAdapter)
 class TestIstFileHarvester(BaseSBBHarvesterTests):
     """
-    Integration test for SBBFTPHarvester with ist_file
+    Integration test for SBBHarvester with ist_file
     """
 
-    harvester_class = SBBFTPHarvester
+    harvester_class = SBBHarvester
 
     def test_simple(self):
         filesystem = self.get_filesystem(filename='ist_file.csv')

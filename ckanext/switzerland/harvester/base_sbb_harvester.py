@@ -1,5 +1,5 @@
 """
-CKAN FTP Harvester
+CKAN Base for FTP/S3 Harvester
 ==================
 
 A Harvesting Job is performed in three phases.
@@ -58,11 +58,12 @@ def validate_regex(regex):
 
 class BaseSBBHarvester(HarvesterBase):
     """
-    A FTP Harvester for the SBB ftp server. This is a generic harvester
-    which can be configured for specif datasets using the ckan harvester webinterface.
+    A Base SBB Harvester for harvesting data from ftp/s3 aws server.
+    This is a generic harvester, which can be configured
+    for specif datasets using the ckan harvester webinterface.
     """
 
-    config = None  # ckan harvester config, not ftp config
+    config = None  # ckan harvester config, not ftp/s3 config
 
     api_version = 2
     action_api_version = 3
@@ -418,6 +419,9 @@ class BaseSBBHarvester(HarvesterBase):
 
     def gather_stage(self, harvest_job):
         self._setup_logging(harvest_job)
+        log.info("harvest_job")
+        log.info(harvest_job)
+        log.info(self._setup_logging(harvest_job))
         try:
             return self.gather_stage_impl(harvest_job)
         except Exception:
@@ -498,9 +502,9 @@ class BaseSBBHarvester(HarvesterBase):
         self.config = self.load_config(harvest_object.job.source.config)
 
         try:
-            with StorageAdapterFactory(ckanconf).get_storage_adapter(remotefolder, self.config) as ftph:
+            with StorageAdapterFactory(ckanconf).get_storage_adapter(remotefolder, self.config) as storage:
 
-                # fetch file via ftplib
+                # fetching file
                 # -------------------------------------------------------------------
                 # full path of the destination file
                 targetfile = os.path.join(tmpfolder, f)
@@ -508,7 +512,7 @@ class BaseSBBHarvester(HarvesterBase):
                 log.info('Fetching file: %s' % str(f))
 
                 start = time.time()
-                status = ftph.fetch(f, targetfile)  # 226 Transfer complete
+                status = storage.fetch(f, targetfile)  # 226 Transfer complete
                 elapsed = time.time() - start
 
                 log.info("Fetched %s [%s] in %ds" % (f, str(status), elapsed))

@@ -1,8 +1,8 @@
 """
-FTP Helper
+FTP Storage Adapter
 ==================
 
-Methods that help with dealing with remote ftp and local folders.
+Methods that help with dealing with remote ftp/sftp and local folders.
 The class is intended to be used with Python's `with` statement, e.g.
 `
     with FTPStorageAdapter('/remote-base-path/') as storage:
@@ -51,7 +51,7 @@ class FTPStorageAdapter(StorageAdapterBase):
     """ FTP Storage Adapter Class """
 
     ftps = None
-
+    sftp = None
     tmpfile_extension = '.TMP'
 
     # tested

@@ -40,7 +40,7 @@ class SBBHarvester(BaseSBBHarvester):
         return {
             'name': '%sharvest' % self.harvester_name.lower(),
             'title': self.harvester_name,
-            'description': 'Fetches data from the SBB FTP Server',
+            'description': 'Fetches data from the SBB FTP/S3 AWS Server',
             'form_config_interface': 'Text'
         }
 
@@ -61,7 +61,7 @@ class SBBHarvester(BaseSBBHarvester):
         :rtype: list
         """
         log.info('=====================================================')
-        log.info('In %s FTPHarvester gather_stage' % self.harvester_name)  # harvest_job.source.url
+        log.info('In %s Harvester gather_stage' % self.harvester_name)  # harvest_job.source.url
 
         # set harvester config
         self.config = self.load_config(harvest_job.source.config)
@@ -74,28 +74,30 @@ class SBBHarvester(BaseSBBHarvester):
         log.info("Getting listing from remotefolder: %s" % remotefolder)
 
         try:
-            with StorageAdapterFactory(ckanconf).get_storage_adapter(remotefolder, self.config) as ftph:
-                filelist = ftph.get_remote_filelist()
+            with StorageAdapterFactory(ckanconf).get_storage_adapter(remotefolder, self.config) as storage:
+                filelist = storage.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 
                 filelist = filter(lambda filename: re.match(self.config['filter_regex'], filename), filelist)
 
                 # get last-modified date of each file
                 for f in filelist:
-                    modified_dates[f] = ftph.get_modified_date(f)
+                    modified_dates[f] = storage.get_modified_date(f)
 
                 # store some config for the next step
 
-                # ftplib stores retrieved files in a folder, e.g. 'ftp-secure.sbb.ch:990'
-                ftplibfolder = ftph.get_top_folder()
+                # store retrieved files in a folder, e.g. 'ftp-secure.sbb.ch:990'
+                storagelibfolder = storage.get_top_folder()
 
                 # set base directory of the tmp folder
-                tmpdirbase = os.path.join(ftph.get_local_path(), ftplibfolder.strip('/'), remotefolder.lstrip('/'))
+                tmpdirbase = os.path.join(
+                    storage.get_local_path(), storagelibfolder.strip('/'), remotefolder.lstrip('/')
+                )
                 tempfile.tempdir = tmpdirbase
 
                 # the base tmp folder needs to be created for the tempfile library
                 if not os.path.exists(tmpdirbase):
-                    ftph.create_local_dir(tmpdirbase)
+                    storage.create_local_dir(tmpdirbase)
 
                 # set prefix for tmp folder
                 prefix = datetime.now().strftime(self.tmpfolder_prefix)
@@ -148,12 +150,12 @@ class SBBHarvester(BaseSBBHarvester):
                             filelist.remove(f)
 
                     if not len(filelist):
-                        log.info('No files have been updated on the ftp server since the last harvest job')
+                        log.info('No files have been updated on the ftp/s3 aws server since the last harvest job')
                         return []  # no files to harvest this time
                 except NotFound:  # dataset does not exist yet, download all files
                     pass
             else:
-                log.warning('force_all is activate, downloading all files from ftp without modification date checking')
+                log.warning('force_all is activate, downloading all files from ftp/s3 without modification date checking')
 
             # ------------------------------------------------------
 

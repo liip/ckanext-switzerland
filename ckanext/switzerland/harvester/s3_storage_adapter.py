@@ -5,7 +5,7 @@ S3 Storage Adapter
 Methods that help with dealing with remote AWS S3 Storage and local folders.
 The class is intended to be used with Python's `with` statement, e.g.
 `
-    with S3StorageAdapter('/remote-base-path/', config, ...) as storage_adapter:
+    with S3StorageAdapter('/remote-base-path/', config, ...) as storage:
         ...
 `
 """
