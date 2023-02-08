@@ -174,14 +174,10 @@ class S3StorageAdapter(StorageAdapterBase):
         prefix = self.__determine_prefix__(None)
         file_full_path = os.path.join(prefix, filename)
 
-        object = self._aws_client.get_object(Bucket=self._config[AWS_BUCKET_NAME], Key=file_full_path)
-
         if not localpath:
             localpath = os.path.join(self._config[LOCAL_PATH], filename)
         
-        with open(localpath, 'wb') as binary_file:
-            bytes = object['Body'].read()
-            binary_file.write(bytes)
+        self._aws_client.download_file(self._config[AWS_BUCKET_NAME], file_full_path, localpath)
 
         return "226 Transfer complete"
 

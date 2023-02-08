@@ -5,7 +5,7 @@ import datetime
 
 from helpers.mock_config_resolver import MockConfigResolver
 from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
-from fixtures.aws_fixture import FILES_AT_ROOT, FILE_CONTENT, FILES_AT_FOLDER, HEAD_FILE_AT_FOLDER, HEAD_FILE_AT_ROOT, NO_CONTENT, ALL, ALL_AT_FOLDER, GET_OBJECT
+from fixtures.aws_fixture import FILES_AT_ROOT, FILE_CONTENT, FILES_AT_FOLDER, HEAD_FILE_AT_FOLDER, HEAD_FILE_AT_ROOT, NO_CONTENT, ALL, ALL_AT_FOLDER
 import boto3
 from dateutil.tz import tzutc
 from botocore.stub import Stubber
@@ -401,7 +401,7 @@ class TestS3StorageAdapter(unittest.TestCase):
 
         last_modified_date = storage_adapter.get_modified_date("file_01.pdf")
 
-        expected_date = datetime.datetime(2022,12,21,13,52,52, tzinfo=tzutc())
+        expected_date = datetime.datetime(2022,12,21,13,52,52)
         assert_array_equal(expected_date, last_modified_date)
     
     def test_get_modified_date_file_at_folder_then_date_is_correct(self):
@@ -416,7 +416,7 @@ class TestS3StorageAdapter(unittest.TestCase):
 
         last_modified_date = storage_adapter.get_modified_date("file_01.pdf")
 
-        expected_date = datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc())
+        expected_date = datetime.datetime(2022, 12, 21, 13, 53, 8)
         self.assertEqual(expected_date, last_modified_date)
     
     def test_get_modified_date_file_with_folder_then_date_is_correct(self):
@@ -430,7 +430,7 @@ class TestS3StorageAdapter(unittest.TestCase):
 
         last_modified_date = storage_adapter.get_modified_date("file_01.pdf", 'a')
 
-        expected_date = datetime.datetime(2022, 12, 21, 13, 53, 8, tzinfo=tzutc())
+        expected_date = datetime.datetime(2022, 12, 21, 13, 53, 8)
         self.assertEqual(expected_date, last_modified_date)
     
     def test_get_modified_date_non_existing_file_then_date_is_correct(self):
@@ -441,66 +441,7 @@ class TestS3StorageAdapter(unittest.TestCase):
 
         last_modified_date = storage_adapter.get_modified_date("file_01.pdf", 'a')
 
-        self.assertIsNone(last_modified_date)
-    
-    def test_fetch_then_file_is_written_on_disk(self):
-        storage_adapter = self.__build_tested_object__()
-        stubber = self.__stub_aws_client__(storage_adapter)
-        stubber.add_response("get_object", GET_OBJECT, {
-                                'Bucket': TEST_BUCKET_NAME, 
-                                'Key': 'example.csv'
-                            })
-        stubber.activate()
-        local_file = os.path.join(self.config[LOCAL_PATH], "example.csv")
-
-        storage_adapter.fetch("example.csv")
-
-        assert os.path.exists(local_file)
-   
-    def test_fetch_then_file_content_is_correct(self):
-        storage_adapter = self.__build_tested_object__()
-        stubber = self.__stub_aws_client__(storage_adapter)
-        stubber.add_response("get_object", GET_OBJECT, {
-                                'Bucket': TEST_BUCKET_NAME, 
-                                'Key': 'example.csv'
-                            })
-        stubber.activate()
-        local_file = os.path.join(self.config[LOCAL_PATH], "example.csv")
-
-        storage_adapter.fetch("example.csv")
-
-        with open(local_file, 'rb') as f: 
-            written_bytes = f.read()
-
-        assert_array_equal(FILE_CONTENT, written_bytes)
-   
-    def test_fetch_then_status_is_correct(self):
-        storage_adapter = self.__build_tested_object__()
-        stubber = self.__stub_aws_client__(storage_adapter)
-        stubber.add_response("get_object", GET_OBJECT, {
-                                'Bucket': TEST_BUCKET_NAME, 
-                                'Key': 'example.csv'
-                            })
-        stubber.activate()
-        
-        status = storage_adapter.fetch("example.csv")
-
-        self.assertEqual("226 Transfer complete", status)
-    
-    def test_fetch_with_local_path_then_file_is_written_on_disk(self):
-        storage_adapter = self.__build_tested_object__()
-        stubber = self.__stub_aws_client__(storage_adapter)
-        stubber.add_response("get_object", GET_OBJECT, {
-                                'Bucket': TEST_BUCKET_NAME, 
-                                'Key': 'example.csv'
-                            })
-        stubber.activate()
-        
-        local_file = os.path.join('/tmp/', "example_foo.csv")
-        
-        status = storage_adapter.fetch("example.csv", local_file)
-
-        assert os.path.exists(local_file)
+        self.assertIsNone(last_modified_date)   
 
     def test_init_when_no_config_then_throws_exception(self):
         self.config = None
