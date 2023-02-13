@@ -11,6 +11,7 @@ The class is intended to be used with Python's `with` statement, e.g.
 """
 import logging
 import os
+import re
 import datetime
 
 from dateutil.tz import tzutc
@@ -173,9 +174,14 @@ class S3StorageAdapter(StorageAdapterBase):
     def fetch(self, filename, localpath=None):
         prefix = self.__determine_prefix__(None)
         file_full_path = os.path.join(prefix, filename)
-
+        
         if not localpath:
             localpath = os.path.join(self._config[LOCAL_PATH], filename)
+
+        # ensure that the local path is a valid director   
+        local_tmp_path = re.match(r'(.*)/[^/]+$', localpath).group(1)
+        if not os.path.exists(local_tmp_path):
+            os.makedirs(local_tmp_path)
         
         self._aws_client.download_file(self._config[AWS_BUCKET_NAME], file_full_path, localpath)
 
