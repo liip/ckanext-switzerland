@@ -47,7 +47,7 @@ namespaces = {
     'xml': XML,
 }
 
-ogd_theme_base_url = 'http://opendata.swiss/themes/'
+ogd_theme_base_url = 'http://opendata.swiss/group/'
 
 slug_id_pattern = re.compile('[^/]+(?=/$|$)')
 
@@ -465,7 +465,7 @@ class SwissDCATAPProfile(RDFProfile):
         g.add((
             dataset_ref,
             DCAT.theme,
-            URIRef('http://opendata.swiss/themes/mobility')
+            URIRef('http://opendata.swiss/group/mobility')
         ))
 
         # Resources

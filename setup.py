@@ -24,7 +24,7 @@ setup(
 
     # Author details
     author='''Liip AG''',
-    author_email='''jazz@liip.ch''',
+    author_email='''odpch@liip.ch''',
 
     # Choose your license
     license='AGPL',
