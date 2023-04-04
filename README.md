@@ -120,9 +120,10 @@ Following the same schema, the identifier of this S3 bucket will be `main_bucket
 #### The harvester configuration
 This configuration is a JSON object, that can be modified in the UI, in the harvester administration. 
 
-In this configuration, it is mandatory to specify some information in order for the harvester to connect to the correct remote storage
+In this configuration, it is mandatory to specify some information in order for the harvester
+to connect to the correct remote storage.
 
-In order to use a FTP Harvester, the configuration should look like 
+In order to use a FTP Harvester, the configuration should look like:
 
 ```json
 {   
@@ -180,21 +181,11 @@ Each implementation (`S3StorageAdapter` and `FTPStorageAdapter`), are responsibl
 from the storage identifier received from the harvester configuration. 
 Each implementation is also unit tested, see respectively `TestS3StorageAdapter` and `TestFTPStorageAdapter` classes.
 
-## Update translations
-
-To generate a new ckanext-switzerland.pot file use the following command::
-
-    vagrant ssh
-    source /home/vagrant/pyenv/bin/activate
-    cd /var/www/ckanext/ckanext-switzerland/
-    ./update_translations.sh
-
-After that open every .po files in the i18n directory and do a Catalog => Update from POT file.
-
 ## Commands
 
 ### Command to cleanup the datastore database.
-[Datastore currently does not delete tables](https://github.com/ckan/ckan/issues/3422) when the corresponding resource is deleted.
+[Datastore currently does not delete tables](https://github.com/ckan/ckan/issues/3422) 
+when the corresponding resource is deleted.
 This command finds these orphaned tables and deletes its rows to free the space in the database.
 It is meant to be run regularly by a cronjob.
 
