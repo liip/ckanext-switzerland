@@ -5,48 +5,7 @@
 # Translations template for ckan.
 # Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
-# Translators:
-# Adrià Mercader <adria.mercader@okfn.org>, 2013
-# Alexander Brateanu <alexander.brateanu@gmail.com>, 2013
-# ddie <ddie@me.com>, 2011
-# Dominik Moritz <domoritz@gmail.com>, 2013
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2011
-# Florian Mayer <Florian.Mayer@dpaw.wa.gov.au>, 2015
-# jbspeakr <jan.brennenstuhl@okfn.org>, 2013
-# mih, 2015
-# Ondics, 2013
-# Ondics Githubler, 2013,2015
-# Ondics Githubler, 2015
-# PhilFOKUS <philipp.laemmel@fokus.fraunhofer.de>, 2011
-# pudo <friedrich@pudo.org>, 2011
-# relet <thomas.hirsch@gmail.com>, 2012
-# Sean Hammond <sean.hammond@okfn.org>, 2012
-# Stefan Oderbolz <oderbolz@gmail.com>, 2013
-# stefanw <stefanwehrmeyer@gmail.com>, 2013
-# #-#-#-#-#  ckan.po (CKAN)  #-#-#-#-#
-# Translations template for ckan.
-# Copyright (C) 2015 ORGANIZATION
-# This file is distributed under the same license as the ckan project.
-#
-# Translators:
-# Adrià Mercader <adria.mercader@okfn.org>, 2013
-# Alexander Brateanu <alexander.brateanu@gmail.com>, 2013
-# ddie <ddie@me.com>, 2011
-# Dominik Moritz <domoritz@gmail.com>, 2013
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2011
-# Florian Mayer <Florian.Mayer@dpaw.wa.gov.au>, 2015
-# jbspeakr <jan.brennenstuhl@okfn.org>, 2013
-# mih, 2015
-# Ondics, 2013
-# Ondics Githubler, 2013,2015
-# Ondics Githubler, 2015
-# PhilFOKUS <philipp.laemmel@fokus.fraunhofer.de>, 2011
-# pudo <friedrich@pudo.org>, 2011
-# relet <thomas.hirsch@gmail.com>, 2012
-# Sean Hammond <sean.hammond@okfn.org>, 2012
-# Stefan Oderbolz <oderbolz@gmail.com>, 2013
-# stefanw <stefanwehrmeyer@gmail.com>, 2013
+
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"

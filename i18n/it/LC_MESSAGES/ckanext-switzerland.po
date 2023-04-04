@@ -5,40 +5,7 @@
 # Translations template for ckan.
 # Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
-# Translators:
-# Alessandro <alessandro.sarretta@gmail.com>, 2013
-# Alessio Felicioni <alessio.felicioni@gmail.com>, 2015
-# <dex@lucadex.it>, 2012
-# Enx, 2015
-# groundrace <groundrace@me.com>, 2013,2015
-# <internet@davidread.org>, 2011
-# lafuga2 <lafuga2@gmail.com>, 2012
-# Lorenzo Ruzzene <lorenzo.ruzzene@gmail.com>, 2014
-# Luca De Santis <lucadex@gmail.com>, 2015
-# M2M <matteo.merlanti@gmail.com>, 2013
-# Maurizio Napolitano <maurizio.napolitano@okfn.org>, 2015
-# Monica Cainarca <monberl@gmail.com>, 2013
-# Romano Trampus <romano.trampus@gmail.com>, 2015
-# #-#-#-#-#  ckan.po (CKAN)  #-#-#-#-#
-# Translations template for ckan.
-# Copyright (C) 2015 ORGANIZATION
-# This file is distributed under the same license as the ckan project.
-#
-# Translators:
-# Alessandro <alessandro.sarretta@gmail.com>, 2013
-# Alessio Felicioni <alessio.felicioni@gmail.com>, 2015
-# <dex@lucadex.it>, 2012
-# Enx, 2015
-# groundrace <groundrace@me.com>, 2013,2015
-# <internet@davidread.org>, 2011
-# lafuga2 <lafuga2@gmail.com>, 2012
-# Lorenzo Ruzzene <lorenzo.ruzzene@gmail.com>, 2014
-# Luca De Santis <lucadex@gmail.com>, 2015
-# M2M <matteo.merlanti@gmail.com>, 2013
-# Maurizio Napolitano <maurizio.napolitano@okfn.org>, 2015
-# Monica Cainarca <monberl@gmail.com>, 2013
-# Romano Trampus <romano.trampus@gmail.com>, 2015
+
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"

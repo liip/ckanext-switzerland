@@ -5,38 +5,7 @@
 # Translations template for ckan.
 # Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
-# Translators:
-# Adrià Mercader <adria.mercader@okfn.org>, 2014
-# Anne-Marie Luigi-Way, 2013
-# arthur.lutz <arthur.lutz@gmail.com>, 2012
-# Diane Mercier <diane.mercier@gmail.com>, 2015
-# Emmanuel <emmanuel@raviart.com>, 2013
-# <internet@davidread.org>, 2011
-# keronos <aka.keronos@gmail.com>, 2012
-# Open Knowledge Foundation <translations@okfn.org>, 2011
-# Philippe Duchesne, 2014-2015
-# pierre chrzanowski <pierre.chrzanowski@gmail.com>, 2013
-# Pierre Pezziardi <pierre@pezziardi.net>, 2013
-# Yann-Aël <yannael@gmail.com>, 2015
-# #-#-#-#-#  ckan.po (CKAN)  #-#-#-#-#
-# Translations template for ckan.
-# Copyright (C) 2015 ORGANIZATION
-# This file is distributed under the same license as the ckan project.
-#
-# Translators:
-# Adrià Mercader <adria.mercader@okfn.org>, 2014
-# Anne-Marie Luigi-Way, 2013
-# arthur.lutz <arthur.lutz@gmail.com>, 2012
-# Diane Mercier <diane.mercier@gmail.com>, 2015
-# Emmanuel <emmanuel@raviart.com>, 2013
-# <internet@davidread.org>, 2011
-# keronos <aka.keronos@gmail.com>, 2012
-# Open Knowledge Foundation <translations@okfn.org>, 2011
-# Philippe Duchesne, 2014-2015
-# pierre chrzanowski <pierre.chrzanowski@gmail.com>, 2013
-# Pierre Pezziardi <pierre@pezziardi.net>, 2013
-# Yann-Aël <yannael@gmail.com>, 2015
+
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
