@@ -187,6 +187,7 @@ class BaseSBBHarvester(HarvesterBase):
             'ftp_server': basestring,
             'storage_adapter': basestring,
             'bucket': basestring,
+            voluptuous.Required('date_pattern', default=None): basestring,
         })
 
     def load_config(self, config_str):
@@ -892,7 +893,12 @@ class BaseSBBHarvester(HarvesterBase):
             else:
                 unmatched_resources.append(resource)
 
-        ordered_resources.sort(key=lambda r: r['identifier'], reverse=True)
+        if self.config['date_pattern']:
+            ordered_resources.sort(key=lambda r: re.search(self.config['date_pattern'], r['identifier']).group(),
+                                   reverse=True)
+        else:
+            ordered_resources.sort(key=lambda r: r['identifier'], reverse=True)
+
         return ordered_resources, unmatched_resources
 
     def finalize(self, harvest_object, harvest_object_data):
@@ -905,6 +911,8 @@ class BaseSBBHarvester(HarvesterBase):
         # against the identifier (filename) of the resources of the dataset. The ones that matched are thrown in a list
         # and sorted by name, descending. This makes the newest file appear first when the filesnames have the correct
         # format (YYYY-MM-DD-*).
+        # In case filesnames have different structure, e.g., *_YYYY-MM-DD.csv, `date_pattern` should be specified in the
+        # harvester configuration, which is used to list the newest files on the top of the list.
         # The oldest files of this list get deleted if there are more than harvester_config.max_resources in the list.
         # The newest file is set as a permalink on the dataset.
         # The sorted list of resources get set on the dataset, with not matched resources appearing first.
