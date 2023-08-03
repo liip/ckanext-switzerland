@@ -16,7 +16,7 @@ import ast
 from ckan.common import c
 import ckan.model as model
 from simplejson import JSONDecodeError
-from webhelpers.html import literal
+from ckan.lib.helpers import literal
 
 import logging
 
