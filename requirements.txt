@@ -1,7 +1,8 @@
-requests
-voluptuous==0.9.3
-unicodecsv==0.14.1
-pysftp==0.2.8
-geomet==0.3.0
-ckantoolkit==0.0.7
 boto3==1.16.56
+ckantoolkit==0.0.7
+geomet==0.3.0
+pysftp==0.2.8
+requests
+routes
+unicodecsv==0.14.1
+voluptuous==0.9.3
