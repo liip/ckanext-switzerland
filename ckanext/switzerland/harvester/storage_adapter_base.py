@@ -114,9 +114,9 @@ class StorageAdapterBase(object):
         if not os.path.isdir(folder):
             self._mkdir_p(folder)
             log.debug("Created folder: %s" % str(folder))
-    
+
     # tested
-    def _mkdir_p(self, path, perms=0777):
+    def _mkdir_p(self, path, perms=0o777):
         """
         Recursively create local directories
         Based on http://stackoverflow.com/a/600612/426266
