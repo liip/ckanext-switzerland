@@ -2,6 +2,7 @@
 import os
 import sys
 
+from ckanext.switzerland import blueprints
 from ckanext.switzerland import validators as v
 from ckanext.switzerland import logic as l
 import ckanext.switzerland.helpers as sh
@@ -13,8 +14,6 @@ from ckan.lib.munge import munge_title_to_name
 import json
 import logging
 
-from routes.mapper import SubMapper
-
 log = logging.getLogger(__name__)
 
 
@@ -24,7 +23,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.ITranslation)
-    plugins.implements(plugins.IRoutes, inherit=True)
+    plugins.implements(plugins.IBlueprint, inherit=True)
 
     # IConfigurer
 
@@ -112,10 +111,10 @@ class OgdchPlugin(plugins.SingletonPlugin):
     def i18n_domain(self):
         return 'ckanext-switzerland'
 
-    def before_map(self, map):
-        map.connect('email_exporter', '/ckan-admin/email_exporter',
-                    controller='ckanext.switzerland.controllers:EmailAddressExporter', action='email_address_exporter')
-        return map
+    # IBlueprint
+
+    def get_blueprint(self):
+        return blueprints.ogdch
 
 
 # monkey patch template helpers to return translated names/titles
@@ -298,31 +297,17 @@ class OgdchOrganizationPlugin(OgdchLanguagePlugin):
 
 class OgdchResourcePlugin(OgdchLanguagePlugin):
     plugins.implements(plugins.IResourceController, inherit=True)
+    plugins.implements(plugins.IBlueprint, inherit=True)
+
+    # IResourceController
 
     def _ignore_field(self, key):
         return key == 'tracking_summary'
 
-    plugins.implements(plugins.IRoutes, inherit=True)
+    # IBlueprint
 
-    def before_map(self, map):
-        """
-        Patch PackageController to make deleted resources downloadable
-        """
-        with SubMapper(map, controller='ckanext.switzerland.controllers:DeletedResourcePackageController') as m:
-            m.connect('/dataset/{id}/resource/{resource_id}/download',
-                      action='resource_download')
-            m.connect('/dataset/{id}/resource/{resource_id}/download/{filename}',
-                      action='resource_download')
-
-        with SubMapper(map, controller='ckanext.switzerland.controllers:PermalinkController') as m:
-            m.connect('/dataset/{id}/resource_permalink/{filename}',
-                      action='resource_permalink')
-            m.connect('/dataset/{id}/permalink',
-                      action='dataset_permalink')
-
-        map.connect('search', '/search', controller='ckanext.switzerland.controllers:SearchController', action='search')
-
-        return map
+    def get_blueprint(self):
+        return blueprints.ogdch_resource
 
 
 class OgdchPackagePlugin(OgdchLanguagePlugin):
