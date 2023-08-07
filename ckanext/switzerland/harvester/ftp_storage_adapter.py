@@ -10,29 +10,26 @@ The class is intended to be used with Python's `with` statement, e.g.
 `
 """
 
-import json
 import logging
-from pprint import pformat
 
 import os
 
-from config.config_key import ConfigKey
-from storage_adapter_base import StorageAdapterBase
-from exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
+from ckanext.switzerland.harvester.config.config_key import ConfigKey
+from ckanext.switzerland.harvester.storage_adapter_base import StorageAdapterBase
 
 import pysftp
 import ftplib
 import datetime
 import ssl
 
-from keys import (
+from ckanext.switzerland.harvester.keys import (
     FTP_USER_NAME,
-    FTP_PASSWORD, 
+    FTP_PASSWORD,
     FTP_KEY_FILE,
     FTP_HOST,
-    FTP_PORT, 
+    FTP_PORT,
     FTP_SERVER_KEY,
-    LOCAL_PATH, 
+    LOCAL_PATH,
     REMOTE_DIRECTORY
 )
 
@@ -57,11 +54,11 @@ class FTPStorageAdapter(StorageAdapterBase):
     # tested
     def __init__(self, config_resolver, config, remote_folder=''):
         super(FTPStorageAdapter, self).__init__(
-            config_resolver, 
-            config, 
-            remote_folder, 
-            FTP_SERVER_KEY, 
-            CONFIG_KEYS, 
+            config_resolver,
+            config,
+            remote_folder,
+            FTP_SERVER_KEY,
+            CONFIG_KEYS,
             'ckan.ftp'
         )
 

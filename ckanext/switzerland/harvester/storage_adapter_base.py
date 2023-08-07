@@ -3,8 +3,8 @@ import os
 import logging
 import errno
 import zipfile
-from exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
-from keys import (LOCAL_PATH)
+from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
+from ckanext.switzerland.harvester.keys import (LOCAL_PATH)
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class StorageAdapterBase(object):
         # Validate the basic config. We need the config, and we need to know what is the root key.
         if config is None:
             raise StorageAdapterConfigurationException(['Cannot build a Storage Adapter without an initial configuration'])
-        
+
         if root_config_key is None:
             raise StorageAdapterConfigurationException(['Cannot build a Storage Adapter without an root config key'])
 
@@ -53,7 +53,7 @@ class StorageAdapterBase(object):
         config_key_prefix = "{key_prefix}.{key}".format(key_prefix = config_key_prefix, key =self._config[root_config_key])
         # Load and validate the config at the same time
         self.__load_storage_config__(config_key_prefix)
-        
+
         self.create_local_dir()
 
         log.info('Using Config: %s' % pformat(self._config))
@@ -63,7 +63,7 @@ class StorageAdapterBase(object):
         Create a connection to the storage if needed.
         """
         raise NotImplementedError('_connect')
-    
+
     def _disconnect(self):
         """
         Closes the connection if needed.
@@ -73,7 +73,7 @@ class StorageAdapterBase(object):
     # tested
     def __enter__(self):
         """
-        Method called from the 'with' syntax. 
+        Method called from the 'with' syntax.
         Do there whatever is needed after instancing the StorageAdapter
         """
         raise NotImplementedError('__enter__')
@@ -85,7 +85,7 @@ class StorageAdapterBase(object):
         Do here whatever is needed to clean the StorageAdapter before it is destroyed.
         """
         raise NotImplementedError('__exit__')
-    
+
     def get_top_folder(self):
         """
         Get the name of the top-most folder in /tmp
@@ -277,10 +277,10 @@ class StorageAdapterBase(object):
             - Read the raw value from the CKAN configuration file, using the prefix to create the correct name (eg: ckan.ftp.main_server.host)
             - If the config key is marked as mandatory, it will validate that there is a value, raise an error otherwise
             - Try to convert the value to the required type, raise an error otherwise
-            - Validate constraints, if exists, on the value (eg: x > 0), raise an error otherwise. 
+            - Validate constraints, if exists, on the value (eg: x > 0), raise an error otherwise.
             - Store the converted value in the config object if none of the above raised an error
         """
-        
+
         configuration_errors = []
         for config_key in self._config_keys:
             raw_value = self._ckan_config_resolver.get(key_prefix+'.%s' % config_key.name, '')
@@ -288,23 +288,23 @@ class StorageAdapterBase(object):
             if config_key.is_mandatory and (raw_value is None or len(raw_value) == 0):
                 configuration_errors.append("Configuration is missing the field {key}".format(key=config_key.name))
                 continue
-            
+
             converted_value = None
-            
+
             try:
                 converted_value = config_key.type(raw_value)
-                
+
             except ValueError:
                 configuration_errors.append("Cannot convert '{value}' for the field '{key}' into type {type}".format(value=raw_value, key=config_key.name, type=config_key.type))
                 continue
 
             if not config_key.is_valid(converted_value):
                 if config_key.custom_error_message is not None:
-                    configuration_errors.append(config_key.custom_error_message)    
+                    configuration_errors.append(config_key.custom_error_message)
                 else:
                     configuration_errors.append("The value '{value}' does not match the constraints for the field '{key}'".format(value=raw_value, key=config_key.name))
                 continue
-            
+
             self._config[config_key.name] = converted_value
 
         if len(configuration_errors) > 0:

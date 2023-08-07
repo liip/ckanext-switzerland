@@ -17,7 +17,7 @@ from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_sbb_harvester import BaseSBBHarvester, validate_regex
 from ckanext.switzerland.harvester.ist_file import ist_file_filter
 
-from storage_adapter_factory import StorageAdapterFactory
+from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
 
 log = logging.getLogger(__name__)
 

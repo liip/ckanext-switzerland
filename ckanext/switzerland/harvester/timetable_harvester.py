@@ -19,7 +19,7 @@ from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
 from ckanext.switzerland.harvester import infoplus
 import voluptuous
 
-from storage_adapter_factory import StorageAdapterFactory
+from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
 
 log = logging.getLogger(__name__)
 

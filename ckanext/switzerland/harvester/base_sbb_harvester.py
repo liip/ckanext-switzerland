@@ -43,7 +43,7 @@ import voluptuous
 from ckan.lib import search
 from sqlalchemy.sql import update, bindparam
 
-from storage_adapter_factory import StorageAdapterFactory
+from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
 
 
 log = logging.getLogger(__name__)
@@ -277,7 +277,7 @@ class BaseSBBHarvester(HarvesterBase):
     def _add_package_orgs(self, package_dict, context, organization):
         """
         Fetch organization and set it on the package_dict
-        
+
         :param package_dict: Package metadata
         :type package_dict: dict
         :param context: CKAN context
@@ -299,7 +299,7 @@ class BaseSBBHarvester(HarvesterBase):
     def _add_package_extras(self, package_dict, harvest_object):
         """
         Create default organization(s)
-        
+
         :param package_dict: Package metadata
         :type package_dict: dict
         :param harvest_object: Instance of the Harvester Object
@@ -495,7 +495,7 @@ class BaseSBBHarvester(HarvesterBase):
 
         log.info("Remote directory: %s", remotefolder)
         log.info("Local directory: %s", tmpfolder)
-        
+
         # Here we removed "validate configuration". This is now done inside of the StorageAdapter, that knows what it needs
         self.config = self.load_config(harvest_object.job.source.config)
 
@@ -709,7 +709,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             log.debug("Package dict (pre-creation): %s" % str(package_dict))
 
-            # This logic action requires to call check_access to 
+            # This logic action requires to call check_access to
             # prevent the Exception: 'Action function package_show  did not call its auth function'
             # Adds action name onto the __auth_audit stack
             if not check_access('package_create', context):
