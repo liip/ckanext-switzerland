@@ -2,7 +2,7 @@ import json
 from zipfile import ZipFile
 
 import os
-from StringIO import StringIO
+from io import StringIO
 
 from ckanext.switzerland.harvester.timetable_harvester import TimetableHarvester
 from ckanext.switzerland.tests import data
