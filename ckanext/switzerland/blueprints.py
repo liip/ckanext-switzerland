@@ -1,18 +1,19 @@
-from flask import Blueprint
+from flask import Blueprint, make_response
 import logging
 import mimetypes
 
 import requests
 import unicodecsv
-from StringIO import StringIO
+from io import StringIO
 
-import ckan.lib.render
+from ckan.lib.base import render
 import ckan.lib.uploader as uploader
 import ckan.logic as logic
 import ckan.model as model
 import paste.fileapp
-from ckan.common import _, request, c, response
+from ckan.common import _, request, c
 import ckan.plugins.toolkit as toolkit
+from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.dictization.model_dictize import resource_dictize
 from ckanext.switzerland.helpers import resource_filename
 
@@ -29,7 +30,7 @@ tuplize_dict = logic.tuplize_dict
 clean_dict = logic.clean_dict
 parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
-lookup_package_plugin = ckan.lib.plugins.lookup_package_plugin
+lookup_package_plugin = lookup_package_plugin
 
 ogdch = Blueprint('ogdch', __name__)
 ogdch_resource = Blueprint('ogdch_resource', __name__)
@@ -57,9 +58,11 @@ def email_address_exporter(self):
         for user in users:
             csv.writerow([user['first_name'], user['last_name'], user['user_email']])
 
+        response = make_response(fobj.getvalue())
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = 'attachment; filename="emails.csv"'
-        return fobj.getvalue()
+
+        return response
 
     packages = get_action('package_search')({}, {'sort': 'name asc', 'rows': 1000})['results']
     for package in packages:
@@ -102,13 +105,15 @@ def resource_download(self, id, resource_id, filename=None):
             status, headers, app_iter = request.call_application(fileapp)
         except OSError:
             abort(404, _('Resource data not found'))
+
+        response = make_response(app_iter)
         response.headers.update(dict(headers))
         content_type, content_enc = mimetypes.guess_type(
             rsc.get('url', ''))
         if content_type:
             response.headers['Content-Type'] = content_type
         response.status = status
-        return app_iter
+        return response
     elif not 'url' in rsc:
         abort(404, _('No download is available'))
     redirect(rsc['url'])
