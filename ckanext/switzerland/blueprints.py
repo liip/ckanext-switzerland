@@ -15,6 +15,9 @@ from ckan.common import _, request, c
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.dictization.model_dictize import resource_dictize
+from ckan.views.admin import admin
+from ckan.views.dataset import dataset
+
 from ckanext.switzerland.helpers import resource_filename
 
 log = logging.getLogger(__name__)
@@ -32,7 +35,6 @@ parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
 lookup_package_plugin = lookup_package_plugin
 
-ogdch = Blueprint('ogdch', __name__)
 ogdch_resource = Blueprint('ogdch_resource', __name__)
 
 
@@ -70,9 +72,6 @@ def email_address_exporter(self):
 
     c.datasets = packages
     return render('email_exporter/email_exporter.html')
-
-
-ogdch.add_url_rule('/ckan-admin/email_exporter', view_func=email_address_exporter)
 
 
 def resource_download(self, id, resource_id, filename=None):
@@ -161,8 +160,11 @@ def search(self):
     return render('search/search.html')
 
 
-ogdch_resource.add_url_rule('/dataset/{id}/resource/{resource_id}/download', resource_download)
-ogdch_resource.add_url_rule('/dataset/{id}/resource/{resource_id}/download/{filename}', resource_download)
-ogdch_resource.add_url_rule('/dataset/{id}/resource_permalink/{filename}', resource_permalink)
-ogdch_resource.add_url_rule('/dataset/{id}/permalink', dataset_permalink)
-ogdch_resource('/search', search)
+admin.add_url_rule('/email_exporter', view_func=email_address_exporter)
+
+dataset.add_url_rule('/{id}/resource/{resource_id}/download', view_func=resource_download)
+dataset.add_url_rule('/{id}/resource/{resource_id}/download/{filename}', view_func=resource_download)
+dataset.add_url_rule('/{id}/resource_permalink/{filename}', view_func=resource_permalink)
+dataset.add_url_rule('/{id}/permalink', view_func=dataset_permalink)
+
+ogdch_resource.add_url_rule('/search', view_func=search)
