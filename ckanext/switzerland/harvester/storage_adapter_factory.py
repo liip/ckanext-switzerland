@@ -1,5 +1,5 @@
-from ftp_storage_adapter import FTPStorageAdapter
-from s3_storage_adapter import S3StorageAdapter
+from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
+from ckanext.switzerland.harvester.s3_storage_adapter import S3StorageAdapter
 
 STORAGE_ADAPTER_KEY = 'storage_adapter'
 class StorageAdapterFactory(object):
@@ -21,8 +21,8 @@ class StorageAdapterFactory(object):
 
         if storage_adapter == 's3':
             return S3StorageAdapter(self.config_resolver, config, remote_folder)
-        
+
         if storage_adapter == 'ftp':
             return FTPStorageAdapter(self.config_resolver, config, remote_folder)
-        
+
         raise Exception('This type of storage is not supported: ' + storage_adapter)
