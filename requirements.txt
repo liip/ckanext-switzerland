@@ -2,7 +2,7 @@ boto3==1.16.56
 ckantoolkit==0.0.7
 geomet==0.3.0
 pysftp==0.2.8
-requests
-routes
+requests==2.28.1
+routes==2.5.1
 unicodecsv==0.14.1
 voluptuous==0.9.3
