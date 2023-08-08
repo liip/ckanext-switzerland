@@ -2,9 +2,9 @@
 import os
 import sys
 
-from ckanext.switzerland import blueprints
 from ckanext.switzerland import validators as v
 from ckanext.switzerland import logic as l
+from ckanext.switzerland.blueprints import ogdch_admin, ogdch_dataset, ogdch_resource
 import ckanext.switzerland.helpers as sh
 
 import ckan.plugins as plugins
@@ -114,7 +114,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     # IBlueprint
 
     def get_blueprint(self):
-        return blueprints.ogdch
+        return [ogdch_admin, ogdch_dataset]
 
 
 # monkey patch template helpers to return translated names/titles
@@ -307,7 +307,7 @@ class OgdchResourcePlugin(OgdchLanguagePlugin):
     # IBlueprint
 
     def get_blueprint(self):
-        return blueprints.ogdch_resource
+        return ogdch_resource
 
 
 class OgdchPackagePlugin(OgdchLanguagePlugin):
