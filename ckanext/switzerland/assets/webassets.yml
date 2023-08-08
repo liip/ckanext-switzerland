@@ -1,0 +1,43 @@
+confirm_action:
+  output: switzerland/confirm_action.js
+  contents:
+    - bs3-confirm-action.js
+  filters: rjsmin
+
+image_upload:
+  output: switzerland/image_upload.js
+  contents:
+    - bs3-image-upload.js
+  filters: rjsmin
+
+bootstrap:
+  output: switzerland/bootstrap.js
+  contents:
+    - bootstrap.js
+  filters: rjsmin
+
+sort_resources:
+  output: switzerland/sort_resources.js
+  contents:
+    - sort_resources.js
+  filters: rjsmin
+
+resource_reorder:
+  output: switzerland/resource_reorder
+  contents:
+    - bs3-resource-reorder.js
+  filters: rjsmin
+
+relations:
+  output: switzerland/relations
+  contents:
+    - relations.js
+  filters: rjsmin
+
+search:
+  output: switzerland/search
+  contents:
+    - a_vue.js
+    - b_vuevalidator.js
+    - c_search.js
+  filters: rjsmin
