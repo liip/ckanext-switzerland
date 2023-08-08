@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{# 
+{#
 	we want the search page to be full-width. since the col classes are on element outside of the primary_content_inner block,
 	I had to override the secondary block with <nothing> and the whole primary block with the same code that's in base.html,
 	except with .col-md-12
@@ -25,9 +25,7 @@
             </div>
           {% endif %}
           {% block primary_content_inner %}
-            {% resource 'switzerland/a_vue.js' %}
-            {% resource 'switzerland/b_vuevalidator.js' %}
-            {% resource 'switzerland/c_search.js' %}
+            {% asset 'switzerland/search' %}
 
             <h1>{{ _('Search') }}</h1>
             <div id="app" v-cloak>

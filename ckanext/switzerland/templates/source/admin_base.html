@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block action_links %}
-  {% resource "switzerland/bs3-confirm-action.js" %}
+  {% asset 'switzerland/confirm_action" %}
 
   {% set show_li = c.__version__.startswith('2.0') %}
   {% if harvest_source.status and harvest_source.status.last_job and (harvest_source.status.last_job.status == 'New' or harvest_source.status.last_job.status == 'Running') %}

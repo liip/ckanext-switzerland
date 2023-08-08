@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  {% resource 'switzerland/bs3-resource-reorder.js' %}
+  {% asset 'switzerland/resource_reorder' %}
 
   {% if pkg.resources %}
     <ul class="resource-list"{% if has_reorder %} data-module="bs3-resource-reorder" data-module-id="{{ pkg.id }}"{% endif %}>
@@ -27,6 +27,6 @@
 {% block scripts %}
   {{ super() }}
   {% if has_reorder %}
-    {% resource 'vendor/reorder' %}
+    {% asset 'vendor/reorder' %}
   {% endif %}
 {% endblock %}
