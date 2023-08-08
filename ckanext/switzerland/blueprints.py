@@ -1,23 +1,30 @@
 from flask import Blueprint, make_response
 import logging
-import mimetypes
 
 import requests
 import unicodecsv
 from io import StringIO
 
-from ckan.lib.base import render
 import ckan.lib.uploader as uploader
 import ckan.logic as logic
 import ckan.model as model
-import paste.fileapp
 from ckan.common import _, request, c
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.dictization.model_dictize import resource_dictize
-from ckan.views.dataset import dataset
 
 from ckanext.switzerland.helpers import resource_filename
+from typing import Optional, Union
+
+from werkzeug.wrappers.response import Response as WerkzeugResponse
+import flask
+
+import ckan.lib.base as base
+import ckan.lib.helpers as h
+from ckan.lib import signals
+from ckan.common import _, config, g, request, current_user
+
+from ckan.types import Context, Response
 
 log = logging.getLogger(__name__)
 render = toolkit.render
@@ -75,48 +82,48 @@ def email_address_exporter(self):
     return render('email_exporter/email_exporter.html')
 
 
-def resource_download(self, id, resource_id, filename=None):
+def resource_download(package_type: str,
+                      id: str,
+                      resource_id: str,
+                      filename: Optional[str] = None
+                      ) -> Union[Response, WerkzeugResponse]:
     """
     Provides a direct download by either redirecting the user to the url
     stored or downloading an uploaded file directly.
 
-    Copied from ckan source code, only change is this to allow download of deleted resources:
+    Copied from ckan 2.10 source code, only change is this to allow download of
+    deleted resources:
     - rsc = get_action('resource_show')(context, {'id': resource_id})
     + resource_obj = model.Resource.get(resource_id)
     + rsc = resource_dictize(resource_obj, {'model': model})
     """
-    context = {'model': model, 'session': model.Session,
-               'user': c.user or c.author, 'auth_user_obj': c.userobj}
+    context: Context = {
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
+    }
 
     try:
         resource_obj = model.Resource.get(resource_id)
         rsc = resource_dictize(resource_obj, {'model': model})
-        get_action('package_show')(context, {'id': id})
+        get_action(u'package_show')(context, {u'id': id})
     except NotFound:
-        abort(404, _('Resource not found'))
+        return base.abort(404, _(u'Resource not found'))
     except NotAuthorized:
-        abort(401, _('Unauthorized to read resource %s') % id)
+        return base.abort(403, _(u'Not authorized to download resource'))
 
-    if rsc.get('url_type') == 'upload':
-        upload = uploader.ResourceUpload(rsc)
-        filepath = upload.get_path(rsc['id'])
-        fileapp = paste.fileapp.FileApp(filepath)
-        try:
-            status, headers, app_iter = request.call_application(fileapp)
-        except OSError:
-            abort(404, _('Resource data not found'))
+    if rsc.get(u'url_type') == u'upload':
+        upload = uploader.get_resource_uploader(rsc)
+        filepath = upload.get_path(rsc[u'id'])
+        resp = flask.send_file(filepath, download_name=filename)
 
-        response = make_response(app_iter)
-        response.headers.update(dict(headers))
-        content_type, content_enc = mimetypes.guess_type(
-            rsc.get('url', ''))
-        if content_type:
-            response.headers['Content-Type'] = content_type
-        response.status = status
-        return response
-    elif not 'url' in rsc:
-        abort(404, _('No download is available'))
-    redirect(rsc['url'])
+        if rsc.get('mimetype'):
+            resp.headers['Content-Type'] = rsc['mimetype']
+        signals.resource_download.send(resource_id)
+        return resp
+
+    elif u'url' not in rsc:
+        return base.abort(404, _(u'No download is available'))
+    return h.redirect_to(rsc[u'url'])
 
 
 def resource_permalink(self, id, filename):
