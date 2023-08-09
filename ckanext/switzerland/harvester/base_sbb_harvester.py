@@ -177,17 +177,17 @@ class BaseSBBHarvester(HarvesterBase):
 
     def get_config_validation_schema(self):
         return voluptuous.Schema({
-            'environment': basestring,
-            voluptuous.Required('folder'): basestring,
-            voluptuous.Required('dataset'): basestring,
+            'environment': str,
+            voluptuous.Required('folder'): str,
+            voluptuous.Required('dataset'): str,
             voluptuous.Required('resource_regex', default='.*'): validate_regex,
             voluptuous.Required('force_all', default=False): bool,
             'max_resources': int,
             'max_revisions': int,
-            'ftp_server': basestring,
-            'storage_adapter': basestring,
-            'bucket': basestring,
-            voluptuous.Required('date_pattern', default=None): basestring,
+            'ftp_server': str,
+            'storage_adapter': str,
+            'bucket': str,
+            voluptuous.Required('date_pattern', default=None): str,
         })
 
     def load_config(self, config_str):
@@ -210,7 +210,7 @@ class BaseSBBHarvester(HarvesterBase):
         # is there a package meta configuration in the harvester?
         if self.package_dict_meta:
             # add each key/value from the meta data of the harvester
-            for key, val in self.package_dict_meta.iteritems():
+            for key, val in self.package_dict_meta.items():
                 package_dict[key] = val
 
         return package_dict
@@ -314,10 +314,10 @@ class BaseSBBHarvester(HarvesterBase):
             override_extras = self.config.get('override_extras', False)
             if 'extras' not in package_dict:
                 package_dict['extras'] = {}
-            for key, value in default_extras.iteritems():
+            for key, value in default_extras.items():
                 if key not in package_dict['extras'] or override_extras:
                     # Look for replacement strings
-                    if isinstance(value, basestring):
+                    if isinstance(value, str):
                         value = value.format(
                             harvest_source_id=harvest_object.job.source.id,
                             harvest_source_url=harvest_object.job.source.url.strip('/'),
@@ -1015,7 +1015,7 @@ class BaseSBBHarvester(HarvesterBase):
             filename = resource_filename(resource.url)
             versions[filename].append(resource)
 
-        for filename, resources in versions.iteritems():
+        for filename, resources in versions.items():
             if len(resources) > max_revisions:
                 resources = sorted(resources, key=lambda r: r.created, reverse=True)
                 for resource in resources[max_revisions:]:

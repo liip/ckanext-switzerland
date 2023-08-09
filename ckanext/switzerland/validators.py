@@ -65,7 +65,7 @@ def json_list_of_dicts_field(field, schema):
 
         # 1 or 2. dict or JSON encoded string
         if value is not missing:
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 try:
                     value = json.loads(value)
                 except ValueError:
@@ -94,7 +94,7 @@ def json_list_of_dicts_field(field, schema):
         values = defaultdict(lambda: {})
 
         # iterate over all extra fields and find our fields
-        for name, text in extras.iteritems():
+        for name, text in extras.items():
             if not name.startswith(prefix):
                 continue
 
@@ -129,11 +129,11 @@ def json_list_of_dicts_field(field, schema):
         # iterate over junk fields (used in resource creation/update)
         junk = data.get(('__junk',))
         if junk:
-            for (field_name, counter, json_field_name), value in junk.iteritems():
+            for (field_name, counter, json_field_name), value in junk.items():
                 if field_name == key[-1]:
                     values[counter][json_field_name] = value
 
-            for counter, field_values in values.iteritems():
+            for counter, field_values in values.items():
                 for json_field_name in field_values.keys():
                     del junk[(key[-1], counter, json_field_name)]
 
@@ -159,7 +159,7 @@ def multiple_text(field, schema):
 
         value = data[key]
         if value is not missing:
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 value = [value]
             elif not isinstance(value, list):
                 errors[key].append(
@@ -223,7 +223,7 @@ def list_of_dicts(field, schema):
             data_dict = df.unflatten(data[('__junk',)])
             value = data_dict[key[0]]
             if value is not missing:
-                if isinstance(value, basestring):
+                if isinstance(value, str):
                     value = [value]
                 elif not isinstance(value, list):
                     errors[key].append(
@@ -272,7 +272,7 @@ def ogdch_multiple_choice(field, schema):
 
         value = data[key]
         if value is not missing and value is not None:
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 value = [value]
             elif not isinstance(value, list):
                 errors[key].append(
@@ -324,6 +324,6 @@ def url_validator(field, schema):
             return
         value = data[key]
         if value and value is not missing:
-            if not isinstance(value, basestring) or not re.match(r'^https?://.*$', value):
+            if not isinstance(value, str) or not re.match(r'^https?://.*$', value):
                 raise df.Invalid(_('Invalid URL'))
     return validator
