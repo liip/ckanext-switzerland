@@ -381,7 +381,7 @@ def load_wordpress_templates():
     try:
         data = resp.json()['data']
     except JSONDecodeError:
-        content = resp.content[resp.content.index('{'):]
+        content = resp.content[resp.content.index(b'{'):]
         data = json.loads(content)['data']
     except (ValueError, KeyError) as e:
         log.error("Error getting WordPress templates: {}".format(e))
