@@ -12,8 +12,8 @@
     {{ form.input('title', label=_('Name'), id='field-name', placeholder=_('My Group'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
     {# Perhaps these should be moved into the controller? #}
-    {% set prefix = h.url_for(controller='group', action='read', id='') %}
-    {% set domain = h.url_for(controller='group', action='read', id='', qualified=true) %}
+    {% set prefix = h.url_for('group.read', id='') %}
+    {% set domain = h.url_for('group.read', id='', qualified=true) %}
     {% set domain = domain|replace("http://", "")|replace("https://", "") %}
     {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<group>'} %}
 
