@@ -365,7 +365,7 @@ class SwissDCATAPProfile(RDFProfile):
 
         # LandingPage
         g.add((dataset_ref, DCAT.landingPage,
-               Literal(url_for(controller='package', action='read', id=dataset_dict['name'],
+               Literal(url_for('dataset.read', id=dataset_dict['name'],
                                qualified=True, locale='default'))))
         self._add_multilang_value(dataset_ref, DCAT.keyword, 'keywords', dataset_dict) # noqa
 
