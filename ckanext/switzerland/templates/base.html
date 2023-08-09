@@ -29,8 +29,7 @@
 {% endblock %}
 
 {% block title %}
-  {# Temporarily remove call to get CSS from WP app, for development ½}
-  {# {% set dummy=h.load_wordpress_templates() %} #}
+  {% set dummy=h.load_wordpress_templates() %}
   {%- block subtitle %}{% endblock -%}
   {%- if self.subtitle()|trim %} | {% endif -%}
   {{ c.wordpress_title }}
