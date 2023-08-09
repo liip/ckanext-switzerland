@@ -8,8 +8,8 @@
 {% block breadcrumb_content %}
   {% if c.diff_entity == 'package' %}
     {% set dataset = pkg.title or pkg.name %}
-    <li>{% link_for _('Datasets'), controller='package', action='search', highlight_actions = 'new index' %}</li>
-    <li>{% link_for h.get_localized_value(h.parse_json(dataset)), controller='package', action='read', id=pkg.name %}</li>
+    <li>{% link_for _('Datasets'), controller='dataset', action='search', highlight_actions = 'new index' %}</li>
+    <li>{% link_for h.get_localized_value(h.parse_json(dataset)), controller='dataset', action='read', id=pkg.name %}</li>
     <li class="active"><a href="" title="{{ _('Revision Differences') }}">{{ _('Revision Differences') }}</a></li>
   {% elif c.diff_entity == 'group' %}
     {% set group = group.display_name or group.name %}
@@ -22,7 +22,7 @@
 {% block primary_content_inner %}
   <h1>{{ _('Revision Differences') }} -
     {% if c.diff_entity == 'package' %}
-      {% link_for h.get_localized_value(h.parse_json(pkg.title)), controller='package', action='read', id=pkg.name %}
+      {% link_for h.get_localized_value(h.parse_json(pkg.title)), controller='dataset', action='read', id=pkg.name %}
     {% elif c.diff_entity == 'group' %}
       {% link_for h.get_localized_value(h.parse_json(group.display_name)), controller='group', action='read', id=group.name %}
     {% endif %}

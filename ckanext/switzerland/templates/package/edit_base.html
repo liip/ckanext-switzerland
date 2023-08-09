@@ -8,12 +8,12 @@
 {% block breadcrumb_content %}
   {{ super() }}
   {% if pkg %}
-    <li class="active">{% link_for _('Edit'), controller='package', action='edit', id=pkg.name %}</li>
+    <li class="active">{% link_for _('Edit'), controller='dataset', action='edit', id=pkg.name %}</li>
   {% endif %}
 {% endblock %}
 
 {% block content_action %}
-  {% link_for _('View dataset'), controller='package', action='read', id=pkg.name, class_='btn btn-default', icon='eye-open' %}
+  {% link_for _('View dataset'), controller='dataset', action='read', id=pkg.name, class_='btn btn-default', icon='eye-open' %}
 {% endblock %}
 
 {% block content_primary_nav %}

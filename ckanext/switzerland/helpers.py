@@ -312,7 +312,7 @@ def organization_link(organization):
 
 # monkey patched version of ckan.lib.helpers.group_link which extracts the correct translation of the dataset
 def group_link(group):
-    url = url_for(controller='group', action='read', id=group['name'])
+    url = url_for('group.read', id=group['name'])
     title = group['title']
     title = parse_json(title)
     # the group creation message contains str(dict), so we must parse the string to fix it
@@ -334,8 +334,7 @@ def resource_link(resource_dict, package_id):
         resource_dict['name'] = get_localized_value(ast.literal_eval(resource_dict['name']))
 
     text = resource_display_name(resource_dict)
-    url = url_for(controller='package',
-                  action='resource_read',
+    url = url_for('package.resource_read',
                   id=package_id,
                   resource_id=resource_dict['id'])
     return _link_to(text, url)
