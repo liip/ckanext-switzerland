@@ -14,24 +14,23 @@
 
   <meta name="twitter:card" content="summary" />
   <meta property="twitter:title" content="{{ h.dataset_display_name(pkg) }}">
-  <meta property="twitter:description" content="{{ h.get_localized_value(h.parse_json(pkg.description)) }}">
   <meta name="twitter:image" content="{{ g.site_url }}/wp-content/themes/odpch-wp-theme/img/twitter_card.png" />
 {% endblock -%}
 
 {% block content_action %}
   {% if h.check_access('package_update', {'id':pkg.id }) %}
-    {% link_for _('Manage'), controller='package', action='edit', id=pkg.name, class_='btn btn-default', icon='wrench' %}
+    {% link_for _('Manage'), controller='dataset', action='edit', id=pkg.name, class_='btn btn-default', icon='wrench' %}
   {% endif %}
 {% endblock %}
 
 {% block content_primary_nav %}
-  {{ h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name) }}
-  {{ h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name) }}
+  {{ h.build_nav_icon('dataset.read', _('Dataset'), id=pkg.name) }}
+  {# {{ h.build_nav_icon('dataset.activity', _('Activity Stream'), id=pkg.name) }} #}
 
   <!-- REVISION TAB -->
   {% if (h.admin_only and h.check_access('sysadmin')) or not h.admin_only %}
-    {{ h.build_nav_icon('dataset_revision', _('Revisions'), id=pkg.name, icon='shield') }}
-    {{ h.build_nav_icon('dataset_groups', _('Groups'), id=pkg.name) }}
+    {# {{ h.build_nav_icon('dataset.revision', _('Revisions'), id=pkg.name, icon='shield') }} #}
+    {{ h.build_nav_icon('dataset.groups', _('Groups'), id=pkg.name) }}
   {% endif %}
 
   {# {{ h.build_nav_icon('related_list', _('Related'), id=pkg.name) }} #}
