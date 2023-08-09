@@ -15,12 +15,12 @@ def get_validation_schema():
     column_schema = voluptuous.Schema({
         'from': int,
         'to': int,
-        'name': basestring,
+        'name': str,
     })
 
     def validate_infoplus(files):
         for filename, config in files.items():
-            voluptuous.Schema(basestring)(filename)
+            voluptuous.Schema(str)(filename)
             voluptuous.Schema(list)(config)
             for column in config:
                 column_schema(column)
@@ -28,7 +28,7 @@ def get_validation_schema():
 
     return voluptuous.Schema({
         voluptuous.Required('files'): validate_infoplus,
-        voluptuous.Required('dataset'): basestring,
+        voluptuous.Required('dataset'): str,
         voluptuous.Required('year'): int,
     })
 

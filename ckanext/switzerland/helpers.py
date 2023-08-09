@@ -134,7 +134,7 @@ def _lang_fallback(lang_dict, default_value):
     # loop over languages in order of their priority for fallback
     for lang_code in get_langs():
         try:
-            if (isinstance(lang_dict[lang_code], basestring) and
+            if (isinstance(lang_dict[lang_code], str) and
                     lang_dict[lang_code]):
                 return lang_dict[lang_code]
         except (KeyError, IndexError, ValueError):
@@ -265,7 +265,7 @@ def get_matomo_config():
 
 def convert_post_data_to_dict(field_name, data):
     d = defaultdict(lambda: {})
-    for json_field_name, value in data.iteritems():
+    for json_field_name, value in data.items():
         if json_field_name.startswith(field_name + '-'):
             counter, json_field_name = json_field_name.split('-')[1:]
             d[counter][json_field_name] = value
@@ -294,7 +294,7 @@ def resource_display_name(resource_dict):
         description = parse_json(description)
         if isinstance(description, dict):
             description = get_localized_value(description)
-        if isinstance(description, basestring):
+        if isinstance(description, str):
             description = description.split('.')[0]
             max_len = 60
             if len(description) > max_len:
@@ -316,7 +316,7 @@ def group_link(group):
     title = group['title']
     title = parse_json(title)
     # the group creation message contains str(dict), so we must parse the string to fix it
-    if isinstance(title, basestring):
+    if isinstance(title, str):
         title = ast.literal_eval(title)
     if isinstance(title, dict):
         title = get_localized_value(title)
