@@ -15,8 +15,7 @@
     {% else %}
       <li>{% link_for _('Data'), controller='dataset', action='search' %}</li>
     {% endif %}
-    {% set pkg_title = pkg.title or pkg.name %}
-    <li{{ self.breadcrumb_content_selected() }}>{% link_for h.parse_and_localize(pkg_title)|truncate(30), controller='dataset', action='read', id=pkg.name %}</li>
+    <li{{ self.breadcrumb_content_selected() }}>{% link_for h.dataset_display_name(pkg)|truncate(30), controller='dataset', action='read', id=pkg.name %}</li>
   {% else %}
     <li>{% link_for _('Data'), controller='dataset', action='search' %}</li>
   {% endif %}

@@ -15,7 +15,6 @@ Example:
 #}
 {% set truncate = truncate or 180 %}
 {% set truncate_title = truncate_title or 80 %}
-{% set title = package.title or package.name %}
 {% set description = h.truncate(package.description, truncate) %}
 
 {% block package_item %}
@@ -33,7 +32,7 @@ Example:
               {% endif %}
             {% endblock %}
             {% block heading_title %}
-              {{ h.link_to(h.parse_and_localize(h.truncate(title, truncate_title)), h.url_for('dataset.read', id=package.name)) }}
+              {{ h.link_to(h.truncate(h.dataset_display_name(package), truncate_title), h.url_for('dataset.read', id=package.name)) }}
             {% endblock %}
             {% block heading_meta %}
               {% if package.get('state', '').startswith('draft') %}
@@ -49,7 +48,7 @@ Example:
           {% if package.groups %}
             <p class="small">
             {% for group in package.groups %}
-              {{ group.display_name }}{% if not loop.last %}, {% endif %}
+              {{ h.parse_and_localize(group.display_name) }}{% if not loop.last %}, {% endif %}
             {% endfor %}
             </p>
           {% endif %}
