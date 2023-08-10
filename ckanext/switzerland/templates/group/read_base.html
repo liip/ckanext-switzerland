@@ -15,7 +15,7 @@
 
 {% block content_primary_nav %}
   {{ h.build_nav_icon('group.read', _('Datasets'), id=group_dict.name) }}
-  {# This should work, don't know why it doesn't #}
+  {# TODO: ACTIVITY_STREAMS #}
   {# {{ h.build_nav_icon('activity.group_activity', _('Activity Stream'), id=group_dict.name, offset=0, icon='clock') }} #}
   {{ h.build_nav_icon('group.about', _('About'), id=group_dict.name) }}
 {% endblock %}
