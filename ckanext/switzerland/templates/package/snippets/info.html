@@ -15,7 +15,7 @@ Example:
         <div class="module-content">
           {% block package_info_inner %}
             {% block heading %}
-              <h1 class="heading">{{ h.get_localized_value(h.parse_json(pkg.title)) or h.get_localized_value(h.parse_json(pkg.name)) }}</h1>
+              <h1 class="heading">{{ h.parse_and_localize(pkg.title) or h.parse_and_localize(pkg.name) }}</h1>
             {% endblock %}
             {% block nums %}
               <div class="nums">

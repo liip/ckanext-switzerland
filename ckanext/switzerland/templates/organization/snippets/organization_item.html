@@ -25,7 +25,7 @@ Example:
   {% endblock %}
   {% block description %}
     {% if organization.description %}
-      <p>{{ h.markdown_extract(h.get_localized_value(h.parse_json(organization.description)), extract_length=80) }}</p>
+      <p>{{ h.markdown_extract(h.parse_and_localize(organization.description), extract_length=80) }}</p>
     {% endif %}
   {% endblock %}
   {% block datasets %}
