@@ -18,11 +18,17 @@ Example:
   {{ h.csrf_input() }}
   {{ form.errors(errors=error_summary) }}
 
+  <div class="row">
   {{ form.input('login', label=_("Username or Email"), id='field-login', value="", error=username_error, classes=["control-medium"]) }}
+  </div>
 
+  <div class="row">
   {{ form.input('password', label=_("Password"), id='field-password', type="password", value="", error=password_error, classes=["control-medium"]) }}
+  </div>
 
+  <div class="row" style="margin-left: 20px;">
   {{ form.checkbox('remember', label=_("Remember me"), id='field-remember', checked=true, value="63072000") }}
+  </div>
 
   <div class="form-actions">
     {% block login_button %}
