@@ -7,9 +7,8 @@
 
 {% block breadcrumb_content %}
   {% if c.diff_entity == 'package' %}
-    {% set dataset = pkg.title or pkg.name %}
     <li>{% link_for _('Datasets'), controller='dataset', action='search', highlight_actions = 'new index' %}</li>
-    <li>{% link_for h.parse_and_localize(dataset), controller='dataset', action='read', id=pkg.name %}</li>
+    <li>{% link_for h.dataset_display_name(pkg), controller='dataset', action='read', id=pkg.name %}</li>
     <li class="active"><a href="" title="{{ _('Revision Differences') }}">{{ _('Revision Differences') }}</a></li>
   {% elif c.diff_entity == 'group' %}
     {% set group = group.display_name or group.name %}
