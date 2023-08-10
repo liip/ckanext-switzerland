@@ -9,7 +9,7 @@
     <span><i class="fa fa-lock"></i> {{ _('Private') }}</span>
   {% endif %}
   <h1>
-    {{ pkg.title or pkg.name }}
+    {{ h.dataset_display_name(pkg) }}
     {% if pkg.state.startswith('draft') %}
       [{{ _('Draft') }}]
     {% endif %}
@@ -36,7 +36,7 @@
 
   <h1>
     {% block page_heading %}
-      {{ pkg.title or pkg.name }}
+      {{ h.dataset_display_name(pkg) }}
       {% if pkg.state.startswith('draft') %}
         [{{ _('Draft') }}]
       {% endif %}
