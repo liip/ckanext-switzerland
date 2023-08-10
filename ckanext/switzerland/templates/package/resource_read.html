@@ -8,7 +8,7 @@
 
   <meta name="twitter:card" content="summary" />
   <meta property="twitter:title" content="{{ h.resource_display_name(res) }}">
-  <meta property="twitter:description" content="{{ h.get_localized_value(h.parse_json(res.description)) }}">
+  <meta property="twitter:description" content="{{ h.parse_and_localize(res.description) }}">
   <meta name="twitter:image" content="{{ g.site_url }}/wp-content/themes/odpch-wp-theme/img/twitter_card.png" />
 {% endblock -%}
 

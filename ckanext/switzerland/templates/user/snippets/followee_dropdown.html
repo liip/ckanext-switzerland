@@ -33,9 +33,9 @@
         </li>
         {% for followee in followees %}
           <li{% if context.selected_id == followee.dict.id %} class="active"{% endif %} data-search="{{followee.display_name|lower}}">
-            <a href="{{ h.url_for('dashboard.index', type=followee.type, name=followee.dict.name) }}" title="{{ h.get_localized_value(h.parse_json(followee.display_name)) }}">
+            <a href="{{ h.url_for('dashboard.index', type=followee.type, name=followee.dict.name) }}" title="{{ h.parse_and_localize(followee.display_name) }}">
               {{followee_icon(followee.type)}}
-              <span>{{ h.get_localized_value(h.parse_json(followee.display_name)) }}</span>
+              <span>{{ h.parse_and_localize(followee.display_name) }}</span>
             </a>
           </li>
         {% endfor %}

@@ -13,13 +13,13 @@
             {%- if facets.translated_fields and facets.translated_fields.has_key((field, value)) -%}
               {{ facets.translated_fields[(field, value)] }}
             {%- else -%}
-              {{ h.get_localized_value(h.parse_json( h.list_dict_filter(search_facets_items, 'name', 'display_name', value) )) }}
+              {{ h.parse_and_localize( h.list_dict_filter(search_facets_items, 'name', 'display_name', value) ) }}
             {%- endif %}
             <a href="{{ facets.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="icon-remove"></i></a>
           </span>
         {% endfor %}
       {% endfor %}
-    </p>     
+    </p>
     <a class="show-filters btn">{{ _('Filter Results') }}</a>
   {% endif %}
 {% endblock %}

@@ -18,7 +18,7 @@ Example:
   {% block item_inner %}
   {% block image %}{% endblock %}
   {% block title %}
-    <h3 class="media-heading">{{ h.get_localized_value(h.parse_json(group.display_name)) }}</h3>
+    <h3 class="media-heading">{{ h.parse_and_localize(group.display_name) }}</h3>
   {% endblock %}
   {% block description %}{% endblock %}
   {% block datasets %}{% endblock %}

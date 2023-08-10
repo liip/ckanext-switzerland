@@ -31,7 +31,7 @@
         {% set selected_org = (existing_org and existing_org == organization.id) or (
           not existing_org and not data.id and organization.id == organizations_available[0].id) %}
         {% block organization_option scoped %}
-          <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ h.get_localized_value(h.parse_json(organization.display_name)) }}</option>
+          <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ h.parse_and_localize(organization.display_name) }}</option>
         {% endblock %}
       {% endfor %}
     </select>
