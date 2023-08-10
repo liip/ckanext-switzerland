@@ -1,5 +1,13 @@
 {% ckan_extends %}
 
+{% block resource_item_title %}
+    {% set res_title = res.name or res.description %}
+<a class="heading" href="{{ url }}" title="{{ h.parse_and_localize(res_title) }}">
+    {{ h.resource_display_name(res) | truncate(50) }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ h.get_translated(res, 'format') }}</span>
+    {{ h.popular('views', res.tracking_summary.total, min=10) if res.tracking_summary }}
+</a>
+{% endblock %}
+
 {% block resource_item_description %}
 <p class="description">
     {% if res.description %}
