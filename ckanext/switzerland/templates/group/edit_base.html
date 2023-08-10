@@ -1,8 +1,8 @@
 {% ckan_extends %}
 
-{% block subtitle %}{{ _('Manage') }} {{ g.template_title_delimiter }} {{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
-
 {% set group = group_dict %}
+
+{% block subtitle %}{{ _('Manage') }} - {{ h.get_localized_value(group.title) }} - {{ _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
