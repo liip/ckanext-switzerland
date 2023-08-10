@@ -1,8 +1,8 @@
-{% extends "page.html" %}
+{% ckan_extends %}
 
-{% block subtitle %}{{ _('Manage') }} - {{ h.get_localized_value(c.group_dict.title) }} - {{ _('Groups') }}{% endblock %}
+{% block subtitle %}{{ _('Manage') }} {{ g.template_title_delimiter }} {{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
 
-{% set group = c.group_dict %}
+{% set group = group_dict %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
@@ -12,15 +12,3 @@
   {% endblock %}
 {% endblock %}
 
-{% block content_action %}
-  {% link_for _('View'), controller='group', action='read', id=c.group_dict.name, class_='btn btn-default', icon='eye-open' %}
-{% endblock %}
-
-{% block content_primary_nav %}
-  {{ h.build_nav_icon('group_edit', _('Edit'), id=c.group_dict.name) }}
-  {{ h.build_nav_icon('group_members', _('Members'), id=c.group_dict.name) }}
-{% endblock %}
-
-{% block secondary_content %}
-  {% snippet "group/snippets/info.html", group=c.group_dict, show_nums=false %}
-{% endblock %}
