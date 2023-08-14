@@ -10,7 +10,7 @@ Example:
 #}
 <div class="module context-info">
   <div class="module-content">
-    <h1 class="heading">{{ h.get_localized_value(res.name) or res.id }}</h1>
+    <h1 class="heading">{{ h.parse_and_localize(res.name) or res.id }}</h1>
     <div class="nums">
       <dl>
         <dt>{{ _('Format') }}</dt>

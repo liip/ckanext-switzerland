@@ -3,8 +3,8 @@
 {% block subtitle %}{{ group_dict.display_name }} - {{ _('Organizations') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li>{% link_for _('Organizations'), controller='organization', action='index' %}</li>
-  <li class="active">{% link_for group_dict.display_name|truncate(35), controller='organization', action='read', id=group_dict.name %}</li>
+  <li>{% link_for _('Organizations'), named_route='organization.index' %}</li>
+  <li class="active">{% link_for group_dict.display_name|truncate(35), named_route='organization.read', id=group_dict.name %}</li>
 {% endblock %}
 
 {% block head_extras -%}
@@ -32,11 +32,11 @@
       <div class="content_action">
         {% block content_action %}
         {% if h.check_access('organization_update', {'id': group_dict.id}) %}
-          {% link_for _('Manage'), controller='organization', action='edit', id=group_dict.name, class_='btn btn-default pull-right', icon='wrench' %}
+          {% link_for _('Manage'), named_route='organization.edit', id=group_dict.name, class_='btn btn-default pull-right', icon='wrench' %}
         {% endif %}
 
         {% if h.check_access('package_create', {'owner_org': group_dict.id}) %}
-          {% link_for _('Add Dataset'), controller='dataset', action='new', group=group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
+          {% link_for _('Add Dataset'), named_route='dataset.new', group=group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
         {% endif %}
         {% endblock %}
       </div>
