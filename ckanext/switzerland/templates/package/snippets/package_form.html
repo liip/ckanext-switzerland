@@ -2,7 +2,7 @@
 
 {% asset "switzerland/confirm_action" %}
 
-{% set action = c.form_action or '' %}
+{% set action = form_action or '' %}
 
 {# This provides a full page that renders a form for adding a dataset. It can
 then itself be extended to add/remove blocks of functionality. #}
@@ -17,7 +17,7 @@ then itself be extended to add/remove blocks of functionality. #}
   {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
 
   {% block basic_fields %}
-    {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors, licenses=c.licenses, groups_available=c.groups_available %}
+    {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors, licenses=licenses, groups_available=groups_available %}
   {% endblock %}
 
   {% block metadata_fields %}

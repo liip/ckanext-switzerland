@@ -7,7 +7,7 @@
     <form action="" method="get" class="form-inline">
       <select name="filter" class="form-control">
         <option value="all">{{ _('All users') }}</option>
-        {% for dataset in c.datasets %}
+        {% for dataset in datasets %}
           <option value="{{ dataset.name }}">{{ h.parse_and_localize(dataset.title) }} ({{ dataset.follower_count }} {{ _('Followers') }})</option>
         {% endfor %}
       </select>
