@@ -1,20 +1,20 @@
 {% extends "organization/read_base.html" %}
 
 {% block primary_content_inner %}
-    <h1>{{ c.group_dict.title }}</h1>
-    <p>{{ c.group_dict.description }}</p>
+    <h1>{{ group_dict.title }}</h1>
+    <p>{{ group_dict.description }}</p>
 
     <div class="search-form">
-      <h2>{% trans count=c.page.item_count %}{{ count }} datasets{% endtrans %}</h2>
+      <h2>{% trans count=page.item_count %}{{ count }} datasets{% endtrans %}</h2>
     </div>
 
   {% block packages_list %}
-    {% if c.page.items %}
-      {{ h.snippet('snippets/package_list.html', packages=c.page.items) }}
+    {% if page.items %}
+      {{ h.snippet('snippets/package_list.html', packages=page.items) }}
     {% endif %}
   {% endblock %}
   {% block page_pagination %}
-    {{ c.page.pager(q=c.q) }}
+    {{ page.pager(q=q) }}
   {% endblock %}
 {% endblock %}
 
