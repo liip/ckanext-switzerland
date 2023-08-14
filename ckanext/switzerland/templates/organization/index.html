@@ -3,7 +3,7 @@
 {% block subtitle %}{{ _('Organizations') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% link_for _('Organizations'), controller='organization', action='index' %}</li>
+  <li class="active">{% link_for _('Organizations'), named_route='organization.index' %}</li>
 {% endblock %}
 
 {% block primary %}
@@ -12,7 +12,7 @@
 
     <div class="add-button">
     {% if h.check_access('organization_create') %}
-      {% link_for _('Add Organization'), controller='organization', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
+      {% link_for _('Add Organization'), named_route='organization.new', class_='btn btn-primary', icon='plus-sign-alt' %}
     {% endif %}
     </div>
   </div>
@@ -26,7 +26,7 @@
       <p class="empty">
         {{ _('There are currently no organizations for this site') }}.
         {% if h.check_access('organization_create') %}
-          {% link_for _('How about creating one?'), controller='organization', action='new' %}</a>.
+          {% link_for _('How about creating one?'), named_route='organization.new' %}</a>.
         {% endif %}
       </p>
     {% endif %}

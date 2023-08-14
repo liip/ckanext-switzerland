@@ -15,7 +15,7 @@
       <p>{% trans %}No apps, ideas, news stories or images have been
       related to this dataset yet.{% endtrans %}</p>
       {% if h.check_access('related_create') %}
-        <p class="action">{% link_for _('Add Item'), controller='related', action='new', id=pkg_name, icon='plus', class_='btn btn-default' %}</p>
+        <p class="action">{% link_for _('Add Item'), named_route='related.new', id=pkg_name, icon='plus', class_='btn btn-default' %}</p>
       {% endif %}
     {% endif %}
   </div>

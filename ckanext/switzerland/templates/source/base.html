@@ -13,12 +13,12 @@
 {% block breadcrumb_content %}
   {% if harvest_source.organization %}
     {% set org = harvest_source.organization %}
-    <li>{{ h.nav_link(_('Organizations'), named_route='organizations_index') }}</li>
-    <li>{{ h.nav_link(h.parse_and_localize(org.title), named_route='organization_read', id=org.name) }}</li>
-    <li>{{ h.nav_link(_('Harvest Sources'), named_route='{0}_search'.format(dataset_type)) }}</li>
-    <li{{ self.breadcrumb_content_root_selected() }}>{{ h.nav_link(harvest_source.title|truncate(10), named_route='{0}_read'.format(dataset_type), id=harvest_source.name) }}</li>
+    <li>{{ h.nav_link(_('Organizations'), named_route='organizations.index') }}</li>
+    <li>{{ h.nav_link(h.parse_and_localize(org.title), named_route='organization.read', id=org.name) }}</li>
+    <li>{{ h.nav_link(_('Harvest Sources'), named_route='{0}.search'.format(dataset_type)) }}</li>
+    <li{{ self.breadcrumb_content_root_selected() }}>{{ h.nav_link(harvest_source.title|truncate(10), named_route='{0}.read'.format(dataset_type), id=harvest_source.name) }}</li>
   {% else %}
-    <li>{{ h.nav_link(_('Harvest Sources'), named_route='{0}_search'.format(dataset_type)) }}</li>
-    <li{{ self.breadcrumb_content_root_selected() }}>{{ h.nav_link(harvest_source.title|truncate(30), named_route='{0}_read'.format(dataset_type), id=harvest_source.name) }}</li>
+    <li>{{ h.nav_link(_('Harvest Sources'), named_route='{0}.search'.format(dataset_type)) }}</li>
+    <li{{ self.breadcrumb_content_root_selected() }}>{{ h.nav_link(harvest_source.title|truncate(30), named_route='{0}.read'.format(dataset_type), id=harvest_source.name) }}</li>
   {% endif %}
 {% endblock %}

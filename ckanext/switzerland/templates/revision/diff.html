@@ -4,13 +4,13 @@
 
 {% block breadcrumb_content %}
   {% if diff_entity == 'package' %}
-    <li>{% link_for _('Datasets'), controller='dataset', action='search', highlight_actions = 'new index' %}</li>
-    <li>{% link_for h.dataset_display_name(pkg), controller='dataset', action='read', id=pkg.name %}</li>
+    <li>{% link_for _('Datasets'), named_route='dataset.search', highlight_actions = 'new index' %}</li>
+    <li>{% link_for h.dataset_display_name(pkg), named_route='dataset.read', id=pkg.name %}</li>
     <li class="active"><a href="" title="{{ _('Revision Differences') }}">{{ _('Revision Differences') }}</a></li>
   {% elif diff_entity == 'group' %}
     {% set group = group.display_name or group.name %}
-    <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
-    <li>{% link_for group, controller='group', action='read', id=group.name %}</li>
+    <li>{% link_for _('Groups'), named_route='group.index' %}</li>
+    <li>{% link_for group, named_route='group.read', id=group.name %}</li>
     <li class="active"><a href="" title="{{ _('Revision Differences') }}">{{ _('Revision Differences') }}</a></li>
   {% endif %}
 {% endblock %}
@@ -18,18 +18,18 @@
 {% block primary_content_inner %}
   <h1>{{ _('Revision Differences') }} -
     {% if diff_entity == 'package' %}
-      {% link_for h.parse_and_localize(pkg.title), controller='dataset', action='read', id=pkg.name %}
+      {% link_for h.parse_and_localize(pkg.title), named_route='dataset.read', id=pkg.name %}
     {% elif diff_entity == 'group' %}
-      {% link_for h.parse_and_localize(group.display_name), controller='group', action='read', id=group.name %}
+      {% link_for h.parse_and_localize(group.display_name), named_route='group.read', id=group.name %}
     {% endif %}
   </h1>
 
   <p>
-    <strong>From:</strong> {% link_for revision_from.id, controller='revision', action='read', id=revision_from.id %} -
+    <strong>From:</strong> {% link_for revision_from.id, named_route='revision.read', id=revision_from.id %} -
       {{ h.render_datetime(revision_from.timestamp, with_hours=True) }}
   </p>
   <p>
-    <strong>To:</strong> {% link_for revision_to.id, controller='revision', action='read', id=revision_to.id %} -
+    <strong>To:</strong> {% link_for revision_to.id, named_route='revision.read', id=revision_to.id %} -
       {{ h.render_datetime(revision_to.timestamp, with_hours=True) }}
   </p>
 
