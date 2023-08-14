@@ -7,13 +7,13 @@
             {%- set current_lang = h.lang() -%}
             {% set keyword_truncated = h.truncate(keyword, 22) %}
             {% if current_lang == 'de' %}
-               <li><a class="label label-primary-gray" href="{% url_for 'package.search', keywords_de=keyword %}" title="{{ keyword if keyword != keyword_truncated else '' }}">{{ keyword_truncated }}</a></li>
+               <li><a class="label label-primary-gray" href="{% url_for 'dataset.search', keywords_de=keyword %}" title="{{ keyword if keyword != keyword_truncated else '' }}">{{ keyword_truncated }}</a></li>
             {% elif current_lang == 'fr' %}
-               <li><a class="label label-primary-gray" href="{% url_for 'package.search', keywords_fr=keyword %}" title="{{ keyword if keyword != keyword_truncated else '' }}">{{ keyword_truncated }}</a></li>
+               <li><a class="label label-primary-gray" href="{% url_for 'dataset.search', keywords_fr=keyword %}" title="{{ keyword if keyword != keyword_truncated else '' }}">{{ keyword_truncated }}</a></li>
             {% elif current_lang == 'it' %}
-               <li><a class="label label-primary-gray" href="{% url_for 'package.search', keywords_it=keyword %}" title="{{ keyword if keyword != keyword_truncated else '' }}">{{ keyword_truncated }}</a></li>
+               <li><a class="label label-primary-gray" href="{% url_for 'dataset.search', keywords_it=keyword %}" title="{{ keyword if keyword != keyword_truncated else '' }}">{{ keyword_truncated }}</a></li>
             {% else %}
-               <li><a class="label label-primary-gray" href="{% url_for 'package.search', keywords_en=keyword %}" title="{{ keyword if keyword != keyword_truncated else '' }}">{{ keyword_truncated }}</a></li>
+               <li><a class="label label-primary-gray" href="{% url_for 'dataset.search', keywords_en=keyword %}" title="{{ keyword if keyword != keyword_truncated else '' }}">{{ keyword_truncated }}</a></li>
             {% endif %}
           {% endfor %}
         </ul>
