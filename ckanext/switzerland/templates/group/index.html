@@ -3,7 +3,7 @@
 {% block subtitle %}{{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% linkfor _('Data'), named_route=group_type+'.index' %}</li>
+  <li class="active">{% link_for _('Data'), named_route=group_type+'.index' %}</li>
 {% endblock %}
 
 {% block page_header %}{% endblock %}
