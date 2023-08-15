@@ -10,12 +10,6 @@ sort_resources:
     - sort_resources.js
   filters: rjsmin
 
-resource_reorder:
-  output: switzerland/resource_reorder
-  contents:
-    - bs3-resource-reorder.js
-  filters: rjsmin
-
 relations:
   output: switzerland/relations
   contents:
