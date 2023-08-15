@@ -1,9 +1,3 @@
-image_upload:
-  output: switzerland/image_upload.js
-  contents:
-    - bs3-image-upload.js
-  filters: rjsmin
-
 bootstrap:
   output: switzerland/bootstrap.js
   contents:
