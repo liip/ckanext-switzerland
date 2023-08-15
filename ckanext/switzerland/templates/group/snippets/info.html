@@ -11,7 +11,7 @@
     {% endblock %}
     {% block heading %}
     <h1 class="heading">
-      {{ h.get_localized_value(group.title) }}
+      {{ h.parse_and_localize(group.title) }}
       {% if group.state == 'deleted' %}
         [{{ _('Deleted') }}]
       {% endif %}
