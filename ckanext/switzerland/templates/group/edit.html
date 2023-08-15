@@ -3,7 +3,7 @@
 {% block breadcrumb_content %}
   <li>{% link_for _('Groups'), named_route='group.index' %}</li>
   {% block breadcrumb_content_inner %}
-    <li>{% link_for h.get_localized_value(group.title)|truncate(35), named_route='group.read', id=group.name %}</li>
+    <li>{% link_for h.parse_and_localize(group.title)|truncate(35), named_route='group.read', id=group.name %}</li>
     <li class="active">{% link_for _('Manage'), named_route='group.edit', id=group.name %}</li>
   {% endblock %}
 {% endblock %}
