@@ -1,9 +1,3 @@
-bootstrap:
-  output: switzerland/bootstrap.js
-  contents:
-    - bootstrap.js
-  filters: rjsmin
-
 sort_resources:
   output: switzerland/sort_resources.js
   contents:
