@@ -137,7 +137,7 @@ def json_list_of_dicts_field(field, schema):
                 for json_field_name in field_values.keys():
                     del junk[(key[-1], counter, json_field_name)]
 
-        data[key] = json.dumps(values.values())
+        data[key] = json.dumps(list(values.values()))
     return validator
 
 
