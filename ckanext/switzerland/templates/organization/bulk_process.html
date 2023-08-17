@@ -32,7 +32,7 @@
         </thead>
         <tbody>
           {% for package in packages %}
-            {% set title = h.parse_and_localize(package.title or package.name) %}
+            {% set title = h.dataset_display_name(package) %}
             {% set notes = h.markdown_extract(h.parse_and_localize(package.notes), extract_length=180) %}
             <tr>
               <td>
