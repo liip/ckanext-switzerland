@@ -14,7 +14,7 @@ Example:
 {% set username_error = true if error_summary %}
 {% set password_error = true if error_summary %}
 
-<form action="{{ action }}" method="post">
+<form action="{{ action }}" method="post" class="dataset-form">
   {{ h.csrf_input() }}
   {{ form.errors(errors=error_summary) }}
 
