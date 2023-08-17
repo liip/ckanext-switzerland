@@ -20,7 +20,7 @@
     <h2>{{ _('Additional Information') }}</h2>
     <dl class="dl-horizontal">
       <dt class="dataset-label">{{ _('Permalink') }}</dt>
-      <dd class="dataset-details">{% link_for _('Permalink'), named_route='ckanext.switzerland.controllers:PermalinkController.resource_permalink', id=pkg.name, filename=h.resource_filename(res.url) %}</dd>
+      <dd class="dataset-details">{% link_for _('Permalink'), named_route='ogdch_dataset.resource_permalink', id=pkg.name, filename=h.resource_filename(res.url) %}</dd>
       {% for key, field in display_items.items() %}
         {% set resource_helper = dict({key: field.value}) %}
         <dt class="dataset-label">{{- h.scheming_language_text(field.label) -}}</dt>
