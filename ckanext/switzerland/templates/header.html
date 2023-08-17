@@ -26,6 +26,7 @@
         <!-- search -->
         <div class="col-sm-6">
           <form action="/search" method="get">
+            {{ h.csrf_input() }}
             <div class="input-group search">
               <input type="text" class="form-control pull-right" placeholder="{{ _('Search') }}" name="q" aria-describedby="helpBlock" title="{{ _('min. 3 characters') }}"/>
               <div class="input-group-btn">
