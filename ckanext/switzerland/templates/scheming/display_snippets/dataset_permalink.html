@@ -1,5 +1,5 @@
 {% if data['permalink'] %}
-  {% link_for _('Permalink to the current resource'), named_route='ckanext.switzerland.controllers:PermalinkController.dataset_permalink', id=data.name %}
+  {% link_for _('Permalink to the current resource'), named_route='ogdch_dataset.dataset_permalink', id=data.name %}
 {% else %}
 -
 {% endif %}
