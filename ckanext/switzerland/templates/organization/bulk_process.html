@@ -32,8 +32,8 @@
         </thead>
         <tbody>
           {% for package in packages %}
-            {% set title = package.title or package.name %}
-            {% set notes = h.markdown_extract(package.notes, extract_length=180) %}
+            {% set title = h.parse_and_localize(package.title or package.name) %}
+            {% set notes = h.markdown_extract(h.parse_and_localize(package.notes), extract_length=180) %}
             <tr>
               <td>
                 <input type="checkbox" name="dataset_{{ package.id }}">
