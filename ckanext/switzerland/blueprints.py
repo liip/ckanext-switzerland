@@ -46,7 +46,7 @@ ogdch_dataset = Blueprint('ogdch_dataset', __name__, url_prefix=u'/dataset')
 ogdch_resource = Blueprint('ogdch_resource', __name__)
 
 
-def email_address_exporter(self):
+def email_address_exporter():
     if not (c.userobj and c.userobj.sysadmin):
         abort(401, _('Unauthorized'))
 
@@ -82,8 +82,7 @@ def email_address_exporter(self):
     return render('email_exporter/email_exporter.html')
 
 
-def resource_download(package_type: str,
-                      id: str,
+def resource_download(id: str,
                       resource_id: str,
                       filename: Optional[str] = None
                       ) -> Union[Response, WerkzeugResponse]:
@@ -126,7 +125,7 @@ def resource_download(package_type: str,
     return h.redirect_to(rsc[u'url'])
 
 
-def resource_permalink(self, id, filename):
+def resource_permalink(id, filename):
     context = {'model': model, 'session': model.Session,
                'user': c.user or c.author, 'for_view': True,
                'auth_user_obj': c.userobj}
@@ -146,7 +145,7 @@ def resource_permalink(self, id, filename):
     abort(404, _('Resource not found'))
 
 
-def dataset_permalink(self, id):
+def dataset_permalink(id):
     context = {'model': model, 'session': model.Session,
                'user': c.user or c.author, 'for_view': True,
                'auth_user_obj': c.userobj}
@@ -164,15 +163,15 @@ def dataset_permalink(self, id):
     return redirect(dataset['permalink'])
 
 
-def search(self):
+def search():
     return render('search/search.html')
 
 
 ogdch_admin.add_url_rule('/email_exporter', view_func=email_address_exporter)
 
-ogdch_dataset.add_url_rule('/{id}/resource/{resource_id}/download', view_func=resource_download)
-ogdch_dataset.add_url_rule('/{id}/resource/{resource_id}/download/{filename}', view_func=resource_download)
-ogdch_dataset.add_url_rule('/{id}/resource_permalink/{filename}', view_func=resource_permalink)
-ogdch_dataset.add_url_rule('/{id}/permalink', view_func=dataset_permalink)
+ogdch_dataset.add_url_rule('/<id>/resource/<resource_id>/download', view_func=resource_download)
+ogdch_dataset.add_url_rule('/<id>/resource/<resource_id>/download/<filename>', view_func=resource_download)
+ogdch_dataset.add_url_rule('/<id>/resource_permalink/<filename>', view_func=resource_permalink)
+ogdch_dataset.add_url_rule('/<id>/permalink', view_func=dataset_permalink)
 
 ogdch_resource.add_url_rule('/search', view_func=search)
