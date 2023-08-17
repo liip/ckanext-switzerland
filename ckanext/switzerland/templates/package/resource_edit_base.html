@@ -2,4 +2,5 @@
 
 {% block secondary_content %}
   {% snippet 'package/snippets/resource_info.html', res=res %}
+  {% snippet 'package/snippets/resources.html', pkg=pkg, active=res.id %}
 {% endblock %}
