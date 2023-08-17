@@ -22,10 +22,7 @@
   {# TODO: ACTIVITY_STREAMS #}
   {# {{ h.build_nav_icon('dataset.activity', _('Activity Stream'), id=pkg.name) }} #}
 
-  {% if (h.admin_only and h.check_access('sysadmin')) or not h.admin_only %}
-    {{ h.build_nav_icon(dataset_type ~ '.groups', h.humanize_entity_type('group', default_group_type, 'content tab') or _('Groups'), id=pkg.name, icon='users') }}
-  {% endif %}
-
+  {{ h.build_nav_icon(dataset_type ~ '.groups', h.humanize_entity_type('group', default_group_type, 'content tab') or _('Groups'), id=pkg.name, icon='users') }}
   {# {{ h.build_nav_icon('related_list', _('Related'), id=pkg.name) }} #}
 {% endblock %}
 
