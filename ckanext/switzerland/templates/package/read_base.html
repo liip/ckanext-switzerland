@@ -1,6 +1,6 @@
-{% extends "package/base.html" %}
+{% ckan_extends %}
 
-{% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ super() }}{% endblock %}
+{% set default_group_type = h.default_group_type('group') %}
 
 {% block links -%}
   {{ super() }}
@@ -52,23 +52,13 @@
     {% endblock %}
 {% endblock %}
 
-{% block secondary_content %}
+{% block package_organization %}
+  {% if pkg.organization %}
+    {% set org = h.get_localized_org(pkg.owner_org) %}
+    {% snippet "snippets/organization.html", organization=org, has_context_title=true %}
+  {% endif %}
+{% endblock %}
 
-  {% block secondary_help_content %}{% endblock %}
-
-  {% block package_info %}
-    {% snippet 'package/snippets/info.html', pkg=pkg %}
-  {% endblock %}
-
-  {% block package_organization %}
-    {% if pkg.organization %}
-      {% set org = h.get_localized_org(pkg.owner_org) %}
-      {% snippet "snippets/organization.html", organization=org, has_context_title=true %}
-    {% endif %}
-  {% endblock %}
-
-  {% block package_social %}
-    {% snippet "snippets/social.html" %}
-  {% endblock %}
-
+{% block package_license %}
+  {% snippet "snippets/license.html", pkg_dict=pkg %}
 {% endblock %}
