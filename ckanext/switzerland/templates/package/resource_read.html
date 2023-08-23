@@ -7,7 +7,6 @@
   <meta property="og:description" content="{{ description|forceescape }}">
 {% endblock -%}
 
-
 {% block resource_content %}
   {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
   {% block resource_read_url %}
@@ -19,12 +18,14 @@
   {% endblock %}
   <div class="prose notes" property="rdfs:label">
     {% if res.description %}
-      {{ h.render_markdown(res.description) }}
+      {{ h.render_description(res) }}
     {% endif %}
     {% if not res.description and package.notes %}
-      <h3>{{ _('Dataset description:') }}</h3>
-      <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
-      <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+      <h3>{{ _('From the dataset abstract') }}</h3>
+      <blockquote>{{ h.markdown_extract(package.get('notes')) }}</blockquote>
+      <p>{% trans dataset=package.title, url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
     {% endif %}
   </div>
+  <br>
+  {% snippet "package/snippets/terms_of_use.html", pkg=package %}
 {% endblock %}
