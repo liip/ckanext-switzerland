@@ -1,9 +1,8 @@
-# This file lists the dependencies of this extension.
-# Install with a command like: pip install -r requirements.txt 
-flake8==2.1.0
-testfixtures==4.10.0
-fs==0.5.4
-mock==2.0.0
-pylons==0.9.7
+flake8==6.1.0
+fs==2.4.16
+mock==5.1.0
 nose==1.3.7
-numpy==1.15.0
+numpy==1.25.2
+# Todo remove this once tests have been updated to use pytest
+pylons==1.0.3
+testfixtures==7.1.0
