@@ -5,4 +5,4 @@ pysftp==0.2.9
 requests==2.31.0
 routes==2.5.1
 unicodecsv==0.14.1
-voluptuous==0.13.3
+voluptuous==0.13.1
