@@ -52,7 +52,7 @@ Dictionary with search facets
           {% block facet_list_items %}
             {% with items = items or h.get_facet_items_dict(name, search_facets) %}
             {% if items %}
-			  <nav aria-label="{{ title }}">
+              <nav aria-label="{{ title }}">
                 <ul class="list-unstyled nav nav-simple nav-facet">
                   {% for item in items %}
                     {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
@@ -61,10 +61,10 @@ Dictionary with search facets
                     {% set count = count_label(item['count']) if count_label else ('(%d)' % item['count']) %}
                       <li class="{{ nav_item_class or 'nav-item' }}{% if item.active %} active{% endif %}">
                         <a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
-					      <span class="item-label">{{ label_truncated }}</span>
-					      <span class="hidden separator"> - </span>
-					      <span class="item-count badge">{{ count }}</span>
-					      {% if item.active %}<span class="facet-close">x</span>{% endif %}
+                        <span class="item-label">{{ label_truncated }}</span>
+                        <span class="hidden separator"> - </span>
+                        <span class="item-count badge">{{ count }}</span>
+                        {% if item.active %}<span class="facet-close">x</span>{% endif %}
                         </a>
                       </li>
                   {% endfor %}
