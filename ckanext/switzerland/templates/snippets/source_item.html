@@ -18,16 +18,16 @@ Example:
 {% set truncate_title = truncate_title or 80 %}
 {% set title = source.title or source.name %}
 {% set source_type = h.get_pkg_dict_extra(source, 'source_type') %}
-{% set url = h.url_for('harvest_admin', id=source.name) if within_organization else h.url_for('harvest_read', id=source.name) %}
+{% set url = h.url_for('harvest_admin', id=source.name) if within_organization else h.url_for('harvest.read', id=source.name) %}
 
 <li class="{{ item_class or "dataset-item" }}">
   <div class="dataset-content">
     <h3 class="dataset-heading">
-      {{ h.link_to(h.truncate(title, truncate_title), url) }}
+      {{ h.link_to(title|truncate(truncate_title),  url) }}
       {% if source.get(state, '').startswith('draft') %}
         <span class="label label-info">{{ _('Draft') }}</span>
       {% elif source.get(state, '').startswith('deleted') %}
-        <span class="label label-primary">{{ _('Deleted') }}</span>
+        <span class="label label-important">{{ _('Deleted') }}</span>
       {% endif %}
     </h3>
 
@@ -42,7 +42,7 @@ Example:
         {{ _('Datasets') }}: {{ source.status.total_datasets }}
       {% endif %}
       {% if not within_organization and source.organization %}
-      &mdash; {{ _('Organization') }}: {{ h.link_to(h.parse_and_localize(source.organization.title), h.url_for('organization_read', id=source.organization.name)) }}</a>
+      &mdash; {{ _('Organization') }}: {{ h.link_to(h.parse_and_localize(source.organization.title), h.url_for('organization.read', id=source.organization.name)) }}</a>
       {% endif %}
     </p>
 

@@ -17,7 +17,7 @@ Example:
 
 {% if job.status == 'Finished' %}
   <p class="harvester-labels">
-    <span class="label label-danger">
+    <span class="label label-important" data-diff="error">
       {% if 'errored' in stats and stats['errored'] > 0 %}
         {{ stats['errored'] }}
       {% else %}
@@ -25,6 +25,16 @@ Example:
       {% endif %}
       {{ _('errors') }}
     </span>
+    {% for action in ['added', 'updated', 'deleted', 'not modified'] %}
+      <span class="label" data-diff="{{ action }}">
+        {% if action in stats and stats[action] > 0 %}
+          {{ stats[action] }}
+        {% else %}
+          0
+        {% endif %}
+        {{ _(action) }}
+      </span>
+    {% endfor %}
   </p>
 {% endif %}
 
