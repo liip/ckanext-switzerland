@@ -8,14 +8,14 @@
   {% set dataset_type = activity.data.package.type or 'dataset' %}
   <span class="dataset">
     <a href="{{ h.url_for(dataset_type ~ '.read', id=activity.object_id ) }}">
-      {{ activity.data.package.title if activity.data.package else _("unknown") }}
+      {{ h.parse_and_localize(activity.data.package.title) if activity.data.package else _("unknown") }}
     </a>
   </span>
 {% endmacro %}
 
 {% macro organization(activity) %}
   <a href="{{ h.url_for('organization.read', id=activity.object_id) }}">
-    {{ activity.data.group.title if activity.data.group else _('unknown') }}
+    {{ h.parse_and_localize(activity.data.group.title) if activity.data.group else _('unknown') }}
   </a>
 {% endmacro %}
 
@@ -28,7 +28,7 @@
 {% macro group(activity) %}
 <span class="group">
   <a href="{{ h.url_for('group.read', id=activity.object_id) }}">
-    {{ activity.data.group.title if activity.data.group else _('unknown') }}
+    {{ h.parse_and_localize(activity.data.group.title) if activity.data.group else _('unknown') }}
   </a>
 </span>
 {% endmacro %}
