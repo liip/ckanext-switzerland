@@ -435,3 +435,24 @@ def map_to_valid_format(resource_format):
             return key
     else:
         return None
+
+
+def localize_change_dict(changes):
+    """Localize titles and descriptions in a list of changes to a package,
+    group or organization.
+    """
+    multilingual_fields = [
+        'title',
+        'old_title',
+        'new_title',
+        'old_org_title',
+        'new_org_title',
+        'old_desc',
+        'new_desc',
+    ]
+    for change in changes:
+        for field in multilingual_fields:
+            if field in change:
+                change[field] = parse_and_localize(change.get(field, ''))
+
+    return changes

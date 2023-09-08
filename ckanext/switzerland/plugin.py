@@ -97,6 +97,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             'resource_link': sh.resource_link,
             'organization_link': sh.organization_link,
             'get_langs': sh.get_langs,
+            'localize_change_dict': sh.localize_change_dict,
         }
 
     def i18n_directory(self):
