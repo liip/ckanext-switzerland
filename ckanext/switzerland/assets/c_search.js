@@ -84,7 +84,7 @@ new Vue({
       $.when(ckanSearch, pageSearch, faqSearch).then(function(datasets, pages, faqs) {
         // ckan search results
         self.datasetResults = []
-        datasets[0].result.results.map(function(result) {
+        datasets.result.results.map(function(result) {
           self.datasetResults.push({
             title: result.title[self.language],
             description: result.description[self.language],
@@ -113,7 +113,7 @@ new Vue({
         })
 
         self.loading = false
-      }, 
+      },
       /**
        * Error handler
        */
