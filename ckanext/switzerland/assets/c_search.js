@@ -69,7 +69,8 @@ new Vue({
 
       var ckanSearch = $.get('/api/3/action/package_search', {
         'facet.limit': 100,
-        'q': this.searchTerm
+        'q': this.searchTerm,
+        'rows': 1000,
       });
       var pageSearch = $.get('/wp-json/wp/v2/pages/', {
         'per_page': 100,
