@@ -69,7 +69,8 @@ new Vue({
 
       var ckanSearch = $.get('/api/3/action/package_search', {
         'facet.limit': 100,
-        'q': this.searchTerm
+        'q': this.searchTerm,
+        'rows': 1000,
       });
       var pageSearch = $.get('/wp-json/wp/v2/pages/', {
         'per_page': 100,
@@ -84,7 +85,7 @@ new Vue({
       $.when(ckanSearch, pageSearch, faqSearch).then(function(datasets, pages, faqs) {
         // ckan search results
         self.datasetResults = []
-        datasets[0].result.results.map(function(result) {
+        datasets.result.results.map(function(result) {
           self.datasetResults.push({
             title: result.title[self.language],
             description: result.description[self.language],
@@ -113,7 +114,7 @@ new Vue({
         })
 
         self.loading = false
-      }, 
+      },
       /**
        * Error handler
        */

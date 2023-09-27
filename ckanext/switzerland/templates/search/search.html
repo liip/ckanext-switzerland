@@ -25,8 +25,6 @@
             </div>
           {% endif %}
           {% block primary_content_inner %}
-            {% asset 'switzerland/search' %}
-
             <h1>{{ _('Search') }}</h1>
             <div id="app" v-cloak>
               <form class="form-inline" v-on:submit.prevent="search">
@@ -101,3 +99,8 @@
     {% endblock %}
   </div>
 {% endblock %}
+
+{%- block scripts %}
+  {{ super() }}
+  {% asset 'switzerland/search' %}
+{% endblock -%}
