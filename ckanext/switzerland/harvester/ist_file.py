@@ -23,7 +23,7 @@ def ist_file_filter(harvester_obj, config):
                 break
 
         if not column_index:
-            raise Exception('File {} if not a valid Ist-File, missing column BPUIC'.format(harvester_obj['file']))
+            raise Exception('File {} is not a valid Ist-File, missing column BPUIC'.format(harvester_obj['file']))
 
         writer.writerow(heading)
 
