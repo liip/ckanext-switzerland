@@ -107,10 +107,13 @@ class FTPStorageAdapter(StorageAdapterBase):
             # connect
             # check SFTP protocol is used, pysftp defaults to 22
             if int(self._config[FTP_PORT]) == 22:
+                cnopts = pysftp.CnOpts()
+                cnopts.hostkeys = None
                 self.sftp = pysftp.Connection(host=self._config[FTP_HOST],
                                               username=self._config[FTP_USER_NAME],
                                               password=self._config[FTP_PASSWORD],
                                               port=int(self._config[FTP_PORT]),
+                                              cnopts=cnopts,
                                               )
             else:
                 # overwrite the default port (21)
