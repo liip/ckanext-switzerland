@@ -14,7 +14,7 @@ def ist_file_filter(harvester_obj, config):
         writer = csv.writer(fout, delimiter=';')
         reader = csv.reader(fin, delimiter=';')
 
-        heading = reader.next()
+        heading = next(reader)
 
         column_index = None
         for i, column in enumerate(heading):
