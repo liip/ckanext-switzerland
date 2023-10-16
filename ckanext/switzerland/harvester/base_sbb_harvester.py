@@ -187,7 +187,7 @@ class BaseSBBHarvester(HarvesterBase):
             'ftp_server': str,
             'storage_adapter': str,
             'bucket': str,
-            voluptuous.Required('date_pattern', default=None): str,
+            voluptuous.Required('date_pattern', default=''): str,
         })
 
     def load_config(self, config_str):
