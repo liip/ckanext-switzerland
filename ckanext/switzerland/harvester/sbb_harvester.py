@@ -78,7 +78,9 @@ class SBBHarvester(BaseSBBHarvester):
                 filelist = storage.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 
-                filelist = filter(lambda filename: re.match(self.config['filter_regex'], filename), filelist)
+                filelist = list(
+                    filter(lambda filename: re.match(self.config['filter_regex'], filename), filelist)
+                )
 
                 # get last-modified date of each file
                 for f in filelist:
