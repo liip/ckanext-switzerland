@@ -82,7 +82,8 @@ class S3StorageAdapter(StorageAdapterBase):
         pass
 
     def cdremote(self, remotedir=None):
-        # Files are stored flat on AWS. So there is no such command on S3. We just need to keep a ref to a Working Directory
+        # Files are stored flat on AWS. So there is no such command on S3. We just need
+        # to keep a ref to a Working Directory
         if remotedir == "/":
             self._working_directory = ""
         elif remotedir:
@@ -110,7 +111,8 @@ class S3StorageAdapter(StorageAdapterBase):
         return file[len(prefix) :]
 
     def __prepare_for_return__(self, elements, prefix):
-        # AWS returns the element with their full name from root, so we need to remove the prefix
+        # AWS returns the element with their full name from root, so we need to remove
+        # the prefix
         without_prefix = [self.__remove_prefix__(file, prefix) for file in elements]
         # Of course, we will now have a empty string in the set, let's remove it
         without_root = [name for name in without_prefix if name]
@@ -137,13 +139,15 @@ class S3StorageAdapter(StorageAdapterBase):
 
         objects = self.__clean_aws_response__(s3_objects)
 
-        # But the previous call, did not return the folders (because of setting a delimiter), so lets look in the prefixes to add them
+        # But the previous call, did not return the folders (because of setting a
+        # delimiter), so lets look in the prefixes to add them
         if AWS_RESPONSE_PREFIXES in s3_objects:
             objects.extend(
                 [object["Prefix"] for object in s3_objects[AWS_RESPONSE_PREFIXES]]
             )
 
-        # AWS always returns sorted items. Usually no need to sort. In this case we need to sort as we aggregated two sources
+        # AWS always returns sorted items. Usually no need to sort. In this case we need
+        # to sort as we aggregated two sources
         files_and_folder = sorted(self.__prepare_for_return__(objects, prefix))
 
         return files_and_folder
@@ -151,7 +155,8 @@ class S3StorageAdapter(StorageAdapterBase):
     def get_remote_dirlist_all(self, folder=None):
         prefix = self.__determine_prefix__(folder)
 
-        # By fixing the delimiter to '', we list full depth, starting at the prefix depth
+        # By fixing the delimiter to '', we list full depth, starting at the prefix
+        # depth
         s3_objects = self._aws_client.list_objects(
             Bucket=self._config[AWS_BUCKET_NAME], Prefix=prefix, Delimiter=""
         )
@@ -179,7 +184,8 @@ class S3StorageAdapter(StorageAdapterBase):
                 return modified_date
             else:
                 log.info(
-                    "S3 bucket modified date information is not available or timezone is not in UTC"
+                    "S3 bucket modified date information is not available "
+                    "or timezone is not in UTC"
                 )
         except ClientError:
             return None

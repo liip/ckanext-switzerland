@@ -61,7 +61,8 @@ class TimetableHarvester(SBBHarvester):
 
         :param harvest_job: Harvester job
 
-        :returns: List of HarvestObject ids that are processed in the next stage (fetch_stage)
+        :returns: List of HarvestObject ids that are processed in the next stage
+                  (fetch_stage)
         :rtype: list
         """
         # TODO: Simplify this method.
@@ -164,7 +165,8 @@ class TimetableHarvester(SBBHarvester):
             and not previous_job.gather_errors
             and previous_job.gather_started
         ):
-            # optional 'force_all' config setting can be used to always download all files
+            # optional 'force_all' config setting can be used to always download all
+            # files
             force_all = self.config.get("force_all", False)
 
             if not force_all:
@@ -188,7 +190,8 @@ class TimetableHarvester(SBBHarvester):
                         )
                     )
 
-                    # skip file if its older than last harvester run date and it actually exists on the dataset
+                    # skip file if its older than last harvester run date and it
+                    # actually exists on the dataset
                     # only skip when file was already downloaded once
                     if (
                         modified_date
@@ -201,12 +204,14 @@ class TimetableHarvester(SBBHarvester):
 
                 if not len(filelist_with_dataset):
                     log.info(
-                        "No files have been updated on the ftp/s3 aws server since the last harvest job"
+                        "No files have been updated on the ftp/s3 aws server "
+                        "since the last harvest job"
                     )
                     return []  # no files to harvest this time
             else:
                 log.warning(
-                    "force_all is activated, downloading all files from ftp/s3 without modification date checking"
+                    "force_all is activated, downloading all files from ftp/s3 "
+                    "without modification date checking"
                 )
 
             # ------------------------------------------------------

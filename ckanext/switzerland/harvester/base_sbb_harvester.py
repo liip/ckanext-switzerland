@@ -8,8 +8,8 @@ from the harvest source. Errors occurring in this phase
 (``HarvestGatherError``) are stored in the ``harvest_gather_error``
 table.
 2) the **fetch** stage retrieves the ``HarvestedObjects``
-3) the **import** stage stores them in the database. Errors occurring in the second and third stages
-(``HarvestObjectError``) are stored in the ``harvest_object_error`` table.
+3) the **import** stage stores them in the database. Errors occurring in the second and
+third stages (``HarvestObjectError``) are stored in the ``harvest_object_error`` table.
 """
 
 import cgi
@@ -67,8 +67,8 @@ class BaseSBBHarvester(HarvesterBase):
     # e.g. infodoc or didok
     remotefolder = ""
 
-    # if a resource is uploaded with a format, it will show a tag on the dataset, e.g. XML or TXT
-    # the default setting is defined to be TXT for files with no extension
+    # if a resource is uploaded with a format, it will show a tag on the dataset, e.g.
+    # XML or TXT the default setting is defined to be TXT for files with no extension
     default_format = "TXT"
     default_mimetype = "TXT"
     default_mimetype_inner = "TXT"
@@ -344,7 +344,8 @@ class BaseSBBHarvester(HarvesterBase):
                 if os.path.basename(res.get("url")) != match_name:
                     continue
                 resource_meta = res
-                # there should only be one file with the same name in each dataset, so we can break
+                # there should only be one file with the same name in each dataset, so
+                # we can break
                 break
         return resource_meta
 
@@ -507,7 +508,6 @@ class BaseSBBHarvester(HarvesterBase):
         log.info("Remote directory: %s", remotefolder)
         log.info("Local directory: %s", tmpfolder)
 
-        # Here we removed "validate configuration". This is now done inside of the StorageAdapter, that knows what it needs
         self.config = self.load_config(harvest_object.job.source.config)
 
         try:
@@ -765,8 +765,8 @@ class BaseSBBHarvester(HarvesterBase):
 
             log.debug("Package dict (pre-creation): %s" % str(package_dict))
 
-            # This logic action requires to call check_access to
-            # prevent the Exception: 'Action function package_show  did not call its auth function'
+            # This logic action requires to call check_access to prevent the Exception:
+            # 'Action function package_show  did not call its auth function'
             # Adds action name onto the __auth_audit stack
             if not check_access("package_create", context):
                 self._save_object_error(
@@ -825,15 +825,17 @@ class BaseSBBHarvester(HarvesterBase):
             fp = open(f, "rb")
 
             # -----------------------------------------------------
-            # create new resource, if there was no resource with the same filename (aka identifier)
+            # create new resource, if there was no resource with the same filename (aka
+            # identifier)
             # -----------------------------------------------------
             if not resource_meta:
                 old_resource_id = None
 
-                # we already checked if there is a resource with the same filename, we now
-                # check if there is a resource another resource inside the dataset we could use as a template
-                # if we find one, we copy the metadata and set some of the fields, if not we use the metadata
-                # defined in this class (self.resource_dict_meta)
+                # we already checked if there is a resource with the same filename, we
+                # now check if there is a resource another resource inside the dataset
+                # we could use as a template if we find one, we copy the metadata and
+                # set some of the fields, if not we use the metadata defined in this
+                # class (self.resource_dict_meta)
 
                 old_resources, _ = self._get_ordered_resources(dataset)
                 if len(old_resources):
@@ -842,7 +844,8 @@ class BaseSBBHarvester(HarvesterBase):
                 else:
                     resource_meta = self.resource_dict_meta
 
-                # we always set this fields, even when there is and older version of this resource
+                # we always set this fields, even when there is and older version of
+                # this resource
                 resource_meta["identifier"] = os.path.basename(f)
 
                 # always overwrite this metadata
@@ -891,7 +894,8 @@ class BaseSBBHarvester(HarvesterBase):
             resource_meta["package_id"] = dataset["id"]
 
             # url parameter is ignored for resource uploads, but required by ckan
-            # this parameter will be replaced later by the resource patch with a link to the download file
+            # this parameter will be replaced later by the resource patch with a link to
+            # the download file
             if "url" not in resource_meta:
                 resource_meta["url"] = "http://dummy-value"
                 resource_meta["download_url"] = None
@@ -952,7 +956,8 @@ class BaseSBBHarvester(HarvesterBase):
         ordered_resources = []
         unmatched_resources = []
 
-        # get filename regex for permalink from harvester config or fallback to a catch-all
+        # get filename regex for permalink from harvester config or fallback to a
+        # catch-all
         identifier_regex = self.config["resource_regex"]
         for resource in package["resources"]:
             log.info("Testing filename: %s", resource["identifier"])
@@ -984,15 +989,19 @@ class BaseSBBHarvester(HarvesterBase):
         log.info("Running finalizing tasks:")
         # ----------------------------------------------------------------------------
         # Deleting old resources, generate permalink, order resources:
-        # We do this by matching a regex, defined in the `resource_regex` key of the harvester json config,
-        # against the identifier (filename) of the resources of the dataset. The ones that matched are thrown in a list
-        # and sorted by name, descending. This makes the newest file appear first when the filesnames have the correct
-        # format (YYYY-MM-DD-*).
-        # In case filesnames have different structure, e.g., *_YYYY-MM-DD.csv, `date_pattern` should be specified in the
-        # harvester configuration, which is used to list the newest files on the top of the list.
-        # The oldest files of this list get deleted if there are more than harvester_config.max_resources in the list.
+        # We do this by matching a regex, defined in the `resource_regex` key of the
+        # harvester json config, against the identifier (filename) of the resources of
+        # the dataset. The ones that matched are thrown in a list and sorted by name,
+        # descending. This makes the newest file appear first when the filesnames have
+        # the correct format (YYYY-MM-DD-*).
+        # In case filesnames have different structure, e.g., *_YYYY-MM-DD.csv,
+        # `date_pattern` should be specified in the harvester configuration, which is
+        # used to list the newest files on the top of the list.
+        # The oldest files of this list get deleted if there are more than
+        # harvester_config.max_resources in the list.
         # The newest file is set as a permalink on the dataset.
-        # The sorted list of resources get set on the dataset, with not matched resources appearing first.
+        # The sorted list of resources get set on the dataset, with not matched
+        # resources appearing first.
 
         # ----------------------------------------------------------------------------
         # reorder resources

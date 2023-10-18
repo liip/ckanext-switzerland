@@ -58,8 +58,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
     def test_existing_resource(self):
         """
-        Tests harvesting a new file which was not harvested before. Should create a new resource
-        and copy some data from the existing one.
+        Tests harvesting a new file which was not harvested before. Should create a new
+        resource and copy some data from the existing one.
         """
         dataset = data.dataset()
         data.resource(dataset=dataset)
@@ -85,7 +85,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
     def test_existing_resource_same_filename(self):
         """
-        Tests harvesting a new file which was not harvested before but manually uploaded to ckan.
+        Tests harvesting a new file which was not harvested before but manually uploaded
+        to ckan.
         Should copy the data from the old resource and delete the old resource.
         """
         dataset = data.dataset()
@@ -104,7 +105,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
     def test_skip_already_harvested_file(self):
         """
-        When modified date of file is older than the last harvester run date, the file should not be harvested again
+        When modified date of file is older than the last harvester run date, the file
+        should not be harvested again
         """
         MockFTPStorageAdapter.filesystem = self.get_filesystem()
         self.run_harvester()
@@ -120,7 +122,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
     def test_force_all(self):
         """
-        When modified date of file is older than the last harvester run date, the file should not be harvested again
+        When modified date of file is older than the last harvester run date, the file
+        should not be harvested again
         force_all overrides this mechanism and reharvests all files on the ftp server.
         """
         MockFTPStorageAdapter.filesystem = self.get_filesystem()
@@ -137,8 +140,9 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
     def test_updated_file_before_last_harvester_run(self):
         """
-        When modified date of file is older than the last harvester run date, the file should not be harvested again,
-        except when the file is missing in the dataset, that is what we are testing here.
+        When modified date of file is older than the last harvester run date, the file
+        should not be harvested again, except when the file is missing in the dataset,
+        that is what we are testing here.
         """
         filesystem = self.get_filesystem()
         MockFTPStorageAdapter.filesystem = filesystem
@@ -198,7 +202,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         20160901.csv: content 3
         20160902.csv: content 2
 
-        => permalink should still point to the newest file (20160902.csv), and the newest file should be on top
+        => permalink should still point to the newest file (20160902.csv), and the
+        newest file should be on top
         """
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem
@@ -368,8 +373,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
                 self.assert_resource_exists(resource)
 
     def test_max_resources_redownload_files(self):
-        """
-        If resources get deleted by max_resources, we should not redownload them from ftp.
+        """If resources get deleted by max_resources, we should not redownload them from
+        ftp.
         """
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem

@@ -81,7 +81,9 @@ class TestFTPStorageAdapter(unittest.TestCase):
         return FTPStorageAdapter(self.ckan_config_resolver, self.config, remote_dir)
 
     def test_FTPStorageAdapter__init__(self):
-        """FTPStorageAdapter class correctly stores the ftp configuration from the ckan config"""
+        """FTPStorageAdapter class correctly stores the ftp configuration from the ckan
+         config
+         """
         remotefolder = "/test/"
         ftph = self.__build_tested_object__(remotefolder)
 
