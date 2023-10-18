@@ -6,7 +6,7 @@ from datetime import datetime
 import rdflib
 from ckan.lib.helpers import url_for
 from rdflib import BNode, Literal, URIRef
-from rdflib.namespace import RDF, RDFS, SKOS, XSD, Namespace
+from rdflib.namespace import RDF, RDFS, SKOS, Namespace
 
 from ckanext.dcat.profiles import RDFProfile
 from ckanext.dcat.utils import resource_uri

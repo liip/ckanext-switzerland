@@ -1,5 +1,4 @@
 import configparser
-import json
 
 
 class MockConfigResolver(object):

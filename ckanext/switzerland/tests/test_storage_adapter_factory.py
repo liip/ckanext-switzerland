@@ -1,4 +1,3 @@
-import os
 import unittest
 
 from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
