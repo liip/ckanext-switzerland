@@ -81,7 +81,7 @@ def localize_json_title(facet_item):
     try:
         lang_dict = json.loads(facet_item["display_name"])
         return get_localized_value(lang_dict, default_value=facet_item["display_name"])
-    except:
+    except (ValueError, TypeError, AttributeError):
         return facet_item["display_name"]
 
 
@@ -375,7 +375,7 @@ def load_wordpress_templates():
     try:
         data = resp.json()["data"]
     except JSONDecodeError:
-        content = resp.content[resp.content.index(b"{") :]
+        content = resp.content[resp.content.index(b"{"):]
         data = json.loads(content)["data"]
     except (ValueError, KeyError) as e:
         log.error("Error getting WordPress templates: {}".format(e))

@@ -468,7 +468,7 @@ class TestS3StorageAdapter(unittest.TestCase):
         self.assertEqual(storage_adapter._config[LOCAL_PATH], "/tmp/s3harvest/")
 
     def test_validate_config_with_valid_config_then_no_error(self):
-        storage_adapter = self.__build_tested_object__()
+        self.__build_tested_object__()
         assert True
 
     def test_validate_config_with_invalid_config_then_error(self):
