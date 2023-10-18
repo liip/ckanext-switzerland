@@ -284,7 +284,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         filesystem.setcontents(path, data.dataset_content_3)
         path = os.path.join(data.environment, data.folder, "9999Resource.csv")
         filesystem.setcontents(path, data.dataset_content_3)
-        self.run_harvester(resource_regex="\d{8}.csv")
+        self.run_harvester(resource_regex=r"\d{8}.csv")
 
         package = self.get_package()
 
@@ -445,7 +445,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         path = os.path.join(data.environment, data.folder, "Invalid.csv")
         filesystem.setcontents(path, data.dataset_content_2)
 
-        self.run_harvester(filter_regex=".*\.zip")
+        self.run_harvester(filter_regex=r".*\.zip")
 
         package = self.get_package()
         assert_equal(len(package.resources), 1)
