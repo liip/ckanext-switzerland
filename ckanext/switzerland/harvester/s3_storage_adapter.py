@@ -107,7 +107,7 @@ class S3StorageAdapter(StorageAdapterBase):
         if prefix is None or len(prefix) == 0:
             return file
 
-        return file[len(prefix):]
+        return file[len(prefix) :]
 
     def __prepare_for_return__(self, elements, prefix):
         # AWS returns the element with their full name from root, so we need to remove the prefix
