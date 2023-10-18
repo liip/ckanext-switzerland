@@ -31,7 +31,9 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
         MockFTPStorageAdapter.filesystem = self.get_filesystem(
             filename="FP2016_Jahresfahrplan.zip"
         )
-        self.run_harvester(dataset="Timetable {year}", timetable_regex=r"FP(\d\d\d\d).*")
+        self.run_harvester(
+            dataset="Timetable {year}", timetable_regex=r"FP(\d\d\d\d).*"
+        )
 
         dataset = self.get_dataset(name="Timetable 2016")
 
@@ -47,7 +49,9 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
         path = os.path.join(data.environment, data.folder, "InvalidFile")
         filesystem.setcontents(path, data.dataset_content_2)
 
-        self.run_harvester(dataset="Timetable {year}", timetable_regex=r"FP(\d\d\d\d).*")
+        self.run_harvester(
+            dataset="Timetable {year}", timetable_regex=r"FP(\d\d\d\d).*"
+        )
 
         dataset1 = self.get_dataset(name="Timetable 2016")
         assert_equal(len(dataset1["resources"]), 1)
