@@ -108,7 +108,7 @@ class S3StorageAdapter(StorageAdapterBase):
 
     def __prepare_for_return__(self, elements, prefix):
         # AWS returns the element with their full name from root, so we need to remove the prefix
-        without_prefix = map(lambda file : self.__remove_prefix__(file, prefix), elements)
+        without_prefix = [self.__remove_prefix__(file, prefix) for file in elements]
         # Of course, we will now have a empty string in the set, let's remove it
         without_root = [name for name in without_prefix if name]
         return without_root
@@ -122,7 +122,7 @@ class S3StorageAdapter(StorageAdapterBase):
         if not s3_objects or AWS_RESPONSE_CONTENT not in s3_objects:
             return []
 
-        return map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT])
+        return [object['Key'] for object in s3_objects[AWS_RESPONSE_CONTENT]]
 
 
     def get_remote_dirlist(self, folder=None):
@@ -135,7 +135,7 @@ class S3StorageAdapter(StorageAdapterBase):
 
         # But the previous call, did not return the folders (because of setting a delimiter), so lets look in the prefixes to add them
         if AWS_RESPONSE_PREFIXES in s3_objects:
-            objects.extend(map(lambda object : object['Prefix'], s3_objects[AWS_RESPONSE_PREFIXES]))
+            objects.extend([object['Prefix'] for object in s3_objects[AWS_RESPONSE_PREFIXES]])
 
         # AWS always returns sorted items. Usually no need to sort. In this case we need to sort as we aggregated two sources
         files_and_folder = sorted(self.__prepare_for_return__(objects, prefix))

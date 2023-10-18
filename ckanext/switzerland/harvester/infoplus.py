@@ -117,7 +117,7 @@ def file_filter(harvester_obj, config):
 
         infoplus_config = config['infoplus']['files'][harvester_obj['infoplus_filename']]
 
-        headings = map(lambda col: col['name'], infoplus_config)
+        headings = [col['name'] for col in infoplus_config]
         writer.writerow(headings)
 
         for line in data.split('\n'):
