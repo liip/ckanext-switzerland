@@ -148,7 +148,7 @@ class SwissDCATAPProfile(RDFProfile):
 
     def _clean_datetime(self, datetime_value):
         try:
-            d = datetime.strptime(datetime_value[0 : len("YYYY-MM-DD")], "%Y-%m-%d")
+            d = datetime.strptime(datetime_value[0:len("YYYY-MM-DD")], "%Y-%m-%d")
             return int(time.mktime(d.timetuple()))
         except (ValueError, KeyError, TypeError, IndexError):
             return None

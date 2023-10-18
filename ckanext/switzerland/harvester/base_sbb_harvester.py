@@ -14,7 +14,6 @@ table.
 
 import cgi
 import ftplib  # for errors only
-import json
 import logging
 import os
 import re

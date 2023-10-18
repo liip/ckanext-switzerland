@@ -7,8 +7,6 @@ import os
 import shutil
 import unittest
 
-log = logging.getLogger(__name__)
-
 from ckan import model
 from mock import patch
 from nose.tools import assert_equal
@@ -25,6 +23,8 @@ from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
 from .helpers.mock_config_resolver import MockConfigResolver
 
 # -----------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 CONFIG_SECTION = "app:main"
 
@@ -198,7 +198,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         # get ftplib instance
         mock_ftp_tls = MockFTP_TLS.return_value
         # run test
-        with self.__build_tested_object__("/hello/") as ftph:
+        with self.__build_tested_object__("/hello/"):
             pass
         # check results
         self.assertTrue(mock_ftp_tls.cwd.called)
@@ -330,7 +330,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         for filename in ["file1.txt", "file2.txt"]:
             try:
                 os.remove(os.path.join(currpath, "fixtures/zip/%s" % filename))
-            except:
+            except OSError:
                 pass
 
     def test_validate_config_with_invalid_config_then_error(self):

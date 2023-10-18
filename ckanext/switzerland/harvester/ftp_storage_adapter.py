@@ -323,7 +323,7 @@ class FTPStorageAdapter(StorageAdapterBase):
         elif self.sftp:
             status = self.sftp.get(filename, localpath=localpath)
 
-            if status == None:
+            if status is None:
                 status = "226 Transfer complete"
             else:
                 # something went wrong with copies a file between the remote host and the local host
