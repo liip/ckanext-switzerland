@@ -1,8 +1,8 @@
 # coding=utf-8
-from paste.registry import Registry
 from ckan import model
-from ckan.lib.munge import munge_name, munge_filename
+from ckan.lib.munge import munge_filename, munge_name
 from ckan.tests import factories
+from paste.registry import Registry
 
 environment = "Test"
 folder = "Dataset"

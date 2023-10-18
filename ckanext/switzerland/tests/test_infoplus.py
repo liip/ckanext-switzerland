@@ -1,16 +1,16 @@
 import json
-from zipfile import ZipFile
-
 import os
 from io import StringIO
+from zipfile import ZipFile
+
+from mock import patch
+from nose.tools import assert_equal, assert_in, assert_is_not_none
 
 from ckanext.switzerland.harvester.timetable_harvester import TimetableHarvester
 from ckanext.switzerland.tests import data
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
     MockFTPStorageAdapter,
 )
-from mock import patch
-from nose.tools import assert_equal, assert_is_not_none, assert_in
 
 from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 

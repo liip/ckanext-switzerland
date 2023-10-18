@@ -7,6 +7,7 @@ from collections import OrderedDict
 import ckan.plugins.toolkit as tk
 from ckan.logic import NotFound, ValidationError
 from ckan.plugins.toolkit import get_or_bust, side_effect_free
+
 from ckanext.harvest.model import HarvestJob, HarvestObject, HarvestSource
 from ckanext.switzerland.helpers import get_content_headers
 

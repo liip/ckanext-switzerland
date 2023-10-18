@@ -9,30 +9,29 @@ The class is intended to be used with Python's `with` statement, e.g.
         ...
 `
 """
+import datetime
 import logging
 import os
 import re
-import datetime
-
-from dateutil.tz import tzutc
 
 import boto3
 import boto3.session
 from botocore.exceptions import ClientError
+from dateutil.tz import tzutc
 
 from ckanext.switzerland.harvester.config.config_key import ConfigKey
-from ckanext.switzerland.harvester.storage_adapter_base import StorageAdapterBase
 from ckanext.switzerland.harvester.keys import (
-    AWS_SECRET_KEY,
     AWS_ACCESS_KEY,
-    AWS_REGION_NAME,
     AWS_BUCKET_NAME,
+    AWS_REGION_NAME,
     AWS_RESPONSE_CONTENT,
     AWS_RESPONSE_PREFIXES,
+    AWS_SECRET_KEY,
     LOCAL_PATH,
     REMOTE_DIRECTORY,
     S3_CONFIG_KEY,
 )
+from ckanext.switzerland.harvester.storage_adapter_base import StorageAdapterBase
 
 log = logging.getLogger(__name__)
 

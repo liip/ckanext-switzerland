@@ -1,16 +1,17 @@
 import json
+import os
 from datetime import datetime
 
-import os
 from ckan.lib.munge import munge_name
-from ckan.logic import get_action, NotFound
+from ckan.logic import NotFound, get_action
+from mock import patch
+from nose.tools import assert_equal, assert_raises
+
 from ckanext.harvest import model as harvester_model
 from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
     MockFTPStorageAdapter,
 )
-from mock import patch
-from nose.tools import assert_equal, assert_raises
 
 from . import data
 from .base_ftp_harvester_tests import BaseSBBHarvesterTests

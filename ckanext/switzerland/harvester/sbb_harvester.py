@@ -1,25 +1,25 @@
-import logging
 import ftplib  # for errors only
+import logging
+import os
+import re
 import tempfile
 import traceback
 from datetime import datetime
-import os
-import re
 
 import voluptuous
+from ckan import model
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
 from ckan.model import Session
 from ckan.plugins.toolkit import config as ckanconf
-from ckan import model
+
 from ckanext.harvest.model import HarvestJob, HarvestObject
 from ckanext.switzerland.harvester.base_sbb_harvester import (
     BaseSBBHarvester,
     validate_regex,
 )
 from ckanext.switzerland.harvester.ist_file import ist_file_filter
-
 from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
 
 log = logging.getLogger(__name__)

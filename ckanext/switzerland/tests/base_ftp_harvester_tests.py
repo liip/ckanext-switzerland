@@ -1,19 +1,18 @@
 import json
+import os
 import shutil
 from datetime import datetime
 
 import ckan.model as model
-import os
-from ckan.lib import search
-from ckan.lib import uploader
+from ckan.lib import search, uploader
 from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.logic import get_action
-from ckanext.harvest import model as harvester_model
-from ckanext.harvest.tests.factories import HarvestJobObj
-from ckanext.harvest.tests.factories import HarvestSourceObj
-from ckanext.harvest.tests.lib import run_harvest_job
 from fs.memoryfs import MemoryFS
 from nose.tools import assert_equal
+
+from ckanext.harvest import model as harvester_model
+from ckanext.harvest.tests.factories import HarvestJobObj, HarvestSourceObj
+from ckanext.harvest.tests.lib import run_harvest_job
 
 from . import data
 

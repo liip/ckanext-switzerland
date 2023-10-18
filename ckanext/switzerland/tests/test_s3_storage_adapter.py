@@ -1,39 +1,41 @@
-import unittest
+import datetime
 import os
 import shutil
-import datetime
+import unittest
 
-from .helpers.mock_config_resolver import MockConfigResolver
+import boto3
+from botocore.stub import Stubber
+from dateutil.tz import tzutc
+from numpy.testing import assert_array_equal
+
+from ckanext.switzerland.harvester.aws_keys import (
+    AWS_ACCESS_KEY,
+    AWS_BUCKET_NAME,
+    AWS_REGION_NAME,
+    AWS_SECRET_KEY,
+)
 from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import (
     StorageAdapterConfigurationException,
 )
-from .fixtures.aws_fixture import (
-    FILES_AT_ROOT,
-    FILE_CONTENT,
-    FILES_AT_FOLDER,
-    HEAD_FILE_AT_FOLDER,
-    HEAD_FILE_AT_ROOT,
-    NO_CONTENT,
-    ALL,
-    ALL_AT_FOLDER,
-)
-import boto3
-from dateutil.tz import tzutc
-from botocore.stub import Stubber
-from numpy.testing import assert_array_equal
 
 # The classes to test
 # -----------------------------------------------------------------------
 from ckanext.switzerland.harvester.s3_storage_adapter import S3StorageAdapter
 
+from .fixtures.aws_fixture import (
+    ALL,
+    ALL_AT_FOLDER,
+    FILE_CONTENT,
+    FILES_AT_FOLDER,
+    FILES_AT_ROOT,
+    HEAD_FILE_AT_FOLDER,
+    HEAD_FILE_AT_ROOT,
+    NO_CONTENT,
+)
+from .helpers.mock_config_resolver import MockConfigResolver
+
 # -----------------------------------------------------------------------
 
-from ckanext.switzerland.harvester.aws_keys import (
-    AWS_SECRET_KEY,
-    AWS_ACCESS_KEY,
-    AWS_REGION_NAME,
-    AWS_BUCKET_NAME,
-)
 
 LOCAL_PATH = "localpath"
 CONFIG_SECTION = "app:main"

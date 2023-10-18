@@ -1,11 +1,12 @@
 import json
-from zipfile import ZipFile
-import re
-import os
 import logging
+import os
+import re
+from zipfile import ZipFile
 
 import unicodecsv
 import voluptuous
+
 from ckanext.harvest.model import HarvestObject
 
 log = logging.getLogger(__name__)
