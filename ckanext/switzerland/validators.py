@@ -29,7 +29,8 @@ def swiss_date(field, schema):
 
 
 @scheming_validator
-def json_list_of_dicts_field(field, schema):
+def json_list_of_dicts_field(field, schema):  # noqa
+    # TODO: Simplify this method.
     field_type = {
         "temporals": {
             "fields": {

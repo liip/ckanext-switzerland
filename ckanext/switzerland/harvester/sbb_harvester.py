@@ -54,7 +54,7 @@ class SBBHarvester(BaseSBBHarvester):
             }
         )
 
-    def gather_stage_impl(self, harvest_job):
+    def gather_stage_impl(self, harvest_job):  # noqa
         """
         Dummy stage that launches the next phase
 
@@ -63,6 +63,7 @@ class SBBHarvester(BaseSBBHarvester):
         :returns: List of HarvestObject ids that are processed in the next stage (fetch_stage)
         :rtype: list
         """
+        # TODO: Simplify this method.
         log.info("=====================================================")
         log.info(
             "In %s Harvester gather_stage" % self.harvester_name
