@@ -8,6 +8,7 @@ from ckanext.switzerland.harvester.keys import (LOCAL_PATH)
 
 log = logging.getLogger(__name__)
 
+
 class StorageAdapterBase(object):
     _config = None
     _ckan_config_resolver= None
@@ -49,14 +50,21 @@ class StorageAdapterBase(object):
         self._ckan_config_resolver = ckan_config_resolver
         self.remote_folder = remote_folder.rstrip("/")
 
-        # Compute the prefix (eg: ckan.ftp.main_server, ckan.s3.main_bucket)
-        config_key_prefix = "{key_prefix}.{key}".format(key_prefix = config_key_prefix, key =self._config[root_config_key])
+        # Compute the prefix (eg: ckan.ftp.main_server, ckan.s3.main_bucket).
+        # Config keys that are defined as env vars cannot have - in them: _ is
+        # used instead. If S3 bucket names contain -, replace it with _ to get
+        # the config key.
+        config_key = self._config[root_config_key].replace("-", "_")
+        config_key_prefix = "{key_prefix}.{key}".format(
+            key_prefix=config_key_prefix,
+            key=config_key
+        )
         # Load and validate the config at the same time
         self.__load_storage_config__(config_key_prefix)
 
         self.create_local_dir()
 
-        log.info('Using Config: %s' % pformat(self._config))
+        log.debug('Using Config: %s' % pformat(self._config))
 
     def _connect(self):
         """
@@ -304,6 +312,12 @@ class StorageAdapterBase(object):
                 else:
                     configuration_errors.append("The value '{value}' does not match the constraints for the field '{key}'".format(value=raw_value, key=config_key.name))
                 continue
+
+            # Temporary workaround for passwords that contain %: we have to
+            # escape it as %% in .env, but the extra % is not removed by Docker.
+            # Todo: remove this as soon as we have a new password.
+            if isinstance(converted_value, str):
+                converted_value = converted_value.replace("%%", "%")
 
             self._config[config_key.name] = converted_value
 
