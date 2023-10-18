@@ -313,6 +313,12 @@ class StorageAdapterBase(object):
                     configuration_errors.append("The value '{value}' does not match the constraints for the field '{key}'".format(value=raw_value, key=config_key.name))
                 continue
 
+            # Temporary workaround for passwords that contain %: we have to
+            # escape it as %% in .env, but the extra % is not removed by Docker.
+            # Todo: remove this as soon as we have a new password.
+            if isinstance(converted_value, str):
+                converted_value = converted_value.replace("%%", "%")
+
             self._config[config_key.name] = converted_value
 
         if len(configuration_errors) > 0:
