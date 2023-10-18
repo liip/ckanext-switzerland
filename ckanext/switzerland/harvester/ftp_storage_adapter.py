@@ -236,7 +236,8 @@ class FTPStorageAdapter(StorageAdapterBase):
     # see: http://stackoverflow.com/a/31512228/426266
     def get_remote_dirlist_all(self, folder=None):
         """
-        Get a listing of all files (including subdirectories in a specific folder on the remote server
+        Get a listing of all files (including subdirectories in a specific folder on the
+        remote server
 
         :param folder: Folder name or path
         :type folder: str or unicode
@@ -326,7 +327,8 @@ class FTPStorageAdapter(StorageAdapterBase):
             if status is None:
                 status = "226 Transfer complete"
             else:
-                # something went wrong with copies a file between the remote host and the local host
+                # something went wrong with copies a file between the remote host and
+                # the local host
                 raise
 
         return status

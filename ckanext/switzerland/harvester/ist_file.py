@@ -6,7 +6,8 @@ def ist_file_filter(harvester_obj, config):
     """
     Filter the BPUIC column. This is the station id.
     The filter removes stations from outsite switzerland (those not starting with 85)
-    and trims the id to 7 digits (from the front), this strips away additional station data which are appended
+    and trims the id to 7 digits (from the front), this strips away additional station
+    data which are appended
     to the station id, e.g. platform.
     """
     temp_file = harvester_obj["file"] + ".tmp"

@@ -226,7 +226,8 @@ def get_readable_file_size(num, suffix="B"):
 
 
 def parse_json(value, default_value=None):
-    # when the value is a string integer like "123" we do not want this to be converted to a real integer py json.loads
+    # when the value is a string integer like "123" we do not want this to be converted
+    # to a real integer py json.loads
     try:
         int(value)
         return value
@@ -261,7 +262,8 @@ def convert_post_data_to_dict(field_name, data):
     return list(d.values())
 
 
-# monkey patched version of ckan.lib.helpers.dataset_display_name which extracts the correct translation of the dataset
+# monkey patched version of ckan.lib.helpers.dataset_display_name which extracts the
+# correct translation of the dataset
 def dataset_display_name(package_or_package_dict):
     name = dataset_display_name_orig(package_or_package_dict)
     name = parse_json(name)
@@ -270,7 +272,8 @@ def dataset_display_name(package_or_package_dict):
     return name
 
 
-# monkey patched version of ckan.lib.helpers.resource_display_name which extracts the correct translation of the dataset
+# monkey patched version of ckan.lib.helpers.resource_display_name which extracts the
+# correct translation of the dataset
 def resource_display_name(resource_dict):
     name = resource_dict.get("name", None)
     description = resource_dict.get("description", None)
@@ -293,18 +296,21 @@ def resource_display_name(resource_dict):
         return _("Unnamed resource")
 
 
-# monkey patched version of ckan.lib.helpers.organization_link which extracts the correct translation of the org
+# monkey patched version of ckan.lib.helpers.organization_link which extracts the
+# correct translation of the org
 def organization_link(organization):
     organization["title"] = parse_and_localize(organization["title"])
     return organization_link_orig(organization)
 
 
-# monkey patched version of ckan.lib.helpers.group_link which extracts the correct translation of the dataset
+# monkey patched version of ckan.lib.helpers.group_link which extracts the correct
+# translation of the dataset
 def group_link(group):
     url = url_for("group.read", id=group["name"])
     title = group["title"]
     title = parse_json(title)
-    # the group creation message contains str(dict), so we must parse the string to fix it
+    # the group creation message contains str(dict), so we must parse the string to fix
+    # it
     if isinstance(title, str):
         title = ast.literal_eval(title)
     if isinstance(title, dict):

@@ -30,22 +30,29 @@ class StorageAdapterBase(object):
         """
         Load the ftp configuration from ckan config file
 
-        :param ckan_config_resolver: An object able to read the CKAN config file. Injected for testing purposes
+        :param ckan_config_resolver: An object able to read the CKAN config file.
+               Injected for testing purposes
         :type ckan_config_resolver: ckan.plugins.toolkit.config
         :param config: The harvester config coming from the database.
         :type config: Any
-        :param remotefolder: Remote folder path. Can be different that the one stored in the harvester config
+        :param remotefolder: Remote folder path. Can be different that the one stored in
+               the harvester config
         :type remotefolder: str or unicode
-        :param root_config_key: The property in the configuration (from database) that indicates how to find the StorageAdapter configuration in the CKAN configuration file
+        :param root_config_key: The property in the configuration (from database) that
+               indicates how to find the StorageAdapter configuration in the CKAN
+               configuration file
         :type root_config_key: str
-        :param config_keys: An array of ConfigKey, describing all the configuration properties needed, and their constraints
+        :param config_keys: An array of ConfigKey, describing all the configuration
+               properties needed, and their constraints
         :type config_keys: Array of ConfigKey
-        :param config_key_prefix: A string representing the prefix to use to find the configuration keys in the CKAN configuration file
+        :param config_key_prefix: A string representing the prefix to use to find the
+               configuration keys in the CKAN configuration file
         :type config_key_prefix: str
 
         """
 
-        # Validate the basic config. We need the config, and we need to know what is the root key.
+        # Validate the basic config. We need the config, and we need to know what is the
+        # root key.
         if config is None:
             raise StorageAdapterConfigurationException(
                 ["Cannot build a Storage Adapter without an initial configuration"]
@@ -203,7 +210,8 @@ class StorageAdapterBase(object):
 
     def get_remote_dirlist_all(self, folder=None):
         """
-        Get a listing of all files (including subdirectories in a specific folder on the remote server
+        Get a listing of all files (including subdirectories in a specific folder on the
+        remote server
 
         :param folder: Folder name or path
         :type folder: str or unicode
@@ -302,11 +310,15 @@ class StorageAdapterBase(object):
         This method will load and validate the configuration
 
         For each config_key in the array config_keys, this method will
-            - Read the raw value from the CKAN configuration file, using the prefix to create the correct name (eg: ckan.ftp.main_server.host)
-            - If the config key is marked as mandatory, it will validate that there is a value, raise an error otherwise
+            - Read the raw value from the CKAN configuration file, using the prefix to
+              create the correct name (eg: ckan.ftp.main_server.host)
+            - If the config key is marked as mandatory, it will validate that there is a
+              value, raise an error otherwise
             - Try to convert the value to the required type, raise an error otherwise
-            - Validate constraints, if exists, on the value (eg: x > 0), raise an error otherwise.
-            - Store the converted value in the config object if none of the above raised an error
+            - Validate constraints, if exists, on the value (eg: x > 0), raise an error
+              otherwise.
+            - Store the converted value in the config object if none of the above raised
+              an error
         """
 
         configuration_errors = []

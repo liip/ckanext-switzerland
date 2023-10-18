@@ -60,7 +60,8 @@ class SBBHarvester(BaseSBBHarvester):
 
         :param harvest_job: Harvester job
 
-        :returns: List of HarvestObject ids that are processed in the next stage (fetch_stage)
+        :returns: List of HarvestObject ids that are processed in the next stage
+                  (fetch_stage)
         :rtype: list
         """
         # TODO: Simplify this method.
@@ -158,7 +159,8 @@ class SBBHarvester(BaseSBBHarvester):
             and not previous_job.gather_errors
             and previous_job.gather_started
         ):
-            # optional 'force_all' config setting can be used to always download all files
+            # optional 'force_all' config setting can be used to always download all
+            # files
             force_all = self.config["force_all"]
 
             if not force_all:
@@ -171,7 +173,8 @@ class SBBHarvester(BaseSBBHarvester):
                     # Request only the resources modified since last harvest job
                     for f in filelist[:]:
                         modified_date = modified_dates.get(f)
-                        # skip file if its older than last harvester run date and it actually exists on the dataset
+                        # skip file if its older than last harvester run date and it
+                        # actually exists on the dataset
                         # only skip when file was already downloaded once
                         if (
                             modified_date
@@ -184,14 +187,16 @@ class SBBHarvester(BaseSBBHarvester):
 
                     if not len(filelist):
                         log.info(
-                            "No files have been updated on the ftp/s3 aws server since the last harvest job"
+                            "No files have been updated on the ftp/s3 aws server "
+                            "since the last harvest job"
                         )
                         return []  # no files to harvest this time
                 except NotFound:  # dataset does not exist yet, download all files
                     pass
             else:
                 log.warning(
-                    "force_all is activated, downloading all files from ftp/s3 without modification date checking"
+                    "force_all is activated, downloading all files from ftp/s3 without "
+                    "modification date checking"
                 )
 
             # ------------------------------------------------------

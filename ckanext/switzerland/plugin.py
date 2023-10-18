@@ -153,8 +153,8 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
 
         try:
             # Do not change the resulting dict for API requests and form saves
-            # _package_reduce_to_requested_language removes all translation dicts needed to show the form
-            # on resource_edit, so we skip it here
+            # _package_reduce_to_requested_language removes all translation dicts needed
+            # to show the form on resource_edit, so we skip it here
             path = toolkit.request.path
             if path.startswith("/api") or toolkit.request.path == "POST":
                 return pkg_dict
