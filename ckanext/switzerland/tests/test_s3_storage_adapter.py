@@ -3,9 +3,9 @@ import os
 import shutil
 import datetime
 
-from helpers.mock_config_resolver import MockConfigResolver
+from .helpers.mock_config_resolver import MockConfigResolver
 from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
-from fixtures.aws_fixture import FILES_AT_ROOT, FILE_CONTENT, FILES_AT_FOLDER, HEAD_FILE_AT_FOLDER, HEAD_FILE_AT_ROOT, NO_CONTENT, ALL, ALL_AT_FOLDER
+from .fixtures.aws_fixture import FILES_AT_ROOT, FILE_CONTENT, FILES_AT_FOLDER, HEAD_FILE_AT_FOLDER, HEAD_FILE_AT_ROOT, NO_CONTENT, ALL, ALL_AT_FOLDER
 import boto3
 from dateutil.tz import tzutc
 from botocore.stub import Stubber
