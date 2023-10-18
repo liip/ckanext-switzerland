@@ -80,9 +80,7 @@ class TimetableHarvester(SBBHarvester):
                 filelist = storage.get_remote_filelist()
                 log.info("Remote dirlist: %s" % str(filelist))
 
-                filelist = list(
-                    filter(lambda filename: re.match(self.config['filter_regex'], filename), filelist)
-                )
+                filelist = [filename for filename in filelist if re.match(self.config['filter_regex'], filename)]
 
                 # get last-modified date of each file
                 for f in filelist:

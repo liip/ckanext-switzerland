@@ -94,7 +94,7 @@ class S3StorageAdapter(StorageAdapterBase):
     def get_remote_filelist(self, folder=None):
         # get list of the files in the remote folder
         all_in_folder = self.get_remote_dirlist(folder)
-        only_files = filter(lambda name : not name.endswith('/'), all_in_folder)
+        only_files = [name for name in all_in_folder if not name.endswith('/')]
         return only_files
 
     def __remove_prefix__(self, file, prefix):
@@ -110,7 +110,7 @@ class S3StorageAdapter(StorageAdapterBase):
         # AWS returns the element with their full name from root, so we need to remove the prefix
         without_prefix = map(lambda file : self.__remove_prefix__(file, prefix), elements)
         # Of course, we will now have a empty string in the set, let's remove it
-        without_root = list(filter(lambda name : name, without_prefix))
+        without_root = [name for name in without_prefix if name]
         return without_root
 
     def __determine_prefix__(self, folder):
