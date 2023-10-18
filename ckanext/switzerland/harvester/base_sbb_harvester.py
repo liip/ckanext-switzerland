@@ -952,7 +952,7 @@ class BaseSBBHarvester(HarvesterBase):
         # not matched resources come first in the list, then the ordered
         get_action('package_resource_reorder')(context, {
             'id': package['id'],
-            'order': map(lambda r: r['id'], unmatched_resources + ordered_resources)
+            'order': [r['id'] for r in unmatched_resources + ordered_resources]
         })
 
         from ckanext.harvest.model import harvest_object_table

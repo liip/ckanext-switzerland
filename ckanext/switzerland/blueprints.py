@@ -63,7 +63,7 @@ def email_address_exporter():
         if request.params['filter'] != 'all':
             followers = get_action('dataset_follower_list')({}, {'id': request.params['filter']})
             followers = {follower['name'] for follower in followers}
-            users = filter(lambda u: u['user_login'] in followers, users)
+            users = [u for u in users if u['user_login'] in followers]
 
         for user in users:
             csv.writerow([user['first_name'], user['last_name'], user['user_email']])

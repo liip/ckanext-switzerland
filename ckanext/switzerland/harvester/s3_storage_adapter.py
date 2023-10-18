@@ -94,7 +94,7 @@ class S3StorageAdapter(StorageAdapterBase):
     def get_remote_filelist(self, folder=None):
         # get list of the files in the remote folder
         all_in_folder = self.get_remote_dirlist(folder)
-        only_files = filter(lambda name : not name.endswith('/'), all_in_folder)
+        only_files = [name for name in all_in_folder if not name.endswith('/')]
         return only_files
 
     def __remove_prefix__(self, file, prefix):
@@ -108,9 +108,9 @@ class S3StorageAdapter(StorageAdapterBase):
 
     def __prepare_for_return__(self, elements, prefix):
         # AWS returns the element with their full name from root, so we need to remove the prefix
-        without_prefix = map(lambda file : self.__remove_prefix__(file, prefix), elements)
+        without_prefix = [self.__remove_prefix__(file, prefix) for file in elements]
         # Of course, we will now have a empty string in the set, let's remove it
-        without_root = list(filter(lambda name : name, without_prefix))
+        without_root = list([name for name in without_prefix if name])
         return without_root
 
     def __determine_prefix__(self, folder):
@@ -122,7 +122,7 @@ class S3StorageAdapter(StorageAdapterBase):
         if not s3_objects or AWS_RESPONSE_CONTENT not in s3_objects:
             return []
 
-        return map(lambda object : object['Key'], s3_objects[AWS_RESPONSE_CONTENT])
+        return [object['Key'] for object in s3_objects[AWS_RESPONSE_CONTENT]]
 
 
     def get_remote_dirlist(self, folder=None):
@@ -135,7 +135,7 @@ class S3StorageAdapter(StorageAdapterBase):
 
         # But the previous call, did not return the folders (because of setting a delimiter), so lets look in the prefixes to add them
         if AWS_RESPONSE_PREFIXES in s3_objects:
-            objects.extend(map(lambda object : object['Prefix'], s3_objects[AWS_RESPONSE_PREFIXES]))
+            objects.extend([object['Prefix'] for object in s3_objects[AWS_RESPONSE_PREFIXES]])
 
         files_and_folder = self.__prepare_for_return__(objects, prefix)
 
