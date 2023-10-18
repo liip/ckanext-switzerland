@@ -94,7 +94,7 @@ def json_list_of_dicts_field(field, schema):
         values = defaultdict(lambda: {})
 
         # iterate over all extra fields and find our fields
-        for name, text in extras.items():
+        for name, text in list(extras.items()):
             if not name.startswith(prefix):
                 continue
 
@@ -102,7 +102,7 @@ def json_list_of_dicts_field(field, schema):
                 # field name example: temporals-1-start_date
                 counter, json_field_name = name.split('-')[1:]
                 counter = int(counter)
-                if json_field_name not in field_type['fields'].keys():
+                if json_field_name not in list(field_type['fields'].keys()):
                     raise ValueError
             except ValueError:
                 errors[key].append(_('Invalid form data'))
@@ -119,7 +119,7 @@ def json_list_of_dicts_field(field, schema):
             except ValueError:
                 errors[(name,)] = [_('Invalid date')]
 
-        for counter, value in values.items():
+        for counter, value in list(values.items()):
             fields = set(field_type['fields'].keys())
             set_fields = set(value.keys())
             missing_fields = fields - set_fields
@@ -129,12 +129,12 @@ def json_list_of_dicts_field(field, schema):
         # iterate over junk fields (used in resource creation/update)
         junk = data.get(('__junk',))
         if junk:
-            for (field_name, counter, json_field_name), value in junk.items():
+            for (field_name, counter, json_field_name), value in list(junk.items()):
                 if field_name == key[-1]:
                     values[counter][json_field_name] = value
 
-            for counter, field_values in values.items():
-                for json_field_name in field_values.keys():
+            for counter, field_values in list(values.items()):
+                for json_field_name in list(field_values.keys()):
                     del junk[(key[-1], counter, json_field_name)]
 
         data[key] = json.dumps(list(values.values()))

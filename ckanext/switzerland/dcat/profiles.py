@@ -161,7 +161,7 @@ class SwissDCATAPProfile(RDFProfile):
     def _add_multilang_value(self, subject, predicate, dataset_key, dataset_dict): # noqa
         multilang_values = dataset_dict.get(dataset_key)
         if multilang_values:
-            for key, values in multilang_values.items():
+            for key, values in list(multilang_values.items()):
                 if values:
                     # the values can be either a multilang-dict or they are
                     # nested in another iterable (e.g. keywords)
@@ -339,7 +339,7 @@ class SwissDCATAPProfile(RDFProfile):
 
         g = self.g
 
-        for prefix, namespace in namespaces.items():
+        for prefix, namespace in list(namespaces.items()):
             g.bind(prefix, namespace)
 
         g.add((dataset_ref, RDF.type, DCAT.Dataset))

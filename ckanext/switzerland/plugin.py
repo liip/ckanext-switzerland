@@ -172,7 +172,7 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
 
     def _package_parse_json_strings(self, pkg_dict):
         # try to parse all values as JSON
-        for key, value in pkg_dict.items():
+        for key, value in list(pkg_dict.items()):
             pkg_dict[key] = sh.parse_json(value)
 
         # groups
@@ -223,7 +223,7 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
 
     def _package_reduce_to_requested_language(self, pkg_dict, desired_lang_code):  # noqa
         # pkg fields
-        for key, value in pkg_dict.items():
+        for key, value in list(pkg_dict.items()):
             if not self._ignore_field(key):
                 pkg_dict[key] = self._extract_lang_value(
                     value,
@@ -403,7 +403,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
                     text_field_items['text_' + lang_code].append(' '.join(search_data['keywords_' + lang_code]))  # noqa
 
             # flatten values for text_* fields
-            for key, value in text_field_items.items():
+            for key, value in list(text_field_items.items()):
                 search_data[key] = ' '.join(value)
 
         except KeyError:
