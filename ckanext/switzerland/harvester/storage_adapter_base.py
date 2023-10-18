@@ -84,15 +84,14 @@ class StorageAdapterBase(object):
         # the config key.
         config_key = self._config[root_config_key].replace("-", "_")
         config_key_prefix = "{key_prefix}.{key}".format(
-            key_prefix=config_key_prefix,
-            key=config_key
+            key_prefix=config_key_prefix, key=config_key
         )
         # Load and validate the config at the same time
         self.__load_storage_config__(config_key_prefix)
 
         self.create_local_dir()
 
-        log.debug('Using Config: %s' % pformat(self._config))
+        log.debug("Using Config: %s" % pformat(self._config))
 
     def _connect(self):
         """
