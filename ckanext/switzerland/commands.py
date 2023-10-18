@@ -14,7 +14,7 @@ class OgdchCommands(CkanCommand):
     Commands for opendata.swiss
     Usage:
         # General usage
-        paster --plugin=ckanext-switzerland ogdch <command> -c <path to config file> # noqa
+        paster --plugin=ckanext-switzerland ogdch <command> -c <path to config file>
 
         # Show this help
         paster ogdch help
@@ -49,8 +49,7 @@ class OgdchCommands(CkanCommand):
             action="store_true",
             dest="dryrun",
             default=False,
-            help="dryrun of cleanup harvestjobs and "
-            "publish_scheduled_datasets",
+            help="dryrun of cleanup harvestjobs and " "publish_scheduled_datasets",
         )
 
     def command(self):
@@ -86,12 +85,10 @@ class OgdchCommands(CkanCommand):
         resource_id_list = []
         try:
             for offset in itertools.count(start=0, step=100):
-                print(
-                    "Load metadata records from datastore (offset: %s)" % offset
-                )
+                print("Load metadata records from datastore (offset: %s)" % offset)
                 record_list, has_next_page = self._get_datastore_table_page(
                     context, offset
-                )  # noqa
+                )
                 resource_id_list.extend(record_list)
                 if not has_next_page:
                     break
@@ -127,9 +124,7 @@ class OgdchCommands(CkanCommand):
                     continue
 
                 logic.check_access("resource_show", context)
-                logic.get_action("resource_show")(
-                    context, {"id": record["name"]}
-                )
+                logic.get_action("resource_show")(context, {"id": record["name"]})
                 print("Resource '%s' found" % record["name"])
             except logic.NotFound:
                 resource_id_list.append(record["name"])
@@ -182,9 +177,7 @@ class OgdchCommands(CkanCommand):
             sys.exit(1)
 
         # perform the harvest job cleanup
-        result = logic.get_action("ogdch_cleanup_harvestjobs")(
-            context, data_dict
-        )
+        result = logic.get_action("ogdch_cleanup_harvestjobs")(context, data_dict)
 
         # print the result of the harvest job cleanup
         self._print_clean_harvestjobs_result(result, data_dict)
@@ -200,9 +193,7 @@ class OgdchCommands(CkanCommand):
         for source in result["sources"]:
             if source.id in list(result["cleanup"].keys()):
                 self._print_harvest_source(source)
-                self._print_cleanup_result_per_source(
-                    result["cleanup"][source.id]
-                )
+                self._print_cleanup_result_per_source(result["cleanup"][source.id])
             else:
                 self._print_harvest_source(source)
                 print("Nothing needs to be done for this source")
@@ -226,16 +217,8 @@ class OgdchCommands(CkanCommand):
         print("                type: {0}".format(source.type))
 
     def _print_cleanup_result_per_source(self, cleanup_result):
-        print(
-            "   nr jobs to delete: {0}".format(
-                len(cleanup_result["deleted_jobs"])
-            )
-        )
-        print(
-            "nr objects to delete: {0}".format(
-                cleanup_result["deleted_nr_objects"]
-            )
-        )
+        print("   nr jobs to delete: {0}".format(len(cleanup_result["deleted_jobs"])))
+        print("nr objects to delete: {0}".format(cleanup_result["deleted_nr_objects"]))
         print("      jobs to delete:")
         self._print_harvest_jobs(cleanup_result["deleted_jobs"])
 
@@ -247,11 +230,7 @@ class OgdchCommands(CkanCommand):
         header_list = ["id", "created", "status"]
         row_format = "{:<20}|{:<40}|{:<20}|{:<20}"
         print(row_format.format("", *header_list))
-        print(
-            "{:<20}+{:<40}+{:<20}+{:<20}".format(
-                "", "-" * 40, "-" * 20, "-" * 20
-            )
-        )
+        print("{:<20}+{:<40}+{:<20}+{:<20}".format("", "-" * 40, "-" * 20, "-" * 20))
         for job in jobs:
             print(
                 row_format.format(
