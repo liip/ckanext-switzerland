@@ -436,7 +436,7 @@ class BaseSBBHarvester(HarvesterBase):
             )
             return False
 
-    def _fetch_stage(self, harvest_object):
+    def _fetch_stage(self, harvest_object):  # noqa
         """
         Fetching of resources. Runs once for each gathered resource.
 
@@ -445,6 +445,7 @@ class BaseSBBHarvester(HarvesterBase):
         :returns: Whether HarvestObject was saved or not
         :rtype: mixed
         """
+        # TODO: Simplify this method.
         log.info("=====================================================")
         log.info(
             "In %s fetch_stage from source %s",
@@ -585,7 +586,7 @@ class BaseSBBHarvester(HarvesterBase):
             )
             return False
 
-    def _import_stage(self, harvest_object):
+    def _import_stage(self, harvest_object):  # noqa
         """
         Importing the fetched files into CKAN storage.
         Runs once for each fetched resource.
@@ -597,6 +598,7 @@ class BaseSBBHarvester(HarvesterBase):
                   False if there were errors.
         :rtype: bool|string
         """
+        # TODO: Simplify this method.
         log.info("=====================================================")
         log.info(
             "In %s import_stage from source %s",
