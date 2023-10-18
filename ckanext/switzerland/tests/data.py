@@ -14,7 +14,7 @@ dataset_content_3 = 'Year;Data\n2013;1\n2014;2;2015;3\n'
 dataset_content_4 = 'Year;Data\n2013;1\n2014;2;2015;3;2016;4\n'
 
 
-bahnhof_file = u"""0000006   7.549783  47.216111 441    % St. Katharinen
+bahnhof_file = """0000006   7.549783  47.216111 441    % St. Katharinen
 0000007   9.733756  46.922368 744    % Fideris
 0000011   7.389462  47.191804 467    % Grenchen Nord
 0000016   6.513937  46.659019 499    % La Sarraz, Couronne
@@ -28,7 +28,7 @@ bahnhof_file = u"""0000006   7.549783  47.216111 441    % St. Katharinen
 0000030   8.711041  46.766423 831    % Golzern, Talstation Seilbahn
 0000033   9.680469  47.544341 0      % Lindau Hbf""".encode('iso-8859-1')
 
-bahnhof_file_csv = u"""StationID,Longitude,Latitude,Höhe,Remark
+bahnhof_file_csv = """StationID,Longitude,Latitude,Höhe,Remark
 0000006,7.549783,47.216111,441,St. Katharinen
 0000007,9.733756,46.922368,744,Fideris
 0000011,7.389462,47.191804,467,Grenchen Nord
@@ -48,7 +48,7 @@ infoplus_config = [
     {'from': 1, 'to': 7, 'name': 'StationID'},
     {'from': 8, 'to': 18, 'name': 'Longitude'},
     {'from': 20, 'to': 29, 'name': 'Latitude'},
-    {'from': 31, 'to': 36, 'name': u'Höhe'},
+    {'from': 31, 'to': 36, 'name': 'Höhe'},
     {'from': 40, 'to': -1, 'name': 'Remark'},
 ]
 

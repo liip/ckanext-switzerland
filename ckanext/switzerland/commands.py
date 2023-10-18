@@ -155,7 +155,7 @@ class OgdchCommands(CkanCommand):
         source_id = None
         data_dict = {}
         if len(self.args) >= 2:
-            source_id = unicode(self.args[1])
+            source_id = str(self.args[1])
             data_dict["harvest_source_id"] = source_id
             print("cleaning up jobs for harvest source {}".format(source_id))
         else:

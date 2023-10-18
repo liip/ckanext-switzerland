@@ -70,11 +70,11 @@ class SwissDCATAPProfile(RDFProfile):
         lang_dict = {}
         for o in self.g.objects(subject, predicate):
             if multilang and o.language:
-                lang_dict[o.language] = unicode(o)
+                lang_dict[o.language] = str(o)
             elif multilang:
-                lang_dict[default_lang] = unicode(o)
+                lang_dict[default_lang] = str(o)
             else:
-                return unicode(o)
+                return str(o)
         if multilang:
             # when translation does not exist, create an empty one
             for lang in get_langs():
@@ -113,7 +113,7 @@ class SwissDCATAPProfile(RDFProfile):
             keywords[lang] = []
 
         for keyword_node in self.g.objects(subject, predicate):
-            keywords[keyword_node.language].append(unicode(keyword_node))
+            keywords[keyword_node.language].append(str(keyword_node))
 
         return keywords
 
@@ -254,7 +254,7 @@ class SwissDCATAPProfile(RDFProfile):
             dataset_dict['see_alsos'].append({'dataset_identifier': see_also})
 
         # Dataset URI (explicitly show the missing ones)
-        dataset_uri = (unicode(dataset_ref)
+        dataset_uri = (str(dataset_ref)
                        if isinstance(dataset_ref, rdflib.term.URIRef)
                        else None)
         dataset_dict['extras'].append({'key': 'uri', 'value': dataset_uri})
@@ -326,7 +326,7 @@ class SwissDCATAPProfile(RDFProfile):
                 resource_dict['byte_size'] = byte_size
 
             # Distribution URI (explicitly show the missing ones)
-            resource_dict['uri'] = (unicode(distribution)
+            resource_dict['uri'] = (str(distribution)
                                     if isinstance(distribution,
                                                   rdflib.term.URIRef)
                                     else None)

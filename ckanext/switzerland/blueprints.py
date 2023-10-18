@@ -41,8 +41,8 @@ parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
 lookup_package_plugin = lookup_package_plugin
 
-ogdch_admin = Blueprint('ogdch_admin', __name__, url_prefix=u'/ckan-admin')
-ogdch_dataset = Blueprint('ogdch_dataset', __name__, url_prefix=u'/dataset')
+ogdch_admin = Blueprint('ogdch_admin', __name__, url_prefix='/ckan-admin')
+ogdch_dataset = Blueprint('ogdch_dataset', __name__, url_prefix='/dataset')
 ogdch_resource = Blueprint('ogdch_resource', __name__)
 
 
@@ -97,22 +97,22 @@ def resource_download(id: str,
     + rsc = resource_dictize(resource_obj, {'model': model})
     """
     context: Context = {
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
+        'user': current_user.name,
+        'auth_user_obj': current_user
     }
 
     try:
         resource_obj = model.Resource.get(resource_id)
         rsc = resource_dictize(resource_obj, {'model': model})
-        get_action(u'package_show')(context, {u'id': id})
+        get_action('package_show')(context, {'id': id})
     except NotFound:
-        return base.abort(404, _(u'Resource not found'))
+        return base.abort(404, _('Resource not found'))
     except NotAuthorized:
-        return base.abort(403, _(u'Not authorized to download resource'))
+        return base.abort(403, _('Not authorized to download resource'))
 
-    if rsc.get(u'url_type') == u'upload':
+    if rsc.get('url_type') == 'upload':
         upload = uploader.get_resource_uploader(rsc)
-        filepath = upload.get_path(rsc[u'id'])
+        filepath = upload.get_path(rsc['id'])
         resp = flask.send_file(filepath, download_name=filename)
 
         if rsc.get('mimetype'):
@@ -120,9 +120,9 @@ def resource_download(id: str,
         signals.resource_download.send(resource_id)
         return resp
 
-    elif u'url' not in rsc:
-        return base.abort(404, _(u'No download is available'))
-    return h.redirect_to(rsc[u'url'])
+    elif 'url' not in rsc:
+        return base.abort(404, _('No download is available'))
+    return h.redirect_to(rsc['url'])
 
 
 def resource_permalink(id, filename):
