@@ -110,7 +110,7 @@ class S3StorageAdapter(StorageAdapterBase):
         # AWS returns the element with their full name from root, so we need to remove the prefix
         without_prefix = map(lambda file : self.__remove_prefix__(file, prefix), elements)
         # Of course, we will now have a empty string in the set, let's remove it
-        without_root = filter(lambda name : name, without_prefix)
+        without_root = list(filter(lambda name : name, without_prefix))
         return without_root
 
     def __determine_prefix__(self, folder):
