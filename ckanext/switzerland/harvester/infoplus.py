@@ -19,7 +19,7 @@ def get_validation_schema():
     })
 
     def validate_infoplus(files):
-        for filename, config in files.items():
+        for filename, config in list(files.items()):
             voluptuous.Schema(str)(filename)
             voluptuous.Schema(list)(config)
             for column in config:
@@ -54,7 +54,7 @@ def get_filename(filelist_with_dataset, harvester_config):
 def create_harvest_jobs(harvester_config, harvester_name, harvest_job, zip_filename, workingdir):
     job_ids = []
 
-    for filename in harvester_config['infoplus']['files'].keys():
+    for filename in list(harvester_config['infoplus']['files'].keys()):
         obj = HarvestObject(guid=harvester_name, job=harvest_job)
         # serialise and store the dirlist
         obj.content = json.dumps({

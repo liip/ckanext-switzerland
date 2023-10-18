@@ -198,7 +198,7 @@ class OgdchCommands(CkanCommand):
         self._print_configuration(data_dict)
         print("\nResults per source:\n{}".format(19 * "-"))
         for source in result["sources"]:
-            if source.id in result["cleanup"].keys():
+            if source.id in list(result["cleanup"].keys()):
                 self._print_harvest_source(source)
                 self._print_cleanup_result_per_source(
                     result["cleanup"][source.id]
@@ -240,7 +240,7 @@ class OgdchCommands(CkanCommand):
         self._print_harvest_jobs(cleanup_result["deleted_jobs"])
 
     def _print_configuration(self, data_dict):
-        for k, v in data_dict.items():
+        for k, v in list(data_dict.items()):
             print("- {}: {}".format(k, v))
 
     def _print_harvest_jobs(self, jobs):

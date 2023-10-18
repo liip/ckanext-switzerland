@@ -210,7 +210,7 @@ class BaseSBBHarvester(HarvesterBase):
         # is there a package meta configuration in the harvester?
         if self.package_dict_meta:
             # add each key/value from the meta data of the harvester
-            for key, val in self.package_dict_meta.items():
+            for key, val in list(self.package_dict_meta.items()):
                 package_dict[key] = val
 
         return package_dict
@@ -314,7 +314,7 @@ class BaseSBBHarvester(HarvesterBase):
             override_extras = self.config.get('override_extras', False)
             if 'extras' not in package_dict:
                 package_dict['extras'] = {}
-            for key, value in default_extras.items():
+            for key, value in list(default_extras.items()):
                 if key not in package_dict['extras'] or override_extras:
                     # Look for replacement strings
                     if isinstance(value, str):
@@ -404,7 +404,7 @@ class BaseSBBHarvester(HarvesterBase):
         stdout_formatter = logging.Formatter('[%(name)s] %(message)s')
         stdout_handler.setFormatter(stdout_formatter)
 
-        for name, logger in logging.Logger.manager.loggerDict.items():
+        for name, logger in list(logging.Logger.manager.loggerDict.items()):
             if isinstance(logger, logging.Logger):
                 if name.startswith('ckan'):
                     logger.setLevel(logging.DEBUG)
@@ -1015,7 +1015,7 @@ class BaseSBBHarvester(HarvesterBase):
             filename = resource_filename(resource.url)
             versions[filename].append(resource)
 
-        for filename, resources in versions.items():
+        for filename, resources in list(versions.items()):
             if len(resources) > max_revisions:
                 resources = sorted(resources, key=lambda r: r.created, reverse=True)
                 for resource in resources[max_revisions:]:

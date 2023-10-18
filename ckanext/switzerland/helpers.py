@@ -265,11 +265,11 @@ def get_matomo_config():
 
 def convert_post_data_to_dict(field_name, data):
     d = defaultdict(lambda: {})
-    for json_field_name, value in data.items():
+    for json_field_name, value in list(data.items()):
         if json_field_name.startswith(field_name + '-'):
             counter, json_field_name = json_field_name.split('-')[1:]
             d[counter][json_field_name] = value
-    return d.values()
+    return list(d.values())
 
 
 # monkey patched version of ckan.lib.helpers.dataset_display_name which extracts the correct translation of the dataset
@@ -430,7 +430,7 @@ def map_to_valid_format(resource_format):
         'ZIP': ['zip'],
     }
     resource_format_lower = resource_format.lower()
-    for key, values in format_mapping.items():
+    for key, values in list(format_mapping.items()):
         if resource_format_lower in values:
             return key
     else:
