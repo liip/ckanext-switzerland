@@ -30,7 +30,7 @@ from ckanext.switzerland.harvester.keys import (
     FTP_PORT,
     FTP_SERVER_KEY,
     LOCAL_PATH,
-    REMOTE_DIRECTORY
+    REMOTE_DIRECTORY,
 )
 
 log = logging.getLogger(__name__)
@@ -40,26 +40,28 @@ CONFIG_KEYS = [
     ConfigKey(FTP_PASSWORD, str, True),
     ConfigKey(FTP_KEY_FILE, str),
     ConfigKey(FTP_HOST, str, True),
-    ConfigKey(FTP_PORT, int, True, lambda x: x > 0, 'Port should be a positive number'),
+    ConfigKey(FTP_PORT, int, True, lambda x: x > 0, "Port should be a positive number"),
     ConfigKey(LOCAL_PATH, str, True),
     ConfigKey(REMOTE_DIRECTORY, str, True),
 ]
+
+
 class FTPStorageAdapter(StorageAdapterBase):
-    """ FTP Storage Adapter Class """
+    """FTP Storage Adapter Class"""
 
     ftps = None
     sftp = None
-    tmpfile_extension = '.TMP'
+    tmpfile_extension = ".TMP"
 
     # tested
-    def __init__(self, config_resolver, config, remote_folder=''):
+    def __init__(self, config_resolver, config, remote_folder=""):
         super(FTPStorageAdapter, self).__init__(
             config_resolver,
             config,
             remote_folder,
             FTP_SERVER_KEY,
             CONFIG_KEYS,
-            'ckan.ftp'
+            "ckan.ftp",
         )
 
     # tested
@@ -109,30 +111,35 @@ class FTPStorageAdapter(StorageAdapterBase):
             if int(self._config[FTP_PORT]) == 22:
                 cnopts = pysftp.CnOpts()
                 cnopts.hostkeys = None
-                self.sftp = pysftp.Connection(host=self._config[FTP_HOST],
-                                              username=self._config[FTP_USER_NAME],
-                                              password=self._config[FTP_PASSWORD],
-                                              port=int(self._config[FTP_PORT]),
-                                              cnopts=cnopts,
-                                              )
+                self.sftp = pysftp.Connection(
+                    host=self._config[FTP_HOST],
+                    username=self._config[FTP_USER_NAME],
+                    password=self._config[FTP_PASSWORD],
+                    port=int(self._config[FTP_PORT]),
+                    cnopts=cnopts,
+                )
             else:
                 # overwrite the default port (21)
                 ftplib.FTP.port = int(self._config[FTP_PORT])
                 # we need to set the TLS version explicitly to allow connection
                 # to newer servers who have disabled older TLS versions (< TLSv1.2)
                 ftplib.FTP_TLS.ssl_version = ssl.PROTOCOL_TLSv1_2
-                self.ftps = ftplib.FTP_TLS(self._config[FTP_HOST],
-                                           self._config[FTP_USER_NAME],
-                                           self._config[FTP_PASSWORD])
+                self.ftps = ftplib.FTP_TLS(
+                    self._config[FTP_HOST],
+                    self._config[FTP_USER_NAME],
+                    self._config[FTP_PASSWORD],
+                )
                 # switch to secure data connection
                 self.ftps.prot_p()
         elif self._config[FTP_KEY_FILE]:
             # connecting via SSH
-            self.sftp = pysftp.Connection(host=self._config[FTP_HOST],
-                                          username=self._config[FTP_USER_NAME],
-                                          private_key=self._config[FTP_KEY_FILE],
-                                          port=int(self._config[FTP_PORT]),
-                                          )
+            self.sftp = pysftp.Connection(
+                host=self._config[FTP_HOST],
+                username=self._config[FTP_USER_NAME],
+                private_key=self._config[FTP_KEY_FILE],
+                port=int(self._config[FTP_PORT]),
+            )
+
     # tested
     def _disconnect(self):
         """
@@ -174,19 +181,19 @@ class FTPStorageAdapter(StorageAdapterBase):
         :returns: Directory listing (excluding '.' and '..')
         :rtype: list
         """
-        cmd = 'MLSD'
+        cmd = "MLSD"
         if folder:
-            cmd += ' ' + folder
+            cmd += " " + folder
 
         files = []
         if self.ftps:
             files_dirs = []
             self.ftps.retrlines(cmd, files_dirs.append)
             for file_dir in files_dirs:
-                data, filename = file_dir.split(' ', 1)
-                for kv in [x for x in data.split(';') if x]:
-                    key, value = kv.split('=')
-                    if key == 'type' and value == 'file':
+                data, filename = file_dir.split(" ", 1)
+                for kv in [x for x in data.split(";") if x]:
+                    key, value = kv.split("=")
+                    if key == "type" and value == "file":
                         files.append(filename)
         elif self.sftp:
             files = self.sftp.listdir(self.remote_folder)
@@ -219,10 +226,12 @@ class FTPStorageAdapter(StorageAdapterBase):
                 dirlist = self.sftp.listdir(self.remote_folder)
 
         # filter out '.' and '..' and return the list
-        dirlist = [entry for entry in dirlist if entry not in ['.', '..']]
+        dirlist = [entry for entry in dirlist if entry not in [".", ".."]]
 
         # .TMP must be ignored, as they are still being uploaded
-        dirlist = [x for x in dirlist if not x.lower().endswith(self.tmpfile_extension.lower())]
+        dirlist = [
+            x for x in dirlist if not x.lower().endswith(self.tmpfile_extension.lower())
+        ]
 
         return dirlist
 
@@ -269,7 +278,7 @@ class FTPStorageAdapter(StorageAdapterBase):
         if folder:
             self.cdremote(folder)
         if self.ftps:
-            ret = self.ftps.sendcmd('MDTM %s' % filename)
+            ret = self.ftps.sendcmd("MDTM %s" % filename)
             # example: '203 20160621123722'
         elif self.sftp:
             ret = self.sftp.stat(filename).st_mtime
@@ -277,16 +286,18 @@ class FTPStorageAdapter(StorageAdapterBase):
 
         if ret:
             if self.ftps:
-                modified_date = ret.split(' ')[1]
+                modified_date = ret.split(" ")[1]
                 # example: '20160621123722'
 
-                modified_date = datetime.datetime.strptime(modified_date, '%Y%m%d%H%M%S')
+                modified_date = datetime.datetime.strptime(
+                    modified_date, "%Y%m%d%H%M%S"
+                )
                 # example: 2022-11-02 19:07:13
             elif self.sftp:
                 modified_date = datetime.datetime.fromtimestamp(ret)
                 # example: 2022-11-02 13:46:07
 
-        log.debug('modified date of %s: %s ' % (filename, str(modified_date)))
+        log.debug("modified date of %s: %s " % (filename, str(modified_date)))
 
         return modified_date
 
@@ -306,10 +317,10 @@ class FTPStorageAdapter(StorageAdapterBase):
         if not localpath:
             localpath = os.path.join(self._config[LOCAL_PATH], filename)
 
-        localfile = open(localpath, 'wb')
+        localfile = open(localpath, "wb")
 
         if self.ftps:
-            status = self.ftps.retrbinary('RETR %s' % filename, localfile.write)
+            status = self.ftps.retrbinary("RETR %s" % filename, localfile.write)
             localfile.close()
         elif self.sftp:
             status = self.sftp.get(filename, localpath=localpath)
@@ -321,4 +332,3 @@ class FTPStorageAdapter(StorageAdapterBase):
                 raise
 
         return status
-

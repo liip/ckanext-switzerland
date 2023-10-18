@@ -1,19 +1,20 @@
 from ckanext.dcat.harvesters.rdf import DCATRDFHarvester
 
 import logging
+
 log = logging.getLogger(__name__)
 
 
 class SwissDCATRDFHarvester(DCATRDFHarvester):
     def info(self):
         return {
-            'name': 'dcat_ch_rdf',
-            'title': 'DCAT-AP Switzerland RDF Harvester',
-            'description': 'Harvester for DCAT-AP Switzerland datasets from an RDF graph'  # noqa
+            "name": "dcat_ch_rdf",
+            "title": "DCAT-AP Switzerland RDF Harvester",
+            "description": "Harvester for DCAT-AP Switzerland datasets from an RDF graph",  # noqa
         }
 
     def _get_guid(self, dataset_dict, source_url=None):  # noqa
-        '''
+        """
         Try to get a unique identifier for a harvested dataset
         It will be the first found of:
          * URI (rdf:about)
@@ -23,35 +24,35 @@ class SwissDCATRDFHarvester(DCATRDFHarvester):
          The last two are obviously not optimal, as depend on title, which
          might change.
          Returns None if no guid could be decided.
-        '''
+        """
         guid = None
-        for extra in dataset_dict.get('extras', []):
-            if extra['key'] == 'uri' and extra['value']:
-                return extra['value']
+        for extra in dataset_dict.get("extras", []):
+            if extra["key"] == "uri" and extra["value"]:
+                return extra["value"]
 
-        if dataset_dict.get('uri'):
-            return dataset_dict['uri']
+        if dataset_dict.get("uri"):
+            return dataset_dict["uri"]
 
-        for extra in dataset_dict.get('extras', []):
-            if extra['key'] == 'identifier' and extra['value']:
-                return extra['value']
+        for extra in dataset_dict.get("extras", []):
+            if extra["key"] == "identifier" and extra["value"]:
+                return extra["value"]
 
-        if dataset_dict.get('identifier'):
-            return dataset_dict['identifier']
+        if dataset_dict.get("identifier"):
+            return dataset_dict["identifier"]
 
-        for extra in dataset_dict.get('extras', []):
-            if extra['key'] == 'dcat_identifier' and extra['value']:
-                return extra['value']
+        for extra in dataset_dict.get("extras", []):
+            if extra["key"] == "dcat_identifier" and extra["value"]:
+                return extra["value"]
 
-        if dataset_dict.get('name'):
-            guid = dataset_dict['name']
+        if dataset_dict.get("name"):
+            guid = dataset_dict["name"]
             if source_url:
-                guid = source_url.rstrip('/') + '/' + guid
+                guid = source_url.rstrip("/") + "/" + guid
 
         return guid
 
     def _gen_new_name(self, title):
         try:
-            return super(SwissDCATRDFHarvester, self)._gen_new_name(title['de'])  # noqa
+            return super(SwissDCATRDFHarvester, self)._gen_new_name(title["de"])  # noqa
         except TypeError:
             return super(SwissDCATRDFHarvester, self)._gen_new_name(title)  # noqa
