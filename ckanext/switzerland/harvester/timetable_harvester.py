@@ -81,7 +81,7 @@ class TimetableHarvester(SBBHarvester):
                 log.info("Remote dirlist: %s" % str(filelist))
 
                 filelist = list(
-                    filter(lambda filename: re.match(self.config['filter_regex'], filename), filelist)
+                    [filename for filename in filelist if re.match(self.config['filter_regex'], filename)]
                 )
 
                 # get last-modified date of each file
@@ -157,7 +157,7 @@ class TimetableHarvester(SBBHarvester):
                     except NotFound:
                         continue  # dataset for this year does not exist yet
                     package = model.Package.get(existing_dataset['id'])
-                    existing_resources = map(lambda r: os.path.basename(r.url), package.resources_all)
+                    existing_resources = [os.path.basename(r.url) for r in package.resources_all]
 
                     log.info('Existing resources on dataset with id {}: {}'.format(
                         existing_dataset['id'], existing_resources)

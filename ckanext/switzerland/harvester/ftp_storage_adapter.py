@@ -184,7 +184,7 @@ class FTPStorageAdapter(StorageAdapterBase):
             self.ftps.retrlines(cmd, files_dirs.append)
             for file_dir in files_dirs:
                 data, filename = file_dir.split(' ', 1)
-                for kv in filter(lambda x: x, data.split(';')):
+                for kv in [x for x in data.split(';') if x]:
                     key, value = kv.split('=')
                     if key == 'type' and value == 'file':
                         files.append(filename)
@@ -219,7 +219,7 @@ class FTPStorageAdapter(StorageAdapterBase):
                 dirlist = self.sftp.listdir(self.remote_folder)
 
         # filter out '.' and '..' and return the list
-        dirlist = filter(lambda entry: entry not in ['.', '..'], dirlist)
+        dirlist = [entry for entry in dirlist if entry not in ['.', '..']]
 
         # .TMP must be ignored, as they are still being uploaded
         dirlist = [x for x in dirlist if not x.lower().endswith(self.tmpfile_extension.lower())]
