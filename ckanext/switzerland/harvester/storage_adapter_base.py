@@ -64,7 +64,7 @@ class StorageAdapterBase(object):
 
         self.create_local_dir()
 
-        log.info('Using Config: %s' % pformat(self._config))
+        log.debug('Using Config: %s' % pformat(self._config))
 
     def _connect(self):
         """
