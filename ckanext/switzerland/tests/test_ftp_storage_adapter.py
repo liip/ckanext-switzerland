@@ -14,7 +14,7 @@ from nose.tools import assert_equal, raises, nottest, with_setup
 from mock import patch, Mock, MagicMock, PropertyMock
 from testfixtures import Replace
 
-from helpers.mock_config_resolver import MockConfigResolver
+from .helpers.mock_config_resolver import MockConfigResolver
 from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
 
 # The classes to test

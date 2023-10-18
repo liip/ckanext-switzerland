@@ -2,7 +2,7 @@ import unittest
 import os
 from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
 from ckanext.switzerland.harvester.s3_storage_adapter import S3StorageAdapter
-from helpers.mock_config_resolver import MockConfigResolver
+from .helpers.mock_config_resolver import MockConfigResolver
 # The classes to test
 # -----------------------------------------------------------------------
 from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
