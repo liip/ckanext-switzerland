@@ -137,10 +137,8 @@ class S3StorageAdapter(StorageAdapterBase):
         if AWS_RESPONSE_PREFIXES in s3_objects:
             objects.extend([object['Prefix'] for object in s3_objects[AWS_RESPONSE_PREFIXES]])
 
-        files_and_folder = self.__prepare_for_return__(objects, prefix)
-
         # AWS always returns sorted items. Usually no need to sort. In this case we need to sort as we aggregated two sources
-        files_and_folder.sort()
+        files_and_folder = sorted(self.__prepare_for_return__(objects, prefix))
 
         return files_and_folder
 
