@@ -10,6 +10,7 @@ import ftplib
 import logging
 log = logging.getLogger(__name__)
 
+from ckan import model
 from nose.tools import assert_equal, raises, nottest, with_setup
 from mock import patch, Mock, MagicMock, PropertyMock
 from testfixtures import Replace
