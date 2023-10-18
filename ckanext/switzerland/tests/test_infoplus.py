@@ -39,7 +39,7 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
                     "dataset": data.dataset_name,
                     "environment": data.environment,
                     "folder": data.folder,
-                    "timetable_regex": "FP(\d{4}).*\.zip",
+                    "timetable_regex": r"FP(\d{4}).*\.zip",
                     "infoplus": {
                         "year": 2015,
                         "dataset": "Station List",
@@ -72,8 +72,8 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
 
         self.run_harvester(
             dataset="Timetable {year}",
-            timetable_regex="FP(\d{4}).*\.zip",
-            resource_regex="FP(\d{4})_Fahrplan_\d{8}\.zip",
+            timetable_regex=r"FP(\d{4}).*\.zip",
+            resource_regex=r"FP(\d{4})_Fahrplan_\d{8}\.zip",
             infoplus={
                 "year": 2015,
                 "dataset": "Station List",
