@@ -2,7 +2,6 @@
 
 """Tests for the ckanext.switzerland.ftp_helper.py """
 
-import ftplib
 import logging
 import os
 import shutil
@@ -11,8 +10,8 @@ import unittest
 log = logging.getLogger(__name__)
 
 from ckan import model
-from mock import MagicMock, Mock, PropertyMock, patch
-from nose.tools import assert_equal, nottest, raises, with_setup
+from mock import patch
+from nose.tools import assert_equal
 from testfixtures import Replace
 
 from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import (

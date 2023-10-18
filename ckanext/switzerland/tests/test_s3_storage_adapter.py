@@ -5,10 +5,9 @@ import unittest
 
 import boto3
 from botocore.stub import Stubber
-from dateutil.tz import tzutc
 from numpy.testing import assert_array_equal
 
-from ckanext.switzerland.harvester.aws_keys import (
+from ckanext.switzerland.harvester.keys import (
     AWS_ACCESS_KEY,
     AWS_BUCKET_NAME,
     AWS_REGION_NAME,
@@ -25,7 +24,6 @@ from ckanext.switzerland.harvester.s3_storage_adapter import S3StorageAdapter
 from .fixtures.aws_fixture import (
     ALL,
     ALL_AT_FOLDER,
-    FILE_CONTENT,
     FILES_AT_FOLDER,
     FILES_AT_ROOT,
     HEAD_FILE_AT_FOLDER,

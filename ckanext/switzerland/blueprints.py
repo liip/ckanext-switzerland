@@ -11,7 +11,7 @@ import ckan.plugins.toolkit as toolkit
 import flask
 import requests
 import unicodecsv
-from ckan.common import _, c, config, current_user, g, request
+from ckan.common import _, c, current_user, request
 from ckan.lib import signals
 from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.lib.plugins import lookup_package_plugin

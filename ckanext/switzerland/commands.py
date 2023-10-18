@@ -1,8 +1,6 @@
 import itertools
-import os
 import sys
 import traceback
-from datetime import datetime
 
 import ckan.logic as logic
 import ckan.model as model
