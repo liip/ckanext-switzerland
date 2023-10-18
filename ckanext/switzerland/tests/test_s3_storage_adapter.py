@@ -7,14 +7,14 @@ import boto3
 from botocore.stub import Stubber
 from numpy.testing import assert_array_equal
 
+from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import (
+    StorageAdapterConfigurationException,
+)
 from ckanext.switzerland.harvester.keys import (
     AWS_ACCESS_KEY,
     AWS_BUCKET_NAME,
     AWS_REGION_NAME,
     AWS_SECRET_KEY,
-)
-from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import (
-    StorageAdapterConfigurationException,
 )
 
 # The classes to test
