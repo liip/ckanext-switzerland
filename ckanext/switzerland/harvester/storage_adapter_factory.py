@@ -1,13 +1,15 @@
 from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
 from ckanext.switzerland.harvester.s3_storage_adapter import S3StorageAdapter
 
-STORAGE_ADAPTER_KEY = 'storage_adapter'
+STORAGE_ADAPTER_KEY = "storage_adapter"
+
+
 class StorageAdapterFactory(object):
     config_resolver = None
 
     def __init__(self, config_resolver):
         if not config_resolver:
-            raise Exception('Cannot create adapter without config resolver')
+            raise Exception("Cannot create adapter without config resolver")
         self.config_resolver = config_resolver
 
     def __is_legacy_config__(self, config):
@@ -19,10 +21,10 @@ class StorageAdapterFactory(object):
 
         storage_adapter = config[STORAGE_ADAPTER_KEY].lower()
 
-        if storage_adapter == 's3':
+        if storage_adapter == "s3":
             return S3StorageAdapter(self.config_resolver, config, remote_folder)
 
-        if storage_adapter == 'ftp':
+        if storage_adapter == "ftp":
             return FTPStorageAdapter(self.config_resolver, config, remote_folder)
 
-        raise Exception('This type of storage is not supported: ' + storage_adapter)
+        raise Exception("This type of storage is not supported: " + storage_adapter)

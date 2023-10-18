@@ -12,11 +12,13 @@ log = logging.getLogger(__name__)
 
 
 def get_validation_schema():
-    column_schema = voluptuous.Schema({
-        'from': int,
-        'to': int,
-        'name': str,
-    })
+    column_schema = voluptuous.Schema(
+        {
+            "from": int,
+            "to": int,
+            "name": str,
+        }
+    )
 
     def validate_infoplus(files):
         for filename, config in list(files.items()):
@@ -26,11 +28,13 @@ def get_validation_schema():
                 column_schema(column)
         return files
 
-    return voluptuous.Schema({
-        voluptuous.Required('files'): validate_infoplus,
-        voluptuous.Required('dataset'): str,
-        voluptuous.Required('year'): int,
-    })
+    return voluptuous.Schema(
+        {
+            voluptuous.Required("files"): validate_infoplus,
+            voluptuous.Required("dataset"): str,
+            voluptuous.Required("year"): int,
+        }
+    )
 
 
 def get_filename(filelist_with_dataset, harvester_config):
@@ -39,9 +43,9 @@ def get_filename(filelist_with_dataset, harvester_config):
     """
     files = []
     for filename, dataset in filelist_with_dataset:
-        year = int(re.match(harvester_config['timetable_regex'], filename).group(1))
-        if year == harvester_config['infoplus']['year']:
-            if re.match(harvester_config['resource_regex'], filename):
+        year = int(re.match(harvester_config["timetable_regex"], filename).group(1))
+        if year == harvester_config["infoplus"]["year"]:
+            if re.match(harvester_config["resource_regex"], filename):
                 files.append(filename)
 
     if not files:
@@ -51,26 +55,32 @@ def get_filename(filelist_with_dataset, harvester_config):
     return files[0]
 
 
-def create_harvest_jobs(harvester_config, harvester_name, harvest_job, zip_filename, workingdir):
+def create_harvest_jobs(
+    harvester_config, harvester_name, harvest_job, zip_filename, workingdir
+):
     job_ids = []
 
-    for filename in list(harvester_config['infoplus']['files'].keys()):
+    for filename in list(harvester_config["infoplus"]["files"].keys()):
         obj = HarvestObject(guid=harvester_name, job=harvest_job)
         # serialise and store the dirlist
-        obj.content = json.dumps({
-            'type': 'file-skip-download',
-            'file': zip_filename,
-            'tmpfolder': workingdir,
-            'dataset': harvester_config['infoplus']['dataset'],
-            'infoplus_filename': filename,
-            'filter': 'infoplus',
-        })
+        obj.content = json.dumps(
+            {
+                "type": "file-skip-download",
+                "file": zip_filename,
+                "tmpfolder": workingdir,
+                "dataset": harvester_config["infoplus"]["dataset"],
+                "infoplus_filename": filename,
+                "filter": "infoplus",
+            }
+        )
         # save it for the next step
         obj.save()
         job_ids.append(obj.id)
 
     obj = HarvestObject(guid=harvester_name, job=harvest_job)
-    obj.content = json.dumps({'type': 'finalizer', 'dataset': harvester_config['infoplus']['dataset']})
+    obj.content = json.dumps(
+        {"type": "finalizer", "dataset": harvester_config["infoplus"]["dataset"]}
+    )
     obj.save()
     job_ids.append(obj.id)
 
@@ -102,33 +112,43 @@ def file_filter(harvester_obj, config):
     0000011,7.389462,47.191804,467,Grenchen Nor
     0000016,6.513937,46.659019,499,"La Sarraz, Couronn"
     """
-    log.info('Extracting file {} from Info+ zip file'.format(harvester_obj['infoplus_filename']))
+    log.info(
+        "Extracting file {} from Info+ zip file".format(
+            harvester_obj["infoplus_filename"]
+        )
+    )
 
-    zipfile = ZipFile(os.path.join(harvester_obj['tmpfolder'], harvester_obj['file']), 'r')
-    path = os.path.join(harvester_obj['tmpfolder'], harvester_obj['infoplus_filename'] + '.csv')
+    zipfile = ZipFile(
+        os.path.join(harvester_obj["tmpfolder"], harvester_obj["file"]), "r"
+    )
+    path = os.path.join(
+        harvester_obj["tmpfolder"], harvester_obj["infoplus_filename"] + ".csv"
+    )
 
-    fp = zipfile.open(harvester_obj['infoplus_filename'])
+    fp = zipfile.open(harvester_obj["infoplus_filename"])
     data = fp.read()
-    data = data.decode('utf-8')
+    data = data.decode("utf-8")
     fp.close()
 
-    with open(path, 'wb') as f:
-        writer = unicodecsv.writer(f, encoding='utf-8')
+    with open(path, "wb") as f:
+        writer = unicodecsv.writer(f, encoding="utf-8")
 
-        infoplus_config = config['infoplus']['files'][harvester_obj['infoplus_filename']]
+        infoplus_config = config["infoplus"]["files"][
+            harvester_obj["infoplus_filename"]
+        ]
 
-        headings = [col['name'] for col in infoplus_config]
+        headings = [col["name"] for col in infoplus_config]
         writer.writerow(headings)
 
-        for line in data.split('\n'):
+        for line in data.split("\n"):
             row = []
             for config in infoplus_config:
-                from_pos = config['from'] - 1
-                to_pos = config['to'] if config['to'] != -1 else len(line)
+                from_pos = config["from"] - 1
+                to_pos = config["to"] if config["to"] != -1 else len(line)
                 row.append(line[from_pos:to_pos].strip())
             writer.writerow(row)
 
     zipfile.close()
 
-    harvester_obj['file'] = path
+    harvester_obj["file"] = path
     return harvester_obj
