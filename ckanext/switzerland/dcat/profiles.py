@@ -1,19 +1,16 @@
+import logging
+import re
+import time
+from datetime import datetime
+
 import rdflib
 from ckan.lib.helpers import url_for
-from rdflib import URIRef, BNode, Literal
-from rdflib.namespace import Namespace, RDFS, RDF, SKOS, XSD
-
-from datetime import datetime
-import time
-
-import re
+from rdflib import BNode, Literal, URIRef
+from rdflib.namespace import RDF, RDFS, SKOS, XSD, Namespace
 
 from ckanext.dcat.profiles import RDFProfile
 from ckanext.dcat.utils import resource_uri
-
 from ckanext.switzerland.helpers import get_langs, map_to_valid_format
-
-import logging
 
 log = logging.getLogger(__name__)
 

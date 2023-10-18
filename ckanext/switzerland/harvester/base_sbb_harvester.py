@@ -14,37 +14,32 @@ table.
 
 import cgi
 import ftplib  # for errors only
+import json
 import logging
+import os
+import re
 import shutil
+import sys
 import time
 import traceback
 from collections import defaultdict
 from datetime import datetime
 
-import os
-import sys
-import re
-import json
-
+import voluptuous
 from ckan import model
-from ckan.lib import helpers
-from ckan.lib import uploader
+from ckan.lib import helpers, search, uploader
 from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename, munge_name
-from ckan.logic import NotFound
-from ckan.logic import get_action, check_access
+from ckan.logic import NotFound, check_access, get_action
 from ckan.model import Session
-from ckanext.harvest.harvesters.base import HarvesterBase
-from ckanext.switzerland.helpers import resource_filename
 from ckan.plugins.toolkit import config as ckanconf
 from simplejson.scanner import JSONDecodeError
-import voluptuous
-from ckan.lib import search
-from sqlalchemy.sql import update, bindparam
+from sqlalchemy.sql import bindparam, update
 
+from ckanext.harvest.harvesters.base import HarvesterBase
 from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
-
+from ckanext.switzerland.helpers import resource_filename
 
 log = logging.getLogger(__name__)
 

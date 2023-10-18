@@ -1,18 +1,18 @@
 # coding=UTF-8
+import json
+import logging
 import os
 import sys
 
-from ckanext.switzerland import validators as v
-from ckanext.switzerland import logic as l
-from ckanext.switzerland.blueprints import ogdch_admin, ogdch_dataset, ogdch_resource
-import ckanext.switzerland.helpers as sh
-
+import ckan.lib.helpers as h
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-import ckan.lib.helpers as h
 from ckan.lib.munge import munge_title_to_name
-import json
-import logging
+
+import ckanext.switzerland.helpers as sh
+from ckanext.switzerland import logic as l
+from ckanext.switzerland import validators as v
+from ckanext.switzerland.blueprints import ogdch_admin, ogdch_dataset, ogdch_resource
 
 log = logging.getLogger(__name__)
 

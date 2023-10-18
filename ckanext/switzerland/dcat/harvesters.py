@@ -1,6 +1,6 @@
-from ckanext.dcat.harvesters.rdf import DCATRDFHarvester
-
 import logging
+
+from ckanext.dcat.harvesters.rdf import DCATRDFHarvester
 
 log = logging.getLogger(__name__)
 

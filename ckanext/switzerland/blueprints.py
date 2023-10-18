@@ -1,30 +1,25 @@
-from flask import Blueprint, make_response
 import logging
-
-import requests
-import unicodecsv
 from io import StringIO
-
-import ckan.lib.uploader as uploader
-import ckan.logic as logic
-import ckan.model as model
-from ckan.common import _, request, c
-import ckan.plugins.toolkit as toolkit
-from ckan.lib.plugins import lookup_package_plugin
-from ckan.lib.dictization.model_dictize import resource_dictize
-
-from ckanext.switzerland.helpers import resource_filename
 from typing import Optional, Union
-
-from werkzeug.wrappers.response import Response as WerkzeugResponse
-import flask
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+import ckan.lib.uploader as uploader
+import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins.toolkit as toolkit
+import flask
+import requests
+import unicodecsv
+from ckan.common import _, c, config, current_user, g, request
 from ckan.lib import signals
-from ckan.common import _, config, g, request, current_user
-
+from ckan.lib.dictization.model_dictize import resource_dictize
+from ckan.lib.plugins import lookup_package_plugin
 from ckan.types import Context, Response
+from flask import Blueprint, make_response
+from werkzeug.wrappers.response import Response as WerkzeugResponse
+
+from ckanext.switzerland.helpers import resource_filename
 
 log = logging.getLogger(__name__)
 render = toolkit.render

@@ -10,28 +10,26 @@ The class is intended to be used with Python's `with` statement, e.g.
 `
 """
 
-import logging
-
-import os
-
-from ckanext.switzerland.harvester.config.config_key import ConfigKey
-from ckanext.switzerland.harvester.storage_adapter_base import StorageAdapterBase
-
-import pysftp
-import ftplib
 import datetime
+import ftplib
+import logging
+import os
 import ssl
 
+import pysftp
+
+from ckanext.switzerland.harvester.config.config_key import ConfigKey
 from ckanext.switzerland.harvester.keys import (
-    FTP_USER_NAME,
-    FTP_PASSWORD,
-    FTP_KEY_FILE,
     FTP_HOST,
+    FTP_KEY_FILE,
+    FTP_PASSWORD,
     FTP_PORT,
     FTP_SERVER_KEY,
+    FTP_USER_NAME,
     LOCAL_PATH,
     REMOTE_DIRECTORY,
 )
+from ckanext.switzerland.harvester.storage_adapter_base import StorageAdapterBase
 
 log = logging.getLogger(__name__)
 

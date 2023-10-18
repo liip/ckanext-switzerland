@@ -1,8 +1,9 @@
-from pprint import pformat
-import os
-import logging
 import errno
+import logging
+import os
 import zipfile
+from pprint import pformat
+
 from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import (
     StorageAdapterConfigurationException,
 )

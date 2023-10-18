@@ -1,10 +1,12 @@
 import os
+
+from mock import patch
+from nose.tools import assert_equal
+
 from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
     MockFTPStorageAdapter,
 )
-from mock import patch
-from nose.tools import assert_equal
 
 from . import data
 from .base_ftp_harvester_tests import BaseSBBHarvesterTests

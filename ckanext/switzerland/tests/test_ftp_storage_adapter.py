@@ -2,21 +2,19 @@
 
 """Tests for the ckanext.switzerland.ftp_helper.py """
 
-import unittest
+import ftplib
+import logging
 import os
 import shutil
-import ftplib
-
-import logging
+import unittest
 
 log = logging.getLogger(__name__)
 
 from ckan import model
-from nose.tools import assert_equal, raises, nottest, with_setup
-from mock import patch, Mock, MagicMock, PropertyMock
+from mock import MagicMock, Mock, PropertyMock, patch
+from nose.tools import assert_equal, nottest, raises, with_setup
 from testfixtures import Replace
 
-from .helpers.mock_config_resolver import MockConfigResolver
 from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import (
     StorageAdapterConfigurationException,
 )
@@ -24,6 +22,8 @@ from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exce
 # The classes to test
 # -----------------------------------------------------------------------
 from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
+
+from .helpers.mock_config_resolver import MockConfigResolver
 
 # -----------------------------------------------------------------------
 
