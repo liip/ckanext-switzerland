@@ -9,11 +9,13 @@ jobs:
         with:
           python-version: '3.8'
       - name: Install requirements
-        run: pip install flake8 pycodestyle
+        run: pip install flake8 pycodestyle black isort
       - name: Check syntax
-        run: flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics --exclude ckan
-      - name: Run flake8
-        run: flake8 . --count --max-line-length=127 --statistics --exclude ckan
+        run: flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics
+      - name: Check codestyle
+        run: |
+          isort --diff --check ckanext/
+          black --diff --check ckanext/
 
   test:
     needs: lint
@@ -54,9 +56,10 @@ jobs:
         pip install -e .
         # Replace default path to CKAN core config file with the one on the container
         sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' test.ini
-    - name: Setup extension (CKAN >= 2.9)
+    - name: Setup extension
       run: |
         ckan -c test.ini db init
         ckan -c test.ini harvester initdb
     - name: Run tests
-      run: pytest --ckan-ini=test.ini --cov=ckanext.switzerland --disable-warnings ckanext/switzerland/tests
+      run: nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.switzerland \
+        --cover-inclusive --cover-erase --cover-tests
