@@ -1,6 +1,6 @@
 import os
 
-from ckanext.switzerland.harvester.ftp_helper import FTPStorageAdapter
+from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
 
 
 class MockFTPStorageAdapter(FTPStorageAdapter):
