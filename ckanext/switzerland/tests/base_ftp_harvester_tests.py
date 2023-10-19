@@ -31,7 +31,7 @@ class BaseSBBHarvesterTests(unittest.TestCase):
         max_revisions=None,
         infoplus=None,
         ist_file=None,
-        ftp_server=None
+        ftp_server=None,
     ):
         data.harvest_user()
         self.user = data.user()

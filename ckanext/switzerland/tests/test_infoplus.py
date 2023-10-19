@@ -10,18 +10,19 @@ from ckanext.switzerland.harvester.timetable_harvester import TimetableHarvester
 from ckanext.switzerland.tests import data
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
     MockFTPStorageAdapter,
+    MockStorageAdapterFactory,
 )
 
 from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 
 
 @patch(
-    "ckanext.switzerland.harvester.timetable_harvester.FTPStorageAdapter",
-    MockFTPStorageAdapter,
+    "ckanext.switzerland.harvester.timetable_harvester.StorageAdapterFactory",
+    MockStorageAdapterFactory,
 )
 @patch(
-    "ckanext.switzerland.harvester.base_sbb_harvester.FTPStorageAdapter",
-    MockFTPStorageAdapter,
+    "ckanext.switzerland.harvester.base_sbb_harvester.StorageAdapterFactory",
+    MockStorageAdapterFactory,
 )
 class TestInfoplusHarvester(BaseSBBHarvesterTests):
     """
@@ -45,11 +46,13 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
                         "dataset": "Station List",
                         "files": {"BAHNHOF": data.infoplus_config},
                     },
+                    "storage_adapter": "FTP",
+                    "ftp_server": "testserver",
                 }
             )
         )
 
-    @pytest.mark.usefixtures('with_plugins', 'clean_db', 'clean_index', 'harvest_setup')
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     def test_simple(self):
         filesystem = self.get_filesystem(filename="FP2016_Jahresfahrplan.zip")
         MockFTPStorageAdapter.filesystem = filesystem
