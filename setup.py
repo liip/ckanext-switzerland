@@ -80,6 +80,9 @@ setup(
 
         [babel.extractors]
         ckan = ckan.lib.extract:extract_ckan
+
+        [nose.plugins]
+        pylons = pylons.test:PylonsPlugin
     """,
     message_extractors={
         "ckanext": [
