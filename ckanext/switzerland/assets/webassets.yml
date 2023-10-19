@@ -5,13 +5,13 @@ sort_resources:
   filters: rjsmin
 
 relations:
-  output: switzerland/relations
+  output: switzerland/relations.js
   contents:
     - relations.js
   filters: rjsmin
 
 search:
-  output: switzerland/search
+  output: switzerland/search.js
   contents:
     - a_vue.js
     - b_vuevalidator.js
