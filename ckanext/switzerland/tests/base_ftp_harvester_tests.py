@@ -5,7 +5,7 @@ import unittest
 from datetime import datetime
 
 import ckan.model as model
-from ckan.lib import search, uploader
+from ckan.lib import uploader
 from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.logic import get_action
 from fs.memoryfs import MemoryFS
