@@ -1,6 +1,7 @@
 import json
 import os
-from io import StringIO
+import pytest
+from io import BytesIO
 from zipfile import ZipFile
 
 from mock import patch
@@ -48,6 +49,7 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
             )
         )
 
+    @pytest.mark.usefixtures('with_plugins', 'clean_db', 'clean_index', 'harvest_setup')
     def test_simple(self):
         filesystem = self.get_filesystem(filename="FP2016_Jahresfahrplan.zip")
         MockFTPStorageAdapter.filesystem = filesystem

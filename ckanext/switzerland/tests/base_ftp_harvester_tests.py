@@ -110,8 +110,6 @@ class BaseSBBHarvesterTests(unittest.TestCase):
         self.assert_resource(resource_obj, False)
 
     def _cleanup(self):
-        model.repo.rebuild_db()  # clear database
-        search.clear_all()  # clear solr search index
         if os.path.exists("/tmp/ckan_storage_path/"):
             shutil.rmtree("/tmp/ckan_storage_path/")
 
