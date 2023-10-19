@@ -5,19 +5,19 @@ from mock import patch
 from ckanext.switzerland.harvester.timetable_harvester import TimetableHarvester
 from ckanext.switzerland.tests import data
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
-    MockFTPStorageAdapter,
+    MockFTPStorageAdapter, MockStorageAdapterFactory
 )
 
 from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 
 
 @patch(
-    "ckanext.switzerland.harvester.timetable_harvester.FTPStorageAdapter",
-    MockFTPStorageAdapter,
+    "ckanext.switzerland.harvester.timetable_harvester.StorageAdapterFactory",
+    MockStorageAdapterFactory,
 )
 @patch(
-    "ckanext.switzerland.harvester.base_sbb_harvester.FTPStorageAdapter",
-    MockFTPStorageAdapter,
+    "ckanext.switzerland.harvester.base_sbb_harvester.StorageAdapterFactory",
+    MockStorageAdapterFactory,
 )
 class TestTimetableHarvester(BaseSBBHarvesterTests):
     """

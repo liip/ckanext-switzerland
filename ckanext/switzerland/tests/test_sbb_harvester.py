@@ -9,7 +9,7 @@ from mock import patch
 from ckanext.harvest import model as harvester_model
 from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
-    MockFTPStorageAdapter,
+    MockFTPStorageAdapter, MockStorageAdapterFactory,
 )
 
 from . import data
@@ -17,12 +17,12 @@ from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 
 
 @patch(
-    "ckanext.switzerland.harvester.sbb_harvester.FTPStorageAdapter",
-    MockFTPStorageAdapter,
+    "ckanext.switzerland.harvester.timetable_harvester.StorageAdapterFactory",
+    MockStorageAdapterFactory,
 )
 @patch(
-    "ckanext.switzerland.harvester.base_sbb_harvester.FTPStorageAdapter",
-    MockFTPStorageAdapter,
+    "ckanext.switzerland.harvester.base_sbb_harvester.StorageAdapterFactory",
+    MockStorageAdapterFactory,
 )
 class TestSBBHarvester(BaseSBBHarvesterTests):
     """
