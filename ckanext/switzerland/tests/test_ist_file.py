@@ -1,7 +1,6 @@
 import os
 
 from mock import patch
-from nose.tools import assert_equal
 
 from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
@@ -37,7 +36,7 @@ class TestIstFileHarvester(BaseSBBHarvesterTests):
 
         dataset = self.get_dataset()
 
-        assert_equal(len(dataset["resources"]), 1)
+        self.assertEqual(len(dataset["resources"]), 1)
 
-        assert_equal(dataset["resources"][0]["identifier"], "ist_file.csv")
+        self.assertEqual(dataset["resources"][0]["identifier"], "ist_file.csv")
         self.assert_resource_data(dataset["resources"][0]["id"], data.ist_file_output)
