@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import unittest
 from datetime import datetime
 
 import ckan.model as model
@@ -8,7 +9,6 @@ from ckan.lib import search, uploader
 from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.logic import get_action
 from fs.memoryfs import MemoryFS
-from nose.tools import assert_equal
 
 from ckanext.harvest import model as harvester_model
 from ckanext.harvest.tests.factories import HarvestJobObj, HarvestSourceObj
@@ -17,7 +17,7 @@ from ckanext.harvest.tests.lib import run_harvest_job
 from . import data
 
 
-class BaseSBBHarvesterTests(object):
+class BaseSBBHarvesterTests(unittest.TestCase):
     harvester_class = None
 
     def run_harvester(
@@ -70,8 +70,8 @@ class BaseSBBHarvesterTests(object):
         job = HarvestJobObj(source=source, run=False)
         run_harvest_job(job, harvester)
 
-        assert_equal(harvester_model.HarvestGatherError.count(), 0)
-        assert_equal(harvester_model.HarvestObjectError.count(), 0)
+        self.assertEqual(harvester_model.HarvestGatherError.count(), 0)
+        self.assertEqual(harvester_model.HarvestObjectError.count(), 0)
 
     def get_dataset(self, name=data.dataset_name):
         return get_action("ogdch_dataset_by_identifier")({}, {"identifier": name})
@@ -93,12 +93,12 @@ class BaseSBBHarvesterTests(object):
         resource = resource_dictize(resource_obj, {"model": model})
         path = uploader.ResourceUpload(resource).get_path(resource_id)
         with open(path) as f:
-            assert_equal(f.read(), resource_data)
+            self.assertEqual(f.read(), resource_data)
 
     def assert_resource(self, resource_obj, exists):
         resource = resource_dictize(resource_obj, {"model": model})
         path = uploader.ResourceUpload(resource).get_path(resource_obj.id)
-        assert_equal(os.path.exists(path), exists)
+        self.assertEqual(os.path.exists(path), exists)
 
     def assert_resource_exists(self, resource_obj):
         self.assert_resource(resource_obj, True)

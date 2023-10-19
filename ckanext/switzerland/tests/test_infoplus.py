@@ -4,7 +4,6 @@ from io import StringIO
 from zipfile import ZipFile
 
 from mock import patch
-from nose.tools import assert_equal, assert_in, assert_is_not_none
 
 from ckanext.switzerland.harvester.timetable_harvester import TimetableHarvester
 from ckanext.switzerland.tests import data
@@ -83,12 +82,12 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
 
         dataset = self.get_dataset(name="Station List")
 
-        assert_equal(len(dataset["resources"]), 1)
+        self.assertEqual(len(dataset["resources"]), 1)
 
-        assert_in("issued", dataset)
-        assert_in("modified", dataset)
-        assert_is_not_none(dataset["issued"])
-        assert_is_not_none(dataset["modified"])
+        self.assertIn("issued", dataset)
+        self.assertIn("modified", dataset)
+        self.assertIsNotNone(dataset["issued"])
+        self.assertIsNotNone(dataset["modified"])
 
-        assert_equal(dataset["resources"][0]["identifier"], "BAHNHOF.csv")
+        self.assertEqual(dataset["resources"][0]["identifier"], "BAHNHOF.csv")
         self.assert_resource_data(dataset["resources"][0]["id"], data.bahnhof_file_csv)

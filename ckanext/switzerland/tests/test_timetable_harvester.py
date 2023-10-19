@@ -1,7 +1,6 @@
 import os
 
 from mock import patch
-from nose.tools import assert_equal
 
 from ckanext.switzerland.harvester.timetable_harvester import TimetableHarvester
 from ckanext.switzerland.tests import data
@@ -37,7 +36,7 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
 
         dataset = self.get_dataset(name="Timetable 2016")
 
-        assert_equal(len(dataset["resources"]), 1)
+        self.assertEqual(len(dataset["resources"]), 1)
 
     def test_multi_year(self):
         filesystem = self.get_filesystem(filename="FP2016_Jahresfahrplan.zip")
@@ -54,13 +53,13 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
         )
 
         dataset1 = self.get_dataset(name="Timetable 2016")
-        assert_equal(len(dataset1["resources"]), 1)
+        self.assertEqual(len(dataset1["resources"]), 1)
         self.assert_resource_data(
             dataset1["resources"][0]["id"], data.dataset_content_1
         )
 
         dataset2 = self.get_dataset(name="Timetable 2015")
-        assert_equal(len(dataset2["resources"]), 1)
+        self.assertEqual(len(dataset2["resources"]), 1)
         self.assert_resource_data(
             dataset2["resources"][0]["id"], data.dataset_content_3
         )

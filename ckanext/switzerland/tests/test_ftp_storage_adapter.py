@@ -9,7 +9,6 @@ import unittest
 
 from ckan import model
 from mock import patch
-from nose.tools import assert_equal
 from testfixtures import Replace
 
 from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import (
@@ -30,7 +29,7 @@ CONFIG_SECTION = "app:main"
 
 
 class TestFTPStorageAdapter(unittest.TestCase):
-    ini_file_path = "./ckanext/switzerland/tests/config/nosetest.ini"
+    ini_file_path = "./ckanext/switzerland/tests/config/valid.ini"
     invalid_ini_file_path = "./ckanext/switzerland/tests/config/invalid.ini"
     tmpfolder = "/tmp/ftpharvest/tests/"
     ftp = None
@@ -87,21 +86,21 @@ class TestFTPStorageAdapter(unittest.TestCase):
         remotefolder = "/test/"
         ftph = self.__build_tested_object__(remotefolder)
 
-        assert_equal(ftph._config["username"], "TESTUSER")
-        assert_equal(ftph._config["password"], "TESTPASS")
-        assert_equal(ftph._config["host"], "ftp-secure.sbb.ch")
-        assert_equal(ftph._config["port"], 990)
-        assert_equal(ftph._config["remotedirectory"], "/")
-        assert_equal(ftph._config["localpath"], "/tmp/ftpharvest/tests/")
+        self.assertEqual(ftph._config["username"], "TESTUSER")
+        self.assertEqual(ftph._config["password"], "TESTPASS")
+        self.assertEqual(ftph._config["host"], "ftp-secure.sbb.ch")
+        self.assertEqual(ftph._config["port"], 990)
+        self.assertEqual(ftph._config["remotedirectory"], "/")
+        self.assertEqual(ftph._config["localpath"], "/tmp/ftpharvest/tests/")
 
-        assert_equal(ftph.remote_folder, remotefolder.rstrip("/"))
+        self.assertEqual(ftph.remote_folder, remotefolder.rstrip("/"))
 
         assert os.path.exists(ftph._config["localpath"])
 
     def test_get_top_folder(self):
         foldername = "ftp-secure.sbb.ch:990"
         ftph = self.__build_tested_object__("/test/")
-        assert_equal(foldername, ftph.get_top_folder())
+        self.assertEqual(foldername, ftph.get_top_folder())
 
     def test_mkdir_p(self):
         ftph = self.__build_tested_object__("/test/")
@@ -148,7 +147,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         ftph = self.__build_tested_object__("/")
         ftph._connect()
         # the port was changed by the _connect method
-        assert_equal(
+        self.assertEqual(
             MockFTP.port,
             int(self.ckan_config_resolver.get("ckan.ftp.mainserver.port", False)),
         )
@@ -191,7 +190,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         remotefolder = self.ckan_config_resolver.get(
             "ckan.ftp.mainserver.remotedirectory", False
         )
-        assert_equal(remotefolder, ftph._config["remotedirectory"])
+        self.assertEqual(remotefolder, ftph._config["remotedirectory"])
         mock_ftp_tls.cwd.assert_called_with("")
 
     @patch("ftplib.FTP", autospec=True)
@@ -267,7 +266,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
                 dirlist = ftph.get_remote_dirlist("/myfolder/")
         # check results
         # a filtered directory list was returned
-        assert_equal(dirlist, ["filea.txt", "fileb.zip"])
+        self.assertEqual(dirlist, ["filea.txt", "fileb.zip"])
 
     @patch("ftplib.FTP", autospec=True)
     def test_get_local_dirlist(self, MockFTP):
@@ -276,8 +275,8 @@ class TestFTPStorageAdapter(unittest.TestCase):
                 dirlist = ftph.get_local_dirlist(
                     localpath="./ckanext/switzerland/tests/fixtures/testdir"
                 )
-        assert_equal(type(dirlist), list)
-        assert_equal(len(dirlist), 3)
+        self.assertEqual(type(dirlist), list)
+        self.assertEqual(len(dirlist), 3)
 
     @patch("ftplib.FTP", autospec=True)
     def test_is_empty_dir(self, MockFTP):
@@ -288,7 +287,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
                 # get directory listing
                 num = ftph.is_empty_dir("/empty/")
         # check results
-        assert_equal(num, 0)
+        self.assertEqual(num, 0)
 
     # TODO
     # @patch('ftplib.FTP', autospec=True)
@@ -314,10 +313,10 @@ class TestFTPStorageAdapter(unittest.TestCase):
                 # fetch remote file
                 arg1, arg2 = ftph.fetch(filename, localpath=testfile)
         # tests
-        assert_equal(arg1, "RETR %s" % filename)
+        self.assertEqual(arg1, "RETR %s" % filename)
         log.debug(arg2)
-        # assert_equal(str(type(arg2)), "<type 'builtin_function_or_method'>")
-        assert_equal(str(arg2.__class__.__name__), "builtin_function_or_method")
+        # self.assertEqual(str(type(arg2)), "<type 'builtin_function_or_method'>")
+        self.assertEqual(str(arg2.__class__.__name__), "builtin_function_or_method")
 
     @patch("ftplib.FTP", autospec=True)
     @patch("ftplib.FTP_TLS", autospec=True)
@@ -327,7 +326,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         with self.__build_tested_object__("/") as ftph:
             num = ftph.unzip(os.path.join(currpath, "fixtures/zip/my.zip"))
         # check results
-        assert_equal(num, 2)
+        self.assertEqual(num, 2)
         # cleanup
         for filename in ["file1.txt", "file2.txt"]:
             try:

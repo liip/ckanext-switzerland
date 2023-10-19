@@ -5,7 +5,6 @@ from datetime import datetime
 from ckan.lib.munge import munge_name
 from ckan.logic import NotFound, get_action
 from mock import patch
-from nose.tools import assert_equal, assert_raises
 
 from ckanext.harvest import model as harvester_model
 from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
@@ -38,8 +37,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         dataset = self.get_dataset()
 
-        assert_equal(len(dataset["resources"]), 1)
-        assert_equal(dataset["resources"][0]["identifier"], data.filename)
+        self.assertEqual(len(dataset["resources"]), 1)
+        self.assertEqual(dataset["resources"][0]["identifier"], data.filename)
 
     def test_existing_dataset(self):
         data.dataset(slug="testslug-other-than-munge-name")
@@ -52,8 +51,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
             {}, {"id": "testslug-other-than-munge-name"}
         )
 
-        assert_equal(dataset1["id"], dataset2["id"])
-        with assert_raises(NotFound):
+        self.assertEqual(dataset1["id"], dataset2["id"])
+        with self.assertRaises(NotFound):
             get_action("package_show")({}, {"id": munge_name(data.dataset_name)})
 
     def test_existing_resource(self):
@@ -69,19 +68,19 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         dataset = self.get_dataset()
 
-        assert_equal(len(dataset["resources"]), 2)
+        self.assertEqual(len(dataset["resources"]), 2)
         r1 = dataset["resources"][0]
         r2 = dataset["resources"][1]
 
         # resources are sorted in descending order
-        assert_equal(
+        self.assertEqual(
             r1["title"]["de"], data.filename
         )  # the new resource gets a new name
-        assert_equal(r2["title"]["de"], "AAAResource")
+        self.assertEqual(r2["title"]["de"], "AAAResource")
 
         # the new resource copies the description from the existing resource
-        assert_equal(r1["description"]["de"], "AAAResource Desc")
-        assert_equal(r2["description"]["de"], "AAAResource Desc")
+        self.assertEqual(r1["description"]["de"], "AAAResource Desc")
+        self.assertEqual(r2["description"]["de"], "AAAResource Desc")
 
     def test_existing_resource_same_filename(self):
         """
@@ -97,11 +96,11 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         dataset = self.get_dataset()
 
-        assert_equal(len(dataset["resources"]), 1)
+        self.assertEqual(len(dataset["resources"]), 1)
         resource = dataset["resources"][0]
 
-        assert_equal(resource["title"]["de"], "AAAResource")
-        assert_equal(resource["description"]["de"], "AAAResource Desc")
+        self.assertEqual(resource["title"]["de"], "AAAResource")
+        self.assertEqual(resource["description"]["de"], "AAAResource Desc")
 
     def test_skip_already_harvested_file(self):
         """
@@ -112,13 +111,13 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester()
         self.run_harvester()
 
-        assert_equal(harvester_model.HarvestSource.count(), 1)
-        assert_equal(harvester_model.HarvestJob.count(), 2)
+        self.assertEqual(harvester_model.HarvestSource.count(), 1)
+        self.assertEqual(harvester_model.HarvestJob.count(), 2)
 
         package = self.get_package()
 
-        assert_equal(len(package.resources), 1)
-        assert_equal(len(package.resources_all), 1)
+        self.assertEqual(len(package.resources), 1)
+        self.assertEqual(len(package.resources_all), 1)
 
     def test_force_all(self):
         """
@@ -130,13 +129,13 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(force_all=True)
         self.run_harvester(force_all=True)
 
-        assert_equal(harvester_model.HarvestSource.count(), 1)
-        assert_equal(harvester_model.HarvestJob.count(), 2)
+        self.assertEqual(harvester_model.HarvestSource.count(), 1)
+        self.assertEqual(harvester_model.HarvestJob.count(), 2)
 
         package = self.get_package()
 
-        assert_equal(len(package.resources), 1)
-        assert_equal(len(package.resources_all), 2)
+        self.assertEqual(len(package.resources), 1)
+        self.assertEqual(len(package.resources_all), 2)
 
     def test_updated_file_before_last_harvester_run(self):
         """
@@ -155,7 +154,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         dataset = self.get_dataset()
 
-        assert_equal(len(dataset["resources"]), 2)
+        self.assertEqual(len(dataset["resources"]), 2)
 
     def test_update_version(self):
         filesystem = self.get_filesystem(filename="20160901.csv")
@@ -163,8 +162,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester()
 
         package = self.get_package()
-        assert_equal(len(package.resources), 1)
-        assert_equal(len(package.resources_all), 1)
+        self.assertEqual(len(package.resources), 1)
+        self.assertEqual(len(package.resources_all), 1)
 
         path = os.path.join(data.environment, data.folder, "20160902.csv")
         filesystem.setcontents(path, data.dataset_content_2)
@@ -174,15 +173,15 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         package = self.get_package()
 
         # none of the resources should be deleted
-        assert_equal(len(package.resources), 2)
-        assert_equal(len(package.resources_all), 2)
+        self.assertEqual(len(package.resources), 2)
+        self.assertEqual(len(package.resources_all), 2)
 
         # order should be: newest file first
-        assert_equal(package.resources[0].extras["identifier"], "20160902.csv")
-        assert_equal(package.resources[1].extras["identifier"], "20160901.csv")
+        self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
+        self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
 
         # permalink
-        assert_equal(
+        self.assertEqual(
             package.permalink,
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
                 package.id, package.resources[0].id
@@ -220,14 +219,14 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         package = self.get_package()
 
         # there should be 3 resources now, 1 of them deleted
-        assert_equal(len(package.resources), 2)
-        assert_equal(len(package.resources_all), 3)
+        self.assertEqual(len(package.resources), 2)
+        self.assertEqual(len(package.resources_all), 3)
 
         # order should be: newest file first
-        assert_equal(package.resources[0].extras["identifier"], "20160902.csv")
-        assert_equal(package.resources[1].extras["identifier"], "20160901.csv")
+        self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
+        self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
 
-        assert_equal(
+        self.assertEqual(
             package.permalink,
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
                 package.id, package.resources[0].id
@@ -263,14 +262,14 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         package = self.get_package()
 
         # there should be 3 resources now, 1 of them deleted
-        assert_equal(len(package.resources), 2)
-        assert_equal(len(package.resources_all), 3)
+        self.assertEqual(len(package.resources), 2)
+        self.assertEqual(len(package.resources_all), 3)
 
         # order should be: newest file first
-        assert_equal(package.resources[0].extras["identifier"], "20160902.csv")
-        assert_equal(package.resources[1].extras["identifier"], "20160901.csv")
+        self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
+        self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
 
-        assert_equal(
+        self.assertEqual(
             package.permalink,
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
                 package.id, package.resources[0].id
@@ -293,14 +292,14 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         package = self.get_package()
 
-        assert_equal(len(package.resources), 4)
+        self.assertEqual(len(package.resources), 4)
 
-        assert_equal(package.resources[0].extras["identifier"], "9999Resource.csv")
-        assert_equal(package.resources[1].extras["identifier"], "1111Resource.csv")
-        assert_equal(package.resources[2].extras["identifier"], "20160902.csv")
-        assert_equal(package.resources[3].extras["identifier"], "20160901.csv")
+        self.assertEqual(package.resources[0].extras["identifier"], "9999Resource.csv")
+        self.assertEqual(package.resources[1].extras["identifier"], "1111Resource.csv")
+        self.assertEqual(package.resources[2].extras["identifier"], "20160902.csv")
+        self.assertEqual(package.resources[3].extras["identifier"], "20160901.csv")
 
-        assert_equal(
+        self.assertEqual(
             package.permalink,
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
                 package.id, package.resources[2].id
@@ -324,12 +323,12 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         package = self.get_package()
 
-        assert_equal(len(package.resources), 3)
-        assert_equal(len(package.resources_all), 4)
+        self.assertEqual(len(package.resources), 3)
+        self.assertEqual(len(package.resources_all), 4)
 
-        assert_equal(package.resources[0].extras["identifier"], "20160904.csv")
-        assert_equal(package.resources[1].extras["identifier"], "20160903.csv")
-        assert_equal(package.resources[2].extras["identifier"], "20160902.csv")
+        self.assertEqual(package.resources[0].extras["identifier"], "20160904.csv")
+        self.assertEqual(package.resources[1].extras["identifier"], "20160903.csv")
+        self.assertEqual(package.resources[2].extras["identifier"], "20160902.csv")
 
         for resource in package.resources_all:
             if resource.extras["identifier"] == "20160901.csv":
@@ -355,16 +354,16 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(max_resources=3)
 
         package = self.get_package()
-        assert_equal(len(package.resources), 3)
-        assert_equal(len(package.resources_all), 4)
+        self.assertEqual(len(package.resources), 3)
+        self.assertEqual(len(package.resources_all), 4)
 
         path = os.path.join(data.environment, data.folder, "20160904.csv")
         filesystem.setcontents(path, data.dataset_content_3)
         self.run_harvester(max_resources=3)
 
         package = self.get_package()
-        assert_equal(len(package.resources), 3)
-        assert_equal(len(package.resources_all), 5)
+        self.assertEqual(len(package.resources), 3)
+        self.assertEqual(len(package.resources_all), 5)
 
         for resource in package.resources_all:
             if resource.extras["identifier"] == "20160901.csv":
@@ -388,14 +387,14 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(max_resources=3)
 
         package = self.get_package()
-        assert_equal(len(package.resources), 3)
-        assert_equal(len(package.resources_all), 4)
+        self.assertEqual(len(package.resources), 3)
+        self.assertEqual(len(package.resources_all), 4)
 
         self.run_harvester(max_resources=3)
 
         package = self.get_package()
-        assert_equal(len(package.resources), 3)
-        assert_equal(len(package.resources_all), 4)
+        self.assertEqual(len(package.resources), 3)
+        self.assertEqual(len(package.resources_all), 4)
 
     def test_max_revisions(self):
         filesystem = self.get_filesystem()
@@ -406,29 +405,29 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         filesystem.setcontents(path, data.dataset_content_1)
         self.run_harvester(max_revisions=3)
         package = self.get_package()
-        assert_equal(len(package.resources), 1)
-        assert_equal(len(package.resources_all), 1)
+        self.assertEqual(len(package.resources), 1)
+        self.assertEqual(len(package.resources_all), 1)
 
         filesystem.settimes(path, modified_time=datetime.now())
         filesystem.setcontents(path, data.dataset_content_2)
         self.run_harvester(max_revisions=3)
         package = self.get_package()
-        assert_equal(len(package.resources), 1)
-        assert_equal(len(package.resources_all), 2)
+        self.assertEqual(len(package.resources), 1)
+        self.assertEqual(len(package.resources_all), 2)
 
         filesystem.settimes(path, modified_time=datetime.now())
         filesystem.setcontents(path, data.dataset_content_3)
         self.run_harvester(max_revisions=3)
         package = self.get_package()
-        assert_equal(len(package.resources), 1)
-        assert_equal(len(package.resources_all), 3)
+        self.assertEqual(len(package.resources), 1)
+        self.assertEqual(len(package.resources_all), 3)
 
         filesystem.settimes(path, modified_time=datetime.now())
         filesystem.setcontents(path, data.dataset_content_4)
         self.run_harvester(max_revisions=3)
         package = self.get_package()
-        assert_equal(len(package.resources), 1)
-        assert_equal(len(package.resources_all), 4)
+        self.assertEqual(len(package.resources), 1)
+        self.assertEqual(len(package.resources_all), 4)
 
         resources = sorted(package.resources_all, key=lambda r: r.created)
 
@@ -453,16 +452,16 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(filter_regex=r".*\.zip")
 
         package = self.get_package()
-        assert_equal(len(package.resources), 1)
-        assert_equal(len(package.resources_all), 1)
+        self.assertEqual(len(package.resources), 1)
+        self.assertEqual(len(package.resources_all), 1)
 
         self.assert_resource_data(package.resources[0].id, data.dataset_content_1)
-        assert_equal(package.resources[0].extras["identifier"], "File.zip")
+        self.assertEqual(package.resources[0].extras["identifier"], "File.zip")
 
     def test_validate_regex_fail(self):
         MockFTPStorageAdapter.filesystem = self.get_filesystem()
         harvester = SBBHarvester()
-        with assert_raises(Exception):
+        with self.assertRaises(Exception):
             harvester.validate_config(
                 json.dumps(
                     {

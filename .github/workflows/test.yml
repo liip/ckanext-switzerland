@@ -72,5 +72,4 @@ jobs:
         ckan -c test.ini db init
         ckan -c test.ini harvester initdb
     - name: Run tests
-      run: nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.switzerland \
-        --cover-inclusive --cover-erase --cover-tests
+      run: pytest --ckan-ini=test.ini --disable-warnings --cov=ckanext.switzerland

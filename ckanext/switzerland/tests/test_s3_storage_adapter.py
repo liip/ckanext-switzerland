@@ -43,7 +43,7 @@ TEST_BUCKET_NAME = "test-bucket"
 
 class TestS3StorageAdapter(unittest.TestCase):
     temp_folder = "/tmp/s3harvest/tests/"
-    ini_file_path = "./ckanext/switzerland/tests/config/nosetest.ini"
+    ini_file_path = "./ckanext/switzerland/tests/config/valid.ini"
     invalid_ini_file_path = "./ckanext/switzerland/tests/config/invalid.ini"
     remote_folder = "a"
     config = {LOCAL_PATH: temp_folder, CONFIG_BUCKET: "main_bucket"}
