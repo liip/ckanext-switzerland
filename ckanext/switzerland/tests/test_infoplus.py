@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import json
 import os
 import pytest
@@ -72,7 +74,7 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
         zipfile = ZipFile(f, "w")
         zipfile.writestr("BAHNHOF", data.bahnhof_file)
         zipfile.close()
-        filesystem.writetext(path, f.getvalue())
+        filesystem.writebytes(path, f.getvalue())
 
         self.run_harvester(
             dataset="Timetable {year}",

@@ -24,9 +24,7 @@ bahnhof_file = """0000006   7.549783  47.216111 441    % St. Katharinen
 0000026   7.449206  46.943904 534    % Bern, Helvetiaplatz
 0000028   6.838953  46.949588 491    % Boudry Littorail
 0000030   8.711041  46.766423 831    % Golzern, Talstation Seilbahn
-0000033   9.680469  47.544341 0      % Lindau Hbf""".encode(
-    "iso-8859-1"
-)
+0000033   9.680469  47.544341 0      % Lindau Hbf"""
 
 bahnhof_file_csv = """StationID,Longitude,Latitude,Höhe,Remark
 0000006,7.549783,47.216111,441,St. Katharinen
