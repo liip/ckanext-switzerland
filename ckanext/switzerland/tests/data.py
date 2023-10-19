@@ -91,17 +91,7 @@ def user():
 
 
 def harvest_user():
-    factories.User(id="harvest", sysadmin=True)
-
-    # setup the pylons context object c, required by datapusher
-    registry = Registry()
-    registry.prepare()
-    import pylons
-
-    c = pylons.util.AttribSafeContextObj()
-    registry.register(pylons.c, c)
-    pylons.c.user = "harvest"
-    pylons.c.userobj = model.User.get("harvest")
+    return factories.User(id="harvest", sysadmin=True)
 
 
 def organization(user):
