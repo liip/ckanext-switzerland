@@ -31,6 +31,7 @@ class BaseSBBHarvesterTests(unittest.TestCase):
         max_revisions=None,
         infoplus=None,
         ist_file=None,
+        ftp_server=None
     ):
         data.harvest_user()
         self.user = data.user()
@@ -59,6 +60,8 @@ class BaseSBBHarvesterTests(unittest.TestCase):
             config["infoplus"] = infoplus
         if ist_file:
             config["ist_file"] = ist_file
+        if ftp_server:
+            config["ftp_server"] = ftp_server
 
         source = HarvestSourceObj(
             url="http://example.com/harvest",

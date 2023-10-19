@@ -78,6 +78,7 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
                 "dataset": "Station List",
                 "files": {"BAHNHOF": data.infoplus_config},
             },
+            ftp_server="testserver",
         )
 
         dataset = self.get_dataset(name="Station List")
