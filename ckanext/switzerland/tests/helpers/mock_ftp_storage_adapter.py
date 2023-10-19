@@ -22,17 +22,17 @@ class MockFTPStorageAdapter(FTPStorageAdapter):
     def get_remote_filelist(self, folder=None):
         if folder is None:
             folder = self.cwd
-        return self.filesystem.listdir(folder, files_only=True)
+        return self.filesystem.listdir(folder)
 
     def get_remote_dirlist(self, folder=None):
         if folder is None:
             folder = self.cwd
-        return self.filesystem.listdir(folder, dirs_only=True)
+        return self.filesystem.listdir(folder)
 
     def get_modified_date(self, filename, folder=None):
         if folder is None:
             folder = self.cwd
-        return self.filesystem.getinfo(os.path.join(folder, filename))["modified_time"]
+        return self.filesystem.getinfo(os.path.join(folder, filename)).get("details", "modified")
 
     def fetch(self, filename, localpath=None):
         if not localpath:
@@ -40,7 +40,7 @@ class MockFTPStorageAdapter(FTPStorageAdapter):
 
         localfile = open(localpath, "wb")
 
-        content = self.filesystem.getcontents(os.path.join(self.cwd, filename))
+        content = self.filesystem.readbytes(os.path.join(self.cwd, filename))
         localfile.write(content)
         localfile.close()
         return "226 Transfer complete"

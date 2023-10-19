@@ -43,10 +43,10 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
         MockFTPStorageAdapter.filesystem = filesystem
 
         path = os.path.join(data.environment, data.folder, "FP2015_Jahresfahrplan.zip")
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.writetext(path, data.dataset_content_3)
 
         path = os.path.join(data.environment, data.folder, "InvalidFile")
-        filesystem.setcontents(path, data.dataset_content_2)
+        filesystem.writetext(path, data.dataset_content_2)
 
         self.run_harvester(
             dataset="Timetable {year}", timetable_regex=r"FP(\d\d\d\d).*"

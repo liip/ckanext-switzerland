@@ -148,8 +148,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester()
 
         path = os.path.join(data.environment, data.folder, "NewFile")
-        filesystem.setcontents(path, data.dataset_content_1)
-        filesystem.settimes(path, modified_time=datetime(2000, 1, 1))
+        filesystem.writetext(path, data.dataset_content_1)
+        filesystem.settimes(path, modified=datetime(2000, 1, 1))
         self.run_harvester()
 
         dataset = self.get_dataset()
@@ -166,7 +166,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(len(package.resources_all), 1)
 
         path = os.path.join(data.environment, data.folder, "20160902.csv")
-        filesystem.setcontents(path, data.dataset_content_2)
+        filesystem.writetext(path, data.dataset_content_2)
 
         self.run_harvester()
 
@@ -207,12 +207,12 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, "20160902.csv")
-        filesystem.setcontents(path, data.dataset_content_2)
+        filesystem.writetext(path, data.dataset_content_2)
         self.run_harvester()
 
         path = os.path.join(data.environment, data.folder, "20160901.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
-        filesystem.settimes(path, modified_time=datetime.now())
+        filesystem.writetext(path, data.dataset_content_3)
+        filesystem.settimes(path, modified=datetime.now())
 
         self.run_harvester()
 
@@ -250,12 +250,12 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, "20160902.csv")
-        filesystem.setcontents(path, data.dataset_content_2)
+        filesystem.writetext(path, data.dataset_content_2)
         self.run_harvester()
 
         path = os.path.join(data.environment, data.folder, "20160902.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
-        filesystem.settimes(path, modified_time=datetime.now())
+        filesystem.writetext(path, data.dataset_content_3)
+        filesystem.settimes(path, modified=datetime.now())
 
         self.run_harvester()
 
@@ -283,11 +283,11 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, "20160902.csv")
-        filesystem.setcontents(path, data.dataset_content_2)
+        filesystem.writetext(path, data.dataset_content_2)
         path = os.path.join(data.environment, data.folder, "1111Resource.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.writetext(path, data.dataset_content_3)
         path = os.path.join(data.environment, data.folder, "9999Resource.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.writetext(path, data.dataset_content_3)
         self.run_harvester(resource_regex=r"\d{8}.csv")
 
         package = self.get_package()
@@ -311,13 +311,13 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, "20160902.csv")
-        filesystem.setcontents(path, data.dataset_content_2)
+        filesystem.writetext(path, data.dataset_content_2)
         path = os.path.join(data.environment, data.folder, "20160903.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.writetext(path, data.dataset_content_3)
         self.run_harvester(max_resources=3)
 
         path = os.path.join(data.environment, data.folder, "20160904.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.writetext(path, data.dataset_content_3)
 
         self.run_harvester(max_resources=3)
 
@@ -345,12 +345,12 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(max_resources=3)
 
         path = os.path.join(data.environment, data.folder, "20160901.csv")
-        filesystem.setcontents(path, data.dataset_content_2)
-        filesystem.settimes(path, modified_time=datetime.now())
+        filesystem.writetext(path, data.dataset_content_2)
+        filesystem.settimes(path, modified=datetime.now())
         path = os.path.join(data.environment, data.folder, "20160902.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.writetext(path, data.dataset_content_3)
         path = os.path.join(data.environment, data.folder, "20160903.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.writetext(path, data.dataset_content_3)
         self.run_harvester(max_resources=3)
 
         package = self.get_package()
@@ -358,7 +358,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(len(package.resources_all), 4)
 
         path = os.path.join(data.environment, data.folder, "20160904.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.writetext(path, data.dataset_content_3)
         self.run_harvester(max_resources=3)
 
         package = self.get_package()
@@ -378,11 +378,11 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, "20160902.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.writetext(path, data.dataset_content_3)
         path = os.path.join(data.environment, data.folder, "20160903.csv")
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.writetext(path, data.dataset_content_3)
         path = os.path.join(data.environment, data.folder, "20160904.csv")
-        filesystem.setcontents(path, data.dataset_content_4)
+        filesystem.writetext(path, data.dataset_content_4)
 
         self.run_harvester(max_resources=3)
 
@@ -401,29 +401,29 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         MockFTPStorageAdapter.filesystem = filesystem
 
         path = os.path.join(data.environment, data.folder, data.filename)
-        filesystem.settimes(path, modified_time=datetime.now())
-        filesystem.setcontents(path, data.dataset_content_1)
+        filesystem.settimes(path, modified=datetime.now())
+        filesystem.writetext(path, data.dataset_content_1)
         self.run_harvester(max_revisions=3)
         package = self.get_package()
         self.assertEqual(len(package.resources), 1)
         self.assertEqual(len(package.resources_all), 1)
 
-        filesystem.settimes(path, modified_time=datetime.now())
-        filesystem.setcontents(path, data.dataset_content_2)
+        filesystem.settimes(path, modified=datetime.now())
+        filesystem.writetext(path, data.dataset_content_2)
         self.run_harvester(max_revisions=3)
         package = self.get_package()
         self.assertEqual(len(package.resources), 1)
         self.assertEqual(len(package.resources_all), 2)
 
-        filesystem.settimes(path, modified_time=datetime.now())
-        filesystem.setcontents(path, data.dataset_content_3)
+        filesystem.settimes(path, modified=datetime.now())
+        filesystem.writetext(path, data.dataset_content_3)
         self.run_harvester(max_revisions=3)
         package = self.get_package()
         self.assertEqual(len(package.resources), 1)
         self.assertEqual(len(package.resources_all), 3)
 
-        filesystem.settimes(path, modified_time=datetime.now())
-        filesystem.setcontents(path, data.dataset_content_4)
+        filesystem.settimes(path, modified=datetime.now())
+        filesystem.writetext(path, data.dataset_content_4)
         self.run_harvester(max_revisions=3)
         package = self.get_package()
         self.assertEqual(len(package.resources), 1)
@@ -447,7 +447,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         filesystem = self.get_filesystem(filename="File.zip")
         MockFTPStorageAdapter.filesystem = filesystem
         path = os.path.join(data.environment, data.folder, "Invalid.csv")
-        filesystem.setcontents(path, data.dataset_content_2)
+        filesystem.writetext(path, data.dataset_content_2)
 
         self.run_harvester(filter_regex=r".*\.zip")
 

@@ -29,7 +29,7 @@ class TestIstFileHarvester(BaseSBBHarvesterTests):
     def test_simple(self):
         filesystem = self.get_filesystem(filename="ist_file.csv")
         path = os.path.join(data.environment, data.folder, "ist_file.csv")
-        filesystem.setcontents(path, data.ist_file)
+        filesystem.writetext(path, data.ist_file)
         MockFTPStorageAdapter.filesystem = filesystem
 
         self.run_harvester(ist_file=True)

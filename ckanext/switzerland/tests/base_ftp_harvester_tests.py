@@ -87,8 +87,8 @@ class BaseSBBHarvesterTests(unittest.TestCase):
         fs.makedir(data.environment)
         fs.makedir(os.path.join(data.environment, data.folder))
         path = os.path.join(data.environment, data.folder, filename)
-        fs.setcontents(path, data.dataset_content_1)
-        fs.settimes(path, modified_time=datetime(2000, 1, 1))
+        fs.writetext(path, data.dataset_content_1)
+        fs.settimes(path, modified=datetime(2000, 1, 1))
         return fs
 
     def assert_resource_data(self, resource_id, resource_data):

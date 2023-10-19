@@ -53,21 +53,21 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
         MockFTPStorageAdapter.filesystem = filesystem
 
         path = os.path.join(data.environment, data.folder, "FP2015_Jahresfahrplan.zip")
-        filesystem.setcontents(path, data.dataset_content_1)
+        filesystem.writetext(path, data.dataset_content_1)
 
         path = os.path.join(
             data.environment, data.folder, "FP2015_Fahrplan_20150901.zip"
         )
-        filesystem.setcontents(path, data.dataset_content_1)
+        filesystem.writetext(path, data.dataset_content_1)
 
         path = os.path.join(
             data.environment, data.folder, "FP2015_Fahrplan_20151001.zip"
         )
-        f = StringIO()
+        f = BytesIO()
         zipfile = ZipFile(f, "w")
         zipfile.writestr("BAHNHOF", data.bahnhof_file)
         zipfile.close()
-        filesystem.setcontents(path, f.getvalue())
+        filesystem.writetext(path, f.getvalue())
 
         self.run_harvester(
             dataset="Timetable {year}",
