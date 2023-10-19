@@ -2,8 +2,8 @@ import os
 
 from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
 from ckanext.switzerland.harvester.storage_adapter_factory import (
-    StorageAdapterFactory,
     STORAGE_ADAPTER_KEY,
+    StorageAdapterFactory,
 )
 
 

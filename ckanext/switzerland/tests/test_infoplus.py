@@ -2,10 +2,10 @@
 
 import json
 import os
-import pytest
 from io import BytesIO
 from zipfile import ZipFile
 
+import pytest
 from mock import patch
 
 from ckanext.switzerland.harvester.timetable_harvester import TimetableHarvester
