@@ -5,7 +5,8 @@ from mock import patch
 
 from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
-    MockFTPStorageAdapter, MockStorageAdapterFactory
+    MockFTPStorageAdapter,
+    MockStorageAdapterFactory,
 )
 
 from . import data
@@ -38,7 +39,7 @@ class TestIstFileHarvester(BaseSBBHarvesterTests):
         filesystem.writetext(path, data.ist_file)
         MockFTPStorageAdapter.filesystem = filesystem
 
-        self.run_harvester(ist_file=True, ftp_server='testserver')
+        self.run_harvester(ist_file=True, ftp_server="testserver")
 
         dataset = self.get_dataset()
 

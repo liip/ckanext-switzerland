@@ -1,11 +1,13 @@
 import os
 
+import pytest
 from mock import patch
 
 from ckanext.switzerland.harvester.timetable_harvester import TimetableHarvester
 from ckanext.switzerland.tests import data
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
-    MockFTPStorageAdapter, MockStorageAdapterFactory
+    MockFTPStorageAdapter,
+    MockStorageAdapterFactory,
 )
 
 from .base_ftp_harvester_tests import BaseSBBHarvesterTests
@@ -26,18 +28,22 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
 
     harvester_class = TimetableHarvester
 
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     def test_simple(self):
         MockFTPStorageAdapter.filesystem = self.get_filesystem(
             filename="FP2016_Jahresfahrplan.zip"
         )
         self.run_harvester(
-            dataset="Timetable {year}", timetable_regex=r"FP(\d\d\d\d).*"
+            dataset="Timetable {year}",
+            timetable_regex=r"FP(\d\d\d\d).*",
+            ftp_server="testserver",
         )
 
         dataset = self.get_dataset(name="Timetable 2016")
 
         self.assertEqual(len(dataset["resources"]), 1)
 
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     def test_multi_year(self):
         filesystem = self.get_filesystem(filename="FP2016_Jahresfahrplan.zip")
         MockFTPStorageAdapter.filesystem = filesystem
@@ -49,7 +55,9 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
         filesystem.writetext(path, data.dataset_content_2)
 
         self.run_harvester(
-            dataset="Timetable {year}", timetable_regex=r"FP(\d\d\d\d).*"
+            dataset="Timetable {year}",
+            timetable_regex=r"FP(\d\d\d\d).*",
+            ftp_server="testserver",
         )
 
         dataset1 = self.get_dataset(name="Timetable 2016")
