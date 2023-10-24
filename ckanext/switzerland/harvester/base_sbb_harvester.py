@@ -486,7 +486,7 @@ class BaseSBBHarvester(HarvesterBase):
                                     harvest_object, stage)
             return False
 
-        # the folder where the file is to be stored
+        # the folder where the file is stored
         remotefolder = obj.get('remotefolder')
         if not remotefolder:
             self._save_object_error('No remotefolder received from gather step: %s' % harvest_object.content,
