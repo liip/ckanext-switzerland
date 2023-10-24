@@ -191,8 +191,11 @@ class BaseSBBHarvester(HarvesterBase):
         })
 
     def load_config(self, config_str):
+        log.info("def load_config")
         schema = self.get_config_validation_schema()
+        log.info("load_config schema: %s", schema)
         data = json.loads(config_str)
+        log.info("load_config: %s", data)
         return schema(data)
 
     # tested
@@ -848,11 +851,13 @@ class BaseSBBHarvester(HarvesterBase):
 
             get_action('resource_create')(context, resource_meta)
 
-            log.info("Successfully created resource")
+            log.info('Successfully created resource with resource_meta: %s ', resource_meta)
 
             # delete the old version of the resource
             if old_resource_id:
                 log.info('Deleting old resource: %s', old_resource_id)
+
+                log.info('old_resource_id resource_show: %s', get_action('resource_show')(context, {'resource_id': old_resource_id}))
 
                 # delete the datastore table
                 try:

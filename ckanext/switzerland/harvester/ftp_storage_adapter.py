@@ -303,8 +303,10 @@ class FTPStorageAdapter(StorageAdapterBase):
         :returns: Status of the FTP operation
         :rtype: string
         """
+        log.info("def fetch - before localpath: %s", localpath)
         if not localpath:
             localpath = os.path.join(self._config[LOCAL_PATH], filename)
+        log.info("def fetch - after localpath: %s", localpath)
 
         localfile = open(localpath, 'wb')
 
