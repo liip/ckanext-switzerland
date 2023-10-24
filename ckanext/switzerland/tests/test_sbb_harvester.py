@@ -139,15 +139,24 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         """
         MockFTPStorageAdapter.filesystem = self.get_filesystem()
         self.run_harvester(force_all=True, ftp_server="testserver")
-        self.run_harvester(force_all=True, ftp_server="testserver")
 
+        package = self.get_package()
+        resource_id_1 = package.resources[0].id
+
+        self.run_harvester(force_all=True, ftp_server="testserver")
         self.assertEqual(harvester_model.HarvestSource.count(), 1)
         self.assertEqual(harvester_model.HarvestJob.count(), 2)
 
         package = self.get_package()
 
         self.assertEqual(len(package.resources), 1)
-        self.assertEqual(len(package.resources_all), 2)
+        resource_id_2 = package.resources[0].id
+
+        self.assertNotEqual(
+            resource_id_1,
+            resource_id_2,
+            "The resource has not been harvested a second time",
+        )
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     def test_updated_file_before_last_harvester_run(self):
