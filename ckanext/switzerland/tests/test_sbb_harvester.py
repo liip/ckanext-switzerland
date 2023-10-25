@@ -128,7 +128,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         package = self.get_package()
 
         self.assertEqual(len(package.resources), 1)
-        self.assertEqual(len(package.resources_all), 1)
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     def test_force_all(self):
@@ -186,7 +185,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         package = self.get_package()
         self.assertEqual(len(package.resources), 1)
-        self.assertEqual(len(package.resources_all), 1)
 
         path = os.path.join(data.environment, data.folder, "20160902.csv")
         filesystem.writetext(path, data.dataset_content_2)
@@ -197,7 +195,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         # none of the resources should be deleted
         self.assertEqual(len(package.resources), 2)
-        self.assertEqual(len(package.resources_all), 2)
 
         # order should be: newest file first
         self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
@@ -242,9 +239,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         package = self.get_package()
 
-        # there should be 3 resources now, 1 of them deleted
         self.assertEqual(len(package.resources), 2)
-        self.assertEqual(len(package.resources_all), 3)
 
         # order should be: newest file first
         self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
@@ -286,9 +281,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         package = self.get_package()
 
-        # there should be 3 resources now, 1 of them deleted
         self.assertEqual(len(package.resources), 2)
-        self.assertEqual(len(package.resources_all), 3)
 
         # order should be: newest file first
         self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
@@ -351,127 +344,10 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         package = self.get_package()
 
         self.assertEqual(len(package.resources), 3)
-        self.assertEqual(len(package.resources_all), 4)
 
         self.assertEqual(package.resources[0].extras["identifier"], "20160904.csv")
         self.assertEqual(package.resources[1].extras["identifier"], "20160903.csv")
         self.assertEqual(package.resources[2].extras["identifier"], "20160902.csv")
-
-        for resource in package.resources_all:
-            if resource.extras["identifier"] == "20160901.csv":
-                self.assert_resource_deleted(resource)
-            else:
-                self.assert_resource_exists(resource)
-
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
-    def test_max_resources_revisions(self):
-        """
-        there are multiple revisions of file 20160901.csv, all of them should be deleted
-        """
-        filesystem = self.get_filesystem(filename="20160901.csv")
-        MockFTPStorageAdapter.filesystem = filesystem
-        self.run_harvester(max_resources=3, ftp_server="testserver")
-
-        path = os.path.join(data.environment, data.folder, "20160901.csv")
-        filesystem.writetext(path, data.dataset_content_2)
-        filesystem.settimes(path, modified=datetime.now())
-        path = os.path.join(data.environment, data.folder, "20160902.csv")
-        filesystem.writetext(path, data.dataset_content_3)
-        path = os.path.join(data.environment, data.folder, "20160903.csv")
-        filesystem.writetext(path, data.dataset_content_3)
-        self.run_harvester(max_resources=3, ftp_server="testserver")
-
-        package = self.get_package()
-        self.assertEqual(len(package.resources), 3)
-        self.assertEqual(len(package.resources_all), 4)
-
-        path = os.path.join(data.environment, data.folder, "20160904.csv")
-        filesystem.writetext(path, data.dataset_content_3)
-        self.run_harvester(max_resources=3, ftp_server="testserver")
-
-        package = self.get_package()
-        self.assertEqual(len(package.resources), 3)
-        self.assertEqual(len(package.resources_all), 5)
-
-        for resource in package.resources_all:
-            if resource.extras["identifier"] == "20160901.csv":
-                self.assert_resource_deleted(resource)
-            else:
-                self.assert_resource_exists(resource)
-
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
-    def test_max_resources_redownload_files(self):
-        """If resources get deleted by max_resources, we should not redownload them from
-        ftp.
-        """
-        filesystem = self.get_filesystem(filename="20160901.csv")
-        MockFTPStorageAdapter.filesystem = filesystem
-        path = os.path.join(data.environment, data.folder, "20160902.csv")
-        filesystem.writetext(path, data.dataset_content_3)
-        path = os.path.join(data.environment, data.folder, "20160903.csv")
-        filesystem.writetext(path, data.dataset_content_3)
-        path = os.path.join(data.environment, data.folder, "20160904.csv")
-        filesystem.writetext(path, data.dataset_content_4)
-
-        self.run_harvester(max_resources=3, ftp_server="testserver")
-
-        package = self.get_package()
-        self.assertEqual(len(package.resources), 3)
-        self.assertEqual(len(package.resources_all), 4)
-
-        self.run_harvester(max_resources=3, ftp_server="testserver")
-
-        package = self.get_package()
-        self.assertEqual(len(package.resources), 3)
-        self.assertEqual(len(package.resources_all), 4)
-
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
-    def test_max_revisions(self):
-        filesystem = self.get_filesystem()
-        MockFTPStorageAdapter.filesystem = filesystem
-
-        path = os.path.join(data.environment, data.folder, data.filename)
-        filesystem.settimes(path, modified=datetime.now())
-        filesystem.writetext(path, data.dataset_content_1)
-        self.run_harvester(max_revisions=3, ftp_server="testserver")
-        package = self.get_package()
-        self.assertEqual(len(package.resources), 1)
-        self.assertEqual(len(package.resources_all), 1)
-
-        filesystem.settimes(path, modified=datetime.now())
-        filesystem.writetext(path, data.dataset_content_2)
-        self.run_harvester(max_revisions=3, ftp_server="testserver")
-        package = self.get_package()
-        self.assertEqual(len(package.resources), 1)
-        self.assertEqual(len(package.resources_all), 2)
-
-        filesystem.settimes(path, modified=datetime.now())
-        filesystem.writetext(path, data.dataset_content_3)
-        self.run_harvester(max_revisions=3, ftp_server="testserver")
-        package = self.get_package()
-        self.assertEqual(len(package.resources), 1)
-        self.assertEqual(len(package.resources_all), 3)
-
-        filesystem.settimes(path, modified=datetime.now())
-        filesystem.writetext(path, data.dataset_content_4)
-        self.run_harvester(max_revisions=3, ftp_server="testserver")
-        package = self.get_package()
-        self.assertEqual(len(package.resources), 1)
-        self.assertEqual(len(package.resources_all), 4)
-
-        resources = sorted(package.resources_all, key=lambda r: r.created)
-
-        self.assert_resource_deleted(resources[0])
-        self.assert_resource_exists(resources[1])
-        self.assert_resource_exists(resources[2])
-        self.assert_resource_exists(resources[3])
-
-        self.assert_resource_data(resources[1].id, data.dataset_content_2)
-        self.assert_resource_data(resources[2].id, data.dataset_content_3)
-        self.assert_resource_data(resources[3].id, data.dataset_content_4)
-
-        self.assert_resource_exists(package.resources[0])
-        self.assert_resource_data(package.resources[0].id, data.dataset_content_4)
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     def test_filter_regex(self):
@@ -484,7 +360,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         package = self.get_package()
         self.assertEqual(len(package.resources), 1)
-        self.assertEqual(len(package.resources_all), 1)
 
         self.assert_resource_data(package.resources[0].id, data.dataset_content_1)
         self.assertEqual(package.resources[0].extras["identifier"], "File.zip")
