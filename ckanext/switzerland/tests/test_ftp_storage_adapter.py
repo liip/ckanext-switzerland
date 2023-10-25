@@ -315,7 +315,6 @@ class TestFTPStorageAdapter(unittest.TestCase):
         # tests
         self.assertEqual(arg1, "RETR %s" % filename)
         log.debug(arg2)
-        # self.assertEqual(str(type(arg2)), "<type 'builtin_function_or_method'>")
         self.assertEqual(str(arg2.__class__.__name__), "builtin_function_or_method")
 
     @patch("ftplib.FTP", autospec=True)
