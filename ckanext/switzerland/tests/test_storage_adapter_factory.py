@@ -33,7 +33,6 @@ class TestStorageAdapterFactory(unittest.TestCase):
             "folder": "DiDok",
             "dataset": "DiDok",
             "max_resources": 30,
-            "max_revisions": 30,
             "filter_regex": ".*\\.xls",
             "resource_regex": "\\d{8}-Ist-File\\.xls",
             "ist_file": True,
