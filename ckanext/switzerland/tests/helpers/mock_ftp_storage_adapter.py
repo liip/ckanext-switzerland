@@ -64,8 +64,11 @@ class MockStorageAdapterFactory(StorageAdapterFactory):
 
         storage_adapter = config[STORAGE_ADAPTER_KEY].lower()
 
-        # if storage_adapter == "s3":
-        #     return S3StorageAdapter(self.config_resolver, config, remote_folder)
+        if storage_adapter == "s3":
+            raise NotImplementedError(
+                "Please implement a MockS3StorageAdapter for the "
+                "MockStorageAdapterFactory to return here."
+            )
 
         if storage_adapter == "ftp":
             return MockFTPStorageAdapter(self.config_resolver, config, remote_folder)
