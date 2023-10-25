@@ -1,27 +1,30 @@
+# coding: utf-8
+
 import json
 import os
-from io import StringIO
+from io import BytesIO
 from zipfile import ZipFile
 
+import pytest
 from mock import patch
-from nose.tools import assert_equal, assert_in, assert_is_not_none
 
 from ckanext.switzerland.harvester.timetable_harvester import TimetableHarvester
 from ckanext.switzerland.tests import data
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
     MockFTPStorageAdapter,
+    MockStorageAdapterFactory,
 )
 
 from .base_ftp_harvester_tests import BaseSBBHarvesterTests
 
 
 @patch(
-    "ckanext.switzerland.harvester.timetable_harvester.FTPStorageAdapter",
-    MockFTPStorageAdapter,
+    "ckanext.switzerland.harvester.timetable_harvester.StorageAdapterFactory",
+    MockStorageAdapterFactory,
 )
 @patch(
-    "ckanext.switzerland.harvester.base_sbb_harvester.FTPStorageAdapter",
-    MockFTPStorageAdapter,
+    "ckanext.switzerland.harvester.base_sbb_harvester.StorageAdapterFactory",
+    MockStorageAdapterFactory,
 )
 class TestInfoplusHarvester(BaseSBBHarvesterTests):
     """
@@ -45,30 +48,33 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
                         "dataset": "Station List",
                         "files": {"BAHNHOF": data.infoplus_config},
                     },
+                    "storage_adapter": "FTP",
+                    "ftp_server": "testserver",
                 }
             )
         )
 
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     def test_simple(self):
         filesystem = self.get_filesystem(filename="FP2016_Jahresfahrplan.zip")
         MockFTPStorageAdapter.filesystem = filesystem
 
         path = os.path.join(data.environment, data.folder, "FP2015_Jahresfahrplan.zip")
-        filesystem.setcontents(path, data.dataset_content_1)
+        filesystem.writetext(path, data.dataset_content_1)
 
         path = os.path.join(
             data.environment, data.folder, "FP2015_Fahrplan_20150901.zip"
         )
-        filesystem.setcontents(path, data.dataset_content_1)
+        filesystem.writetext(path, data.dataset_content_1)
 
         path = os.path.join(
             data.environment, data.folder, "FP2015_Fahrplan_20151001.zip"
         )
-        f = StringIO()
+        f = BytesIO()
         zipfile = ZipFile(f, "w")
         zipfile.writestr("BAHNHOF", data.bahnhof_file)
         zipfile.close()
-        filesystem.setcontents(path, f.getvalue())
+        filesystem.writebytes(path, f.getvalue())
 
         self.run_harvester(
             dataset="Timetable {year}",
@@ -79,16 +85,17 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
                 "dataset": "Station List",
                 "files": {"BAHNHOF": data.infoplus_config},
             },
+            ftp_server="testserver",
         )
 
         dataset = self.get_dataset(name="Station List")
 
-        assert_equal(len(dataset["resources"]), 1)
+        self.assertEqual(len(dataset["resources"]), 1)
 
-        assert_in("issued", dataset)
-        assert_in("modified", dataset)
-        assert_is_not_none(dataset["issued"])
-        assert_is_not_none(dataset["modified"])
+        self.assertIn("issued", dataset)
+        self.assertIn("modified", dataset)
+        self.assertIsNotNone(dataset["issued"])
+        self.assertIsNotNone(dataset["modified"])
 
-        assert_equal(dataset["resources"][0]["identifier"], "BAHNHOF.csv")
+        self.assertEqual(dataset["resources"][0]["identifier"], "BAHNHOF.csv")
         self.assert_resource_data(dataset["resources"][0]["id"], data.bahnhof_file_csv)

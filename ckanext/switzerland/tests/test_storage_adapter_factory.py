@@ -17,7 +17,7 @@ CONFIG_SECTION = "app:main"
 class TestStorageAdapterFactory(unittest.TestCase):
     config = {}
     remote_folder = ""
-    ini_file_path = "./ckanext/switzerland/tests/config/nosetest.ini"
+    ini_file_path = "./ckanext/switzerland/tests/config/valid.ini"
 
     @classmethod
     def setup_class(cls):

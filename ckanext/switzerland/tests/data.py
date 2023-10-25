@@ -1,8 +1,6 @@
 # coding=utf-8
-from ckan import model
 from ckan.lib.munge import munge_filename, munge_name
 from ckan.tests import factories
-from paste.registry import Registry
 
 environment = "Test"
 folder = "Dataset"
@@ -26,9 +24,7 @@ bahnhof_file = """0000006   7.549783  47.216111 441    % St. Katharinen
 0000026   7.449206  46.943904 534    % Bern, Helvetiaplatz
 0000028   6.838953  46.949588 491    % Boudry Littorail
 0000030   8.711041  46.766423 831    % Golzern, Talstation Seilbahn
-0000033   9.680469  47.544341 0      % Lindau Hbf""".encode(
-    "iso-8859-1"
-)
+0000033   9.680469  47.544341 0      % Lindau Hbf"""
 
 bahnhof_file_csv = """StationID,Longitude,Latitude,Höhe,Remark
 0000006,7.549783,47.216111,441,St. Katharinen
@@ -44,11 +40,7 @@ bahnhof_file_csv = """StationID,Longitude,Latitude,Höhe,Remark
 0000028,6.838953,46.949588,491,Boudry Littorail
 0000030,8.711041,46.766423,831,"Golzern, Talstation Seilbahn"
 0000033,9.680469,47.544341,0,Lindau Hbf
-""".replace(
-    "\n", "\r\n"
-).encode(
-    "utf-8"
-)
+"""
 
 infoplus_config = [
     {"from": 1, "to": 7, "name": "StationID"},
@@ -81,9 +73,7 @@ ist_file_output = """BETRIEBSTAG;FAHRT_BEZEICHNER;BETREIBER_ID;BETREIBER_ABK;BET
 25.09.2016;85:11:19667:001;85:11;SBB;Schweizerische Bundesbahnen SBB;Zug;19667;S16;;S;false;false;8503000;Zürich HB;25.09.2016 17:43;25.09.2016 17:43:13;GESCHAETZT;25.09.2016 17:45;25.09.2016 17:45:39;GESCHAETZT;false
 25.09.2016;85:11:19667:001;85:11;SBB;Schweizerische Bundesbahnen SBB;Zug;19667;S16;;S;false;false;8503003;Zürich Stadelhofen;25.09.2016 17:47;25.09.2016 17:48:09;GESCHAETZT;25.09.2016 17:48;25.09.2016 17:49:54;GESCHAETZT;false
 25.09.2016;85:11:19667:001;85:11;SBB;Schweizerische Bundesbahnen SBB;Zug;19667;S16;;S;false;false;8503004;Zürich Tiefenbrunnen;25.09.2016 17:50;25.09.2016 17:52:03;GESCHAETZT;25.09.2016 17:51;25.09.2016 17:52:59;GESCHAETZT;false
-""".replace(
-    "\n", "\r\n"
-)
+"""
 
 
 def user():
@@ -91,17 +81,7 @@ def user():
 
 
 def harvest_user():
-    factories.User(id="harvest", sysadmin=True)
-
-    # setup the pylons context object c, required by datapusher
-    registry = Registry()
-    registry.prepare()
-    import pylons
-
-    c = pylons.util.AttribSafeContextObj()
-    registry.register(pylons.c, c)
-    pylons.c.user = "harvest"
-    pylons.c.userobj = model.User.get("harvest")
+    return factories.User(id="harvest", sysadmin=True)
 
 
 def organization(user):
