@@ -4,10 +4,9 @@ from ckanext.switzerland.harvester.ftp_helper import FTPStorageAdapter
 
 
 class MockFTPStorageAdapter(FTPStorageAdapter):
-
-    def __init__(self, remotefolder=''):
+    def __init__(self, remotefolder=""):
         super(MockFTPStorageAdapter, self).__init__(remotefolder)
-        self.cwd = '/'
+        self.cwd = "/"
 
     def _connect(self):
         pass
@@ -33,15 +32,15 @@ class MockFTPStorageAdapter(FTPStorageAdapter):
     def get_modified_date(self, filename, folder=None):
         if folder is None:
             folder = self.cwd
-        return self.filesystem.getinfo(os.path.join(folder, filename))['modified_time']
+        return self.filesystem.getinfo(os.path.join(folder, filename))["modified_time"]
 
     def fetch(self, filename, localpath=None):
         if not localpath:
-            localpath = os.path.join(self._config['localpath'], filename)
+            localpath = os.path.join(self._config["localpath"], filename)
 
-        localfile = open(localpath, 'wb')
+        localfile = open(localpath, "wb")
 
         content = self.filesystem.getcontents(os.path.join(self.cwd, filename))
         localfile.write(content)
         localfile.close()
-        return '226 Transfer complete'
+        return "226 Transfer complete"

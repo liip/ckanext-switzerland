@@ -1,14 +1,16 @@
+import datetime
+import json
+import logging
+import re
 from collections import defaultdict
 
-import re
-from ckan.plugins.toolkit import missing, _
 import ckan.lib.navl.dictization_functions as df
+from ckan.logic import NotFound, get_action
+from ckan.plugins.toolkit import _, missing
+
 from ckanext.scheming.validation import scheming_validator
 from ckanext.switzerland.helpers import parse_json
-from ckan.logic import NotFound, get_action
-import json
-import datetime
-import logging
+
 log = logging.getLogger(__name__)
 
 
@@ -19,44 +21,49 @@ def swiss_date(field, schema):
         if isinstance(value, datetime.date):
             return value
         try:
-            return datetime.datetime.strptime(value, '%d.%m.%Y')
+            return datetime.datetime.strptime(value, "%d.%m.%Y")
         except ValueError:
-            errors[key].append(_('Invalid date'))
+            errors[key].append(_("Invalid date"))
+
     return validator
 
 
 @scheming_validator
-def json_list_of_dicts_field(field, schema):
-
+def json_list_of_dicts_field(field, schema):  # noqa
+    # TODO: Simplify this method.
     field_type = {
-        'temporals': {
-            'fields': {
-                'start_date': lambda date: datetime.datetime.strptime(date, '%d.%m.%Y').isoformat(),
-                'end_date': lambda date: datetime.datetime.strptime(date, '%d.%m.%Y').isoformat(),
+        "temporals": {
+            "fields": {
+                "start_date": lambda date: datetime.datetime.strptime(
+                    date, "%d.%m.%Y"
+                ).isoformat(),
+                "end_date": lambda date: datetime.datetime.strptime(
+                    date, "%d.%m.%Y"
+                ).isoformat(),
             },
-            'required': False,
+            "required": False,
         },
-        'contact_points': {
-            'fields': {
-                'email': lambda text: text,
-                'name': lambda text: text,
+        "contact_points": {
+            "fields": {
+                "email": lambda text: text,
+                "name": lambda text: text,
             },
-            'required': True,
+            "required": True,
         },
-        'publishers': {
-            'fields': {
-                'label': lambda text: text,
+        "publishers": {
+            "fields": {
+                "label": lambda text: text,
             },
-            'required': True,
+            "required": True,
         },
-        'relations': {
-            'fields': {
-                'url': lambda text: text,
-                'label': lambda text: text,
+        "relations": {
+            "fields": {
+                "url": lambda text: text,
+                "label": lambda text: text,
             },
-            'required': True,
+            "required": True,
         },
-    }[field['field_name']]
+    }[field["field_name"]]
 
     def validator(key, data, errors, context):
         # code idea based on ckanext-fluents fluent_text validator
@@ -69,13 +76,13 @@ def json_list_of_dicts_field(field, schema):
                 try:
                     value = json.loads(value)
                 except ValueError:
-                    errors[key].append(_('Failed to decode JSON string'))
+                    errors[key].append(_("Failed to decode JSON string"))
                     return
                 except UnicodeDecodeError:
-                    errors[key].append(_('Invalid encoding for JSON string'))
+                    errors[key].append(_("Invalid encoding for JSON string"))
                     return
             if not isinstance(value, list):
-                errors[key].append(_('expecting JSON list'))
+                errors[key].append(_("expecting JSON list"))
                 return
 
             if not errors[key]:
@@ -88,56 +95,61 @@ def json_list_of_dicts_field(field, schema):
         we get the actual values from the __extras dict
 
         """
-        prefix = key[-1] + '-'
-        extras = data.get(key[:-1] + ('__extras',), {})
+        prefix = key[-1] + "-"
+        extras = data.get(key[:-1] + ("__extras",), {})
 
         values = defaultdict(lambda: {})
 
         # iterate over all extra fields and find our fields
-        for name, text in extras.items():
+        for name, text in list(extras.items()):
             if not name.startswith(prefix):
                 continue
 
             try:
                 # field name example: temporals-1-start_date
-                counter, json_field_name = name.split('-')[1:]
+                counter, json_field_name = name.split("-")[1:]
                 counter = int(counter)
-                if json_field_name not in field_type['fields'].keys():
+                if json_field_name not in list(field_type["fields"].keys()):
                     raise ValueError
             except ValueError:
-                errors[key].append(_('Invalid form data'))
+                errors[key].append(_("Invalid form data"))
                 continue
 
             if not text:
-                if field_type['required']:
-                    errors[(name,)] = [_('This field is required')]
+                if field_type["required"]:
+                    errors[(name,)] = [_("This field is required")]
                 continue
 
             try:
                 # convert field value
-                values[counter][json_field_name] = field_type['fields'][json_field_name](text)
+                values[counter][json_field_name] = field_type["fields"][
+                    json_field_name
+                ](text)
             except ValueError:
-                errors[(name,)] = [_('Invalid date')]
+                errors[(name,)] = [_("Invalid date")]
 
-        for counter, value in values.items():
-            fields = set(field_type['fields'].keys())
+        for counter, value in list(values.items()):
+            fields = set(field_type["fields"].keys())
             set_fields = set(value.keys())
             missing_fields = fields - set_fields
             for missing_field in missing_fields:
-                errors[('{}{}-{}'.format(prefix, counter, missing_field),)] = [_('This field is required')]
+                errors[("{}{}-{}".format(prefix, counter, missing_field),)] = [
+                    _("This field is required")
+                ]
 
         # iterate over junk fields (used in resource creation/update)
-        junk = data.get(('__junk',))
+        junk = data.get(("__junk",))
         if junk:
-            for (field_name, counter, json_field_name), value in junk.items():
+            for (field_name, counter, json_field_name), value in list(junk.items()):
                 if field_name == key[-1]:
                     values[counter][json_field_name] = value
 
-            for counter, field_values in values.items():
-                for json_field_name in field_values.keys():
+            for counter, field_values in list(values.items()):
+                for json_field_name in list(field_values.keys()):
                     del junk[(key[-1], counter, json_field_name)]
 
         data[key] = json.dumps(list(values.values()))
+
     return validator
 
 
@@ -151,6 +163,7 @@ def multiple_text(field, schema):
     2. a single string for single item selection in form submissions:
        "somevalue-a"
     """
+
     def validator(key, data, errors, context):
         # if there was an error before calling our validator
         # don't bother with our validation
@@ -220,7 +233,7 @@ def list_of_dicts(field, schema):
             return
 
         try:
-            data_dict = df.unflatten(data[('__junk',)])
+            data_dict = df.unflatten(data[("__junk",)])
             value = data_dict[key[0]]
             if value is not missing:
                 if isinstance(value, str):
@@ -238,7 +251,7 @@ def list_of_dicts(field, schema):
 
             # remove from junk
             del data_dict[key[0]]
-            data[('__junk',)] = df.flatten_dict(data_dict)
+            data[("__junk",)] = df.flatten_dict(data_dict)
         except KeyError:
             pass
 
@@ -262,7 +275,7 @@ def ogdch_multiple_choice(field, schema):
     2. a single string for single item selection in form submissions:
        "choice-a"
     """
-    choice_values = set(c['value'] for c in field['choices'])
+    choice_values = set(c["value"] for c in field["choices"])
 
     def validator(key, data, errors, context):
         # if there was an error before calling our validator
@@ -290,9 +303,9 @@ def ogdch_multiple_choice(field, schema):
             errors[key].append(_('unexpected choice "%s"') % element)
 
         if not errors[key]:
-            data[key] = json.dumps([
-                c['value'] for c in field['choices'] if c['value'] in selected
-            ])
+            data[key] = json.dumps(
+                [c["value"] for c in field["choices"] if c["value"] in selected]
+            )
 
     return validator
 
@@ -300,17 +313,14 @@ def ogdch_multiple_choice(field, schema):
 @scheming_validator
 def ogdch_unique_identifier(field, schema):
     def validator(key, data, errors, context):
-        id = data.get(key[:-1] + ('id',))
-        identifier = data.get(key[:-1] + ('identifier',))
+        id = data.get(key[:-1] + ("id",))
+        identifier = data.get(key[:-1] + ("identifier",))
         try:
-            result = get_action('ogdch_dataset_by_identifier')(
-                {},
-                {'identifier': identifier}
+            result = get_action("ogdch_dataset_by_identifier")(
+                {}, {"identifier": identifier}
             )
-            if id != result['id']:
-                raise df.Invalid(
-                    _('Identifier is already in use, it must be unique.')
-                )
+            if id != result["id"]:
+                raise df.Invalid(_("Identifier is already in use, it must be unique."))
         except NotFound:
             pass
 
@@ -324,6 +334,7 @@ def url_validator(field, schema):
             return
         value = data[key]
         if value and value is not missing:
-            if not isinstance(value, str) or not re.match(r'^https?://.*$', value):
-                raise df.Invalid(_('Invalid URL'))
+            if not isinstance(value, str) or not re.match(r"^https?://.*$", value):
+                raise df.Invalid(_("Invalid URL"))
+
     return validator

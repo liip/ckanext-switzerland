@@ -1,48 +1,76 @@
-from pprint import pformat
-import os
-import logging
 import errno
+import logging
+import os
 import zipfile
-from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import StorageAdapterConfigurationException
-from ckanext.switzerland.harvester.keys import (LOCAL_PATH)
+from pprint import pformat
+
+from ckanext.switzerland.harvester.exceptions.storage_adapter_configuration_exception import (
+    StorageAdapterConfigurationException,
+)
+from ckanext.switzerland.harvester.keys import LOCAL_PATH
 
 log = logging.getLogger(__name__)
 
 
 class StorageAdapterBase(object):
     _config = None
-    _ckan_config_resolver= None
+    _ckan_config_resolver = None
     remote_folder = None
     _config_keys = []
 
-    def __init__(self, ckan_config_resolver, config, remote_folder='', root_config_key = None, config_keys = [], config_key_prefix = ''):
+    def __init__(
+        self,
+        ckan_config_resolver,
+        config,
+        remote_folder="",
+        root_config_key=None,
+        config_keys=[],
+        config_key_prefix="",
+    ):
         """
         Load the ftp configuration from ckan config file
 
-        :param ckan_config_resolver: An object able to read the CKAN config file. Injected for testing purposes
+        :param ckan_config_resolver: An object able to read the CKAN config file.
+               Injected for testing purposes
         :type ckan_config_resolver: ckan.plugins.toolkit.config
         :param config: The harvester config coming from the database.
         :type config: Any
-        :param remotefolder: Remote folder path. Can be different that the one stored in the harvester config
+        :param remotefolder: Remote folder path. Can be different that the one stored in
+               the harvester config
         :type remotefolder: str or unicode
-        :param root_config_key: The property in the configuration (from database) that indicates how to find the StorageAdapter configuration in the CKAN configuration file
+        :param root_config_key: The property in the configuration (from database) that
+               indicates how to find the StorageAdapter configuration in the CKAN
+               configuration file
         :type root_config_key: str
-        :param config_keys: An array of ConfigKey, describing all the configuration properties needed, and their constraints
+        :param config_keys: An array of ConfigKey, describing all the configuration
+               properties needed, and their constraints
         :type config_keys: Array of ConfigKey
-        :param config_key_prefix: A string representing the prefix to use to find the configuration keys in the CKAN configuration file
+        :param config_key_prefix: A string representing the prefix to use to find the
+               configuration keys in the CKAN configuration file
         :type config_key_prefix: str
 
         """
 
-        # Validate the basic config. We need the config, and we need to know what is the root key.
+        # Validate the basic config. We need the config, and we need to know what is the
+        # root key.
         if config is None:
-            raise StorageAdapterConfigurationException(['Cannot build a Storage Adapter without an initial configuration'])
+            raise StorageAdapterConfigurationException(
+                ["Cannot build a Storage Adapter without an initial configuration"]
+            )
 
         if root_config_key is None:
-            raise StorageAdapterConfigurationException(['Cannot build a Storage Adapter without an root config key'])
+            raise StorageAdapterConfigurationException(
+                ["Cannot build a Storage Adapter without an root config key"]
+            )
 
         if root_config_key not in config:
-            raise StorageAdapterConfigurationException(["The root config key '{key}' is not present in the configuration".format(key=root_config_key)])
+            raise StorageAdapterConfigurationException(
+                [
+                    "The root config key '{key}' is not present in the configuration".format(
+                        key=root_config_key
+                    )
+                ]
+            )
 
         # Just store all the parameters
         self._config = config
@@ -56,27 +84,26 @@ class StorageAdapterBase(object):
         # the config key.
         config_key = self._config[root_config_key].replace("-", "_")
         config_key_prefix = "{key_prefix}.{key}".format(
-            key_prefix=config_key_prefix,
-            key=config_key
+            key_prefix=config_key_prefix, key=config_key
         )
         # Load and validate the config at the same time
         self.__load_storage_config__(config_key_prefix)
 
         self.create_local_dir()
 
-        log.debug('Using Config: %s' % pformat(self._config))
+        log.debug("Using Config: %s" % pformat(self._config))
 
     def _connect(self):
         """
         Create a connection to the storage if needed.
         """
-        raise NotImplementedError('_connect')
+        raise NotImplementedError("_connect")
 
     def _disconnect(self):
         """
         Closes the connection if needed.
         """
-        raise NotImplementedError('_disconnect')
+        raise NotImplementedError("_disconnect")
 
     # tested
     def __enter__(self):
@@ -84,7 +111,7 @@ class StorageAdapterBase(object):
         Method called from the 'with' syntax.
         Do there whatever is needed after instancing the StorageAdapter
         """
-        raise NotImplementedError('__enter__')
+        raise NotImplementedError("__enter__")
 
     # tested
     def __exit__(self, type, value, traceback):
@@ -92,7 +119,7 @@ class StorageAdapterBase(object):
         Method called from the 'with' syntax.
         Do here whatever is needed to clean the StorageAdapter before it is destroyed.
         """
-        raise NotImplementedError('__exit__')
+        raise NotImplementedError("__exit__")
 
     def get_top_folder(self):
         """
@@ -101,7 +128,7 @@ class StorageAdapterBase(object):
         :returns: The name of the local folder created by the StorageAdapter
         :rtype: string
         """
-        raise NotImplementedError('get_top_folder')
+        raise NotImplementedError("get_top_folder")
 
     def create_local_dir(self, folder=None):
         """
@@ -114,7 +141,7 @@ class StorageAdapterBase(object):
         :rtype: None
         """
         if not folder:
-            folder = self._config['localpath']
+            folder = self._config["localpath"]
         # create the local directory if it does not exist
 
         folder = folder.rstrip("/")
@@ -154,7 +181,7 @@ class StorageAdapterBase(object):
         :returns: None
         :rtype: None
         """
-        raise NotImplementedError('cdremote')
+        raise NotImplementedError("cdremote")
 
     def get_remote_filelist(self, folder=None):
         """
@@ -166,7 +193,7 @@ class StorageAdapterBase(object):
         :returns: Directory listing (excluding '.' and '..')
         :rtype: list
         """
-        raise NotImplementedError('get_remote_filelist')
+        raise NotImplementedError("get_remote_filelist")
 
     def get_remote_dirlist(self, folder=None):
         """
@@ -178,11 +205,12 @@ class StorageAdapterBase(object):
         :returns: Directory listing (excluding '.' and '..')
         :rtype: list
         """
-        raise NotImplementedError('get_remote_dirlist')
+        raise NotImplementedError("get_remote_dirlist")
 
     def get_remote_dirlist_all(self, folder=None):
         """
-        Get a listing of all files (including subdirectories in a specific folder on the remote server
+        Get a listing of all files (including subdirectories in a specific folder on the
+        remote server
 
         :param folder: Folder name or path
         :type folder: str or unicode
@@ -190,7 +218,7 @@ class StorageAdapterBase(object):
         :returns: Directory listing (excluding '.' and '..')
         :rtype: list
         """
-        raise NotImplementedError('get_remote_dirlist_all')
+        raise NotImplementedError("get_remote_dirlist_all")
 
     def get_local_dirlist(self, localpath="."):
         """
@@ -220,11 +248,10 @@ class StorageAdapterBase(object):
         :returns: The date at which the file has been last modified
         :rtype: Datetime
         """
-        raise NotImplementedError('get_modified_date')
+        raise NotImplementedError("get_modified_date")
 
     def get_local_path(self):
         return self._config[LOCAL_PATH]
-
 
     def is_empty_dir(self, folder=None):
         """
@@ -253,7 +280,7 @@ class StorageAdapterBase(object):
         :returns: Status of the operation
         :rtype: string
         """
-        raise NotImplementedError('fetch')
+        raise NotImplementedError("fetch")
 
     # tested
     def unzip(self, filepath):
@@ -268,7 +295,7 @@ class StorageAdapterBase(object):
         :rtype: int
         """
         na, file_extension = os.path.splitext(filepath)
-        if file_extension.lower() == '.zip':
+        if file_extension.lower() == ".zip":
             log.info("Unzipping: %s" % filepath)
             target_folder = os.path.dirname(filepath)
             zfile = zipfile.ZipFile(filepath)
@@ -276,25 +303,35 @@ class StorageAdapterBase(object):
             zfile.extractall(target_folder)
             return len(filelist)
 
-    #tested in TestS3StorageAdapter and TestFTPStorageAdapter
+    # tested in TestS3StorageAdapter and TestFTPStorageAdapter
     def __load_storage_config__(self, key_prefix=""):
         """
         This method will load and validate the configuration
 
         For each config_key in the array config_keys, this method will
-            - Read the raw value from the CKAN configuration file, using the prefix to create the correct name (eg: ckan.ftp.main_server.host)
-            - If the config key is marked as mandatory, it will validate that there is a value, raise an error otherwise
+            - Read the raw value from the CKAN configuration file, using the prefix to
+              create the correct name (eg: ckan.ftp.main_server.host)
+            - If the config key is marked as mandatory, it will validate that there is a
+              value, raise an error otherwise
             - Try to convert the value to the required type, raise an error otherwise
-            - Validate constraints, if exists, on the value (eg: x > 0), raise an error otherwise.
-            - Store the converted value in the config object if none of the above raised an error
+            - Validate constraints, if exists, on the value (eg: x > 0), raise an error
+              otherwise.
+            - Store the converted value in the config object if none of the above raised
+              an error
         """
 
         configuration_errors = []
         for config_key in self._config_keys:
-            raw_value = self._ckan_config_resolver.get(key_prefix+'.%s' % config_key.name, '')
+            raw_value = self._ckan_config_resolver.get(
+                key_prefix + ".%s" % config_key.name, ""
+            )
 
             if config_key.is_mandatory and (raw_value is None or len(raw_value) == 0):
-                configuration_errors.append("Configuration is missing the field {key}".format(key=config_key.name))
+                configuration_errors.append(
+                    "Configuration is missing the field {key}".format(
+                        key=config_key.name
+                    )
+                )
                 continue
 
             converted_value = None
@@ -303,14 +340,22 @@ class StorageAdapterBase(object):
                 converted_value = config_key.type(raw_value)
 
             except ValueError:
-                configuration_errors.append("Cannot convert '{value}' for the field '{key}' into type {type}".format(value=raw_value, key=config_key.name, type=config_key.type))
+                configuration_errors.append(
+                    "Cannot convert '{value}' for the field '{key}' into type {type}".format(
+                        value=raw_value, key=config_key.name, type=config_key.type
+                    )
+                )
                 continue
 
             if not config_key.is_valid(converted_value):
                 if config_key.custom_error_message is not None:
                     configuration_errors.append(config_key.custom_error_message)
                 else:
-                    configuration_errors.append("The value '{value}' does not match the constraints for the field '{key}'".format(value=raw_value, key=config_key.name))
+                    configuration_errors.append(
+                        "The value '{value}' does not match the constraints for the field '{key}'".format(
+                            value=raw_value, key=config_key.name
+                        )
+                    )
                 continue
 
             # Temporary workaround for passwords that contain %: we have to
@@ -323,4 +368,3 @@ class StorageAdapterBase(object):
 
         if len(configuration_errors) > 0:
             raise StorageAdapterConfigurationException(configuration_errors)
-

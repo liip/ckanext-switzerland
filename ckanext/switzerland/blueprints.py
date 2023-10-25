@@ -1,30 +1,25 @@
-from flask import Blueprint, make_response
 import logging
-
-import requests
-import unicodecsv
 from io import StringIO
-
-import ckan.lib.uploader as uploader
-import ckan.logic as logic
-import ckan.model as model
-from ckan.common import _, request, c
-import ckan.plugins.toolkit as toolkit
-from ckan.lib.plugins import lookup_package_plugin
-from ckan.lib.dictization.model_dictize import resource_dictize
-
-from ckanext.switzerland.helpers import resource_filename
 from typing import Optional, Union
-
-from werkzeug.wrappers.response import Response as WerkzeugResponse
-import flask
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+import ckan.lib.uploader as uploader
+import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins.toolkit as toolkit
+import flask
+import requests
+import unicodecsv
+from ckan.common import _, c, current_user, request
 from ckan.lib import signals
-from ckan.common import _, config, g, request, current_user
-
+from ckan.lib.dictization.model_dictize import resource_dictize
+from ckan.lib.plugins import lookup_package_plugin
 from ckan.types import Context, Response
+from flask import Blueprint, make_response
+from werkzeug.wrappers.response import Response as WerkzeugResponse
+
+from ckanext.switzerland.helpers import resource_filename
 
 log = logging.getLogger(__name__)
 render = toolkit.render
@@ -41,51 +36,58 @@ parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
 lookup_package_plugin = lookup_package_plugin
 
-ogdch_admin = Blueprint('ogdch_admin', __name__, url_prefix=u'/ckan-admin')
-ogdch_dataset = Blueprint('ogdch_dataset', __name__, url_prefix=u'/dataset')
-ogdch_resource = Blueprint('ogdch_resource', __name__)
+ogdch_admin = Blueprint("ogdch_admin", __name__, url_prefix="/ckan-admin")
+ogdch_dataset = Blueprint("ogdch_dataset", __name__, url_prefix="/dataset")
+ogdch_resource = Blueprint("ogdch_resource", __name__)
 
 
 def email_address_exporter():
     if not (c.userobj and c.userobj.sysadmin):
-        abort(401, _('Unauthorized'))
+        abort(401, _("Unauthorized"))
 
-    if 'filter' in request.params:
+    if "filter" in request.params:
         fobj = StringIO()
         csv = unicodecsv.writer(fobj)
-        csv.writerow(['First Name', 'Last Name', 'Email'])
+        csv.writerow(["First Name", "Last Name", "Email"])
 
-        wp_url = toolkit.config.get('ckanext.switzerland.wp_url')
-        api_key = toolkit.config.get('ckanext.switzerland.user_list_api_key')
-        url = '{}/wp-admin/admin-post.php?action=user_list&key={}'.format(wp_url, api_key)
-        users = requests.get(url).json()['data']
+        wp_url = toolkit.config.get("ckanext.switzerland.wp_url")
+        api_key = toolkit.config.get("ckanext.switzerland.user_list_api_key")
+        url = "{}/wp-admin/admin-post.php?action=user_list&key={}".format(
+            wp_url, api_key
+        )
+        users = requests.get(url).json()["data"]
 
-        if request.params['filter'] != 'all':
-            followers = get_action('dataset_follower_list')({}, {'id': request.params['filter']})
-            followers = {follower['name'] for follower in followers}
-            users = [u for u in users if u['user_login'] in followers]
+        if request.params["filter"] != "all":
+            followers = get_action("dataset_follower_list")(
+                {}, {"id": request.params["filter"]}
+            )
+            followers = {follower["name"] for follower in followers}
+            users = [u for u in users if u["user_login"] in followers]
 
         for user in users:
-            csv.writerow([user['first_name'], user['last_name'], user['user_email']])
+            csv.writerow([user["first_name"], user["last_name"], user["user_email"]])
 
         response = make_response(fobj.getvalue())
-        response.headers['Content-Type'] = 'text/csv'
-        response.headers['Content-Disposition'] = 'attachment; filename="emails.csv"'
+        response.headers["Content-Type"] = "text/csv"
+        response.headers["Content-Disposition"] = 'attachment; filename="emails.csv"'
 
         return response
 
-    packages = get_action('package_search')({}, {'sort': 'name asc', 'rows': 1000})['results']
+    packages = get_action("package_search")({}, {"sort": "name asc", "rows": 1000})[
+        "results"
+    ]
     for package in packages:
-        package['follower_count'] = get_action('dataset_follower_count')({}, {'id': package['id']})
+        package["follower_count"] = get_action("dataset_follower_count")(
+            {}, {"id": package["id"]}
+        )
 
     c.datasets = packages
-    return render('email_exporter/email_exporter.html')
+    return render("email_exporter/email_exporter.html")
 
 
-def resource_download(id: str,
-                      resource_id: str,
-                      filename: Optional[str] = None
-                      ) -> Union[Response, WerkzeugResponse]:
+def resource_download(
+    id: str, resource_id: str, filename: Optional[str] = None
+) -> Union[Response, WerkzeugResponse]:
     """
     Provides a direct download by either redirecting the user to the url
     stored or downloading an uploaded file directly.
@@ -96,82 +98,93 @@ def resource_download(id: str,
     + resource_obj = model.Resource.get(resource_id)
     + rsc = resource_dictize(resource_obj, {'model': model})
     """
-    context: Context = {
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    }
+    context: Context = {"user": current_user.name, "auth_user_obj": current_user}
 
     try:
         resource_obj = model.Resource.get(resource_id)
-        rsc = resource_dictize(resource_obj, {'model': model})
-        get_action(u'package_show')(context, {u'id': id})
+        rsc = resource_dictize(resource_obj, {"model": model})
+        get_action("package_show")(context, {"id": id})
     except NotFound:
-        return base.abort(404, _(u'Resource not found'))
+        return base.abort(404, _("Resource not found"))
     except NotAuthorized:
-        return base.abort(403, _(u'Not authorized to download resource'))
+        return base.abort(403, _("Not authorized to download resource"))
 
-    if rsc.get(u'url_type') == u'upload':
+    if rsc.get("url_type") == "upload":
         upload = uploader.get_resource_uploader(rsc)
-        filepath = upload.get_path(rsc[u'id'])
+        filepath = upload.get_path(rsc["id"])
         resp = flask.send_file(filepath, download_name=filename)
 
-        if rsc.get('mimetype'):
-            resp.headers['Content-Type'] = rsc['mimetype']
+        if rsc.get("mimetype"):
+            resp.headers["Content-Type"] = rsc["mimetype"]
         signals.resource_download.send(resource_id)
         return resp
 
-    elif u'url' not in rsc:
-        return base.abort(404, _(u'No download is available'))
-    return h.redirect_to(rsc[u'url'])
+    elif "url" not in rsc:
+        return base.abort(404, _("No download is available"))
+    return h.redirect_to(rsc["url"])
 
 
 def resource_permalink(id, filename):
-    context = {'model': model, 'session': model.Session,
-               'user': c.user or c.author, 'for_view': True,
-               'auth_user_obj': c.userobj}
-    data_dict = {'id': id, 'include_tracking': True}
+    context = {
+        "model": model,
+        "session": model.Session,
+        "user": c.user or c.author,
+        "for_view": True,
+        "auth_user_obj": c.userobj,
+    }
+    data_dict = {"id": id, "include_tracking": True}
 
     try:
-        dataset = get_action('package_show')(context, data_dict)
+        dataset = get_action("package_show")(context, data_dict)
     except NotFound:
-        abort(404, _('Dataset not found'))
+        abort(404, _("Dataset not found"))
     except NotAuthorized:
-        abort(401, _('Unauthorized to read package %s') % id)
+        abort(401, _("Unauthorized to read package %s") % id)
 
-    for res in dataset['resources']:
-        if resource_filename(res['url']) == filename:
-            return redirect(res['url'])
+    for res in dataset["resources"]:
+        if resource_filename(res["url"]) == filename:
+            return redirect(res["url"])
 
-    abort(404, _('Resource not found'))
+    abort(404, _("Resource not found"))
 
 
 def dataset_permalink(id):
-    context = {'model': model, 'session': model.Session,
-               'user': c.user or c.author, 'for_view': True,
-               'auth_user_obj': c.userobj}
-    data_dict = {'id': id, 'include_tracking': True}
+    context = {
+        "model": model,
+        "session": model.Session,
+        "user": c.user or c.author,
+        "for_view": True,
+        "auth_user_obj": c.userobj,
+    }
+    data_dict = {"id": id, "include_tracking": True}
     try:
-        dataset = get_action('package_show')(context, data_dict)
+        dataset = get_action("package_show")(context, data_dict)
     except NotFound:
-        abort(404, _('Dataset not found'))
+        abort(404, _("Dataset not found"))
     except NotAuthorized:
-        abort(401, _('Unauthorized to read package %s') % id)
+        abort(401, _("Unauthorized to read package %s") % id)
 
-    if not dataset['permalink']:
-        abort(404, _('Resource not found'))
+    if not dataset["permalink"]:
+        abort(404, _("Resource not found"))
 
-    return redirect(dataset['permalink'])
+    return redirect(dataset["permalink"])
 
 
 def search():
-    return render('search/search.html')
+    return render("search/search.html")
 
 
-ogdch_admin.add_url_rule('/email_exporter', view_func=email_address_exporter)
+ogdch_admin.add_url_rule("/email_exporter", view_func=email_address_exporter)
 
-ogdch_dataset.add_url_rule('/<id>/resource/<resource_id>/download', view_func=resource_download)
-ogdch_dataset.add_url_rule('/<id>/resource/<resource_id>/download/<filename>', view_func=resource_download)
-ogdch_dataset.add_url_rule('/<id>/resource_permalink/<filename>', view_func=resource_permalink)
-ogdch_dataset.add_url_rule('/<id>/permalink', view_func=dataset_permalink)
+ogdch_dataset.add_url_rule(
+    "/<id>/resource/<resource_id>/download", view_func=resource_download
+)
+ogdch_dataset.add_url_rule(
+    "/<id>/resource/<resource_id>/download/<filename>", view_func=resource_download
+)
+ogdch_dataset.add_url_rule(
+    "/<id>/resource_permalink/<filename>", view_func=resource_permalink
+)
+ogdch_dataset.add_url_rule("/<id>/permalink", view_func=dataset_permalink)
 
-ogdch_resource.add_url_rule('/search', view_func=search)
+ogdch_resource.add_url_rule("/search", view_func=search)

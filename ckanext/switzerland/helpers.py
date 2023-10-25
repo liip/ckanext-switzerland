@@ -1,69 +1,65 @@
+import ast
+import json
+import logging
 import os
 from collections import defaultdict
 
-import ckan.plugins.toolkit as tk
 import ckan.logic as logic
-import datetime
+import ckan.model as model
+import ckan.plugins.toolkit as tk
 import requests
-import json
+from ckan.common import _, c, request
+from ckan.lib.helpers import _link_to
+from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
+from ckan.lib.helpers import lang, literal
+from ckan.lib.helpers import organization_link as organization_link_orig
+from ckan.lib.helpers import url_for
 from ckan.lib.munge import munge_filename
 from jinja2.utils import urlize
-from ckan.common import _, request
-from ckan.lib.helpers import _link_to, url_for, lang
-from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
-from ckan.lib.helpers import organization_link as organization_link_orig
-import ast
-from ckan.common import c
-import ckan.model as model
 from simplejson import JSONDecodeError
-from ckan.lib.helpers import literal
-
-import logging
-
 
 log = logging.getLogger(__name__)
 
 
 def get_dataset_count():
-    user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
-    req_context = {'user': user['name']}
+    user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
+    req_context = {"user": user["name"]}
 
-    packages = tk.get_action('package_search')(
-        req_context,
-        {'fq': '+dataset_type:dataset'}
+    packages = tk.get_action("package_search")(
+        req_context, {"fq": "+dataset_type:dataset"}
     )
-    return packages['count']
+    return packages["count"]
 
 
 def get_group_count():
-    '''
+    """
     Return the number of groups
-    '''
-    user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
-    req_context = {'user': user['name']}
-    groups = tk.get_action('group_list')(req_context, {})
+    """
+    user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
+    req_context = {"user": user["name"]}
+    groups = tk.get_action("group_list")(req_context, {})
     return len(groups)
 
 
 def get_org_count():
-    user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
-    req_context = {'user': user['name']}
-    orgs = tk.get_action('organization_list')(req_context, {})
+    user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
+    req_context = {"user": user["name"]}
+    orgs = tk.get_action("organization_list")(req_context, {})
     return len(orgs)
 
 
 def get_app_count():
-    result = _call_wp_api('app_statistics')
+    result = _call_wp_api("app_statistics")
     if result is not None:
-        return result['data']['app_count']
-    return 'N/A'
+        return result["data"]["app_count"]
+    return "N/A"
 
 
 def get_tweet_count():
-    result = _call_wp_api('tweet_statistics')
+    result = _call_wp_api("tweet_statistics")
     if result is not None:
-        return result['data']['tweet_count']
-    return 'N/A'
+        return result["data"]["tweet_count"]
+    return "N/A"
 
 
 def _call_wp_api(action):
@@ -74,32 +70,27 @@ def get_localized_org(org_id=None, include_datasets=False):
     if not org_id or org_id is None:
         return {}
     try:
-        return logic.get_action('organization_show')(
-            {'for_view': True},
-            {'id': org_id, 'include_datasets': include_datasets}
+        return logic.get_action("organization_show")(
+            {"for_view": True}, {"id": org_id, "include_datasets": include_datasets}
         )
-    except (logic.NotFound, logic.ValidationError,
-            logic.NotAuthorized, AttributeError):
+    except (logic.NotFound, logic.ValidationError, logic.NotAuthorized, AttributeError):
         return {}
 
 
 def localize_json_title(facet_item):
     try:
-        lang_dict = json.loads(facet_item['display_name'])
-        return get_localized_value(
-            lang_dict,
-            default_value=facet_item['display_name']
-        )
-    except:
-        return facet_item['display_name']
+        lang_dict = json.loads(facet_item["display_name"])
+        return get_localized_value(lang_dict, default_value=facet_item["display_name"])
+    except (ValueError, TypeError, AttributeError):
+        return facet_item["display_name"]
 
 
 def get_langs():
-    language_priorities = ['en', 'de', 'fr', 'it']
+    language_priorities = ["en", "de", "fr", "it"]
     return language_priorities
 
 
-def get_localized_value(lang_dict, desired_lang_code=None, default_value=''):
+def get_localized_value(lang_dict, desired_lang_code=None, default_value=""):
     # return original value if it's not a dict
     if not isinstance(lang_dict, dict):
         return lang_dict
@@ -113,7 +104,7 @@ def get_localized_value(lang_dict, desired_lang_code=None, default_value=''):
 
     # if no specific lang is requested, read from environment
     if desired_lang_code is None:
-        desired_lang_code = tk.request.environ['CKAN_LANG']
+        desired_lang_code = tk.request.environ["CKAN_LANG"]
 
     try:
         # return desired lang if available
@@ -134,8 +125,7 @@ def _lang_fallback(lang_dict, default_value):
     # loop over languages in order of their priority for fallback
     for lang_code in get_langs():
         try:
-            if (isinstance(lang_dict[lang_code], str) and
-                    lang_dict[lang_code]):
+            if isinstance(lang_dict[lang_code], str) and lang_dict[lang_code]:
                 return lang_dict[lang_code]
         except (KeyError, IndexError, ValueError):
             continue
@@ -144,24 +134,24 @@ def _lang_fallback(lang_dict, default_value):
 
 def get_frequency_name(identifier):
     frequencies = {
-      'http://purl.org/cld/freq/completelyIrregular': _('Irregular'),  # noqa
-      'http://purl.org/cld/freq/continuous': _('Continuous'),  # noqa
-      'http://purl.org/cld/freq/hourly': _('Hourly'),  # noqa
-      'http://purl.org/cld/freq/daily': _('Daily'),  # noqa
-      'http://purl.org/cld/freq/threeTimesAWeek': _('Three times a week'),  # noqa
-      'http://purl.org/cld/freq/semiweekly': _('Semi weekly'),  # noqa
-      'http://purl.org/cld/freq/weekly': _('Weekly'),  # noqa
-      'http://purl.org/cld/freq/threeTimesAMonth': _('Three times a month'),  # noqa
-      'http://purl.org/cld/freq/biweekly': _('Biweekly'),  # noqa
-      'http://purl.org/cld/freq/semimonthly': _('Semimonthly'),  # noqa
-      'http://purl.org/cld/freq/monthly': _('Monthly'),  # noqa
-      'http://purl.org/cld/freq/bimonthly': _('Bimonthly'),  # noqa
-      'http://purl.org/cld/freq/quarterly': _('Quarterly'),  # noqa
-      'http://purl.org/cld/freq/threeTimesAYear': _('Three times a year'),  # noqa
-      'http://purl.org/cld/freq/semiannual': _('Semi Annual'),  # noqa
-      'http://purl.org/cld/freq/annual': _('Annual'),  # noqa
-      'http://purl.org/cld/freq/biennial': _('Biennial'),  # noqa
-      'http://purl.org/cld/freq/triennial': _('Triennial'),  # noqa
+        "http://purl.org/cld/freq/completelyIrregular": _("Irregular"),
+        "http://purl.org/cld/freq/continuous": _("Continuous"),
+        "http://purl.org/cld/freq/hourly": _("Hourly"),
+        "http://purl.org/cld/freq/daily": _("Daily"),
+        "http://purl.org/cld/freq/threeTimesAWeek": _("Three times a week"),
+        "http://purl.org/cld/freq/semiweekly": _("Semi weekly"),
+        "http://purl.org/cld/freq/weekly": _("Weekly"),
+        "http://purl.org/cld/freq/threeTimesAMonth": _("Three times a month"),
+        "http://purl.org/cld/freq/biweekly": _("Biweekly"),
+        "http://purl.org/cld/freq/semimonthly": _("Semimonthly"),
+        "http://purl.org/cld/freq/monthly": _("Monthly"),
+        "http://purl.org/cld/freq/bimonthly": _("Bimonthly"),
+        "http://purl.org/cld/freq/quarterly": _("Quarterly"),
+        "http://purl.org/cld/freq/threeTimesAYear": _("Three times a year"),
+        "http://purl.org/cld/freq/semiannual": _("Semi Annual"),
+        "http://purl.org/cld/freq/annual": _("Annual"),
+        "http://purl.org/cld/freq/biennial": _("Biennial"),
+        "http://purl.org/cld/freq/triennial": _("Triennial"),
     }
     try:
         return frequencies[identifier]
@@ -171,25 +161,25 @@ def get_frequency_name(identifier):
 
 def get_terms_of_use_icon(terms_of_use):
     term_to_image_mapping = {
-        'NonCommercialAllowed-CommercialAllowed-ReferenceNotRequired': {  # noqa
-            'title': _('Open data'),
-            'icon': 'terms_open',
+        "NonCommercialAllowed-CommercialAllowed-ReferenceNotRequired": {
+            "title": _("Open data"),
+            "icon": "terms_open",
         },
-        'NonCommercialAllowed-CommercialAllowed-ReferenceRequired': {  # noqa
-            'title': _('Reference required'),
-            'icon': 'terms_by',
+        "NonCommercialAllowed-CommercialAllowed-ReferenceRequired": {
+            "title": _("Reference required"),
+            "icon": "terms_by",
         },
-        'NonCommercialAllowed-CommercialWithPermission-ReferenceNotRequired': {  # noqa
-            'title': _('Commercial use with permission allowed'),
-            'icon': 'terms_ask',
+        "NonCommercialAllowed-CommercialWithPermission-ReferenceNotRequired": {
+            "title": _("Commercial use with permission allowed"),
+            "icon": "terms_ask",
         },
-        'NonCommercialAllowed-CommercialWithPermission-ReferenceRequired': {  # noqa
-            'title': _('Reference required / Commercial use with permission allowed'),  # noqa
-            'icon': 'terms_by-ask',
+        "NonCommercialAllowed-CommercialWithPermission-ReferenceRequired": {
+            "title": _("Reference required / Commercial use with permission allowed"),
+            "icon": "terms_by-ask",
         },
-        'ClosedData': {
-            'title': _('Closed data'),
-            'icon': 'terms_closed',
+        "ClosedData": {
+            "title": _("Closed data"),
+            "icon": "terms_closed",
         },
     }
     term_id = simplify_terms_of_use(terms_of_use)
@@ -198,46 +188,46 @@ def get_terms_of_use_icon(terms_of_use):
 
 def simplify_terms_of_use(term_id):
     terms = [
-        'NonCommercialAllowed-CommercialAllowed-ReferenceNotRequired',
-        'NonCommercialAllowed-CommercialAllowed-ReferenceRequired',
-        'NonCommercialAllowed-CommercialWithPermission-ReferenceNotRequired',
-        'NonCommercialAllowed-CommercialWithPermission-ReferenceRequired',
+        "NonCommercialAllowed-CommercialAllowed-ReferenceNotRequired",
+        "NonCommercialAllowed-CommercialAllowed-ReferenceRequired",
+        "NonCommercialAllowed-CommercialWithPermission-ReferenceNotRequired",
+        "NonCommercialAllowed-CommercialWithPermission-ReferenceRequired",
     ]
 
     if term_id in terms:
         return term_id
-    return 'ClosedData'
+    return "ClosedData"
 
 
 def get_dataset_terms_of_use(pkg):
-    rights = logic.get_action('ogdch_dataset_terms_of_use')({}, {'id': pkg})
-    return rights['dataset_rights']
+    rights = logic.get_action("ogdch_dataset_terms_of_use")({}, {"id": pkg})
+    return rights["dataset_rights"]
 
 
 def get_dataset_by_identifier(identifier):
     try:
-        return logic.get_action('ogdch_dataset_by_identifier')(
-            {'for_view': True},
-            {'identifier': identifier}
+        return logic.get_action("ogdch_dataset_by_identifier")(
+            {"for_view": True}, {"identifier": identifier}
         )
     except logic.NotFound:
         return None
 
 
-def get_readable_file_size(num, suffix='B'):
+def get_readable_file_size(num, suffix="B"):
     try:
-        for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
+        for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
             num = float(num)
             if abs(num) < 1024.0:
                 return "%3.1f%s%s" % (num, unit, suffix)
             num /= 1024.0
-        return "%.1f%s%s" % (num, 'Y', suffix)
+        return "%.1f%s%s" % (num, "Y", suffix)
     except (ValueError, TypeError):
         return False
 
 
 def parse_json(value, default_value=None):
-    # when the value is a string integer like "123" we do not want this to be converted to a real integer py json.loads
+    # when the value is a string integer like "123" we do not want this to be converted
+    # to a real integer py json.loads
     try:
         int(value)
         return value
@@ -258,21 +248,22 @@ def get_content_headers(url):
 
 def get_matomo_config():
     return {
-        'url': tk.config.get('matomo.url', False),
-        'site_id': tk.config.get('matomo.site_id', False)
+        "url": tk.config.get("matomo.url", False),
+        "site_id": tk.config.get("matomo.site_id", False),
     }
 
 
 def convert_post_data_to_dict(field_name, data):
     d = defaultdict(lambda: {})
-    for json_field_name, value in data.items():
-        if json_field_name.startswith(field_name + '-'):
-            counter, json_field_name = json_field_name.split('-')[1:]
+    for json_field_name, value in list(data.items()):
+        if json_field_name.startswith(field_name + "-"):
+            counter, json_field_name = json_field_name.split("-")[1:]
             d[counter][json_field_name] = value
-    return d.values()
+    return list(d.values())
 
 
-# monkey patched version of ckan.lib.helpers.dataset_display_name which extracts the correct translation of the dataset
+# monkey patched version of ckan.lib.helpers.dataset_display_name which extracts the
+# correct translation of the dataset
 def dataset_display_name(package_or_package_dict):
     name = dataset_display_name_orig(package_or_package_dict)
     name = parse_json(name)
@@ -281,10 +272,11 @@ def dataset_display_name(package_or_package_dict):
     return name
 
 
-# monkey patched version of ckan.lib.helpers.resource_display_name which extracts the correct translation of the dataset
+# monkey patched version of ckan.lib.helpers.resource_display_name which extracts the
+# correct translation of the dataset
 def resource_display_name(resource_dict):
-    name = resource_dict.get('name', None)
-    description = resource_dict.get('description', None)
+    name = resource_dict.get("name", None)
+    description = resource_dict.get("description", None)
     if name:
         name = parse_json(name)
         if isinstance(name, dict):
@@ -295,27 +287,30 @@ def resource_display_name(resource_dict):
         if isinstance(description, dict):
             description = get_localized_value(description)
         if isinstance(description, str):
-            description = description.split('.')[0]
+            description = description.split(".")[0]
             max_len = 60
             if len(description) > max_len:
-                description = description[:max_len] + '...'
+                description = description[:max_len] + "..."
         return description
     else:
         return _("Unnamed resource")
 
 
-# monkey patched version of ckan.lib.helpers.organization_link which extracts the correct translation of the org
+# monkey patched version of ckan.lib.helpers.organization_link which extracts the
+# correct translation of the org
 def organization_link(organization):
-    organization['title'] = parse_and_localize(organization['title'])
+    organization["title"] = parse_and_localize(organization["title"])
     return organization_link_orig(organization)
 
 
-# monkey patched version of ckan.lib.helpers.group_link which extracts the correct translation of the dataset
+# monkey patched version of ckan.lib.helpers.group_link which extracts the correct
+# translation of the dataset
 def group_link(group):
-    url = url_for('group.read', id=group['name'])
-    title = group['title']
+    url = url_for("group.read", id=group["name"])
+    title = group["title"]
     title = parse_json(title)
-    # the group creation message contains str(dict), so we must parse the string to fix it
+    # the group creation message contains str(dict), so we must parse the string to fix
+    # it
     if isinstance(title, str):
         title = ast.literal_eval(title)
     if isinstance(title, dict):
@@ -330,34 +325,39 @@ def resource_link(resource_dict, package_id):
     #   -> parse_json just returns the string
     # resolutions: parse the invalid json string into a dict
     # ---
-    if 'name' in resource_dict and resource_dict['name']:
-        resource_dict['name'] = get_localized_value(ast.literal_eval(resource_dict['name']))
+    if "name" in resource_dict and resource_dict["name"]:
+        resource_dict["name"] = get_localized_value(
+            ast.literal_eval(resource_dict["name"])
+        )
 
     text = resource_display_name(resource_dict)
-    url = url_for('package.resource_read',
-                  id=package_id,
-                  resource_id=resource_dict['id'])
+    url = url_for(
+        "package.resource_read", id=package_id, resource_id=resource_dict["id"]
+    )
     return _link_to(text, url)
 
 
 def get_resource_display_items(res, exclude_fields, schema):
+    context = {
+        "model": model,
+        "session": model.Session,
+        "user": c.user,
+        "auth_user_obj": c.userobj,
+        "for_view": False,
+    }  # fetching the resource-data in API-style
 
-    context = {'model': model,
-               'session': model.Session,
-               'user': c.user,
-               'auth_user_obj': c.userobj,
-               'for_view': False}  # fetching the resource-data in API-style
+    resource = tk.get_action("resource_show")(
+        context, {"id": res.get("id"), "use_default_schema": True}
+    )
 
-    resource = tk.get_action('resource_show')(context, {'id': res.get('id'), 'use_default_schema': True})
-
-    resource['byte_size'] = resource['size']
+    resource["byte_size"] = resource["size"]
 
     display_items = dict()
 
-    for field in schema.get('resource_fields'):
-        if field.get('field_name', '') not in exclude_fields:
-            field.update({'value': resource.get(field.get('field_name', ''))})
-            display_items[field.get('field_name')] = field
+    for field in schema.get("resource_fields"):
+        if field.get("field_name", "") not in exclude_fields:
+            field.update({"value": resource.get(field.get("field_name", ""))})
+            display_items[field.get("field_name")] = field
 
     return display_items
 
@@ -367,70 +367,76 @@ def resource_filename(resource_url):
 
 
 def load_wordpress_templates():
-    site_url = tk.config.get('ckanext.switzerland.wp_template_url', '')
-    url = '{}&lang={}'.format(site_url, lang())
+    site_url = tk.config.get("ckanext.switzerland.wp_template_url", "")
+    url = "{}&lang={}".format(site_url, lang())
 
     resp = requests.get(url, cookies=request.cookies)
     if resp.status_code != 200:
-        log.error("Error getting WordPress templates. Status code: {}."
-                  " Content: {}"
-                  .format(resp.status_code, resp.content))
+        log.error(
+            "Error getting WordPress templates. Status code: {}."
+            " Content: {}".format(resp.status_code, resp.content)
+        )
         return
 
     try:
-        data = resp.json()['data']
+        data = resp.json()["data"]
     except JSONDecodeError:
-        content = resp.content[resp.content.index(b'{'):]
-        data = json.loads(content)['data']
+        content = resp.content[resp.content.index(b"{") :]
+        data = json.loads(content)["data"]
     except (ValueError, KeyError) as e:
         log.error("Error getting WordPress templates: {}".format(e))
         return
 
-    c.wordpress_user_navigation = data['user']
-    c.wordpress_main_navigation = data['main']
-    c.wordpress_admin_navigation = data['admin']
-    c.wordpress_footer = data['footer']
-    c.wordpress_title = data['title']
-    c.wordpress_css = data['css']
+    c.wordpress_user_navigation = data["user"]
+    c.wordpress_main_navigation = data["main"]
+    c.wordpress_admin_navigation = data["admin"]
+    c.wordpress_footer = data["footer"]
+    c.wordpress_title = data["title"]
+    c.wordpress_css = data["css"]
 
 
 def render_description(pkg):
-    text = parse_and_localize(pkg['description'])
+    text = parse_and_localize(pkg["description"])
     text = urlize(text)
-    text = text.replace('\n', '\n<br>')
+    text = text.replace("\n", "\n<br>")
     return literal(text)
 
 
 # all formats that need to be mapped have to be entered lower-case
 def map_to_valid_format(resource_format):
     format_mapping = {
-        'CSV': ['csv', 'aspx', 'text (.csv)', 'comma ...'],
-        'GeoJSON': ['geojson'],
-        'GeoTIFF': ['geotiff'],
-        'GPKG': ['gpkg'],
-        'HTML': ['html'],
-        'INTERLIS': ['interlis'],
-        'JSON': ['json'],
-        'KMZ': ['kmz'],
-        'MULTIFORMAT': ['multiformat'],
-        'ODS': ['ods', 'vnd.oas...'],
-        'PC-AXIS': ['pc-axis file'],
-        'PDF': ['pdf'],
-        'PNG': ['png'],
-        'RDF': ['sparql-...'],
-        'SHAPEFILE': ['esri shapefile', 'esri geodatabase (....', 'esri file geodatabase', 'esri arcinfo ascii ...'], # noqa
-        'TXT': ['text', 'txt', 'text (.txt)', 'plain'],
-        'TIFF': ['tiff'],
-        'WCS': ['wcs'],
-        'WFS': ['wfs'],
-        'WMS': ['wms'],
-        'WMTS': ['wmts'],
-        'XLS': ['xls', 'xlsx'],
-        'XML': ['xml'],
-        'ZIP': ['zip'],
+        "CSV": ["csv", "aspx", "text (.csv)", "comma ..."],
+        "GeoJSON": ["geojson"],
+        "GeoTIFF": ["geotiff"],
+        "GPKG": ["gpkg"],
+        "HTML": ["html"],
+        "INTERLIS": ["interlis"],
+        "JSON": ["json"],
+        "KMZ": ["kmz"],
+        "MULTIFORMAT": ["multiformat"],
+        "ODS": ["ods", "vnd.oas..."],
+        "PC-AXIS": ["pc-axis file"],
+        "PDF": ["pdf"],
+        "PNG": ["png"],
+        "RDF": ["sparql-..."],
+        "SHAPEFILE": [
+            "esri shapefile",
+            "esri geodatabase (....",
+            "esri file geodatabase",
+            "esri arcinfo ascii ...",
+        ],
+        "TXT": ["text", "txt", "text (.txt)", "plain"],
+        "TIFF": ["tiff"],
+        "WCS": ["wcs"],
+        "WFS": ["wfs"],
+        "WMS": ["wms"],
+        "WMTS": ["wmts"],
+        "XLS": ["xls", "xlsx"],
+        "XML": ["xml"],
+        "ZIP": ["zip"],
     }
     resource_format_lower = resource_format.lower()
-    for key, values in format_mapping.items():
+    for key, values in list(format_mapping.items()):
         if resource_format_lower in values:
             return key
     else:
@@ -442,17 +448,17 @@ def localize_change_dict(changes):
     group or organization.
     """
     multilingual_fields = [
-        'title',
-        'old_title',
-        'new_title',
-        'old_org_title',
-        'new_org_title',
-        'old_desc',
-        'new_desc',
+        "title",
+        "old_title",
+        "new_title",
+        "old_org_title",
+        "new_org_title",
+        "old_desc",
+        "new_desc",
     ]
     for change in changes:
         for field in multilingual_fields:
             if field in change:
-                change[field] = parse_and_localize(change.get(field, ''))
+                change[field] = parse_and_localize(change.get(field, ""))
 
     return changes
