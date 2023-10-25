@@ -313,8 +313,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         self.assertEqual(len(package.resources), 4)
 
-        self.assertEqual(package.resources[0].extras["identifier"], "9999Resource.csv")
-        self.assertEqual(package.resources[1].extras["identifier"], "1111Resource.csv")
+        self.assertEqual(package.resources[0].extras["identifier"], "1111Resource.csv")
+        self.assertEqual(package.resources[1].extras["identifier"], "9999Resource.csv")
         self.assertEqual(package.resources[2].extras["identifier"], "20160902.csv")
         self.assertEqual(package.resources[3].extras["identifier"], "20160901.csv")
 
