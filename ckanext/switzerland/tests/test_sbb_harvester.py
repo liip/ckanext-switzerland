@@ -202,7 +202,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         # permalink
         self.assertEqual(
-            package.permalink,
+            package.extras["permalink"],
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
                 package.id, package.resources[0].id
             ),
@@ -246,7 +246,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
 
         self.assertEqual(
-            package.permalink,
+            package.extras["permalink"],
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
                 package.id, package.resources[0].id
             ),
@@ -288,7 +288,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
 
         self.assertEqual(
-            package.permalink,
+            package.extras["permalink"],
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
                 package.id, package.resources[0].id
             ),
@@ -319,7 +319,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(package.resources[3].extras["identifier"], "20160901.csv")
 
         self.assertEqual(
-            package.permalink,
+            package.extras["permalink"],
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
                 package.id, package.resources[2].id
             ),
