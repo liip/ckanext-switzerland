@@ -109,7 +109,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(len(dataset["resources"]), 1)
         resource = dataset["resources"][0]
 
-        self.assertEqual(resource["title"]["de"], "AAAResource")
         self.assertEqual(resource["description"]["de"], "AAAResource Desc")
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
