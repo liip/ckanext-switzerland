@@ -1080,10 +1080,6 @@ class BaseSBBHarvester(HarvesterBase):
 
         search.rebuild(package["id"])
 
-        # ----------------------------------------------------------------------------
-        # delete files of old revisions if there are more than 30 revisions
-        self._cleanup_revisions(package["id"])
-
     def _delete_version(self, context, package_id, filename):
         """
         delete the current and all old revisions of a resource with the given filename
