@@ -122,6 +122,7 @@ class BaseSBBHarvester(HarvesterBase):
         "rights": "",
         "license": "",
         "coverage": "Coverage",
+        "description": {"de": "", "en": "", "fr": "", "it": ""},
     }
 
     filters = {}
@@ -851,14 +852,16 @@ class BaseSBBHarvester(HarvesterBase):
             resource_meta["version"] = now
 
             # take this metadata from the old version if available
-            resource_meta["rights"] = old_resource_meta.get("rights", "")
-            resource_meta["license"] = old_resource_meta.get("license", "")
-            resource_meta["coverage"] = old_resource_meta.get("coverage", "TODO")
-            resource_meta["description"] = old_resource_meta.get(
-                "description", {"de": "", "en": "", "fr": "", "it": ""}
-            )
-            resource_meta["relations"] = old_resource_meta.get("relations", [])
-            resource_meta["rights"] = old_resource_meta.get("rights", [])
+            fields_from_old_resource_meta = [
+                "rights",
+                "license",
+                "coverage",
+                "description",
+                "relations",
+            ]
+            for field in fields_from_old_resource_meta:
+                if old_resource_meta.get(field):
+                    resource_meta[field] = old_resource_meta.get(field)
 
             resource_meta["package_id"] = dataset["id"]
 
