@@ -122,6 +122,7 @@ class BaseSBBHarvester(HarvesterBase):
         "rights": "",
         "license": "",
         "coverage": "Coverage",
+        "description": {"de": "", "en": "", "fr": "", "it": ""},
     }
 
     filters = {}
@@ -335,7 +336,7 @@ class BaseSBBHarvester(HarvesterBase):
         :returns: Package dictionary
         :rtype: dict
         """
-        resource_meta = None
+        resource_meta = {}
         if "resources" in dataset and len(dataset["resources"]):
             # Find resource in the existing packages resource list
             for res in dataset["resources"]:
@@ -363,11 +364,6 @@ class BaseSBBHarvester(HarvesterBase):
             # set mime types
             file_format = mimetype = mimetype_inner = ext
         return file_format, mimetype, mimetype_inner
-
-    def _reset_resource(self, resource):
-        for key in ["id", "revision_id", "created", "updated", "datastore_active"]:
-            if key in resource:
-                del resource[key]
 
     def _setup_logging(self, harvest_job):
         log_dir = os.path.join(
@@ -666,7 +662,9 @@ class BaseSBBHarvester(HarvesterBase):
         # =======================================================================
         # package
         # =======================================================================
-        resource_meta = None
+
+        old_resource_id = None
+        old_resource_meta = {}
 
         try:
             # -----------------------------------------------------------------------
@@ -680,9 +678,10 @@ class BaseSBBHarvester(HarvesterBase):
             dataset["version"] = now
 
             # check if there is a resource matching the filename in the package
-            resource_meta = self.find_resource_in_package(dataset, f)
-            if resource_meta:
-                log.info("Found existing resource: %s" % str(resource_meta))
+            old_resource_meta = self.find_resource_in_package(dataset, f)
+            if old_resource_meta:
+                log.info("Found existing resource: %s" % str(old_resource_meta))
+                old_resource_id = old_resource_meta["id"]
 
         except NotFound:
             # -----------------------------------------------------------------------
@@ -825,89 +824,66 @@ class BaseSBBHarvester(HarvesterBase):
             fp = open(f, "rb")
 
             # -----------------------------------------------------
-            # create new resource, if there was no resource with the same filename (aka
-            # identifier)
+            # create new resource
             # -----------------------------------------------------
-            if not resource_meta:
-                old_resource_id = None
 
-                # we already checked if there is a resource with the same filename, we
-                # now check if there is a resource another resource inside the dataset
-                # we could use as a template if we find one, we copy the metadata and
-                # set some of the fields, if not we use the metadata defined in this
-                # class (self.resource_dict_meta)
-
+            if not old_resource_meta:
+                # There is no existing resource for this filename, but we still want to
+                # find an old resource to copy some metadata from, if one exists.
                 old_resources, _ = self._get_ordered_resources(dataset)
                 if len(old_resources):
-                    resource_meta = old_resources[0]
-                    self._reset_resource(resource_meta)
-                else:
-                    resource_meta = self.resource_dict_meta
+                    old_resource_meta = old_resources[0]
 
-                # we always set this fields, even when there is and older version of
-                # this resource
-                resource_meta["identifier"] = os.path.basename(f)
+            resource_meta = self.resource_dict_meta
 
-                # always overwrite this metadata
-                file_format, mimetype, mimetype_inner = self._get_mimetypes(f)
-                resource_meta["format"] = file_format
-                resource_meta["mimetype"] = mimetype
-                resource_meta["mimetype_inner"] = mimetype_inner
+            resource_meta["identifier"] = os.path.basename(f)
 
-                resource_meta["name"] = {
-                    "de": os.path.basename(f),
-                    "en": os.path.basename(f),
-                    "fr": os.path.basename(f),
-                    "it": os.path.basename(f),
-                }
-                resource_meta["title"] = {
-                    "de": os.path.basename(f),
-                    "en": os.path.basename(f),
-                    "fr": os.path.basename(f),
-                    "it": os.path.basename(f),
-                }
+            file_format, mimetype, mimetype_inner = self._get_mimetypes(f)
+            resource_meta["format"] = file_format
+            resource_meta["mimetype"] = mimetype
+            resource_meta["mimetype_inner"] = mimetype_inner
 
-                resource_meta["issued"] = now
-                resource_meta["version"] = now
+            resource_meta["name"] = {
+                "de": os.path.basename(f),
+                "en": os.path.basename(f),
+                "fr": os.path.basename(f),
+                "it": os.path.basename(f),
+            }
+            resource_meta["title"] = {
+                "de": os.path.basename(f),
+                "en": os.path.basename(f),
+                "fr": os.path.basename(f),
+                "it": os.path.basename(f),
+            }
 
-                # take this metadata from the old version if available
-                resource_meta["rights"] = resource_meta.get("rights", "")
-                resource_meta["license"] = resource_meta.get("license", "")
-                resource_meta["coverage"] = resource_meta.get("coverage", "TODO")
-                resource_meta["description"] = resource_meta.get(
-                    "description", {"de": "", "en": "", "fr": "", "it": ""}
-                )
-                resource_meta["relations"] = resource_meta.get("relations", [])
+            resource_meta["issued"] = now
+            resource_meta["version"] = now
 
-                log_msg = "Creating new resource: %s"
-
-            # -----------------------------------------------------
-            # create the resource, but use the known metadata (of the old resource)
-            # -----------------------------------------------------
-            else:
-                old_resource_id = resource_meta["id"]
-
-                self._reset_resource(resource_meta)
-
-                log_msg = "Updating resource (with known metadata): %s"
+            # take this metadata from the old version if available
+            fields_from_old_resource_meta = [
+                "rights",
+                "license",
+                "coverage",
+                "description",
+                "relations",
+            ]
+            for field in fields_from_old_resource_meta:
+                if old_resource_meta.get(field):
+                    resource_meta[field] = old_resource_meta.get(field)
 
             resource_meta["package_id"] = dataset["id"]
 
             # url parameter is ignored for resource uploads, but required by ckan
             # this parameter will be replaced later by the resource patch with a link to
             # the download file
-            if "url" not in resource_meta:
-                resource_meta["url"] = "http://dummy-value"
-                resource_meta["download_url"] = None
+            resource_meta["url"] = "http://dummy-value"
+            resource_meta["download_url"] = None
 
             if size is not None:
                 resource_meta["size"] = size
                 resource_meta["byte_size"] = size
 
-            if "rights" not in resource_meta:
-                resource_meta["rights"] = ""
-
-            log.info(log_msg % str(resource_meta))
+            log.info("Creating new resource: %s" % str(resource_meta))
 
             upload = cgi.FieldStorage()
             upload.file = open(f, "rb")
