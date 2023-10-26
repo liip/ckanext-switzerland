@@ -156,6 +156,7 @@ class BaseSBBHarvester(HarvesterBase):
                 voluptuous.Required("resource_regex", default=".*"): validate_regex,
                 voluptuous.Required("force_all", default=False): bool,
                 "max_resources": int,
+                "max_revisions": int,
                 "ftp_server": str,
                 "storage_adapter": str,
                 "bucket": str,
