@@ -12,7 +12,6 @@ table.
 third stages (``HarvestObjectError``) are stored in the ``harvest_object_error`` table.
 """
 
-import cgi
 import ftplib  # for errors only
 import logging
 import os
@@ -35,6 +34,7 @@ from ckan.model import Session
 from ckan.plugins.toolkit import config as ckanconf
 from simplejson.scanner import JSONDecodeError
 from sqlalchemy.sql import bindparam, update
+from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
 from ckanext.harvest.harvesters.base import HarvesterBase
 from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
@@ -909,7 +909,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             log.info(log_msg % str(resource_meta))
 
-            upload = cgi.FieldStorage()
+            upload = FlaskFileStorage()
             upload.file = open(f, "rb")
             upload.filename = os.path.basename(f)
             resource_meta["upload"] = upload
