@@ -826,6 +826,14 @@ class BaseSBBHarvester(HarvesterBase):
             # -----------------------------------------------------
             # create new resource
             # -----------------------------------------------------
+
+            if not old_resource_meta:
+                # There is no existing resource for this filename, but we still need to
+                # find an old resource to copy some metadata from.
+                old_resources, _ = self._get_ordered_resources(dataset)
+                if len(old_resources):
+                    old_resource_meta = old_resources[0]
+
             resource_meta = self.resource_dict_meta
 
             resource_meta["identifier"] = os.path.basename(f)
