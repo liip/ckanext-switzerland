@@ -13,9 +13,9 @@ third stages (``HarvestObjectError``) are stored in the ``harvest_object_error``
 """
 
 import ftplib  # for errors only
+import io
 import logging
 import os
-import io
 import re
 import shutil
 import sys
@@ -24,7 +24,6 @@ import traceback
 from datetime import datetime
 
 import voluptuous
-from werkzeug.datastructures import FileStorage
 from ckan import model
 from ckan.lib import helpers, search, uploader
 from ckan.lib.dictization.model_dictize import resource_dictize
@@ -35,6 +34,7 @@ from ckan.model import Session
 from ckan.plugins.toolkit import config as ckanconf
 from simplejson.scanner import JSONDecodeError
 from sqlalchemy.sql import bindparam, update
+from werkzeug.datastructures import FileStorage
 
 from ckanext.harvest.harvesters.base import HarvesterBase
 from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
@@ -887,7 +887,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             log.info("Creating new resource: %s" % str(resource_meta))
 
-            with open(f, 'rb') as f:
+            with open(f, "rb") as f:
                 stream = io.BytesIO(f.read())
 
             upload = FileStorage(stream=stream, filename=file_name)
