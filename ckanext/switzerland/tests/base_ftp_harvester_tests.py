@@ -28,7 +28,6 @@ class BaseSBBHarvesterTests(unittest.TestCase):
         dataset=data.dataset_name,
         timetable_regex=None,
         filter_regex=None,
-        max_revisions=None,
         infoplus=None,
         ist_file=None,
         ftp_server=None,
@@ -54,8 +53,6 @@ class BaseSBBHarvesterTests(unittest.TestCase):
             config["timetable_regex"] = timetable_regex
         if filter_regex:
             config["filter_regex"] = filter_regex
-        if max_revisions:
-            config["max_revisions"] = max_revisions
         if infoplus:
             config["infoplus"] = infoplus
         if ist_file:

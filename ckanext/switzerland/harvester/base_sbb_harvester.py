@@ -21,7 +21,6 @@ import shutil
 import sys
 import time
 import traceback
-from collections import defaultdict
 from datetime import datetime
 
 import voluptuous
@@ -1057,10 +1056,6 @@ class BaseSBBHarvester(HarvesterBase):
 
         search.rebuild(package["id"])
 
-        # ----------------------------------------------------------------------------
-        # delete files of old revisions if there are more than 30 revisions
-        self._cleanup_revisions(package["id"])
-
     def _delete_version(self, context, package_id, filename):
         """
         delete the current and all old revisions of a resource with the given filename
@@ -1085,24 +1080,3 @@ class BaseSBBHarvester(HarvesterBase):
 
                 # delete the resource itself
                 get_action("resource_delete")(context, {"id": resource.id})
-
-    def _cleanup_revisions(self, package_id):
-        max_revisions = self.config.get("max_revisions")
-        if not max_revisions:
-            return
-
-        # group resources (=old revisions) by filename
-        versions = defaultdict(lambda: [])
-        package = model.Package.get(package_id)
-        for resource in package.resources_all:
-            filename = resource_filename(resource.url)
-            versions[filename].append(resource)
-
-        for filename, resources in list(versions.items()):
-            if len(resources) > max_revisions:
-                resources = sorted(resources, key=lambda r: r.created, reverse=True)
-                for resource in resources[max_revisions:]:
-                    resource_dict = resource_dictize(resource, {"model": model})
-                    path = uploader.ResourceUpload(resource_dict).get_path(resource.id)
-                    if os.path.exists(path):
-                        os.remove(path)
