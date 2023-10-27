@@ -12,8 +12,8 @@ table.
 third stages (``HarvestObjectError``) are stored in the ``harvest_object_error`` table.
 """
 
-import cgi
 import ftplib  # for errors only
+import io
 import logging
 import os
 import re
@@ -34,6 +34,7 @@ from ckan.model import Session
 from ckan.plugins.toolkit import config as ckanconf
 from simplejson.scanner import JSONDecodeError
 from sqlalchemy.sql import bindparam, update
+from werkzeug.datastructures import FileStorage
 
 from ckanext.harvest.harvesters.base import HarvesterBase
 from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
@@ -822,6 +823,8 @@ class BaseSBBHarvester(HarvesterBase):
 
             fp = open(f, "rb")
 
+            file_name = os.path.basename(f)
+
             # -----------------------------------------------------
             # create new resource
             # -----------------------------------------------------
@@ -835,7 +838,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             resource_meta = self.resource_dict_meta
 
-            resource_meta["identifier"] = os.path.basename(f)
+            resource_meta["identifier"] = file_name
 
             file_format, mimetype, mimetype_inner = self._get_mimetypes(f)
             resource_meta["format"] = file_format
@@ -843,16 +846,16 @@ class BaseSBBHarvester(HarvesterBase):
             resource_meta["mimetype_inner"] = mimetype_inner
 
             resource_meta["name"] = {
-                "de": os.path.basename(f),
-                "en": os.path.basename(f),
-                "fr": os.path.basename(f),
-                "it": os.path.basename(f),
+                "de": file_name,
+                "en": file_name,
+                "fr": file_name,
+                "it": file_name,
             }
             resource_meta["title"] = {
-                "de": os.path.basename(f),
-                "en": os.path.basename(f),
-                "fr": os.path.basename(f),
-                "it": os.path.basename(f),
+                "de": file_name,
+                "en": file_name,
+                "fr": file_name,
+                "it": file_name,
             }
 
             resource_meta["issued"] = now
@@ -884,9 +887,11 @@ class BaseSBBHarvester(HarvesterBase):
 
             log.info("Creating new resource: %s" % str(resource_meta))
 
-            upload = cgi.FieldStorage()
-            upload.file = open(f, "rb")
-            upload.filename = os.path.basename(f)
+            with open(f, "rb") as f:
+                stream = io.BytesIO(f.read())
+
+            upload = FileStorage(stream=stream, filename=file_name)
+
             resource_meta["upload"] = upload
             resource_meta["modified"] = now
 
