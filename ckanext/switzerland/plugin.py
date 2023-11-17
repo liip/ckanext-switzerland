@@ -323,7 +323,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
             return False
 
     # IPackageController
-    def before_view(self, pkg_dict):
+    def before_dataset_view(self, pkg_dict):
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
 
@@ -365,7 +365,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
 
         return pkg_dict
 
-    def before_index(self, search_data):
+    def before_dataset_index(self, search_data):
         if not self.is_supported_package_type(search_data):
             return search_data
 
