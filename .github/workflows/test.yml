@@ -63,13 +63,11 @@ jobs:
           -v "${{ github.workspace }}/solr/stopwords_it.txt":"$SOLR_CONFIG_CKAN_DIR/stopwords_it.txt" \
           ckan/ckan-solr:${{ matrix.ckan-version }}
         docker start test_solr
-        docker logs test_solr
-        docker ps
     - name: Create ckan container
       run: |
         /usr/bin/docker create --name test_ckan --network ${{ job.container.network }} --network-alias ckan \
           -e "HOME=/github/home" -e GITHUB_ACTIONS=true -e CI=true -e CKAN_SITE_URL=http://odp.test \
-          -v "/var/run/docker.sock":"/var/run/docker.sock" \
+          -e CKAN_SOLR_URL=http://solr:8983/solr/ckan -v "/var/run/docker.sock":"/var/run/docker.sock" \
           -v "/home/runner/work":"/__w" -v "/home/runner/work/_temp":"/__w/_temp" \
           -v "/home/runner/work/_actions":"/__w/_actions" -v "/opt/hostedtoolcache":"/__t" \
           -v "/home/runner/work/_temp/_github_home":"/github/home" \
@@ -81,5 +79,6 @@ jobs:
         docker exec test_ckan $WORKDIR/bin/install_test_requirements.sh
     - name: Run tests
       run: |
+        docker ps
         docker exec test_ckan pytest --ckan-ini=$WORKDIR/test.ini --disable-warnings --cov=ckanext.switzerland \
           $WORKDIR/ckanext/switzerland/tests
