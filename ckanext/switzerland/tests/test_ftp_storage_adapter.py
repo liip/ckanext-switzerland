@@ -23,14 +23,15 @@ from .helpers.mock_config_resolver import MockConfigResolver
 
 # -----------------------------------------------------------------------
 
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 log = logging.getLogger(__name__)
 
 CONFIG_SECTION = "app:main"
 
 
 class TestFTPStorageAdapter(unittest.TestCase):
-    ini_file_path = "./ckanext/switzerland/tests/config/valid.ini"
-    invalid_ini_file_path = "./ckanext/switzerland/tests/config/invalid.ini"
+    ini_file_path = os.path.join(__location__, "config", "valid.ini")
+    invalid_ini_file_path = os.path.join(__location__, "config", "invalid.ini")
     tmpfolder = "/tmp/ftpharvest/tests/"
     ftp = None
     ckan_config_resolver = None
@@ -272,7 +273,7 @@ class TestFTPStorageAdapter(unittest.TestCase):
         with Replace("ftplib.FTP_TLS", self.FTP_TLS):
             with self.__build_tested_object__("/") as ftph:
                 dirlist = ftph.get_local_dirlist(
-                    localpath="./ckanext/switzerland/tests/fixtures/testdir"
+                    localpath=os.path.join(__location__, "fixtures", "testdir")
                 )
         self.assertEqual(type(dirlist), list)
         self.assertEqual(len(dirlist), 3)
