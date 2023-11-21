@@ -26,53 +26,54 @@ jobs:
       fail-fast: false
 
     name: CKAN ${{ matrix.ckan-version }}
-    runs-on: ubuntu-latest
-    container:
-      image: openknowledge/ckan-dev:${{ matrix.ckan-version }}
+    runs-on: ubuntu-20.04
     services:
-      solr:
-        image: ckan/ckan-solr:${{ matrix.ckan-version }}
       postgres:
         image: ckan/ckan-postgres-dev:${{ matrix.ckan-version }}
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       redis:
-          image: redis:3
+        image: redis:3
     env:
-      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
-      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
-      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
-      CKAN_SOLR_URL: http://solr:8983/solr/ckan
-      CKAN_REDIS_URL: redis://redis:6379/1
-      CKAN_SITE_URL: http://odp.test
+      WORKDIR: /__w/ckanext-switzerland/ckanext-switzerland
+      SOLR_CONFIG_CKAN_DIR: /opt/solr/server/solr/configsets/ckan/conf
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Install requirements
+    - uses: actions/checkout@v3
+    - name: Create solr container
       run: |
-        pip install -r requirements.txt
-        pip install -r dev-requirements.txt
-        pip install -e .
-        pip install -e git+https://github.com/ckan/ckanext-dcat.git@v1.5.1#egg=ckanext-dcat
-        pip install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/v1.5.1/requirements.txt
-        pip install -e git+https://gitlab.liip.ch/odp_oev_schweiz/ckanext-harvest.git#egg=ckanext-harvest
-        pip install -r https://gitlab.liip.ch/odp_oev_schweiz/ckanext-harvest/-/raw/main/requirements.txt
-        pip install -e git+https://github.com/ckan/ckanext-scheming.git@release-3.0.0#egg=ckanext-scheming
-        pip install -e git+https://github.com/ckan/ckanext-fluent.git#egg=ckanext-fluent
-        pip install -r https://raw.githubusercontent.com/ckan/ckanext-fluent/master/requirements.txt
-        pip install -e git+https://gitlab.liip.ch/odp_oev_schweiz/ckanext-discourse.git@v1.0.1#egg=ckanext-discourse
-        pip install -e git+https://github.com/opendata-swiss/ckanext-ogdchcommands.git#egg=ckanext-ogdchcommands
-        pip install -e 'git+https://github.com/ckan/ckanext-xloader.git@1.0.1#egg=ckanext-xloader'
-        pip install -r https://raw.githubusercontent.com/ckan/ckanext-xloader/1.0.1/requirements.txt
-        pip install -U requests[security]
-    - name: Setup extension
+        /usr/bin/docker create --name test_solr --network ${{ job.container.network }} --network-alias solr \
+          --workdir $WORKDIR --publish 8983:8983 -e "SOLR_HEAP=1024m" \
+          -e "SOLR_SCHEMA_FILE=$SOLR_CONFIG_CKAN_DIR/managed-schema" -e GITHUB_ACTIONS=true -e CI=true \
+          -v "${{ github.workspace }}/solr/schema.xml":"$SOLR_CONFIG_CKAN_DIR/managed-schema" \
+          -v "${{ github.workspace }}/solr/fr_elision.txt":"$SOLR_CONFIG_CKAN_DIR/fr_elision.txt" \
+          -v "${{ github.workspace }}/solr/stopwords_de.txt":"$SOLR_CONFIG_CKAN_DIR/stopwords_de.txt" \
+          -v "${{ github.workspace }}/solr/stopwords_en.txt":"$SOLR_CONFIG_CKAN_DIR/stopwords_en.txt" \
+          -v "${{ github.workspace }}/solr/stopwords_fr.txt":"$SOLR_CONFIG_CKAN_DIR/stopwords_fr.txt" \
+          -v "${{ github.workspace }}/solr/stopwords_it.txt":"$SOLR_CONFIG_CKAN_DIR/stopwords_it.txt" \
+          ckan/ckan-solr:${{ matrix.ckan-version }}
+        docker start test_solr
+    - name: Create ckan container
       run: |
-        # Replace default path to CKAN core config file with the one on the container
-        sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' test.ini
-        ckan -c test.ini db init
-        ckan -c test.ini harvester initdb
+        /usr/bin/docker create --name test_ckan --network ${{ job.container.network }} --network-alias ckan \
+          --env-file ${{ github.workspace }}/github-workflow.env \
+          -v "/var/run/docker.sock":"/var/run/docker.sock" \
+          -v "/home/runner/work":"/__w" -v "/home/runner/work/_temp":"/__w/_temp" \
+          -v "/home/runner/work/_actions":"/__w/_actions" -v "/opt/hostedtoolcache":"/__t" \
+          -v "/home/runner/work/_temp/_github_home":"/github/home" \
+          -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" \
+          --entrypoint "tail" openknowledge/ckan-dev:${{ matrix.ckan-version }} "-f" "/dev/null"
+        docker start test_ckan
+    - name: Install requirements and set up ckanext
+      run: |
+        docker exec test_ckan $WORKDIR/bin/install_test_requirements.sh
     - name: Run tests
-      run: pytest --ckan-ini=test.ini --disable-warnings --cov=ckanext.switzerland
+      run: |
+        docker ps
+        docker exec test_ckan pytest --ckan-ini=$WORKDIR/test.ini --disable-warnings --cov=ckanext.switzerland \
+          $WORKDIR/ckanext/switzerland/tests

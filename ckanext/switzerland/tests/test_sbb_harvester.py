@@ -177,6 +177,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(len(dataset["resources"]), 2)
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    @pytest.mark.ckan_config("ckan.site_url", "http://odp.test")
     def test_update_version(self):
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem
@@ -211,6 +212,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assert_resource_data(package.resources[1].id, data.dataset_content_1)
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    @pytest.mark.ckan_config("ckan.site_url", "http://odp.test")
     def test_update_file_of_old_version(self):
         """
         initial state:
@@ -255,6 +257,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assert_resource_data(package.resources[1].id, data.dataset_content_3)
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    @pytest.mark.ckan_config("ckan.site_url", "http://odp.test")
     def test_update_file_of_newest_version(self):
         """
         initial state:
@@ -297,6 +300,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assert_resource_data(package.resources[1].id, data.dataset_content_1)
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    @pytest.mark.ckan_config("ckan.site_url", "http://odp.test")
     def test_order_permalink_regex(self):
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem

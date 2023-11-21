@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from ckanext.switzerland.harvester.ftp_storage_adapter import FTPStorageAdapter
@@ -11,13 +12,15 @@ from .helpers.mock_config_resolver import MockConfigResolver
 
 # -----------------------------------------------------------------------
 
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
 CONFIG_SECTION = "app:main"
 
 
 class TestStorageAdapterFactory(unittest.TestCase):
     config = {}
     remote_folder = ""
-    ini_file_path = "./ckanext/switzerland/tests/config/valid.ini"
+    ini_file_path = os.path.join(__location__, "config", "valid.ini")
 
     @classmethod
     def setup_class(cls):
