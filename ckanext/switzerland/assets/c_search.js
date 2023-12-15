@@ -86,9 +86,15 @@ new Vue({
         // ckan search results
         self.datasetResults = []
         datasets[0].result.results.map(function(result) {
+          let description = {de: '', en: '', fr: '', it: ''};
+          result.extras.foreach((item, index) => {
+            if (item.key === 'description') {
+              description = item.value
+            }
+          })
           self.datasetResults.push({
             title: result.title[self.language],
-            description: result.description[self.language],
+            description: description[self.language],
             link: '/' + self.language + '/dataset/' + result.name
           })
         })
