@@ -13,7 +13,6 @@ pip install -r https://gitlab.liip.ch/odp_oev_schweiz/ckanext-harvest/-/raw/main
 pip install -e git+https://github.com/ckan/ckanext-scheming.git@release-3.0.0#egg=ckanext-scheming
 pip install -e git+https://github.com/ckan/ckanext-fluent.git#egg=ckanext-fluent
 pip install -r https://raw.githubusercontent.com/ckan/ckanext-fluent/master/requirements.txt
-pip install -e git+https://gitlab.liip.ch/odp_oev_schweiz/ckanext-discourse.git@v1.0.1#egg=ckanext-discourse
 pip install -e git+https://github.com/opendata-swiss/ckanext-ogdchcommands.git#egg=ckanext-ogdchcommands
 pip install -e 'git+https://github.com/ckan/ckanext-xloader.git@1.0.1#egg=ckanext-xloader'
 pip install -r https://raw.githubusercontent.com/ckan/ckanext-xloader/1.0.1/requirements.txt
