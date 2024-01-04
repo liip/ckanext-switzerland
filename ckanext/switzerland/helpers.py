@@ -278,7 +278,7 @@ def resource_display_name(resource_dict):
     name = resource_dict.get("name", None)
     description = resource_dict.get("description", None)
     if name:
-        name = parse_json(eval(name))
+        name = parse_json(name)
         if isinstance(name, dict):
             name = get_localized_value(name)
         return name
