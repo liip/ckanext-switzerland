@@ -5,6 +5,7 @@ import re
 from collections import defaultdict
 
 import ckan.lib.navl.dictization_functions as df
+from ckan.lib.munge import munge_tag
 from ckan.logic import NotFound, get_action
 from ckan.plugins.toolkit import _, missing
 
@@ -336,5 +337,40 @@ def url_validator(field, schema):
         if value and value is not missing:
             if not isinstance(value, str) or not re.match(r"^https?://.*$", value):
                 raise df.Invalid(_("Invalid URL"))
+
+    return validator
+
+
+@scheming_validator
+def ogdch_fluent_tags(field, schema):
+    """
+    To be called after ckanext-fluent fluent_tags() because of an error that
+    does not save any tag data for a language that has no tags entered, e.g. it
+    would save {"de": ["tag-de"]} if German were the only language with a tag
+    entered in the form. Not saving tag data for all the languages causes the
+    tags to later be interpreted as a string, so here the dataset would display
+    the tag '{u"de": [u"tag-de"]}' in every language.
+
+    What we need to do in this case is save the tag field thus:
+    {"de": ["tag-de"], "fr": [], "en": [], "it": []}
+
+    Tags are munged to contain only lowercase letters, numbers, and the
+    characters `-_.`
+    """
+
+    def validator(key, data, errors, context):
+        if errors[key]:
+            return
+
+        value = json.loads(data[key])
+        new_value = {}
+        for lang in schema["form_languages"]:
+            new_value[lang] = []
+            if lang not in value.keys():
+                continue
+            for keyword in value[lang]:
+                new_value[lang].append(munge_tag(keyword))
+
+        data[key] = json.dumps(new_value)
 
     return validator
