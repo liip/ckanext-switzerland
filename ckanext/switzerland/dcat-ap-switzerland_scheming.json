@@ -130,7 +130,7 @@
         "fr": "Mots clés",
         "it": "Parole chiave"
       },
-      "preset": "fluent_tags",
+      "preset": "ogdch_fluent_tags",
       "display_snippet": "keywords.html"
     },
     {
