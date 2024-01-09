@@ -42,6 +42,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "timestamp_to_datetime": v.timestamp_to_datetime,
             "ogdch_multiple_choice": v.ogdch_multiple_choice,
             "ogdch_unique_identifier": v.ogdch_unique_identifier,
+            "ogdch_fluent_tags": v.ogdch_fluent_tags,
             "temporals_to_datetime_output": v.temporals_to_datetime_output,
             "json_list_of_dicts_field": v.json_list_of_dicts_field,
             "swiss_date": v.swiss_date,
