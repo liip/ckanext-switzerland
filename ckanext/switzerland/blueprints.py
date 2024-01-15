@@ -1,3 +1,4 @@
+import csv
 import logging
 from io import StringIO
 from typing import Optional, Union
@@ -10,7 +11,6 @@ import ckan.model as model
 import ckan.plugins.toolkit as toolkit
 import flask
 import requests
-import unicodecsv
 from ckan.common import _, c, current_user, request
 from ckan.lib import signals
 from ckan.lib.dictization.model_dictize import resource_dictize
@@ -45,10 +45,10 @@ def email_address_exporter():
     if not (c.userobj and c.userobj.sysadmin):
         abort(401, _("Unauthorized"))
 
-    if "filter" in request.params:
+    if "filter" in request.args:
         fobj = StringIO()
-        csv = unicodecsv.writer(fobj)
-        csv.writerow(["First Name", "Last Name", "Email"])
+        writer = csv.writer(fobj)
+        writer.writerow(["First Name", "Last Name", "Email"])
 
         wp_url = toolkit.config.get("ckanext.switzerland.wp_url")
         api_key = toolkit.config.get("ckanext.switzerland.user_list_api_key")
@@ -57,15 +57,15 @@ def email_address_exporter():
         )
         users = requests.get(url).json()["data"]
 
-        if request.params["filter"] != "all":
+        if request.args["filter"] != "all":
             followers = get_action("dataset_follower_list")(
-                {}, {"id": request.params["filter"]}
+                {}, {"id": request.args["filter"]}
             )
             followers = {follower["name"] for follower in followers}
             users = [u for u in users if u["user_login"] in followers]
 
         for user in users:
-            csv.writerow([user["first_name"], user["last_name"], user["user_email"]])
+            writer.writerow([user["first_name"], user["last_name"], user["user_email"]])
 
         response = make_response(fobj.getvalue())
         response.headers["Content-Type"] = "text/csv"
