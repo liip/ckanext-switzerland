@@ -1,4 +1,6 @@
 {% ckan_extends %}
 
-{% asset 'switzerland/sort_resources' %}
-
+{% block resource_list %}
+    {{ super() }}
+    {% asset 'switzerland/sort_resources' %}
+{% endblock %}
