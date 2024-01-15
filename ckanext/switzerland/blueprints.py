@@ -42,6 +42,9 @@ ogdch_resource = Blueprint("ogdch_resource", __name__)
 
 
 def email_address_exporter():
+    """Returns a CSV of all Wordpress users: first name, last name and email address.
+    Does not return information about CKAN users.
+    """
     if not (c.userobj and c.userobj.sysadmin):
         abort(401, _("Unauthorized"))
 
