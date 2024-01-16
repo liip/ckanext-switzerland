@@ -4,7 +4,7 @@
   <div class="container-fluid">
 
       {% block skip %}
-        <div class="hide"><a href=".main-content">{{ _('Skip to content') }}</a></div>
+        <div class="visually-hidden-focusable"><a href="#content">{{ _('Skip to main content') }}</a></div>
       {% endblock %}
 
       {#
@@ -39,7 +39,7 @@
               {% endblock %}
 
               {% block toolbar %}
-                <div class="row">
+                <div class="row" role="navigation" aria-label="{{ _('Breadcrumb') }}">
                   {% block breadcrumb %}
                     {% if self.breadcrumb_content() | trim %}
                       <ol class="breadcrumb">
