@@ -72,9 +72,6 @@ setup(
         sbb_harvester=ckanext.switzerland.harvester.sbb_harvester:SBBHarvester
         timetable_harvester=ckanext.switzerland.harvester.timetable_harvester:TimetableHarvester
 
-        [paste.paster_command]
-        ogdch=ckanext.switzerland.commands:OgdchCommands
-
         [ckan.rdf.profiles]
         swiss_dcat_ap=ckanext.switzerland.dcat.profiles:SwissDCATAPProfile
 
