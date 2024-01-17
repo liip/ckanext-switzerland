@@ -13,10 +13,6 @@ pip install -r https://gitlab.liip.ch/odp_oev_schweiz/ckanext-harvest/-/raw/main
 pip install -e git+https://github.com/ckan/ckanext-scheming.git@release-3.0.0#egg=ckanext-scheming
 pip install -e git+https://github.com/ckan/ckanext-fluent.git#egg=ckanext-fluent
 pip install -r https://raw.githubusercontent.com/ckan/ckanext-fluent/master/requirements.txt
-pip install -e git+https://github.com/opendata-swiss/ckanext-ogdchcommands.git#egg=ckanext-ogdchcommands
-pip install -e 'git+https://github.com/ckan/ckanext-xloader.git@1.0.1#egg=ckanext-xloader'
-pip install -r https://raw.githubusercontent.com/ckan/ckanext-xloader/1.0.1/requirements.txt
-pip install -U requests[security]
 
 # Replace default path to CKAN core config file with the one on the container
 sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' /__w/ckanext-switzerland/ckanext-switzerland/test.ini
