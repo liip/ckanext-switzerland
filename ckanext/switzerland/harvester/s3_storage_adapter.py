@@ -9,6 +9,7 @@ The class is intended to be used with Python's `with` statement, e.g.
         ...
 `
 """
+
 import datetime
 import logging
 import os
