@@ -75,6 +75,6 @@ jobs:
     - name: Run tests
       run: |
         docker ps
-        pip freeze
+        docker exec test_ckan pip freeze
         docker exec test_ckan pytest --ckan-ini=$WORKDIR/test.ini --disable-warnings --cov=ckanext.switzerland \
           $WORKDIR/ckanext/switzerland/tests
