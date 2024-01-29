@@ -2,7 +2,7 @@
 
 # Install requirements and ckanext
 pip install -r /__w/ckanext-switzerland/ckanext-switzerland/requirements.txt
-pip install -r /__w/ckanext-switzerland/ckanext-switzerland/dev-requirements.txt
+pip install --ignore-installed -r /__w/ckanext-switzerland/ckanext-switzerland/dev-requirements.txt
 pip install -e /__w/ckanext-switzerland/ckanext-switzerland/
 
 # Install ckanext dependencies

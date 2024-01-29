@@ -4,21 +4,6 @@
 
 {% block maintag_class %}dataset-detail{% endblock %}
 
-{% block page_title %}
-  {% if pkg.private %}
-    <span><i class="fa fa-lock"></i> {{ _('Private') }}</span>
-  {% endif %}
-  <h1>
-    {{ h.dataset_display_name(pkg) }}
-    {% if pkg.state.startswith('draft') %}
-      [{{ _('Draft') }}]
-    {% endif %}
-    {% if pkg.state == 'deleted' %}
-      [{{ _('Deleted') }}]
-    {% endif %}
-  </h1>
-{% endblock %}
-
 {% block primary_content_inner %}
 
     {% block package_revision_info %}
@@ -34,17 +19,20 @@
       {% endif %}
     {% endblock %}
 
-  <h1>
     {% block page_heading %}
-      {{ h.dataset_display_name(pkg) }}
-      {% if pkg.state.startswith('draft') %}
-        [{{ _('Draft') }}]
+      {% if pkg.private %}
+        <span><i class="fa fa-lock"></i> {{ _('Private') }}</span>
       {% endif %}
-      {% if pkg.state == 'deleted' %}
-        [{{ _('Deleted') }}]
-      {% endif %}
+      <h1>
+        {{ h.dataset_display_name(pkg) }}
+        {% if pkg.state.startswith('draft') %}
+          [{{ _('Draft') }}]
+        {% endif %}
+        {% if pkg.state == 'deleted' %}
+          [{{ _('Deleted') }}]
+        {% endif %}
+      </h1>
     {% endblock %}
-  </h1>
 
   {% block package_description %}
     {% snippet "package/snippets/description.html", pkg=pkg %}
