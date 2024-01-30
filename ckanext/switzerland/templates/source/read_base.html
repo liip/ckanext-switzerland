@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+{% block page_header_tabs %}
+  {{ h.build_nav_icon(c.dataset_type ~ '.read', _('Datasets'), id=harvest_source.name, icon='sitemap') }}
+  {{ h.build_nav_icon('harvester.about', _('About'), id=harvest_source.name, icon='info-sign') }}
+{% endblock %}
