@@ -87,7 +87,7 @@ new Vue({
         self.datasetResults = []
         datasets[0].result.results.map(function(result) {
           self.datasetResults.push({
-            title: result.title[self.language],
+            title: result.title[self.language] || result.name,
             description: result.description[self.language],
             link: '/' + self.language + '/dataset/' + result.name
           })
