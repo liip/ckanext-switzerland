@@ -73,23 +73,6 @@
                     <a href="#wordpress" @click="setPage(pageNumber, paginatePages)">[[ pageNumber+1 ]]</a>
                   </li>
                 </ul>
-
-                <h2>
-                  <a name="faq"></a>
-                  {% trans %}[[ faqResults.length ]] FAQ entries found for "[[ currentSearchTerm ]]"{% endtrans %}
-                </h2>
-                <div v-for="result in faqResults | paginate paginateFAQs">
-                  <hr>
-                  <h3><a href="[[ result.link ]]">[[ result.title ]]</a></h3>
-                  <div>[[[ result.description ]]]</div>
-                </div>
-                <ul class="pagination" v-if="paginateFAQs.resultCount > paginateFAQs.itemsPerFAQ">
-                  <li v-for="pageNumber in totalFAQs" :class="{active: paginateFAQs.currentFAQ === pageNumber}">
-                    <a href="#wordpress" @click="setFAQ(pageNumber, paginateFAQs)">[[ pageNumber+1 ]]</a>
-                  </li>
-                </ul>
-
-
               </div>
                <br>
             </div>

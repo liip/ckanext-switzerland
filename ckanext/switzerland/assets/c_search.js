@@ -8,7 +8,6 @@ new Vue({
     searchTerm: '',
     pageResults: [],
     datasetResults: [],
-    faqResults: [],
 
     language: '',
     // shows an error in gui when true
@@ -23,11 +22,6 @@ new Vue({
       currentPage: 1,
       itemsPerPage: 5,
       resultCount: 0
-    },
-    paginateFAQs: {
-      currentPage: 1,
-      itemsPerPage: 5,
-      resultCount: 0
     }
   },
   computed: {
@@ -36,9 +30,6 @@ new Vue({
       },
       totalDatasets: function() {
         return Math.ceil(this.paginateDatasets.resultCount / this.paginateDatasets.itemsPerPage)
-      },
-      totalFAQs: function() {
-        return Math.ceil(this.paginateFAQs.resultCount / this.paginateFAQs.itemsPerPage)
       }
   },
   ready: function() {
@@ -77,12 +68,7 @@ new Vue({
         'search': this.searchTerm,
         'lang': self.language
       });
-      var faqSearch = $.get('/wp-json/wp/v2/hrf_faq/', {
-        'per_page': 100,
-        'search': this.searchTerm,
-        'lang': self.language
-      });
-      $.when(ckanSearch, pageSearch, faqSearch).then(function(datasets, pages, faqs) {
+      $.when(ckanSearch, pageSearch).then(function(datasets, pages) {
         // ckan search results
         self.datasetResults = []
         datasets[0].result.results.map(function(result) {
@@ -99,16 +85,6 @@ new Vue({
           self.pageResults.push({
             title: result.title.rendered,
             description: result.excerpt.rendered,
-            link: result.link
-          })
-        })
-
-        // wordpress faq search results
-        self.faqResults = []
-        faqs[0].map(function(result) {
-          self.faqResults.push({
-            title: result.title.rendered,
-            description: result.content.rendered,
             link: result.link
           })
         })
@@ -137,9 +113,6 @@ new Vue({
       }
       else if (paginate == this.paginateDatasets && paginate.currentPage >= this.totalDatasets) {
         paginate.currentPage = this.totalDatasets
-      }
-      else if (paginate == this.paginateFAQs && paginate.currentPage >= this.totalFAQs) {
-        paginate.currentPage = this.totalFAQs
       }
       var index = paginate.currentPage * paginate.itemsPerPage
       return list.slice(index, index + paginate.itemsPerPage)
