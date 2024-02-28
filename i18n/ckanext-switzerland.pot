@@ -1315,10 +1315,6 @@ msgstr ""
 msgid "[[ pageResults.length ]] pages found for \"[[ currentSearchTerm ]]\""
 msgstr ""
 
-#: ckanext/switzerland/templates/search/search.html:83
-msgid "[[ faqResults.length ]] FAQ entries found for \"[[ currentSearchTerm ]]\""
-msgstr ""
-
 #: ckanext/switzerland/templates/snippets/activity_item.html:3
 msgid "New activity item"
 msgstr ""

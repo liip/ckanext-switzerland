@@ -1,0 +1,25 @@
+sort_resources:
+  output: switzerland/sort_resources.js
+  contents:
+    - sort_resources.js
+  filters: rjsmin
+  extra:
+    preload:
+      - vendor/jquery
+
+relations:
+  output: switzerland/relations.js
+  contents:
+    - relations.js
+  filters: rjsmin
+  extra:
+    preload:
+      - base/main
+
+search:
+  output: switzerland/search.js
+  contents:
+    - a_vue.js
+    - b_vuevalidator.js
+    - c_search.js
+  filters: rjsmin

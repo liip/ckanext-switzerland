@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{# 
+{#
 	we want the search page to be full-width. since the col classes are on element outside of the primary_content_inner block,
 	I had to override the secondary block with <nothing> and the whole primary block with the same code that's in base.html,
 	except with .col-md-12
@@ -25,10 +25,6 @@
             </div>
           {% endif %}
           {% block primary_content_inner %}
-            {% resource 'switzerland/a_vue.js' %}
-            {% resource 'switzerland/b_vuevalidator.js' %}
-            {% resource 'switzerland/c_search.js' %}
-
             <h1>{{ _('Search') }}</h1>
             <div id="app" v-cloak>
               <form class="form-inline" v-on:submit.prevent="search">
@@ -77,23 +73,6 @@
                     <a href="#wordpress" @click="setPage(pageNumber, paginatePages)">[[ pageNumber+1 ]]</a>
                   </li>
                 </ul>
-
-                <h2>
-                  <a name="faq"></a>
-                  {% trans %}[[ faqResults.length ]] FAQ entries found for "[[ currentSearchTerm ]]"{% endtrans %}
-                </h2>
-                <div v-for="result in faqResults | paginate paginateFAQs">
-                  <hr>
-                  <h3><a href="[[ result.link ]]">[[ result.title ]]</a></h3>
-                  <div>[[[ result.description ]]]</div>
-                </div>
-                <ul class="pagination" v-if="paginateFAQs.resultCount > paginateFAQs.itemsPerFAQ">
-                  <li v-for="pageNumber in totalFAQs" :class="{active: paginateFAQs.currentFAQ === pageNumber}">
-                    <a href="#wordpress" @click="setFAQ(pageNumber, paginateFAQs)">[[ pageNumber+1 ]]</a>
-                  </li>
-                </ul>
-
-
               </div>
                <br>
             </div>
@@ -103,3 +82,8 @@
     {% endblock %}
   </div>
 {% endblock %}
+
+{%- block scripts %}
+  {{ super() }}
+  {% asset 'switzerland/search' %}
+{% endblock -%}

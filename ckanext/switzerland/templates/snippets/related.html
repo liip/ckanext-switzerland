@@ -2,7 +2,7 @@
 <h2 class="module-heading"><i class="icon-medium icon-picture"></i> {{ _('Related') }}</h2>
   <div class="module-content media">
     {% if item %}
-      {% with url = h.url_for(controller='related', action='list', id=pkg_name) %}
+      {% with url = h.url_for('related.list', id=pkg_name) %}
         <a class="image logo" href="{{ url }}">
           <img src="{{ item.image_url or h.url_for_static('/base/images/placeholder-200x125.png') }}" width="200" height="125" alt="{{ item.title }}" />
         </a>
@@ -15,7 +15,7 @@
       <p>{% trans %}No apps, ideas, news stories or images have been
       related to this dataset yet.{% endtrans %}</p>
       {% if h.check_access('related_create') %}
-        <p class="action">{% link_for _('Add Item'), controller='related', action='new', id=pkg_name, icon='plus', class_='btn btn-default' %}</p>
+        <p class="action">{% link_for _('Add Item'), named_route='related.new', id=pkg_name, icon='plus', class_='btn btn-default' %}</p>
       {% endif %}
     {% endif %}
   </div>

@@ -1,10 +1,10 @@
-{% extends "package/base.html" %}
+{% ckan_extends %}
 
-{% block subtitle %}{{ pkg.title or pkg.name }} - {{ super() }}{% endblock %}
+{% set default_group_type = h.default_group_type('group') %}
 
 {% block links -%}
   {{ super() }}
-  <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
+  <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for('dataset.read', id=pkg.id, format='rdf', qualified=True) }}"/>
 {% endblock -%}
 
 {% block head_extras -%}
@@ -14,36 +14,23 @@
 
   <meta name="twitter:card" content="summary" />
   <meta property="twitter:title" content="{{ h.dataset_display_name(pkg) }}">
-  <meta property="twitter:description" content="{{ h.get_localized_value(h.parse_json(pkg.description)) }}">
   <meta name="twitter:image" content="{{ g.site_url }}/wp-content/themes/odpch-wp-theme/img/twitter_card.png" />
 {% endblock -%}
 
-{% block content_action %}
-  {% if h.check_access('package_update', {'id':pkg.id }) %}
-    {% link_for _('Manage'), controller='package', action='edit', id=pkg.name, class_='btn btn-default', icon='wrench' %}
-  {% endif %}
-{% endblock %}
-
 {% block content_primary_nav %}
-  {{ h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name) }}
-  {{ h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name) }}
+  {{ h.build_nav_icon(dataset_type ~ '.read', _('Dataset'),  id=pkg.name, icon='sitemap') }}
+  {{ h.build_nav_icon('activity.package_activity', _('Activity Stream'), id=pkg.id if is_activity_archive else pkg.name, icon='clock') }}
 
-  <!-- REVISION TAB -->
-  {% if (h.admin_only and h.check_access('sysadmin')) or not h.admin_only %}
-    {{ h.build_nav_icon('dataset_revision', _('Revisions'), id=pkg.name, icon='shield') }}
-    {{ h.build_nav_icon('dataset_groups', _('Groups'), id=pkg.name) }}
-  {% endif %}
-
-  {# {{ h.build_nav_icon('related_list', _('Related'), id=pkg.name) }} #}
+  {{ h.build_nav_icon(dataset_type ~ '.groups', h.humanize_entity_type('group', default_group_type, 'content tab') or _('Groups'), id=pkg.name, icon='users') }}
 {% endblock %}
 
 {% block primary_content_inner %}
     {% block package_revision_info %}
-      {% if c.revision_date %}
+      {% if revision_date %}
         <div class="module info alert alert-info">
           <p class="module-content">
-            {% set timestamp = h.render_datetime(c.revision_date, with_hours=True) %}
-            {% set url = h.url(controller='package', action='read', id=pkg.name) %}
+            {% set timestamp = h.render_datetime(revision_date, with_hours=True) %}
+            {% set url = h.url_for('dataset.read', id=pkg.name) %}
 
             {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
           </p>
@@ -52,23 +39,12 @@
     {% endblock %}
 {% endblock %}
 
-{% block secondary_content %}
+{% block package_organization %}
+  {% if pkg.organization %}
+    {% set org = h.get_localized_org(pkg.owner_org) %}
+    {% snippet "snippets/organization.html", organization=org, has_context_title=true %}
+  {% endif %}
+{% endblock %}
 
-  {% block secondary_help_content %}{% endblock %}
-
-  {% block package_info %}
-    {% snippet 'package/snippets/info.html', pkg=pkg %}
-  {% endblock %}
-
-  {% block package_organization %}
-    {% if pkg.organization %}
-      {% set org = h.get_localized_org(pkg.owner_org) %}
-      {% snippet "snippets/organization.html", organization=org, has_context_title=true %}
-    {% endif %}
-  {% endblock %}
-
-  {% block package_social %}
-    {% snippet "snippets/social.html" %}
-  {% endblock %}
-
+{% block package_license %}
 {% endblock %}

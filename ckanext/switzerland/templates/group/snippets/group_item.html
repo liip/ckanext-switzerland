@@ -12,13 +12,13 @@ Example:
     </ul>
 #}
 {% set type = group.type or 'group' %}
-{% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
+{% set url = h.url_for(type ~ '.read', id=group.name) %}
 {% block item %}
 <li class="page-item">
   {% block item_inner %}
   {% block image %}{% endblock %}
   {% block title %}
-    <h3 class="media-heading">{{ h.get_localized_value(h.parse_json(group.display_name)) }}</h3>
+    <h3 class="media-heading">{{ h.parse_and_localize(group.display_name) }}</h3>
   {% endblock %}
   {% block description %}{% endblock %}
   {% block datasets %}{% endblock %}
@@ -28,7 +28,7 @@ Example:
   </a>
   {% endblock %}
   {% if group.user_member %}
-    <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-small media-edit" title="{{ _('Remove dataset from this group') }}"/>
+    <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm media-edit" title="{{ _('Remove dataset from this group') }}"/>
   {% endif %}
   {% endblock %}
 </li>

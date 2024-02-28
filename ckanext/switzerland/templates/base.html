@@ -23,7 +23,9 @@
 
 {% block styles %}
   <link rel="stylesheet" href="{{ c.wordpress_css }}">
-
+  {% asset 'ckanext-activity/activity-css' %}
+  {% asset 'ckanext-activity/activity' %}
+  {% asset 'ckanext-harvest/harvest_css' %}
 {% endblock %}
 
 {% block title %}

@@ -1,9 +1,9 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ _('Groups') }}{% endblock %}
+{% block subtitle %}{{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% link_for _('Data'), controller='group', action='index', named_route=group_type + '_index' %}</li>
+  <li class="active">{% link_for _('Data'), named_route=group_type+'.index' %}</li>
 {% endblock %}
 
 {% block page_header %}{% endblock %}
@@ -13,27 +13,27 @@
     <div class="page_primary_action">
 {% block page_primary_action %}
   {% if h.check_access('group_create') %}
-    {% link_for _('Add Group'), controller='group', action='new', class_='btn btn-primary', icon='plus-square', named_route=group_type + '_new' %}
+    {% link_for h.humanize_entity_type('group', group_type, 'add link') or _('Add Group'), named_route=group_type+'.new', class_='btn btn-primary', icon='plus-square' %}
   {% endif %}
 {% endblock %}
     </div>
     <h1 class="hide-heading">{{ _('Groups') }}</h1>
       {% block groups_list %}
-        {% if c.page.items or request.params %}
-          {% if c.page.items %}
-            {% snippet "group/snippets/group_list.html", groups=c.page.items %}
+        {% if page.items or request.params %}
+          {% if page.items %}
+            {% snippet "group/snippets/group_list.html", groups=page.items %}
           {% endif %}
         {% else %}
           <p class="empty">
             {{ _('There are currently no groups for this site') }}.
             {% if h.check_access('group_create') %}
-              {% link_for _('How about creating one?'), controller='group', action='new' %}</a>.
+              {% link_for _('How about creating one?'), named_route='group.new' %}</a>.
             {% endif %}
           </p>
         {% endif %}
       {% endblock %}
       {% block page_pagination %}
-        {{ c.page.pager(q=c.q or '', sort=c.sort_by_selected or '') }}
+        {{ page.pager(q=q or '', sort=sort_by_selected or '') }}
       {% endblock %}
   </div>
 {% endblock %}

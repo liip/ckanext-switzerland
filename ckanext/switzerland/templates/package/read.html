@@ -1,32 +1,17 @@
 {% extends "package/read_base.html" %}
 
-{% set pkg = c.pkg_dict %}
+{% set pkg = pkg_dict %}
 
 {% block maintag_class %}dataset-detail{% endblock %}
-
-{% block page_title %}
-  {% if pkg.private %}
-    <span><i class="fa fa-lock"></i> {{ _('Private') }}</span>
-  {% endif %}
-  <h1>
-    {{ pkg.title or pkg.name }}
-    {% if pkg.state.startswith('draft') %}
-      [{{ _('Draft') }}]
-    {% endif %}
-    {% if pkg.state == 'deleted' %}
-      [{{ _('Deleted') }}]
-    {% endif %}
-  </h1>
-{% endblock %}
 
 {% block primary_content_inner %}
 
     {% block package_revision_info %}
-      {% if c.revision_date %}
+      {% if revision_date %}
         <div class="module info alert alert-info">
           <p class="module-content">
-            {% set timestamp = h.render_datetime(c.revision_date, with_hours=True) %}
-            {% set url = h.url(controller='package', action='read', id=pkg.name) %}
+            {% set timestamp = h.render_datetime(revision_date, with_hours=True) %}
+            {% set url = h.url_for('dataset.read', id=pkg.name) %}
 
             {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
           </p>
@@ -34,17 +19,20 @@
       {% endif %}
     {% endblock %}
 
-  <h1>
     {% block page_heading %}
-      {{ pkg.title or pkg.name }}
-      {% if pkg.state.startswith('draft') %}
-        [{{ _('Draft') }}]
+      {% if pkg.private %}
+        <span><i class="fa fa-lock"></i> {{ _('Private') }}</span>
       {% endif %}
-      {% if pkg.state == 'deleted' %}
-        [{{ _('Deleted') }}]
-      {% endif %}
+      <h1>
+        {{ h.dataset_display_name(pkg) }}
+        {% if pkg.state.startswith('draft') %}
+          [{{ _('Draft') }}]
+        {% endif %}
+        {% if pkg.state == 'deleted' %}
+          [{{ _('Deleted') }}]
+        {% endif %}
+      </h1>
     {% endblock %}
-  </h1>
 
   {% block package_description %}
     {% snippet "package/snippets/description.html", pkg=pkg %}
@@ -62,7 +50,4 @@
     {% snippet "package/snippets/related_datasets.html", pkg=pkg %}
   {% endblock %}
 
-  {% block discourse_comments %}
-    {{ h.discourse_comments() }}
-  {% endblock %}
 {% endblock %}
