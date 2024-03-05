@@ -454,7 +454,7 @@ class SwissDCATAPProfile(RDFProfile):
                 publisher_name = publisher["label"]
 
                 publisher_details = BNode()
-                g.add((publisher_details, RDF.type, RDF.Description))
+                g.add((publisher_details, RDF.type, DCT.Description))
                 g.add((publisher_details, RDFS.label, Literal(publisher_name)))
                 g.add((dataset_ref, DCT.publisher, publisher_details))
 
