@@ -18,7 +18,6 @@ import logging
 import os
 import re
 import shutil
-import sys
 import time
 import traceback
 from datetime import datetime
@@ -365,45 +364,11 @@ class BaseSBBHarvester(HarvesterBase):
             file_format = mimetype = mimetype_inner = ext
         return file_format, mimetype, mimetype_inner
 
-    def _setup_logging(self, harvest_job):
-        log_dir = os.path.join(
-            "/etc/ckan/harvester_logs", munge_filename(harvest_job.source.title)
-        )
-        try:
-            os.makedirs(log_dir)
-        except os.error:
-            pass  # directory already exists
-        file_handler = logging.FileHandler(
-            os.path.join(
-                log_dir,
-                "{}.log".format(harvest_job.created.strftime("%Y-%m-%d_%H-%M-%S")),
-            ),
-            "a",
-        )
-        file_formatter = logging.Formatter(
-            "%(asctime)s %(levelname)-5.5s [%(name)s] %(message)s"
-        )
-        file_handler.setFormatter(file_formatter)
-        stdout_handler = logging.StreamHandler(stream=sys.stdout)
-        stdout_formatter = logging.Formatter("[%(name)s] %(message)s")
-        stdout_handler.setFormatter(stdout_formatter)
-
-        for name, logger in list(logging.Logger.manager.loggerDict.items()):
-            if isinstance(logger, logging.Logger):
-                if name.startswith("ckan"):
-                    logger.setLevel(logging.DEBUG)
-                if logger.handlers:
-                    for handler in logger.handlers[:]:
-                        logger.removeHandler(handler)
-                    logger.addHandler(file_handler)
-                    logger.addHandler(stdout_handler)
-
     # =======================================================================
     # GATHER Stage
     # =======================================================================
 
     def gather_stage(self, harvest_job):
-        self._setup_logging(harvest_job)
         try:
             return self.gather_stage_impl(harvest_job)
         except Exception:
@@ -421,7 +386,6 @@ class BaseSBBHarvester(HarvesterBase):
     # =======================================================================
 
     def fetch_stage(self, harvest_object):
-        self._setup_logging(harvest_object.job)
         try:
             return self._fetch_stage(harvest_object)
         except Exception:
@@ -570,7 +534,6 @@ class BaseSBBHarvester(HarvesterBase):
     # =======================================================================
 
     def import_stage(self, harvest_object):
-        self._setup_logging(harvest_object.job)
         try:
             return self._import_stage(harvest_object)
         except Exception:
