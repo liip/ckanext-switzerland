@@ -444,7 +444,15 @@ class BaseSBBHarvester(HarvesterBase):
             )
             return False
 
-        # the folder where the file is to be stored
+        # the folder where the file is to be downloaded to
+        if "workingdir" not in obj and "tmpfolder" in obj:
+            self._save_object_error(
+                "Fetch stage received a harvest object that has already been "
+                "processed by this stage: %s" % harvest_object.__dict__,
+                harvest_object,
+                stage,
+            )
+            return False
         tmpfolder = obj.get("workingdir")
         if not tmpfolder:
             self._save_object_error(
@@ -454,7 +462,6 @@ class BaseSBBHarvester(HarvesterBase):
             )
             return False
 
-        # the folder where the file is to be stored
         remotefolder = obj.get("remotefolder")
         if not remotefolder:
             self._save_object_error(
