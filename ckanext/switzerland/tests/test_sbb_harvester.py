@@ -160,8 +160,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
     def test_updated_file_before_last_harvester_run(self):
         """
         When modified date of file is older than the last harvester run date, the file
-        should not be harvested again, except when the file is missing in the dataset,
-        that is what we are testing here.
+        should not be harvested again, even if there is no resource with this filename
+        on the dataset.
         """
         filesystem = self.get_filesystem()
         MockFTPStorageAdapter.filesystem = filesystem
@@ -174,7 +174,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         dataset = self.get_dataset()
 
-        self.assertEqual(len(dataset["resources"]), 2)
+        self.assertEqual(len(dataset["resources"]), 1)
+        self.assertEqual(dataset["resources"][0]["identifier"], "Didok.csv")
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     @pytest.mark.ckan_config("ckan.site_url", "http://odp.test")

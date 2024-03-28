@@ -9,7 +9,6 @@ from datetime import datetime
 import voluptuous
 from ckan import model
 from ckan.lib.helpers import json
-from ckan.lib.munge import munge_filename
 from ckan.logic import NotFound
 from ckan.model import Session
 from ckan.plugins.toolkit import config as ckanconf
@@ -167,9 +166,6 @@ class SBBHarvester(BaseSBBHarvester):
                 try:
                     existing_dataset = self._get_dataset(self.config["dataset"])
                     package = model.Package.get(existing_dataset["id"])
-                    existing_resources = [
-                        os.path.basename(r.url) for r in package.resources
-                    ]
                     # Request only the resources modified since last harvest job
                     for f in filelist[:]:
                         modified_date = modified_dates.get(f)
@@ -178,8 +174,6 @@ class SBBHarvester(BaseSBBHarvester):
                         if (
                             modified_date
                             and modified_date < previous_job.gather_started
-                            and munge_filename(os.path.basename(f))
-                            in existing_resources
                         ):
                             # do not run the harvest for this file
                             filelist.remove(f)

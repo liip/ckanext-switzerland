@@ -38,9 +38,8 @@ class MockFTPStorageAdapter(FTPStorageAdapter):
     def get_modified_date(self, filename, folder=None):
         if folder is None:
             folder = self.cwd
-        return self.filesystem.getinfo(os.path.join(folder, filename)).get(
-            "details", "modified"
-        )
+        modified = self.filesystem.getmodified(os.path.join(folder, filename))
+        return modified.replace(tzinfo=None)
 
     def fetch(self, filename, localpath=None):
         if not localpath:
