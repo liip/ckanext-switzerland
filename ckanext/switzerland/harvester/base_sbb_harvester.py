@@ -917,13 +917,7 @@ class BaseSBBHarvester(HarvesterBase):
         # catch-all
         identifier_regex = self.config["resource_regex"]
         for resource in package["resources"]:
-            log.info("Testing filename: %s", resource["identifier"])
             if re.match(identifier_regex, resource["identifier"], re.IGNORECASE):
-                log.info(
-                    "Filename %s matches regex %s",
-                    resource["identifier"],
-                    identifier_regex,
-                )
                 ordered_resources.append(resource)
             else:
                 unmatched_resources.append(resource)
