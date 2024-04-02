@@ -649,7 +649,10 @@ class BaseSBBHarvester(HarvesterBase):
             # check if there is a resource matching the filename in the package
             old_resource_meta = self.find_resource_in_package(dataset, f)
             if old_resource_meta:
-                log.info("Found existing resource: %s" % str(old_resource_meta))
+                log.info(
+                    "Found existing resource with this filename: %s"
+                    % str(old_resource_meta)
+                )
                 old_resource_id = old_resource_meta["id"]
 
         except NotFound:
@@ -804,6 +807,10 @@ class BaseSBBHarvester(HarvesterBase):
                 old_resources, _ = self._get_ordered_resources(dataset)
                 if len(old_resources):
                     old_resource_meta = old_resources[0]
+                    log.info(
+                        "Using existing resource to copy metadata from: %s"
+                        % str(old_resource_meta)
+                    )
 
             resource_meta = self.resource_dict_meta
 
