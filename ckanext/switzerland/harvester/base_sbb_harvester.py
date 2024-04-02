@@ -881,6 +881,8 @@ class BaseSBBHarvester(HarvesterBase):
 
                 get_action("resource_delete")(context, {"id": old_resource_id})
 
+            Session.commit()
+
             log.info("Successfully harvested file %s" % f)
 
             # ---------------------------------------------------------------------
