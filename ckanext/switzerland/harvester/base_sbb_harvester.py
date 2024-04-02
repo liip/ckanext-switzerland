@@ -864,9 +864,8 @@ class BaseSBBHarvester(HarvesterBase):
             resource_meta["upload"] = upload
             resource_meta["modified"] = now
 
-            get_action("resource_create")(context, resource_meta)
-
-            log.info("Successfully created resource")
+            created_resource = get_action("resource_create")(context, resource_meta)
+            log.info("Successfully created resource {}".format(created_resource["id"]))
 
             # delete the old version of the resource
             if old_resource_id:
