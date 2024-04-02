@@ -25,7 +25,6 @@ from datetime import datetime
 import voluptuous
 from ckan import model
 from ckan.lib import helpers, search, uploader
-from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename, munge_name
 from ckan.logic import NotFound, check_access, get_action
@@ -974,7 +973,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             for resource in ordered_resources[max_resources:]:
                 self._delete_version(
-                    context, package["id"], resource_filename(resource["url"])
+                    context, package, resource_filename(resource["url"])
                 )
 
             ordered_resources = ordered_resources[:max_resources]
@@ -1031,27 +1030,24 @@ class BaseSBBHarvester(HarvesterBase):
 
         search.rebuild(package["id"])
 
-    def _delete_version(self, context, package_id, filename):
+    def _delete_version(self, context, package, filename):
         """
         delete the current and all old revisions of a resource with the given filename
         """
-        package = model.Package.get(package_id)
-
-        for resource in package.resources_all:
-            if resource_filename(resource.url) == filename:
+        for resource in package["resources"]:
+            if resource_filename(resource["url"]) == filename:
                 # delete the file from the filestore
-                resource_dict = resource_dictize(resource, {"model": model})
-                path = uploader.ResourceUpload(resource_dict).get_path(resource.id)
+                path = uploader.ResourceUpload(resource).get_path(resource["id"])
                 if os.path.exists(path):
                     os.remove(path)
 
                 # delete the datastore table
                 try:
                     get_action("datastore_delete")(
-                        context, {"resource_id": resource.id, "force": True}
+                        context, {"resource_id": resource["id"], "force": True}
                     )
                 except NotFound:
                     pass  # Sometimes importing the data into the datastore fails
 
                 # delete the resource itself
-                get_action("resource_delete")(context, {"id": resource.id})
+                get_action("resource_delete")(context, {"id": resource["id"]})
