@@ -1043,11 +1043,14 @@ class BaseSBBHarvester(HarvesterBase):
         search.rebuild(package["id"])
 
     def _delete_version(self, context, package, filename):
-        """
-        delete the current and all old revisions of a resource with the given filename
-        """
+        """Fully delete the resource with the given filename"""
         for resource in package["resources"]:
             if resource_filename(resource["url"]) == filename:
+                log.debug(
+                    "Deleting resource {} with filename {}".format(
+                        resource["id"], filename
+                    )
+                )
                 # delete the file from the filestore
                 path = uploader.ResourceUpload(resource).get_path(resource["id"])
                 if os.path.exists(path):
