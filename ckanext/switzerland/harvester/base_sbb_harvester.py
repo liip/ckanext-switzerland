@@ -25,7 +25,6 @@ from datetime import datetime
 import voluptuous
 from ckan import model
 from ckan.lib import helpers, search, uploader
-from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename, munge_name
 from ckan.logic import NotFound, check_access, get_action
@@ -650,7 +649,10 @@ class BaseSBBHarvester(HarvesterBase):
             # check if there is a resource matching the filename in the package
             old_resource_meta = self.find_resource_in_package(dataset, f)
             if old_resource_meta:
-                log.info("Found existing resource: %s" % str(old_resource_meta))
+                log.info(
+                    "Found existing resource with this filename: %s"
+                    % str(old_resource_meta)
+                )
                 old_resource_id = old_resource_meta["id"]
 
         except NotFound:
@@ -805,6 +807,10 @@ class BaseSBBHarvester(HarvesterBase):
                 old_resources, _ = self._get_ordered_resources(dataset)
                 if len(old_resources):
                     old_resource_meta = old_resources[0]
+                    log.info(
+                        "Using existing resource to copy metadata from: %s"
+                        % str(old_resource_meta)
+                    )
 
             resource_meta = self.resource_dict_meta
 
@@ -865,9 +871,8 @@ class BaseSBBHarvester(HarvesterBase):
             resource_meta["upload"] = upload
             resource_meta["modified"] = now
 
-            get_action("resource_create")(context, resource_meta)
-
-            log.info("Successfully created resource")
+            created_resource = get_action("resource_create")(context, resource_meta)
+            log.info("Successfully created resource {}".format(created_resource["id"]))
 
             # delete the old version of the resource
             if old_resource_id:
@@ -882,6 +887,8 @@ class BaseSBBHarvester(HarvesterBase):
                     pass  # Sometimes importing the data into the datastore fails
 
                 get_action("resource_delete")(context, {"id": old_resource_id})
+
+            Session.commit()
 
             log.info("Successfully harvested file %s" % f)
 
@@ -910,13 +917,7 @@ class BaseSBBHarvester(HarvesterBase):
         # catch-all
         identifier_regex = self.config["resource_regex"]
         for resource in package["resources"]:
-            log.info("Testing filename: %s", resource["identifier"])
             if re.match(identifier_regex, resource["identifier"], re.IGNORECASE):
-                log.info(
-                    "Filename %s matches regex %s",
-                    resource["identifier"],
-                    identifier_regex,
-                )
                 ordered_resources.append(resource)
             else:
                 unmatched_resources.append(resource)
@@ -935,6 +936,7 @@ class BaseSBBHarvester(HarvesterBase):
 
     def finalize(self, harvest_object, harvest_object_data):
         context = {"model": model, "session": Session, "user": self._get_user_name()}
+        stage = "Import"
 
         log.info("Running finalizing tasks:")
         # ----------------------------------------------------------------------------
@@ -973,9 +975,18 @@ class BaseSBBHarvester(HarvesterBase):
             )
 
             for resource in ordered_resources[max_resources:]:
-                self._delete_version(
-                    context, package["id"], resource_filename(resource["url"])
-                )
+                try:
+                    self._delete_version(
+                        context, package, resource_filename(resource["url"])
+                    )
+                except Exception as e:
+                    self._save_object_error(
+                        "Error deleting resource {} in finalizing tasks: {}".format(
+                            resource["id"], e
+                        ),
+                        harvest_object,
+                        stage,
+                    )
 
             ordered_resources = ordered_resources[:max_resources]
 
@@ -1031,27 +1042,27 @@ class BaseSBBHarvester(HarvesterBase):
 
         search.rebuild(package["id"])
 
-    def _delete_version(self, context, package_id, filename):
-        """
-        delete the current and all old revisions of a resource with the given filename
-        """
-        package = model.Package.get(package_id)
-
-        for resource in package.resources_all:
-            if resource_filename(resource.url) == filename:
+    def _delete_version(self, context, package, filename):
+        """Fully delete the resource with the given filename"""
+        for resource in package["resources"]:
+            if resource_filename(resource["url"]) == filename:
+                log.debug(
+                    "Deleting resource {} with filename {}".format(
+                        resource["id"], filename
+                    )
+                )
                 # delete the file from the filestore
-                resource_dict = resource_dictize(resource, {"model": model})
-                path = uploader.ResourceUpload(resource_dict).get_path(resource.id)
+                path = uploader.ResourceUpload(resource).get_path(resource["id"])
                 if os.path.exists(path):
                     os.remove(path)
 
                 # delete the datastore table
                 try:
                     get_action("datastore_delete")(
-                        context, {"resource_id": resource.id, "force": True}
+                        context, {"resource_id": resource["id"], "force": True}
                     )
                 except NotFound:
                     pass  # Sometimes importing the data into the datastore fails
 
                 # delete the resource itself
-                get_action("resource_delete")(context, {"id": resource.id})
+                get_action("resource_delete")(context, {"id": resource["id"]})
