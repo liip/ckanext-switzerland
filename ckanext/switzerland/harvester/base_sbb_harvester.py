@@ -936,6 +936,7 @@ class BaseSBBHarvester(HarvesterBase):
 
     def finalize(self, harvest_object, harvest_object_data):
         context = {"model": model, "session": Session, "user": self._get_user_name()}
+        stage = "Import"
 
         log.info("Running finalizing tasks:")
         # ----------------------------------------------------------------------------
@@ -974,9 +975,18 @@ class BaseSBBHarvester(HarvesterBase):
             )
 
             for resource in ordered_resources[max_resources:]:
-                self._delete_version(
-                    context, package, resource_filename(resource["url"])
-                )
+                try:
+                    self._delete_version(
+                        context, package, resource_filename(resource["url"])
+                    )
+                except Exception as e:
+                    self._save_object_error(
+                        "Error deleting resource {} in finalizing tasks: {}".format(
+                            resource["id"], e
+                        ),
+                        harvest_object,
+                        stage,
+                    )
 
             ordered_resources = ordered_resources[:max_resources]
 
