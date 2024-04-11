@@ -284,7 +284,8 @@
         "fr": "Nom",
         "it": "Nome"
       },
-      "preset": "multilingual_text"
+      "preset": "multilingual_text",
+      "validators": "ignore_missing fluent_text"
     },
     {
       "field_name": "description",
