@@ -115,6 +115,12 @@ def resource(dataset, filename="filenamethatshouldnotmatch.csv"):
             "fr": "AAAResource",
             "it": "AAAResource",
         },
+        name={
+            "de": "AAAResource",
+            "en": "AAAResource",
+            "fr": "AAAResource",
+            "it": "AAAResource",
+        },
         description={
             "de": "AAAResource Desc",
             "en": "AAAResource Desc",
