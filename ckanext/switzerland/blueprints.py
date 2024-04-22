@@ -95,11 +95,14 @@ def resource_download(
     Provides a direct download by either redirecting the user to the url
     stored or downloading an uploaded file directly.
 
-    Copied from ckan 2.10 source code, only change is this to allow download of
-    deleted resources:
-    - rsc = get_action('resource_show')(context, {'id': resource_id})
-    + resource_obj = model.Resource.get(resource_id)
-    + rsc = resource_dictize(resource_obj, {'model': model})
+    Copied from ckan 2.10 source code and changed to
+
+    1. allow download of deleted resources:
+        - rsc = get_action('resource_show')(context, {'id': resource_id})
+        + resource_obj = model.Resource.get(resource_id)
+        + rsc = resource_dictize(resource_obj, {'model': model})
+    2. set Content-Disposition: attachment header so that resource files are
+       downloaded, not opened in browser
     """
     context: Context = {"user": current_user.name, "auth_user_obj": current_user}
 
@@ -119,6 +122,7 @@ def resource_download(
 
         if rsc.get("mimetype"):
             resp.headers["Content-Type"] = rsc["mimetype"]
+        resp.headers["Content-Disposition"] = "attachment"
         signals.resource_download.send(resource_id)
         return resp
 
