@@ -332,16 +332,6 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
 
         return super(OgdchPackagePlugin, self).before_view(pkg_dict)
 
-    #     TODO: before_view isn't called in API requests -> after_show is
-    #           BUT (!) after_show is also called when packages get indexed
-    #           and there we need all languages.
-    #           -> find a solution to _prepare_package_json() in an API call.
-    #     def after_show(self, context, pkg_dict):
-    #         if not self.is_supported_package_type(pkg_dict):
-    #             return pkg_dict
-    #
-    #         return super(OgdchPackagePlugin, self).before_view(pkg_dict)
-
     def after_dataset_show(self, context, pkg_dict):
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
@@ -374,8 +364,6 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
 
         extract_title = LangToString("title")
         validated_dict = json.loads(search_data["validated_data_dict"])
-
-        # log.debug(pprint.pformat(validated_dict))
 
         search_data["res_name"] = [
             extract_title(r) for r in validated_dict["resources"]
@@ -423,7 +411,6 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         except KeyError:
             pass
 
-        # log.debug(pprint.pformat(search_data))
         return search_data
 
     # borrowed from ckanext-multilingual (core extension)
