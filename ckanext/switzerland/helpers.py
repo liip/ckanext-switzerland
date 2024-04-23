@@ -22,6 +22,20 @@ from simplejson import JSONDecodeError
 
 log = logging.getLogger(__name__)
 
+CKAN_DATETIME_FIELDS = [
+    "created",
+    "last_modified",
+    "metadata_created",
+    "metadata_modified",
+]
+CUSTOM_DATETIME_FIELDS = [
+    "issued",
+    "modified",
+    "version",
+]
+UTC = ZoneInfo("UTC")
+ZURICH = ZoneInfo("Europe/Zurich")
+
 
 def get_dataset_count():
     user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
@@ -474,44 +488,75 @@ def get_cookie_law_id():
     return tk.config.get("ckanext.switzerland.cookie_law_id", "")
 
 
-def convert_datetimes(dataset_or_resource_dict):
-    """CKAN stores all datetimes as UTC by default, but they are output naïvely.
-    For our custom datetime fields, we use the server time zone (Europe/Zurich) and save
-    the values naïvely. This function calculates the time of a datetime in the
-    Europe/Zurich time zone and outputs the value as isoformat with time zone info.
+def convert_datetimes_for_display(dataset_or_resource_dict):
+    """Converts all datetimes in a dataset or resource to UTC. CKAN's
+    "automatic-local-datetime" HTML class and JS helper will then display them in the
+    user's local time zone.
+
+    CKAN stores all datetimes as UTC by default. For our custom datetime fields, we use
+    the server time zone (Europe/Zurich), so they have to be converted to UTC.
     """
-    zurich_time_zone = ZoneInfo("Europe/Zurich")
-
-    ckan_datetime_fields = [
-        "created",
-        "last_modified",
-        "metadata_created",
-        "metadata_modified",
-    ]
-    custom_datetime_fields = [
-        "issued",
-        "modified",
-        "version",
-    ]
-
-    for field in ckan_datetime_fields:
+    for field in CUSTOM_DATETIME_FIELDS:
         if dataset_or_resource_dict.get(field) is not None:
-            log.warning(field)
-            dt_string = (dataset_or_resource_dict[field])
-            log.warning(dt_string)
-            dt_zh = datetime.fromisoformat(dt_string).astimezone(zurich_time_zone)
-            dataset_or_resource_dict[field] = dt_zh.isoformat()
-            log.warning(dataset_or_resource_dict[field])
+            dt_string = dataset_or_resource_dict[field]
+            dt_zh = datetime.fromisoformat(dt_string).replace(tzinfo=ZURICH)
+            dt_utc = dt_zh.astimezone(UTC)
 
-    for field in custom_datetime_fields:
-        log.warning(field)
-        if dataset_or_resource_dict.get(field) is not None:
-            dt_string = (dataset_or_resource_dict[field])
-            log.warning(dt_string)
-            dt_zh = datetime.fromisoformat(dt_string).replace(tzinfo=zurich_time_zone)
-            dataset_or_resource_dict[field] = dt_zh.isoformat()
-            log.warning(dataset_or_resource_dict[field])
+            dataset_or_resource_dict[field] = dt_utc.replace(tzinfo=None).isoformat()
 
     if dataset_or_resource_dict.get("resources"):
         for resource in dataset_or_resource_dict["resources"]:
-            convert_datetimes(resource)
+            convert_datetimes_for_display(resource)
+
+
+def convert_datetimes_for_api(dataset_or_resource_dict):
+    """Calculates the time of a datetime in the Europe/Zurich time zone and outputs the
+    value as isoformat, with time zone info.
+
+    CKAN stores all datetimes as UTC by default, so they have to be converted to
+    Europe/Zurich and have the time zone info added. For our custom datetime fields, we
+    use the server time zone, so they are already in Europe/Zurich. We just have to add
+    the time zone info.
+    """
+    for field in CKAN_DATETIME_FIELDS:
+        if dataset_or_resource_dict.get(field) is not None:
+            dt_string = dataset_or_resource_dict[field]
+            dt_utc = datetime.fromisoformat(dt_string).replace(tzinfo=UTC)
+            dt_zh = dt_utc.astimezone(ZURICH)
+
+            dataset_or_resource_dict[field] = dt_zh.isoformat()
+
+    for field in CUSTOM_DATETIME_FIELDS:
+        if dataset_or_resource_dict.get(field) is not None:
+            dt_string = dataset_or_resource_dict[field]
+            dt_zh = datetime.fromisoformat(dt_string)
+
+            dataset_or_resource_dict[field] = dt_zh.isoformat()
+
+    if dataset_or_resource_dict.get("resources"):
+        for resource in dataset_or_resource_dict["resources"]:
+            convert_datetimes_for_api(resource)
+
+
+def request_is_api_request():
+    log.warning(tk.request.path)
+    try:
+        path = tk.request.path
+        if any(
+            [
+                path.endswith(".xml"),
+                path.endswith(".rdf"),
+                path.endswith(".n3"),
+                path.endswith(".ttl"),
+                path.endswith(".jsonld"),
+            ]
+        ):
+            return True
+        if path.startswith("/api") and not path.startswith("/api/action"):
+            # The API client for CKAN's JS modules uses a path starting
+            # /api/action, i.e. without a version number. All other API calls
+            # should include a version number.
+            return True
+    except TypeError:
+        # we get here if there is no request (i.e. on the command line)
+        return False

@@ -91,7 +91,9 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "load_wordpress_templates": sh.load_wordpress_templates,
             "render_description": sh.render_description,
             "get_resource_display_items": sh.get_resource_display_items,
-            "convert_datetimes": sh.convert_datetimes,
+            "convert_datetimes_for_api": sh.convert_datetimes_for_api,
+            "convert_datetimes_for_display": sh.convert_datetimes_for_display,
+            "request_is_api_request": sh.request_is_api_request,
             # monkey patch template helpers to return translated names/titles
             "dataset_display_name": sh.dataset_display_name,
             "resource_display_name": sh.resource_display_name,
@@ -328,8 +330,13 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
 
     # IPackageController
     def before_dataset_view(self, pkg_dict):
+        """This is called before the dataset is displayed. The dictionary passed will be
+        the one that gets sent to the template.
+        """
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
+
+        sh.convert_datetimes_for_display(pkg_dict)
 
         return super(OgdchPackagePlugin, self).before_view(pkg_dict)
 
@@ -357,7 +364,11 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
                     pkg_dict["organization"][field]
                 )
 
-        sh.convert_datetimes(pkg_dict)
+        if sh.request_is_api_request():
+            # We want to convert datetimes to Europe/Zurich and include the time zone
+            # information, but only when returning the dataset via the API, not when
+            # handling it internally.
+            sh.convert_datetimes_for_api(pkg_dict)
 
         return pkg_dict
 
