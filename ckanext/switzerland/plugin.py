@@ -342,7 +342,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
     #
     #         return super(OgdchPackagePlugin, self).before_view(pkg_dict)
 
-    def after_show(self, context, pkg_dict):
+    def after_dataset_show(self, context, pkg_dict):
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
 
@@ -427,7 +427,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         return search_data
 
     # borrowed from ckanext-multilingual (core extension)
-    def before_search(self, search_params):
+    def before_dataset_search(self, search_params):
         """
         Adjust search parameters
         """
