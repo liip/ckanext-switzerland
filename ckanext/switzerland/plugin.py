@@ -91,6 +91,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "load_wordpress_templates": sh.load_wordpress_templates,
             "render_description": sh.render_description,
             "get_resource_display_items": sh.get_resource_display_items,
+            "convert_datetimes": sh.convert_datetimes,
             # monkey patch template helpers to return translated names/titles
             "dataset_display_name": sh.dataset_display_name,
             "resource_display_name": sh.resource_display_name,
@@ -355,6 +356,8 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
                 pkg_dict["organization"][field] = sh.parse_json(
                     pkg_dict["organization"][field]
                 )
+
+        sh.convert_datetimes(pkg_dict)
 
         return pkg_dict
 

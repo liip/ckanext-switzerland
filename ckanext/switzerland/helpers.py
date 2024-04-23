@@ -3,6 +3,8 @@ import json
 import logging
 import os
 from collections import defaultdict
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import ckan.logic as logic
 import ckan.model as model
@@ -470,3 +472,46 @@ def get_cookie_law_url():
 
 def get_cookie_law_id():
     return tk.config.get("ckanext.switzerland.cookie_law_id", "")
+
+
+def convert_datetimes(dataset_or_resource_dict):
+    """CKAN stores all datetimes as UTC by default, but they are output naïvely.
+    For our custom datetime fields, we use the server time zone (Europe/Zurich) and save
+    the values naïvely. This function calculates the time of a datetime in the
+    Europe/Zurich time zone and outputs the value as isoformat with time zone info.
+    """
+    zurich_time_zone = ZoneInfo("Europe/Zurich")
+
+    ckan_datetime_fields = [
+        "created",
+        "last_modified",
+        "metadata_created",
+        "metadata_modified",
+    ]
+    custom_datetime_fields = [
+        "issued",
+        "modified",
+        "version",
+    ]
+
+    for field in ckan_datetime_fields:
+        if dataset_or_resource_dict.get(field) is not None:
+            log.warning(field)
+            dt_string = (dataset_or_resource_dict[field])
+            log.warning(dt_string)
+            dt_zh = datetime.fromisoformat(dt_string).astimezone(zurich_time_zone)
+            dataset_or_resource_dict[field] = dt_zh.isoformat()
+            log.warning(dataset_or_resource_dict[field])
+
+    for field in custom_datetime_fields:
+        log.warning(field)
+        if dataset_or_resource_dict.get(field) is not None:
+            dt_string = (dataset_or_resource_dict[field])
+            log.warning(dt_string)
+            dt_zh = datetime.fromisoformat(dt_string).replace(tzinfo=zurich_time_zone)
+            dataset_or_resource_dict[field] = dt_zh.isoformat()
+            log.warning(dataset_or_resource_dict[field])
+
+    if dataset_or_resource_dict.get("resources"):
+        for resource in dataset_or_resource_dict["resources"]:
+            convert_datetimes(resource)
