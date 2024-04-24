@@ -540,7 +540,6 @@ def convert_datetimes_for_api(dataset_or_resource_dict):
 
 
 def request_is_api_request():
-    log.warning(tk.request.path)
     try:
         path = tk.request.path
         if any(
