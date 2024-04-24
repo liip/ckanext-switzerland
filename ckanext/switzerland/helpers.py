@@ -557,6 +557,6 @@ def request_is_api_request():
             # /api/action, i.e. without a version number. All other API calls
             # should include a version number.
             return True
-    except TypeError:
+    except RuntimeError:
         # we get here if there is no request (i.e. on the command line)
         return False
