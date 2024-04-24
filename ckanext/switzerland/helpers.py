@@ -498,7 +498,7 @@ def convert_datetimes_for_display(dataset_or_resource_dict):
     the server time zone (Europe/Zurich), so they have to be converted to UTC.
     """
     for field in CUSTOM_DATETIME_FIELDS:
-        if dataset_or_resource_dict.get(field) is not None:
+        if dataset_or_resource_dict.get(field) not in [None, ""]:
             dt_string = dataset_or_resource_dict[field]
             dt_zh = datetime.fromisoformat(dt_string).replace(tzinfo=ZURICH)
             dt_utc = dt_zh.astimezone(UTC)
