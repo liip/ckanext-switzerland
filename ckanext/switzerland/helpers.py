@@ -530,7 +530,7 @@ def convert_datetimes_for_api(dataset_or_resource_dict):
     for field in CUSTOM_DATETIME_FIELDS:
         if dataset_or_resource_dict.get(field) is not None:
             dt_string = dataset_or_resource_dict[field]
-            dt_zh = datetime.fromisoformat(dt_string)
+            dt_zh = datetime.fromisoformat(dt_string).replace(tzinfo=ZURICH)
 
             dataset_or_resource_dict[field] = dt_zh.isoformat()
 
