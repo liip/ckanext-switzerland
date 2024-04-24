@@ -365,6 +365,7 @@ def get_resource_display_items(res, exclude_fields, schema):
     resource = tk.get_action("resource_show")(
         context, {"id": res.get("id"), "use_default_schema": True}
     )
+    convert_datetimes_for_display(resource)
 
     resource["byte_size"] = resource["size"]
 
