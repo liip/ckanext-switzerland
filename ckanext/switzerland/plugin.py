@@ -418,6 +418,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
                         " ".join(search_data["keywords_" + lang_code])
                     )
 
+            log.warning(text_field_items)
             # flatten values for text_* fields
             for key, value in list(text_field_items.items()):
                 search_data[key] = " ".join(value)

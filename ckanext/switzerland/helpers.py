@@ -519,24 +519,30 @@ def convert_datetimes_for_api(dataset_or_resource_dict):
     use the server time zone, so they are already in Europe/Zurich. We just have to add
     the time zone info.
     """
+    log.warning("IN CONVERT FOR API HELPER")
     for field in CKAN_DATETIME_FIELDS:
+        log.warning(field)
         if dataset_or_resource_dict.get(field) is not None:
             dt_string = dataset_or_resource_dict[field]
             dt_utc = datetime.fromisoformat(dt_string).replace(tzinfo=UTC)
             dt_zh = dt_utc.astimezone(ZURICH)
 
             dataset_or_resource_dict[field] = dt_zh.isoformat()
+            log.warning(dataset_or_resource_dict[field])
 
     for field in CUSTOM_DATETIME_FIELDS:
+        log.warning(field)
         if dataset_or_resource_dict.get(field) is not None:
             dt_string = dataset_or_resource_dict[field]
             dt_zh = datetime.fromisoformat(dt_string).replace(tzinfo=ZURICH)
 
             dataset_or_resource_dict[field] = dt_zh.isoformat()
+            log.warning(dataset_or_resource_dict[field])
 
     if dataset_or_resource_dict.get("resources"):
         for resource in dataset_or_resource_dict["resources"]:
             convert_datetimes_for_api(resource)
+            log.warning(dataset_or_resource_dict[field])
 
 
 def request_is_api_request():
