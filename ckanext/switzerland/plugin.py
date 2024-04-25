@@ -429,26 +429,16 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
 
     # borrowed from ckanext-multilingual (core extension)
     def before_dataset_search(self, search_params):
-        """
-        Adjust search parameters
-        """
-
-        """
-        search in correct language-specific field and boost
-        results in current language
+        """Search in correct language-specific field and boost results in current
+        language
         """
         lang_set = sh.get_langs()
         try:
             current_lang = toolkit.request.environ["CKAN_LANG"]
-        except TypeError as err:
-            if err.message == (
-                "No object (name: request) has been registered " "for this thread"
-            ):
-                # This happens when this code gets called as part of a paster
-                # command rather then as part of an HTTP request.
-                current_lang = toolkit.config.get("ckan.locale_default")
-            else:
-                raise
+        except (KeyError, RuntimeError):
+            # This happens when this code gets called as part of a paster
+            # command rather then as part of an HTTP request.
+            current_lang = toolkit.config.get("ckan.locale_default")
 
         # fallback to default locale if locale not in suported langs
         if current_lang not in lang_set:
