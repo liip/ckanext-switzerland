@@ -11,6 +11,38 @@
     })();
   </script>
   <!-- End Matomo Tag Manager -->
+
+  <!-- Data layer initialization -->
+  <script>
+    window._mtm = [];
+    // Populate OneTrust update from dataLayer to _mtm.
+    // Listen to dataLayer variable change and replicate change in Matomo data layer _mtm
+    window.dataLayer = new Proxy([], {
+      set: (obj, prop, value) => {
+        if (prop !== 'length') {
+          window._mtm.push(value);
+        }
+
+        return Reflect.set(obj, prop, value);
+      }
+    });
+  </script>
+
+  <!-- OneTrust -->
+  <script type="text/javascript" src="{{h.get_cookie_law_url()}}"></script>
+  <script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script={{h.get_cookie_law_id()}}"></script>
+  <script type="text/javascript">
+    function OptanonWrapper() { }
+  </script>
+
+  <!-- Matomo -->
+  <script type="text/javascript">
+    _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
+    (function() {
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.async=true; g.src='https://stats.opentransportdata.swiss/js/container_agVN5ZM7.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
 {% endblock %}
 
 

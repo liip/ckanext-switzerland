@@ -462,3 +462,11 @@ def localize_change_dict(changes):
                 change[field] = parse_and_localize(change.get(field, ""))
 
     return changes
+
+
+def get_cookie_law_url():
+    return tk.config.get("ckanext.switzerland.cookie_law_url", "")
+
+
+def get_cookie_law_id():
+    return tk.config.get("ckanext.switzerland.cookie_law_id", "")
