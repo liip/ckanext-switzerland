@@ -445,11 +445,12 @@ class BaseSBBHarvester(HarvesterBase):
 
         # the folder where the file is to be downloaded to
         if "workingdir" not in obj and "tmpfolder" in obj:
-            self._save_object_error(
+            # This happens sometimes for the S3 harvesters, and I have been unable to
+            # find the reason for it. There is no need to save an error here, as it
+            # doesn't prevent any resource from being harvested, but we should log it.
+            log.info(
                 "Fetch stage received a harvest object that has already been "
                 "processed by this stage: %s" % harvest_object.__dict__,
-                harvest_object,
-                stage,
             )
             return False
         tmpfolder = obj.get("workingdir")
