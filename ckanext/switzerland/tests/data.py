@@ -106,7 +106,7 @@ def dataset(slug=None):
 
 
 def resource(dataset, filename="filenamethatshouldnotmatch.csv"):
-    factories.Resource(
+    return factories.Resource(
         package_id=dataset["id"],
         identifier="AAAResource",
         title={
