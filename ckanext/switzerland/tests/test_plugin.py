@@ -19,10 +19,8 @@ class TestOgdchPackagePlugin(object):
     @time_machine.travel(
         datetime.datetime(2022, 4, 20, 14, 15, 0, 0, ZoneInfo("UTC")), tick=False
     )
-    def test_get_correct_datetime_format_from_api(self, app, ckan_config):
-        """Create a dataset with a resource, set datetime fields to known values, and
-        check that when we get the dataset from the API, all datetimes have the correct
-        values and are output in the timezone Europe/Zurich.
+    def _create_dataset(self):
+        """Create a dataset with a resource and set datetime fields to known values.
 
         We mock the current time as 14:15 UTC, because CKAN sets the values for
         'metadata_created' and 'metadata_modified' to datetime.datetime.utcnow() when
@@ -47,12 +45,15 @@ class TestOgdchPackagePlugin(object):
         helpers.call_action("package_update", **dataset)
         helpers.call_action("resource_create", **resource)
 
+    def test_get_correct_datetime_format_from_api(self, app, ckan_config):
+        self._create_dataset()
+
         resp = app.get(
             url_for(
                 "api.action",
                 logic_function="package_show",
                 ver=3,
-                id=dataset["name"],
+                id="dataset",
                 status=200,
             )
         )
