@@ -513,7 +513,7 @@ def convert_datetimes_for_display(dataset_or_resource_dict):
     the server time zone (Europe/Zurich), so they have to be converted to UTC.
     """
     for field in CUSTOM_DATETIME_FIELDS:
-        dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict[field])
+        dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict.get(field))
         if dt is False:
             continue
 
@@ -536,7 +536,7 @@ def convert_datetimes_for_api(dataset_or_resource_dict):
     the time zone info.
     """
     for field in CKAN_DATETIME_FIELDS:
-        dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict[field])
+        dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict.get(field))
         if dt is False:
             continue
 
@@ -545,7 +545,7 @@ def convert_datetimes_for_api(dataset_or_resource_dict):
         dataset_or_resource_dict[field] = dt_zh.isoformat()
 
     for field in CUSTOM_DATETIME_FIELDS:
-        dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict[field])
+        dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict.get(field))
         if dt is False:
             continue
 
