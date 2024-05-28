@@ -45,7 +45,6 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "ogdch_fluent_tags": v.ogdch_fluent_tags,
             "temporals_to_datetime_output": v.temporals_to_datetime_output,
             "json_list_of_dicts_field": v.json_list_of_dicts_field,
-            "swiss_date": v.swiss_date,
             "parse_json": sh.parse_json,
             "url": v.url_validator,
         }
