@@ -521,6 +521,17 @@ def convert_datetimes_for_display(dataset_or_resource_dict):
         dt_utc = dt_zh.astimezone(UTC)
         dataset_or_resource_dict[field] = dt_utc.replace(tzinfo=None).isoformat()
 
+    if dataset_or_resource_dict.get("extras"):
+        for extra in dataset_or_resource_dict["extras"]:
+            if extra["key"] in CUSTOM_DATETIME_FIELDS:
+                dt = _get_datetime_from_isoformat_string(extra["value"])
+                if dt is False:
+                    continue
+
+                dt_zh = dt.replace(tzinfo=ZURICH)
+                dt_utc = dt_zh.astimezone(UTC)
+                extra["value"] = dt_utc.replace(tzinfo=None).isoformat()
+
     if dataset_or_resource_dict.get("resources"):
         for resource in dataset_or_resource_dict["resources"]:
             convert_datetimes_for_display(resource)

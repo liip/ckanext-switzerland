@@ -330,8 +330,13 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
 
     # IPackageController
     def before_dataset_view(self, pkg_dict):
-        """This is called before the dataset is displayed. The dictionary passed will be
-        the one that gets sent to the template.
+        """This is called before the dataset is displayed.
+
+        Depending on caching, the pkg_dict passed here might be the one that gets sent
+        to the template. However, we might get a pkg_dict that has not yet been
+        validated against our schema - that means that the custom dataset fields are
+        still in the 'extras' of the pkg_dict. See ckan.logic.action.get.package_show
+        for full details.
         """
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
