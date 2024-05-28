@@ -505,9 +505,9 @@ def _get_datetime_from_isoformat_string(dt_string):
 
 
 def convert_datetimes_for_display(dataset_or_resource_dict):
-    """Converts all datetimes in a dataset or resource to UTC. CKAN's
-    "automatic-local-datetime" HTML class and JS helper will then display them in the
-    user's local time zone.
+    """Converts all datetimes in a dataset or resource to UTC, without time zone info
+    attached. CKAN's "automatic-local-datetime" HTML class and JS helper will then
+    display them in the user's local time zone.
 
     CKAN stores all datetimes as UTC by default. For our custom datetime fields, we use
     the server time zone (Europe/Zurich), so they have to be converted to UTC.
