@@ -489,6 +489,21 @@ def get_cookie_law_id():
     return tk.config.get("ckanext.switzerland.cookie_law_id", "")
 
 
+def _get_datetime_from_isoformat_string(dt_string):
+    """Get a datetime object from an isoformat string, and handle empty values
+    and malformatted strings.
+
+    Returns the datetime object if possible, False if it couldn't get one.
+    """
+    if dt_string in [None, ""]:
+        return False
+    try:
+        return datetime.fromisoformat(dt_string)
+    except ValueError:
+        log.warning(f"Error getting a datetime from isoformat string: {dt_string}")
+        return False
+
+
 def convert_datetimes_for_display(dataset_or_resource_dict):
     """Converts all datetimes in a dataset or resource to UTC. CKAN's
     "automatic-local-datetime" HTML class and JS helper will then display them in the
@@ -498,19 +513,13 @@ def convert_datetimes_for_display(dataset_or_resource_dict):
     the server time zone (Europe/Zurich), so they have to be converted to UTC.
     """
     for field in CUSTOM_DATETIME_FIELDS:
-        if dataset_or_resource_dict.get(field) not in [None, ""]:
-            dt_string = dataset_or_resource_dict[field]
-            try:
-                dt_zh = datetime.fromisoformat(dt_string).replace(tzinfo=ZURICH)
-            except ValueError:
-                log.warning(
-                    f"Error converting '{field}' in the resource or dataset with id "
-                    f"{dataset_or_resource_dict['id']} from isoformat: {dt_string}"
-                )
-                continue
+        dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict[field])
+        if dt is False:
+            continue
 
-            dt_utc = dt_zh.astimezone(UTC)
-            dataset_or_resource_dict[field] = dt_utc.replace(tzinfo=None).isoformat()
+        dt_zh = dt.replace(tzinfo=ZURICH)
+        dt_utc = dt_zh.astimezone(UTC)
+        dataset_or_resource_dict[field] = dt_utc.replace(tzinfo=None).isoformat()
 
     if dataset_or_resource_dict.get("resources"):
         for resource in dataset_or_resource_dict["resources"]:
@@ -527,33 +536,21 @@ def convert_datetimes_for_api(dataset_or_resource_dict):
     the time zone info.
     """
     for field in CKAN_DATETIME_FIELDS:
-        if dataset_or_resource_dict.get(field) is not None:
-            dt_string = dataset_or_resource_dict[field]
-            try:
-                dt_utc = datetime.fromisoformat(dt_string).replace(tzinfo=UTC)
-            except ValueError:
-                log.warning(
-                    f"Error converting '{field}' in the resource or dataset with id "
-                    f"{dataset_or_resource_dict['id']} from isoformat: {dt_string}"
-                )
-                continue
+        dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict[field])
+        if dt is False:
+            continue
 
-            dt_zh = dt_utc.astimezone(ZURICH)
-            dataset_or_resource_dict[field] = dt_zh.isoformat()
+        dt_utc = dt.replace(tzinfo=UTC)
+        dt_zh = dt_utc.astimezone(ZURICH)
+        dataset_or_resource_dict[field] = dt_zh.isoformat()
 
     for field in CUSTOM_DATETIME_FIELDS:
-        if dataset_or_resource_dict.get(field) is not None:
-            dt_string = dataset_or_resource_dict[field]
-            try:
-                dt_zh = datetime.fromisoformat(dt_string).replace(tzinfo=ZURICH)
-            except ValueError:
-                log.warning(
-                    f"Error converting '{field}' in the resource or dataset with id "
-                    f"{dataset_or_resource_dict['id']} from isoformat: {dt_string}"
-                )
-                continue
+        dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict[field])
+        if dt is False:
+            continue
 
-            dataset_or_resource_dict[field] = dt_zh.isoformat()
+        dt_zh = dt.replace(tzinfo=ZURICH)
+        dataset_or_resource_dict[field] = dt_zh.isoformat()
 
     if dataset_or_resource_dict.get("resources"):
         for resource in dataset_or_resource_dict["resources"]:
