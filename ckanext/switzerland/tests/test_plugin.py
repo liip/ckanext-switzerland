@@ -123,9 +123,9 @@ class TestOgdchPackagePlugin(object):
         assert (
             last_updated["data-datetime"]
             == modified["data-datetime"]
-            == "2022-04-20T12:30:00+0000"
+            == "2022-04-20T10:30:00+0000"
         )
-        assert issued["data-datetime"] == "2022-04-20T12:00:00+0000"
+        assert issued["data-datetime"] == "2022-04-20T10:00:00+0000"
 
     @responses.activate
     def test_get_correct_datetime_format_for_resource_display(self, app):
@@ -151,5 +151,6 @@ class TestOgdchPackagePlugin(object):
         )
         soup = BeautifulSoup(resp.body, "html.parser")
 
+        # modified date should be in UTC
         modified = soup.find("dt", text="Modified date").findNext("dd").find("span")
-        assert modified["data-datetime"] == "2022-04-20T12:30:00+0000"
+        assert modified["data-datetime"] == "2022-04-20T10:30:00+0000"
