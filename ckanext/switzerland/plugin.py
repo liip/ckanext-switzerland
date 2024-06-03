@@ -45,7 +45,6 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "ogdch_fluent_tags": v.ogdch_fluent_tags,
             "temporals_to_datetime_output": v.temporals_to_datetime_output,
             "json_list_of_dicts_field": v.json_list_of_dicts_field,
-            "swiss_date": v.swiss_date,
             "parse_json": sh.parse_json,
             "url": v.url_validator,
         }
@@ -91,6 +90,9 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "load_wordpress_templates": sh.load_wordpress_templates,
             "render_description": sh.render_description,
             "get_resource_display_items": sh.get_resource_display_items,
+            "convert_datetimes_for_api": sh.convert_datetimes_for_api,
+            "convert_datetimes_for_display": sh.convert_datetimes_for_display,
+            "request_is_api_request": sh.request_is_api_request,
             # monkey patch template helpers to return translated names/titles
             "dataset_display_name": sh.dataset_display_name,
             "resource_display_name": sh.resource_display_name,
@@ -327,22 +329,22 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
 
     # IPackageController
     def before_dataset_view(self, pkg_dict):
+        """This is called before the dataset is displayed.
+
+        Depending on caching, the pkg_dict passed here might be the one that gets sent
+        to the template. However, we might get a pkg_dict that has not yet been
+        validated against our schema - that means that the custom dataset fields are
+        still in the 'extras' of the pkg_dict. See ckan.logic.action.get.package_show
+        for full details.
+        """
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
 
+        sh.convert_datetimes_for_display(pkg_dict)
+
         return super(OgdchPackagePlugin, self).before_view(pkg_dict)
 
-    #     TODO: before_view isn't called in API requests -> after_show is
-    #           BUT (!) after_show is also called when packages get indexed
-    #           and there we need all languages.
-    #           -> find a solution to _prepare_package_json() in an API call.
-    #     def after_show(self, context, pkg_dict):
-    #         if not self.is_supported_package_type(pkg_dict):
-    #             return pkg_dict
-    #
-    #         return super(OgdchPackagePlugin, self).before_view(pkg_dict)
-
-    def after_show(self, context, pkg_dict):
+    def after_dataset_show(self, context, pkg_dict):
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
 
@@ -366,6 +368,12 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
                     pkg_dict["organization"][field]
                 )
 
+        if sh.request_is_api_request():
+            # We want to convert datetimes to Europe/Zurich and include the time zone
+            # information, but only when returning the dataset via the API, not when
+            # handling it internally.
+            sh.convert_datetimes_for_api(pkg_dict)
+
         return pkg_dict
 
     def before_dataset_index(self, search_data):
@@ -374,8 +382,6 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
 
         extract_title = LangToString("title")
         validated_dict = json.loads(search_data["validated_data_dict"])
-
-        # log.debug(pprint.pformat(validated_dict))
 
         search_data["res_name"] = [
             extract_title(r) for r in validated_dict["resources"]
@@ -423,31 +429,20 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         except KeyError:
             pass
 
-        # log.debug(pprint.pformat(search_data))
         return search_data
 
     # borrowed from ckanext-multilingual (core extension)
-    def before_search(self, search_params):
-        """
-        Adjust search parameters
-        """
-
-        """
-        search in correct language-specific field and boost
-        results in current language
+    def before_dataset_search(self, search_params):
+        """Search in correct language-specific field and boost results in current
+        language
         """
         lang_set = sh.get_langs()
         try:
             current_lang = toolkit.request.environ["CKAN_LANG"]
-        except TypeError as err:
-            if err.message == (
-                "No object (name: request) has been registered " "for this thread"
-            ):
-                # This happens when this code gets called as part of a paster
-                # command rather then as part of an HTTP request.
-                current_lang = toolkit.config.get("ckan.locale_default")
-            else:
-                raise
+        except (KeyError, RuntimeError):
+            # This happens when this code gets called as part of a paster
+            # command rather then as part of an HTTP request.
+            current_lang = toolkit.config.get("ckan.locale_default")
 
         # fallback to default locale if locale not in suported langs
         if current_lang not in lang_set:
