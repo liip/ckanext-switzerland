@@ -36,6 +36,12 @@
       "preset": "multilingual_text"
     },
     {
+      "field_name": "display_name",
+      "preset": "multilingual_text",
+      "form_snippet": null,
+      "display_snippet": null
+    },
+    {
       "field_name": "image_url",
       "label": {
         "en": "Image URL",
