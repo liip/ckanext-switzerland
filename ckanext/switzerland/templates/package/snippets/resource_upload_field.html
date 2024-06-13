@@ -31,29 +31,31 @@ placeholder - placeholder text for url field
     ">{{ _('Remove') }}</button>
 {% endmacro %}
 
-<div data-module="resource-upload-field" class="resource-upload-field form-group">
+<div data-module="resource-upload-field" class="resource-upload-field">
   <input type="radio" id="resource-url-none" name="url_type" value="" {{
     'checked' if not data.url and not data.url_type else '' }}>
   <div class="select-type">
-    <label id="resource-menu-label" class="form-label"
-      >{{ menu_label or _('Data') }}</label>
-    <div role="group" aria-labelledby="resource-menu-label">
-      {% block url_type_select %}
-        {% if is_upload_enabled %}
-          <button type="button" class="btn btn-default" id="resource-upload-button"
-            title="{{ _('Upload a file on your computer') }}"
-            onclick="
-              document.getElementById('resource-url-upload').checked = true;
-              document.getElementById('field-resource-upload').click();
-            "autofocus="true"><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
-        {% endif %}
-        <button type="button" class="btn btn-default" id="resource-link-button"
-          title="{{ _('Link to a URL on the internet (you can also link to an API)') }}"
-            onclick="
-              document.getElementById('resource-url-link').checked = true;
-              document.getElementById('field-resource-url').focus();
-            "><i class="fa fa-globe"></i>{{ _('Link') }}</button>
-      {% endblock %}
+    <div class="form-group control-medium">
+      <label id="resource-menu-label" class="col-sm-3 form-label control-label"
+        >{{ menu_label or _('Data') }}</label>
+      <div role="group" class="col-sm-9" aria-labelledby="resource-menu-label">
+        {% block url_type_select %}
+          {% if is_upload_enabled %}
+            <button type="button" class="btn btn-default" id="resource-upload-button"
+              title="{{ _('Upload a file on your computer') }}"
+              onclick="
+                document.getElementById('resource-url-upload').checked = true;
+                document.getElementById('field-resource-upload').click();
+              "autofocus="true"><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
+          {% endif %}
+          <button type="button" class="btn btn-default" id="resource-link-button"
+            title="{{ _('Link to a URL on the internet (you can also link to an API)') }}"
+              onclick="
+                document.getElementById('resource-url-link').checked = true;
+                document.getElementById('field-resource-url').focus();
+              "><i class="fa fa-globe"></i>{{ _('Link') }}</button>
+        {% endblock %}
+      </div>
     </div>
   </div>
 
@@ -67,17 +69,19 @@ placeholder - placeholder text for url field
             {# for existing uploads we show the file name in a readonly input box #}
             <input type="checkbox" id="field-clear-upload" value="true">
             <div class="upload-type">
-              <button type="button" class="btn btn-danger btn-remove-url"
-                onclick="
-                  document.getElementById('field-clear-upload').checked = true;
-                  document.getElementById('field-resource-upload').focus();
-                ">{{ _('Clear Upload') }}</button>
-              <label class="form-label">{{ upload_label or _('File') }}</label>
-              <div class="controls">
-                {% set existing_name = data.get('url', '').split('/')[-1].split('?')[0].split('#')[0] %}
-                <input value="{{ existing_name }}" class="form-control" readonly>
-              </div>
+              <div class="form-group control-medium">
+                <button type="button" class="btn btn-danger btn-remove-url"
+                  onclick="
+                    document.getElementById('field-clear-upload').checked = true;
+                    document.getElementById('field-resource-upload').focus();
+                  ">{{ _('Clear Upload') }}</button>
+                <label class="col-sm-3 form-label control-label">{{ upload_label or _('File') }}</label>
+                <div class="col-sm-9 controls">
+                  {% set existing_name = data.get('url', '').split('/')[-1].split('?')[0].split('#')[0] %}
+                  <input value="{{ existing_name }}" class="form-control" readonly>
+                </div>
             </div>
+          </div>
           {% endif %}
           <div class="upload-type">
             {{ remove_button(
@@ -87,7 +91,7 @@ placeholder - placeholder text for url field
               label=upload_label or _('File'),
               id='field-resource-upload',
               type='file',
-              classes=['control-full']) }}
+              classes=['control-medium']) }}
           </div>
         {% endblock %}
       </div>
@@ -107,7 +111,7 @@ placeholder - placeholder text for url field
           placeholder=placeholder,
           value=data.get('url'),
           error=errors.get('url'),
-          classes=['control-full']) }}
+          classes=['control-medium']) }}
       {% endblock %}
     </div>
   {% endblock %}
