@@ -125,6 +125,21 @@ class BaseSBBHarvester(HarvesterBase):
 
     filters = {}
 
+    def _save_gather_error(self, message, job):
+        message = message.replace("\n", "<br>")
+        log.warning(message)
+
+        return super(BaseSBBHarvester, self)._save_gather_error(
+            message=message, job=job
+        )
+
+    def _save_object_error(self, message, object, stage="Fetch"):
+        message = message.replace("\n", "<br>")
+
+        return super(BaseSBBHarvester, self)._save_object_error(
+            message=message, object=object, stage=stage
+        )
+
     def get_remote_folder(self):
         # in the future we want to get directly a path to the folder in the config file
         if self.config.get("environment") is not None:
