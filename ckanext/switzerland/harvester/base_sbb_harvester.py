@@ -467,7 +467,8 @@ class BaseSBBHarvester(HarvesterBase):
                 "Fetch stage received a harvest object that has already been "
                 "processed by this stage: %s" % harvest_object.__dict__,
             )
-            return False
+            # returning True so as not to save an error
+            return True
         tmpfolder = obj.get("workingdir")
         if not tmpfolder:
             self._save_object_error(
