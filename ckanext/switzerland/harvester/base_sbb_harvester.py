@@ -973,7 +973,18 @@ class BaseSBBHarvester(HarvesterBase):
 
         # ----------------------------------------------------------------------------
         # reorder resources
-        package = self._get_dataset(harvest_object_data["dataset"])
+        try:
+            package = self._get_dataset(harvest_object_data["dataset"])
+        except NotFound:
+            message = (
+                f"Dataset {harvest_object_data['dataset']} was not found, "
+                f"so not carrying out finalizing tasks. Check other errors for the "
+                f"reason we could not save this dataset."
+            )
+            log.exception(message)
+            self._save_object_error(message, harvest_object, "Import")
+
+            return True
 
         ordered_resources, unmatched_resources = self._get_ordered_resources(package)
 
