@@ -27,7 +27,7 @@ from ckan import model
 from ckan.lib import helpers, search, uploader
 from ckan.lib.helpers import json
 from ckan.lib.munge import munge_filename, munge_name
-from ckan.logic import NotFound, check_access, get_action
+from ckan.logic import NotFound, ValidationError, check_access, get_action
 from ckan.model import Session
 from ckan.plugins.toolkit import config as ckanconf
 from simplejson.scanner import JSONDecodeError
@@ -124,6 +124,21 @@ class BaseSBBHarvester(HarvesterBase):
     }
 
     filters = {}
+
+    def _save_gather_error(self, message, job):
+        message = message.replace("\n", "<br>")
+        log.warning(message)
+
+        return super(BaseSBBHarvester, self)._save_gather_error(
+            message=message, job=job
+        )
+
+    def _save_object_error(self, message, object, stage="Fetch"):
+        message = message.replace("\n", "<br>")
+
+        return super(BaseSBBHarvester, self)._save_object_error(
+            message=message, object=object, stage=stage
+        )
 
     def get_remote_folder(self):
         # in the future we want to get directly a path to the folder in the config file
@@ -452,7 +467,8 @@ class BaseSBBHarvester(HarvesterBase):
                 "Fetch stage received a harvest object that has already been "
                 "processed by this stage: %s" % harvest_object.__dict__,
             )
-            return False
+            # returning True so as not to save an error
+            return True
         tmpfolder = obj.get("workingdir")
         if not tmpfolder:
             self._save_object_error(
@@ -749,8 +765,16 @@ class BaseSBBHarvester(HarvesterBase):
                 )
                 return False
 
-            # create the dataset
-            dataset = get_action("package_create")(context, package_dict)
+            try:
+                # create the dataset
+                dataset = get_action("package_create")(context, package_dict)
+            except ValidationError as e:
+                self._save_object_error(
+                    f"Validation error creating dataset: {e}",
+                    harvest_object,
+                    stage,
+                )
+                return False
 
             log.info("Created package: %s" % str(dataset["name"]))
 
@@ -958,7 +982,18 @@ class BaseSBBHarvester(HarvesterBase):
 
         # ----------------------------------------------------------------------------
         # reorder resources
-        package = self._get_dataset(harvest_object_data["dataset"])
+        try:
+            package = self._get_dataset(harvest_object_data["dataset"])
+        except NotFound:
+            message = (
+                f"Dataset {harvest_object_data['dataset']} was not found, "
+                f"so not carrying out finalizing tasks. Check other errors for the "
+                f"reason we could not save this dataset."
+            )
+            log.exception(message)
+            self._save_object_error(message, harvest_object, "Import")
+
+            return True
 
         ordered_resources, unmatched_resources = self._get_ordered_resources(package)
 
