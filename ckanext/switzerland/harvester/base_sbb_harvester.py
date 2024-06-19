@@ -655,8 +655,8 @@ class BaseSBBHarvester(HarvesterBase):
             file_filter = self.filters[obj["filter"]]
             obj = file_filter(obj, self.config)
 
-        f = obj.get("file")
-        if not f:
+        filepath = obj.get("file")
+        if not filepath:
             log.error("Invalid file key in harvest object: %s" % obj)
             self._save_object_error("No file to import", harvest_object, stage)
             return False
@@ -694,7 +694,7 @@ class BaseSBBHarvester(HarvesterBase):
             dataset["version"] = now
 
             # check if there is a resource matching the filename in the package
-            old_resource_meta = self.find_resource_in_package(dataset, f)
+            old_resource_meta = self.find_resource_in_package(dataset, filepath)
             if old_resource_meta:
                 log.info(
                     "Found existing resource with this filename: %s"
@@ -830,7 +830,7 @@ class BaseSBBHarvester(HarvesterBase):
         # resource
         # =======================================================================
 
-        log.info("Importing file: %s" % str(f))
+        log.info("Importing file: %s" % str(filepath))
 
         site_url = ckanconf.get("ckan.site_url", None)
         if not site_url:
@@ -839,18 +839,18 @@ class BaseSBBHarvester(HarvesterBase):
             )
             return False
 
-        log.info("Adding %s to package with id %s", str(f), dataset["id"])
+        log.info("Adding %s to package with id %s", str(filepath), dataset["id"])
 
         fp = None
         try:
             try:
-                size = int(os.path.getsize(f))
+                size = int(os.path.getsize(filepath))
             except ValueError:
                 size = None
 
-            fp = open(f, "rb")
+            fp = open(filepath, "rb")
 
-            file_name = os.path.basename(f)
+            file_name = os.path.basename(filepath)
 
             # -----------------------------------------------------
             # create new resource
@@ -871,7 +871,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             resource_meta["identifier"] = file_name
 
-            file_format, mimetype, mimetype_inner = self._get_mimetypes(f)
+            file_format, mimetype, mimetype_inner = self._get_mimetypes(filepath)
             resource_meta["format"] = file_format
             resource_meta["mimetype"] = mimetype
             resource_meta["mimetype_inner"] = mimetype_inner
@@ -918,7 +918,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             log.info("Creating new resource: %s" % str(resource_meta))
 
-            with open(f, "rb") as f:
+            with open(filepath, "rb") as f:
                 stream = io.BytesIO(f.read())
 
             upload = FileStorage(stream=stream, filename=file_name)
@@ -945,7 +945,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             Session.commit()
 
-            log.info("Successfully harvested file %s" % f)
+            log.info("Successfully harvested file %s" % filepath)
 
             # ---------------------------------------------------------------------
 
