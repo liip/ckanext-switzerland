@@ -15,6 +15,7 @@ third stages (``HarvestObjectError``) are stored in the ``harvest_object_error``
 import ftplib  # for errors only
 import io
 import logging
+import mimetypes
 import os
 import re
 import shutil
@@ -68,8 +69,8 @@ class BaseSBBHarvester(HarvesterBase):
     # if a resource is uploaded with a format, it will show a tag on the dataset, e.g.
     # XML or TXT the default setting is defined to be TXT for files with no extension
     default_format = "TXT"
-    default_mimetype = "TXT"
-    default_mimetype_inner = "TXT"
+    default_mimetype = "text/plain"
+    default_mimetype_inner = "text/plain"
 
     tmpfolder_prefix = "%d%m%Y-%H%M-"
 
@@ -367,15 +368,33 @@ class BaseSBBHarvester(HarvesterBase):
         return get_action("ogdch_dataset_by_identifier")({}, {"identifier": dataset})
 
     def _get_mimetypes(self, filename):
-        na, ext = os.path.splitext(filename)
-        ext = ext.lstrip(".").upper()
+        guess, encoding = mimetypes.guess_type(filename, strict=False)
 
-        file_format = self.default_format
-        mimetype = self.default_mimetype
-        mimetype_inner = self.default_mimetype_inner
-        if ext and ext.lower() in helpers.resource_formats():
-            # set mime types
-            file_format = mimetype = mimetype_inner = ext
+        # For the guessed mimetype, this gives us the following list:
+        # [
+        #     canonical mimetype lowercased,
+        #     canonical format (uppercase),
+        #     human readable form
+        # ]
+        format_info = helpers.resource_formats().get(guess.lower())
+
+        if not format_info:
+            # Couldn't get a valid resource format from the filename: return defaults
+            return (
+                self.default_format,
+                self.default_mimetype,
+                self.default_mimetype_inner,
+            )
+
+        file_format = format_info[1]
+
+        if format_info[0] == "application/zip":
+            # todo: Get the inner mime type of the zipped files
+            mimetype = format_info[0]
+            mimetype_inner = None
+        else:
+            mimetype = format_info[0]
+            mimetype_inner = None
         return file_format, mimetype, mimetype_inner
 
     # =======================================================================
