@@ -124,11 +124,13 @@ def resource_download(
     if rsc.get("url_type") == "upload":
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc["id"])
-        resp = flask.send_file(filepath, download_name=filename)
+        resp = flask.send_file(
+            filepath,
+            as_attachment=True,
+            attachment_filename=filename,
+            mimetype=rsc.get("mimetype"),
+        )
 
-        if rsc.get("mimetype"):
-            resp.headers["Content-Type"] = rsc["mimetype"]
-        resp.headers["Content-Disposition"] = "attachment"
         signals.resource_download.send(resource_id)
         return resp
 
