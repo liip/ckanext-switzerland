@@ -328,6 +328,15 @@
       }
     },
     {
+      "field_name": "mimetype_inner",
+      "label": {
+        "en": "Media type (inner)",
+        "de": "Medientyp (inner)",
+        "fr": "Type de médias (interne)",
+        "it": "Media type (interno)"
+      }
+    },
+    {
       "field_name": "format",
       "label": {
         "en": "Format",
