@@ -878,7 +878,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             file_format, mimetype, mimetype_inner = self._get_mimetypes(filepath)
             resource_meta["format"] = file_format
-            resource_meta["media_type"] = file_format
+            resource_meta["media_type"] = mimetype
             resource_meta["mimetype"] = mimetype
             resource_meta["mimetype_inner"] = mimetype_inner
 
