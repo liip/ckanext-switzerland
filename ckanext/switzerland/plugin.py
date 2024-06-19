@@ -387,7 +387,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
             extract_title(r) for r in validated_dict["resources"]
         ]
         search_data["res_format"] = [
-            r["media_type"] for r in validated_dict["resources"] if "media_type" in r
+            r["format"] for r in validated_dict["resources"] if "format" in r
         ]
         search_data["res_rights"] = [
             sh.simplify_terms_of_use(r.get("rights", ""))
