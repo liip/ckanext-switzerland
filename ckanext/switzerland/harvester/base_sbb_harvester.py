@@ -395,7 +395,12 @@ class BaseSBBHarvester(HarvesterBase):
         mimetype_inner = None
 
         if format_info[0] == "application/zip":
-            zip_file = zipfile.ZipFile(filename)
+            try:
+                zip_file = zipfile.ZipFile(filename)
+            except zipfile.BadZipFile:
+                log.warning(f"The file {filename} is not a valid zip file")
+                return file_format, mimetype, mimetype_inner
+
             namelist = zip_file.namelist()
 
             for name in namelist:
