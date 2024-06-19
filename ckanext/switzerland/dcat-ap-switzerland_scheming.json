@@ -321,10 +321,10 @@
     {
       "field_name": "media_type",
       "label": {
-        "en": "Format",
-        "de": "Format",
-        "fr": "Format",
-        "it": "Formato"
+        "en": "Media type",
+        "de": "Medientyp",
+        "fr": "Type de médias",
+        "it": "Media type"
       }
     },
     {
