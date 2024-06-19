@@ -80,9 +80,15 @@ def email_address_exporter():
         "results"
     ]
     for package in packages:
-        package["follower_count"] = get_action("dataset_follower_count")(
-            {}, {"id": package["id"]}
-        )
+        try:
+            package["follower_count"] = get_action("dataset_follower_count")(
+                {}, {"id": package["id"]}
+            )
+        except ValidationError as e:
+            log.error(
+                f"Error getting follower count from dataset {package['name']} "
+                f"with id {package['id']}: {e}"
+            )
 
     c.datasets = packages
     return render("email_exporter/email_exporter.html")
