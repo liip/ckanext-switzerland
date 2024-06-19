@@ -372,15 +372,7 @@ class BaseSBBHarvester(HarvesterBase):
         resource_formats = helpers.resource_formats()
         guess, encoding = mimetypes.guess_type(filename, strict=False)
 
-        # For the guessed mimetype, this gives us the following list:
-        # [
-        #     canonical mimetype lowercased,
-        #     canonical format (uppercase),
-        #     human readable form
-        # ]
-        format_info = resource_formats.get(guess.lower())
-
-        if not format_info:
+        if guess is None or resource_formats.get(guess.lower()) is None:
             log.info(
                 f"Couldn't get a valid resource format from the filename {filename}"
             )
@@ -389,6 +381,14 @@ class BaseSBBHarvester(HarvesterBase):
                 self.default_mimetype,
                 self.default_mimetype_inner,
             )
+
+        # format_info is a list, containing the following values:
+        # [
+        #     canonical mimetype lowercased,
+        #     canonical format (uppercase),
+        #     human readable form
+        # ]
+        format_info = resource_formats.get(guess.lower())
 
         file_format = format_info[1]
         mimetype = format_info[0]
@@ -405,7 +405,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             for name in namelist:
                 guess, encoding = mimetypes.guess_type(name, strict=False)
-                if resource_formats.get(guess.lower()):
+                if guess is not None and resource_formats.get(guess.lower()):
                     # We can only save one value to mimetype_inner, so once we get a
                     # valid mimetype, we can stop looking
                     mimetype_inner = guess
