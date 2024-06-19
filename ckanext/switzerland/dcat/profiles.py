@@ -493,7 +493,7 @@ class SwissDCATAPProfile(RDFProfile):
             items = [
                 ("status", ADMS.status, None, Literal),
                 ("identifier", DCT.identifier, None, Literal),
-                ("media_type", DCAT.mediaType, None, Literal),
+                ("media_type", DCAT.mediaType, ["mimetype"], Literal),
                 ("spatial", DCT.spatial, None, Literal),
             ]
 
