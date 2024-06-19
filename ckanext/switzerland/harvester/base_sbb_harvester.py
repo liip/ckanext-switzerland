@@ -21,6 +21,7 @@ import re
 import shutil
 import time
 import traceback
+import zipfile
 from datetime import datetime
 
 import voluptuous
@@ -368,6 +369,7 @@ class BaseSBBHarvester(HarvesterBase):
         return get_action("ogdch_dataset_by_identifier")({}, {"identifier": dataset})
 
     def _get_mimetypes(self, filename):
+        resource_formats = helpers.resource_formats()
         guess, encoding = mimetypes.guess_type(filename, strict=False)
 
         # For the guessed mimetype, this gives us the following list:
@@ -376,7 +378,7 @@ class BaseSBBHarvester(HarvesterBase):
         #     canonical format (uppercase),
         #     human readable form
         # ]
-        format_info = helpers.resource_formats().get(guess.lower())
+        format_info = resource_formats.get(guess.lower())
 
         if not format_info:
             log.info(
@@ -389,14 +391,21 @@ class BaseSBBHarvester(HarvesterBase):
             )
 
         file_format = format_info[1]
+        mimetype = format_info[0]
+        mimetype_inner = None
 
         if format_info[0] == "application/zip":
-            # todo: Get the inner mime type of the zipped files
-            mimetype = format_info[0]
-            mimetype_inner = None
-        else:
-            mimetype = format_info[0]
-            mimetype_inner = None
+            zip_file = zipfile.ZipFile(filename)
+            namelist = zip_file.namelist()
+
+            for name in namelist:
+                guess, encoding = mimetypes.guess_type(name, strict=False)
+                if resource_formats.get(guess.lower()):
+                    # We can only save one value to mimetype_inner, so once we get a
+                    # valid mimetype, we can stop looking
+                    mimetype_inner = guess
+                    break
+
         return file_format, mimetype, mimetype_inner
 
     # =======================================================================
