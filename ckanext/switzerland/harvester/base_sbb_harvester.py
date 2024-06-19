@@ -379,7 +379,9 @@ class BaseSBBHarvester(HarvesterBase):
         format_info = helpers.resource_formats().get(guess.lower())
 
         if not format_info:
-            # Couldn't get a valid resource format from the filename: return defaults
+            log.info(
+                f"Couldn't get a valid resource format from the filename {filename}"
+            )
             return (
                 self.default_format,
                 self.default_mimetype,
