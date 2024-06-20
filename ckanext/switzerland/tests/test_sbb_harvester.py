@@ -416,6 +416,34 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertNotIn("mimetype_inner", json_resource)
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    def test_resource_formats_zip(self):
+        currpath = os.path.dirname(os.path.realpath(__file__))
+        src_path = os.path.join(currpath, "fixtures/zip/my.zip")
+        dst_path = os.path.join(data.environment, data.folder, "20160901.zip")
+
+        filesystem = self.get_filesystem()
+        MockFTPStorageAdapter.filesystem = filesystem
+        with open(src_path, "rb") as f:
+            filesystem.writefile(path=dst_path, file=f)
+
+        self.run_harvester(filter_regex=r".*\.zip", ftp_server="testserver")
+
+        dataset = self.get_dataset()
+        self.assertEqual(len(dataset["resources"]), 1)
+
+        result = get_action("package_search")({}, {"facet.field": ["res_format"]})
+        res_format_facet = result["facets"]["res_format"]
+        self.assertDictEqual(res_format_facet, {"ZIP": 1})
+
+        resource = dataset["resources"][0]
+
+        self.assertEqual(resource["identifier"], "20160901.zip")
+        self.assertEqual(resource["format"], "ZIP")
+        self.assertEqual(resource["media_type"], "application/zip")
+        self.assertEqual(resource["mimetype"], "application/zip")
+        self.assertEqual(resource["mimetype_inner"], "text/plain")
+
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     def test_filter_regex(self):
         filesystem = self.get_filesystem(filename="File.zip")
         MockFTPStorageAdapter.filesystem = filesystem
