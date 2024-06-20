@@ -71,7 +71,7 @@ class BaseSBBHarvester(HarvesterBase):
     # XML or TXT the default setting is defined to be TXT for files with no extension
     default_format = "TXT"
     default_mimetype = "text/plain"
-    default_mimetype_inner = "text/plain"
+    default_mimetype_inner = None
 
     tmpfolder_prefix = "%d%m%Y-%H%M-"
 
