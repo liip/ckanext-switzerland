@@ -15,11 +15,13 @@ third stages (``HarvestObjectError``) are stored in the ``harvest_object_error``
 import ftplib  # for errors only
 import io
 import logging
+import mimetypes
 import os
 import re
 import shutil
 import time
 import traceback
+import zipfile
 from datetime import datetime
 
 import voluptuous
@@ -68,8 +70,8 @@ class BaseSBBHarvester(HarvesterBase):
     # if a resource is uploaded with a format, it will show a tag on the dataset, e.g.
     # XML or TXT the default setting is defined to be TXT for files with no extension
     default_format = "TXT"
-    default_mimetype = "TXT"
-    default_mimetype_inner = "TXT"
+    default_mimetype = "text/plain"
+    default_mimetype_inner = None
 
     tmpfolder_prefix = "%d%m%Y-%H%M-"
 
@@ -367,15 +369,48 @@ class BaseSBBHarvester(HarvesterBase):
         return get_action("ogdch_dataset_by_identifier")({}, {"identifier": dataset})
 
     def _get_mimetypes(self, filename):
-        na, ext = os.path.splitext(filename)
-        ext = ext.lstrip(".").upper()
+        resource_formats = helpers.resource_formats()
+        guess, encoding = mimetypes.guess_type(filename, strict=False)
 
-        file_format = self.default_format
-        mimetype = self.default_mimetype
-        mimetype_inner = self.default_mimetype_inner
-        if ext and ext.lower() in helpers.resource_formats():
-            # set mime types
-            file_format = mimetype = mimetype_inner = ext
+        if guess is None or resource_formats.get(guess.lower()) is None:
+            log.info(
+                f"Couldn't get a valid resource format from the filename {filename}"
+            )
+            return (
+                self.default_format,
+                self.default_mimetype,
+                self.default_mimetype_inner,
+            )
+
+        # format_info is a list, containing the following values:
+        # [
+        #     canonical mimetype lowercased,
+        #     canonical format (uppercase),
+        #     human readable form
+        # ]
+        format_info = resource_formats.get(guess.lower())
+
+        file_format = format_info[1]
+        mimetype = format_info[0]
+        mimetype_inner = None
+
+        if format_info[0] == "application/zip":
+            try:
+                zip_file = zipfile.ZipFile(filename)
+            except zipfile.BadZipFile:
+                log.warning(f"The file {filename} is not a valid zip file")
+                return file_format, mimetype, mimetype_inner
+
+            namelist = zip_file.namelist()
+
+            for name in namelist:
+                guess, encoding = mimetypes.guess_type(name, strict=False)
+                if guess is not None and resource_formats.get(guess.lower()):
+                    # We can only save one value to mimetype_inner, so once we get a
+                    # valid mimetype, we can stop looking
+                    mimetype_inner = guess
+                    break
+
         return file_format, mimetype, mimetype_inner
 
     # =======================================================================
@@ -625,8 +660,8 @@ class BaseSBBHarvester(HarvesterBase):
             file_filter = self.filters[obj["filter"]]
             obj = file_filter(obj, self.config)
 
-        f = obj.get("file")
-        if not f:
+        filepath = obj.get("file")
+        if not filepath:
             log.error("Invalid file key in harvest object: %s" % obj)
             self._save_object_error("No file to import", harvest_object, stage)
             return False
@@ -664,7 +699,7 @@ class BaseSBBHarvester(HarvesterBase):
             dataset["version"] = now
 
             # check if there is a resource matching the filename in the package
-            old_resource_meta = self.find_resource_in_package(dataset, f)
+            old_resource_meta = self.find_resource_in_package(dataset, filepath)
             if old_resource_meta:
                 log.info(
                     "Found existing resource with this filename: %s"
@@ -800,7 +835,7 @@ class BaseSBBHarvester(HarvesterBase):
         # resource
         # =======================================================================
 
-        log.info("Importing file: %s" % str(f))
+        log.info("Importing file: %s" % str(filepath))
 
         site_url = ckanconf.get("ckan.site_url", None)
         if not site_url:
@@ -809,18 +844,18 @@ class BaseSBBHarvester(HarvesterBase):
             )
             return False
 
-        log.info("Adding %s to package with id %s", str(f), dataset["id"])
+        log.info("Adding %s to package with id %s", str(filepath), dataset["id"])
 
         fp = None
         try:
             try:
-                size = int(os.path.getsize(f))
+                size = int(os.path.getsize(filepath))
             except ValueError:
                 size = None
 
-            fp = open(f, "rb")
+            fp = open(filepath, "rb")
 
-            file_name = os.path.basename(f)
+            file_name = os.path.basename(filepath)
 
             # -----------------------------------------------------
             # create new resource
@@ -841,8 +876,9 @@ class BaseSBBHarvester(HarvesterBase):
 
             resource_meta["identifier"] = file_name
 
-            file_format, mimetype, mimetype_inner = self._get_mimetypes(f)
+            file_format, mimetype, mimetype_inner = self._get_mimetypes(filepath)
             resource_meta["format"] = file_format
+            resource_meta["media_type"] = mimetype
             resource_meta["mimetype"] = mimetype
             resource_meta["mimetype_inner"] = mimetype_inner
 
@@ -888,7 +924,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             log.info("Creating new resource: %s" % str(resource_meta))
 
-            with open(f, "rb") as f:
+            with open(filepath, "rb") as f:
                 stream = io.BytesIO(f.read())
 
             upload = FileStorage(stream=stream, filename=file_name)
@@ -915,7 +951,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             Session.commit()
 
-            log.info("Successfully harvested file %s" % f)
+            log.info("Successfully harvested file %s" % filepath)
 
             # ---------------------------------------------------------------------
 

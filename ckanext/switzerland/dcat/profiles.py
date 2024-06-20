@@ -278,7 +278,9 @@ class SwissDCATAPProfile(RDFProfile):
 
             # if media type is not set, use format as fallback
             if not resource_dict.get("media_type") and resource_dict.get("format"):
-                resource_dict["media_type"] = resource_dict["format"]
+                resource_dict["media_type"] = resource_dict["mimetype"] = resource_dict[
+                    "format"
+                ]
 
             # Timestamp fields
             for key, predicate in (
@@ -491,7 +493,7 @@ class SwissDCATAPProfile(RDFProfile):
             items = [
                 ("status", ADMS.status, None, Literal),
                 ("identifier", DCT.identifier, None, Literal),
-                ("media_type", DCAT.mediaType, None, Literal),
+                ("media_type", DCAT.mediaType, ["mimetype"], Literal),
                 ("spatial", DCT.spatial, None, Literal),
             ]
 

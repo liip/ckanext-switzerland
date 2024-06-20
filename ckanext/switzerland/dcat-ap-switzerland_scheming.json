@@ -319,15 +319,6 @@
       "preset": "ogdch_date"
     },
     {
-      "field_name": "media_type",
-      "label": {
-        "en": "Format",
-        "de": "Format",
-        "fr": "Format",
-        "it": "Formato"
-      }
-    },
-    {
       "field_name": "format",
       "label": {
         "en": "Format",
@@ -336,6 +327,30 @@
         "it": "Formato"
       },
       "preset": "resource_format_autocomplete"
+    },
+    {
+      "field_name": "media_type",
+      "label": {
+        "en": "Media type",
+        "de": "Medientyp",
+        "fr": "Type de médias",
+        "it": "Media type"
+      }
+    },
+    {
+      "field_name": "mimetype_inner",
+      "label": {
+        "en": "Media type (inner)",
+        "de": "Medientyp (inner)",
+        "fr": "Type de médias (interne)",
+        "it": "Media type (interno)"
+      },
+      "help_text": {
+        "de": "Wenn die Ressource eine ZIP-Datei ist, können Sie hier den Medientyp der darin enthaltenen Dateien festlegen",
+        "en": "If the resource is a zip file, you can set the media type of the files inside it here",
+        "fr": "Si la ressource est un fichier zip, vous pouvez définir ici le type de médias des fichiers qu'elle contient",
+        "it": "Se la risorsa è un file zip, puoi impostare qui il media type dei file al suo interno"
+      }
     },
     {
       "field_name": "language",
