@@ -366,6 +366,10 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         dataset = self.get_dataset()
         self.assertEqual(len(dataset["resources"]), 3)
 
+        result = get_action("package_search")({}, {"facet.field": ["res_format"]})
+        res_format_facet = result["facets"]["res_format"]
+        self.assertDictEqual(res_format_facet, {"CSV": 1, "JSON": 1, "XML": 1})
+
         csv_resource = next(
             (
                 resource
