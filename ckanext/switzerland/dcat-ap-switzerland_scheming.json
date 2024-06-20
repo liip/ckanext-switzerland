@@ -319,6 +319,16 @@
       "preset": "ogdch_date"
     },
     {
+      "field_name": "format",
+      "label": {
+        "en": "Format",
+        "de": "Format",
+        "fr": "Format",
+        "it": "Formato"
+      },
+      "preset": "resource_format_autocomplete"
+    },
+    {
       "field_name": "media_type",
       "label": {
         "en": "Media type",
@@ -335,16 +345,6 @@
         "fr": "Type de médias (interne)",
         "it": "Media type (interno)"
       }
-    },
-    {
-      "field_name": "format",
-      "label": {
-        "en": "Format",
-        "de": "Format",
-        "fr": "Format",
-        "it": "Formato"
-      },
-      "preset": "resource_format_autocomplete"
     },
     {
       "field_name": "language",
