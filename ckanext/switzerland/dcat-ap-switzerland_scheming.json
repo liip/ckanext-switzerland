@@ -348,7 +348,7 @@
       "help_text": {
         "de": "Wenn die Ressource eine ZIP-Datei ist, können Sie hier den Medientyp der darin enthaltenen Dateien festlegen",
         "en": "If the resource is a zip file, you can set the media type of the files inside it here",
-        "fr": "Si la ressource est un fichier zip, vous pouvez définir ici le type de médias des fichiers qu'elle contient.",
+        "fr": "Si la ressource est un fichier zip, vous pouvez définir ici le type de médias des fichiers qu'elle contient",
         "it": "Se la risorsa è un file zip, puoi impostare qui il media type dei file al suo interno"
       }
     },
