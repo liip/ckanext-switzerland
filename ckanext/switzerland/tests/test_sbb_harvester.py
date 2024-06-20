@@ -354,6 +354,64 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(package.resources[2].extras["identifier"], "20160902.csv")
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    def test_resource_formats(self):
+        filesystem = self.get_filesystem(filename="20160901.csv")
+        MockFTPStorageAdapter.filesystem = filesystem
+        path = os.path.join(data.environment, data.folder, "20160901.xml")
+        filesystem.writetext(path, data.dataset_content_2)
+        path = os.path.join(data.environment, data.folder, "20160901.json")
+        filesystem.writetext(path, data.dataset_content_3)
+        self.run_harvester(ftp_server="testserver")
+
+        dataset = self.get_dataset()
+        self.assertEqual(len(dataset["resources"]), 3)
+
+        csv_resource = next(
+            (
+                resource
+                for resource in dataset["resources"]
+                if resource["identifier"] == "20160901.csv"
+            ),
+            None,
+        )
+        self.assertEqual(csv_resource["identifier"], "20160901.csv")
+        self.assertEqual(csv_resource["format"], "CSV")
+        self.assertEqual(csv_resource["media_type"], "text/csv")
+        self.assertEqual(csv_resource["mimetype"], "text/csv")
+        # mimetype_inner is None, so CKAN doesn't save it on the resource
+        self.assertNotIn("mimetype_inner", csv_resource)
+
+        xml_resource = next(
+            (
+                resource
+                for resource in dataset["resources"]
+                if resource["identifier"] == "20160901.xml"
+            ),
+            None,
+        )
+        self.assertEqual(xml_resource["identifier"], "20160901.xml")
+        self.assertEqual(xml_resource["format"], "XML")
+        self.assertEqual(xml_resource["media_type"], "application/xml")
+        self.assertEqual(xml_resource["mimetype"], "application/xml")
+        # mimetype_inner is None, so CKAN doesn't save it on the resource
+        self.assertNotIn("mimetype_inner", xml_resource)
+
+        json_resource = next(
+            (
+                resource
+                for resource in dataset["resources"]
+                if resource["identifier"] == "20160901.json"
+            ),
+            None,
+        )
+        self.assertEqual(json_resource["identifier"], "20160901.json")
+        self.assertEqual(json_resource["format"], "JSON")
+        self.assertEqual(json_resource["media_type"], "application/json")
+        self.assertEqual(json_resource["mimetype"], "application/json")
+        # mimetype_inner is None, so CKAN doesn't save it on the resource
+        self.assertNotIn("mimetype_inner", json_resource)
+
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     def test_filter_regex(self):
         filesystem = self.get_filesystem(filename="File.zip")
         MockFTPStorageAdapter.filesystem = filesystem
