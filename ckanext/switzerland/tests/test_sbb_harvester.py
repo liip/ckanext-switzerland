@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+from time import sleep
 
 import pytest
 from ckan.lib.munge import munge_name
@@ -235,6 +236,10 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         path = os.path.join(data.environment, data.folder, "20160901.csv")
         filesystem.writetext(path, data.dataset_content_3)
+
+        # Wait a short time to be sure that there's a big enough difference between the
+        # last harvester run and the file's modified date
+        sleep(3)
         filesystem.settimes(path, modified=datetime.now())
 
         self.run_harvester(ftp_server="testserver")
@@ -278,6 +283,10 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         path = os.path.join(data.environment, data.folder, "20160902.csv")
         filesystem.writetext(path, data.dataset_content_3)
+
+        # Wait a short time to be sure that there's a big enough difference between the
+        # last harvester run and the file's modified date
+        sleep(3)
         filesystem.settimes(path, modified=datetime.now())
 
         self.run_harvester(ftp_server="testserver")
