@@ -184,11 +184,6 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         # groups
         if "groups" in pkg_dict and pkg_dict["groups"] is not None:
             for group in pkg_dict["groups"]:
-                """
-                TODO: somehow the title is messed up here,
-                but the display_name is okay
-                """
-                group["title"] = group["display_name"]
                 for field in group:
                     group[field] = sh.parse_json(group[field])
 
@@ -348,11 +343,6 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         # groups
         if pkg_dict["groups"] is not None:
             for group in pkg_dict["groups"]:
-                """
-                TODO: somehow the title is messed up here,
-                but the display_name is okay
-                """
-                group["title"] = group["display_name"]
                 for field in group:
                     group[field] = sh.parse_json(group[field])
 
