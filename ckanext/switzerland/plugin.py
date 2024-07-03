@@ -156,15 +156,10 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         # map ckan fields
         pkg_dict = self._package_map_ckan_default_fields(pkg_dict)
 
-        try:
-            # Do not change the resulting dict for API requests and form saves
-            # _package_reduce_to_requested_language removes all translation dicts needed
-            # to show the form on resource_edit, so we skip it here
-            path = toolkit.request.path
-            if path.startswith("/api") or toolkit.request.path == "POST":
-                return pkg_dict
-        except TypeError:
-            # we get here if there is no request (i.e. on the command line)
+        # Do not change the resulting dict for API requests and form saves
+        # _package_reduce_to_requested_language removes all translation dicts needed
+        # to show the form on resource_edit, so we skip it here
+        if sh.request_is_api_request() or toolkit.request.path == "POST":
             return pkg_dict
 
         # replace langauge dicts with requested language strings
