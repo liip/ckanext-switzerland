@@ -2,14 +2,17 @@ import json
 import os
 from datetime import datetime
 from time import sleep
+from zoneinfo import ZoneInfo
 
 import pytest
 from ckan.lib.munge import munge_name
 from ckan.logic import NotFound, get_action
 from mock import patch
+import time_machine
 
 from ckanext.harvest import model as harvester_model
 from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
+from ckanext.switzerland.helpers import DATETIME_FIELDS
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
     MockFTPStorageAdapter,
     MockStorageAdapterFactory,
@@ -495,3 +498,37 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
                 }
             )
         )
+
+    @time_machine.travel(
+        datetime(2022, 4, 20, 14, 15, 0, 0, ZoneInfo("UTC")), tick=False
+    )
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    def test_datetime_fields(self):
+        """Test that all datetime fields for a new dataset are set to the current time
+        in UTC.
+        """
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
+        self.run_harvester(ftp_server="testserver")
+
+        dataset = self.get_dataset()
+
+        dataset_datetime_fields = [
+            "issued",
+            "metadata_created",
+            "metadata_modified",
+            "modified",
+            "version",
+        ]
+        resource_datetime_fields = [
+            "created",
+            "issued",
+            "last_modified",
+            "metadata_modified",
+            "modified",
+        ]
+
+        for field in dataset_datetime_fields:
+            self.assertEqual(dataset[field], "2022-04-20T14:15:00")
+
+        for field in resource_datetime_fields:
+            self.assertEqual(dataset["resources"][0][field], "2022-04-20T14:15:00")
