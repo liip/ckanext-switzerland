@@ -91,7 +91,6 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "render_description": sh.render_description,
             "get_resource_display_items": sh.get_resource_display_items,
             "convert_datetimes_for_api": sh.convert_datetimes_for_api,
-            "convert_datetimes_for_display": sh.convert_datetimes_for_display,
             "request_is_api_request": sh.request_is_api_request,
             # monkey patch template helpers to return translated names/titles
             "dataset_display_name": sh.dataset_display_name,
@@ -329,8 +328,6 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         """
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
-
-        sh.convert_datetimes_for_display(pkg_dict)
 
         return super(OgdchPackagePlugin, self).before_view(pkg_dict)
 
