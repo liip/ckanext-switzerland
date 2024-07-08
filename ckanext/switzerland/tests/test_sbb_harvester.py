@@ -5,10 +5,10 @@ from time import sleep
 from zoneinfo import ZoneInfo
 
 import pytest
+import time_machine
 from ckan.lib.munge import munge_name
 from ckan.logic import NotFound, get_action
 from mock import patch
-import time_machine
 
 from ckanext.harvest import model as harvester_model
 from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
