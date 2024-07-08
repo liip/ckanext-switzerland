@@ -22,13 +22,11 @@ from simplejson import JSONDecodeError
 
 log = logging.getLogger(__name__)
 
-CKAN_DATETIME_FIELDS = [
+DATETIME_FIELDS = [
     "created",
     "last_modified",
     "metadata_created",
     "metadata_modified",
-]
-CUSTOM_DATETIME_FIELDS = [
     "issued",
     "modified",
     "version",
@@ -507,26 +505,15 @@ def convert_datetimes_for_api(dataset_or_resource_dict):
     """Calculates the time of a datetime in the Europe/Zurich time zone and outputs the
     value as isoformat, with time zone info.
 
-    CKAN stores all datetimes as UTC by default, so they have to be converted to
-    Europe/Zurich and have the time zone info added. For our custom datetime fields, we
-    use the server time zone, so they are already in Europe/Zurich. We just have to add
-    the time zone info.
+    All datetimes are stored in the database and Solr as UTC and have no time zone info.
     """
-    for field in CKAN_DATETIME_FIELDS:
+    for field in DATETIME_FIELDS:
         dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict.get(field))
         if dt is False:
             continue
 
         dt_utc = dt.replace(tzinfo=UTC)
         dt_zh = dt_utc.astimezone(ZURICH)
-        dataset_or_resource_dict[field] = dt_zh.isoformat()
-
-    for field in CUSTOM_DATETIME_FIELDS:
-        dt = _get_datetime_from_isoformat_string(dataset_or_resource_dict.get(field))
-        if dt is False:
-            continue
-
-        dt_zh = dt.replace(tzinfo=ZURICH)
         dataset_or_resource_dict[field] = dt_zh.isoformat()
 
     if dataset_or_resource_dict.get("resources"):
