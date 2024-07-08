@@ -677,7 +677,7 @@ class BaseSBBHarvester(HarvesterBase):
 
         context = {"model": model, "session": Session, "user": self._get_user_name()}
 
-        now = datetime.now().isoformat()
+        now = datetime.utcnow().isoformat()
 
         # =======================================================================
         # package
@@ -1068,7 +1068,7 @@ class BaseSBBHarvester(HarvesterBase):
         else:
             permalink = None
 
-        now = datetime.now().isoformat()
+        now = datetime.utcnow().isoformat()
         get_action("package_patch")(
             context,
             {
