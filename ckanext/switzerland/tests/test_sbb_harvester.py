@@ -12,7 +12,6 @@ import time_machine
 
 from ckanext.harvest import model as harvester_model
 from ckanext.switzerland.harvester.sbb_harvester import SBBHarvester
-from ckanext.switzerland.helpers import DATETIME_FIELDS
 from ckanext.switzerland.tests.helpers.mock_ftp_storage_adapter import (
     MockFTPStorageAdapter,
     MockStorageAdapterFactory,
