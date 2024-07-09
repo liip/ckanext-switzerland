@@ -158,7 +158,7 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         # Do not change the resulting dict for API requests and form saves
         # _package_reduce_to_requested_language removes all translation dicts needed
         # to show the form on resource_edit, so we skip it here
-        if sh.request_is_api_request() or toolkit.request.path == "POST":
+        if sh.request_is_api_request() or toolkit.request.method == "POST":
             return pkg_dict
 
         # replace langauge dicts with requested language strings
