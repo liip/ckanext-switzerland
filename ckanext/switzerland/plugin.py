@@ -350,10 +350,10 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
                     pkg_dict["organization"][field]
                 )
 
-        if sh.request_is_api_request():
+        if sh.request_is_api_request() and not toolkit.request.method == "POST":
             # We want to convert datetimes to Europe/Zurich and include the time zone
             # information, but only when returning the dataset via the API, not when
-            # handling it internally.
+            # handling it internally or updating the dataset.
             sh.convert_datetimes_for_api(pkg_dict)
 
         return pkg_dict
