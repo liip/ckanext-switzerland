@@ -91,7 +91,6 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "render_description": sh.render_description,
             "get_resource_display_items": sh.get_resource_display_items,
             "convert_datetimes_for_api": sh.convert_datetimes_for_api,
-            "convert_datetimes_for_display": sh.convert_datetimes_for_display,
             "request_is_api_request": sh.request_is_api_request,
             # monkey patch template helpers to return translated names/titles
             "dataset_display_name": sh.dataset_display_name,
@@ -159,7 +158,7 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         # Do not change the resulting dict for API requests and form saves
         # _package_reduce_to_requested_language removes all translation dicts needed
         # to show the form on resource_edit, so we skip it here
-        if sh.request_is_api_request() or toolkit.request.path == "POST":
+        if sh.request_is_api_request() or toolkit.request.method == "POST":
             return pkg_dict
 
         # replace langauge dicts with requested language strings
@@ -330,8 +329,6 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
 
-        sh.convert_datetimes_for_display(pkg_dict)
-
         return super(OgdchPackagePlugin, self).before_view(pkg_dict)
 
     def after_dataset_show(self, context, pkg_dict):
@@ -353,10 +350,10 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
                     pkg_dict["organization"][field]
                 )
 
-        if sh.request_is_api_request():
+        if sh.request_is_api_request() and not toolkit.request.method == "POST":
             # We want to convert datetimes to Europe/Zurich and include the time zone
             # information, but only when returning the dataset via the API, not when
-            # handling it internally.
+            # handling it internally or updating the dataset.
             sh.convert_datetimes_for_api(pkg_dict)
 
         return pkg_dict

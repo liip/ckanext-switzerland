@@ -26,24 +26,23 @@ class TestOgdchPackagePlugin(object):
     )
     def _create_dataset(self):
         """Create a dataset with a resource and set datetime fields to known values.
+        All datetimes are saved in the database and Solr as UTC.
 
-        We mock the current time (in UTC), because we can't specify values for
-        metadata_created, metadata_modified and created otherwise. CKAN sets those
-        values to datetime.datetime.utcnow() when creating or modifying a
-        dataset/resource.
-
-        We set our custom fields (issued, modified, version) to values in the
-        Europe/Zurich time zone.
+        Fields that CKAN sets to the current UTC time when creating/updating a dataset:
+        - dataset metadata_created
+        - dataset metadata_modified
+        - resource created
+        - resource last_modified
+        - resource metadata_modified
         """
+        # Fields where we set a value directly when creating/updating a dataset/resource
         dataset_datetime_fields = {
             "issued": "2022-04-18T12:00:00",
             "modified": "2022-04-18T12:30:00",
             "version": "2022-04-18T12:30:00",
         }
-        # last_modified is a CKAN default field, but we can set its value directly,
-        # unlike the other CKAN default fields
         resource_datetime_fields = {
-            "last_modified": "2022-04-20T14:15:00",
+            "last_modified": "2022-04-18T12:30:00",
             "issued": "2022-04-18T12:00:00",
             "modified": "2022-04-18T12:30:00",
         }
@@ -98,15 +97,15 @@ class TestOgdchPackagePlugin(object):
 
         assert pkg_dict["metadata_created"] == "2022-04-20T16:15:00+02:00"
         assert pkg_dict["metadata_modified"] == "2022-04-20T16:15:00+02:00"
-        assert pkg_dict["issued"] == "2022-04-18T12:00:00+02:00"
-        assert pkg_dict["modified"] == "2022-04-18T12:30:00+02:00"
-        assert pkg_dict["version"] == "2022-04-18T12:30:00+02:00"
+        assert pkg_dict["issued"] == "2022-04-18T14:00:00+02:00"
+        assert pkg_dict["modified"] == "2022-04-18T14:30:00+02:00"
+        assert pkg_dict["version"] == "2022-04-18T14:30:00+02:00"
 
         assert resource_dict["created"] == "2022-04-20T16:15:00+02:00"
         assert resource_dict["metadata_modified"] == "2022-04-20T16:15:00+02:00"
-        assert resource_dict["last_modified"] == "2022-04-20T16:15:00+02:00"
-        assert resource_dict["issued"] == "2022-04-18T12:00:00+02:00"
-        assert resource_dict["modified"] == "2022-04-18T12:30:00+02:00"
+        assert resource_dict["last_modified"] == "2022-04-18T14:30:00+02:00"
+        assert resource_dict["issued"] == "2022-04-18T14:00:00+02:00"
+        assert resource_dict["modified"] == "2022-04-18T14:30:00+02:00"
 
     @responses.activate
     def test_get_correct_datetime_format_for_dataset_display(self, app):
@@ -124,9 +123,9 @@ class TestOgdchPackagePlugin(object):
         assert (
             last_updated["data-datetime"]
             == modified["data-datetime"]
-            == "2022-04-18T10:30:00+0000"
+            == "2022-04-18T12:30:00+0000"
         )
-        assert issued["data-datetime"] == "2022-04-18T10:00:00+0000"
+        assert issued["data-datetime"] == "2022-04-18T12:00:00+0000"
 
     @responses.activate
     def test_get_correct_datetime_format_for_resource_display(self, app):
@@ -154,4 +153,4 @@ class TestOgdchPackagePlugin(object):
 
         # modified date should be in UTC
         modified = soup.find("dt", text="Modified date").findNext("dd").find("span")
-        assert modified["data-datetime"] == "2022-04-18T10:30:00+0000"
+        assert modified["data-datetime"] == "2022-04-18T12:30:00+0000"

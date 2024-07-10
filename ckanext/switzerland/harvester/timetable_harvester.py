@@ -116,7 +116,7 @@ class TimetableHarvester(SBBHarvester):
                     storage.create_local_dir(tmpdirbase)
 
                 # set prefix for tmp folder
-                prefix = datetime.now().strftime(self.tmpfolder_prefix)
+                prefix = datetime.utcnow().strftime(self.tmpfolder_prefix)
                 # save the folder path where the files are to be downloaded
                 # all parts following the first one must be relative paths
 
