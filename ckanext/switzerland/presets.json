@@ -123,7 +123,8 @@
       "preset_name": "ogdch_date",
       "values": {
         "display_snippet": "date.html",
-        "form_snippet": "hidden.html"
+        "form_snippet": "datetime.html",
+        "validators": "scheming_isodatetime convert_to_json_if_datetime"
       }
     },
     {

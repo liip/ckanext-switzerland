@@ -36,6 +36,16 @@
       "preset": "dataset_slug"
     },
     {
+      "field_name": "issued",
+      "label": {
+        "en": "Issued date",
+        "de": "Erstellungsdatum",
+        "fr": "Date de publication",
+        "it": "Data di rilascio"
+      },
+      "preset": "ogdch_date"
+    },
+    {
       "field_name": "modified",
       "label": {
         "en": "Modified date",
@@ -132,16 +142,6 @@
       },
       "preset": "ogdch_fluent_tags",
       "display_snippet": "keywords.html"
-    },
-    {
-      "field_name": "issued",
-      "label": {
-        "en": "Issued date",
-        "de": "Erstellungsdatum",
-        "fr": "Date de publication",
-        "it": "Data di rilascio"
-      },
-      "preset": "ogdch_date"
     },
     {
       "field_name": "relations",
