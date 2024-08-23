@@ -10,15 +10,14 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins.toolkit as tk
 import requests
-from ckan.common import _, c, request
+from ckan.common import _, c
 from ckan.lib.helpers import _link_to
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
-from ckan.lib.helpers import lang, literal
+from ckan.lib.helpers import literal
 from ckan.lib.helpers import organization_link as organization_link_orig
 from ckan.lib.helpers import url_for
 from ckan.lib.munge import munge_filename
 from jinja2.utils import urlize
-from simplejson import JSONDecodeError
 
 log = logging.getLogger(__name__)
 
