@@ -87,7 +87,6 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "parse_json": sh.parse_json,
             "convert_post_data_to_dict": sh.convert_post_data_to_dict,
             "resource_filename": sh.resource_filename,
-            "load_wordpress_templates": sh.load_wordpress_templates,
             "render_description": sh.render_description,
             "get_resource_display_items": sh.get_resource_display_items,
             "convert_datetimes_for_api": sh.convert_datetimes_for_api,

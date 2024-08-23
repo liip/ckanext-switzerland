@@ -380,35 +380,6 @@ def resource_filename(resource_url):
     return munge_filename(os.path.basename(resource_url))
 
 
-def load_wordpress_templates():
-    site_url = tk.config.get("ckanext.switzerland.wp_template_url", "")
-    url = "{}&lang={}".format(site_url, lang())
-
-    resp = requests.get(url, cookies=request.cookies)
-    if resp.status_code != 200:
-        log.error(
-            "Error getting WordPress templates. Status code: {}."
-            " Content: {}".format(resp.status_code, resp.content)
-        )
-        return
-
-    try:
-        data = resp.json()["data"]
-    except JSONDecodeError:
-        content = resp.content[resp.content.index(b"{") :]
-        data = json.loads(content)["data"]
-    except (ValueError, KeyError) as e:
-        log.error("Error getting WordPress templates: {}".format(e))
-        return
-
-    c.wordpress_user_navigation = data["user"]
-    c.wordpress_main_navigation = data["main"]
-    c.wordpress_admin_navigation = data["admin"]
-    c.wordpress_footer = data["footer"]
-    c.wordpress_title = data["title"]
-    c.wordpress_css = data["css"]
-
-
 def render_description(pkg):
     text = parse_and_localize(pkg["description"])
     text = urlize(text)
