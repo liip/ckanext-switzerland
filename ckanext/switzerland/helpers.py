@@ -10,15 +10,14 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins.toolkit as tk
 import requests
-from ckan.common import _, c, request
+from ckan.common import _, c
 from ckan.lib.helpers import _link_to
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
-from ckan.lib.helpers import lang, literal
+from ckan.lib.helpers import literal
 from ckan.lib.helpers import organization_link as organization_link_orig
 from ckan.lib.helpers import url_for
 from ckan.lib.munge import munge_filename
 from jinja2.utils import urlize
-from simplejson import JSONDecodeError
 
 log = logging.getLogger(__name__)
 
@@ -378,35 +377,6 @@ def get_resource_display_items(res, exclude_fields, schema):
 
 def resource_filename(resource_url):
     return munge_filename(os.path.basename(resource_url))
-
-
-def load_wordpress_templates():
-    site_url = tk.config.get("ckanext.switzerland.wp_template_url", "")
-    url = "{}&lang={}".format(site_url, lang())
-
-    resp = requests.get(url, cookies=request.cookies)
-    if resp.status_code != 200:
-        log.error(
-            "Error getting WordPress templates. Status code: {}."
-            " Content: {}".format(resp.status_code, resp.content)
-        )
-        return
-
-    try:
-        data = resp.json()["data"]
-    except JSONDecodeError:
-        content = resp.content[resp.content.index(b"{") :]
-        data = json.loads(content)["data"]
-    except (ValueError, KeyError) as e:
-        log.error("Error getting WordPress templates: {}".format(e))
-        return
-
-    c.wordpress_user_navigation = data["user"]
-    c.wordpress_main_navigation = data["main"]
-    c.wordpress_admin_navigation = data["admin"]
-    c.wordpress_footer = data["footer"]
-    c.wordpress_title = data["title"]
-    c.wordpress_css = data["css"]
 
 
 def render_description(pkg):

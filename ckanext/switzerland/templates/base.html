@@ -37,15 +37,13 @@
 
 
 {% block styles %}
-  <link rel="stylesheet" href="{{ c.wordpress_css }}">
+  {{ super() }}
   {% asset 'ckanext-activity/activity-css' %}
   {% asset 'ckanext-activity/activity' %}
   {% asset 'ckanext-harvest/harvest_css' %}
 {% endblock %}
 
 {% block title %}
-  {% set dummy=h.load_wordpress_templates() %}
   {%- block subtitle %}{% endblock -%}
   {%- if self.subtitle()|trim %} | {% endif -%}
-  {{ c.wordpress_title }}
 {% endblock %}
