@@ -1,6 +1,6 @@
-<dl>
-  <dt>{{ _('Terms of use') }}</dt>
-  <dd class="terms">
+<tr>
+  <th scope="row" class="dataset-label">{{ _('Terms of use') }}</th>
+  <td class="dataset-details">
     {% if pkg.odpch_license_url %}
       {% if pkg.odpch_license_name %}
         <a href="{{ pkg.odpch_license_url }}">{{ pkg.odpch_license_name }}</a>
@@ -10,5 +10,5 @@
     {% else %}
       <a href="{{ h.url_for('/terms-of-use/') }}">{{ _('Terms of use opentransport.swiss') }}</a>
     {% endif %}
-  </dd>
-</dl>
+  </td>
+</tr>
