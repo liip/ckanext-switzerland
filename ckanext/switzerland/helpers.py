@@ -439,6 +439,11 @@ def localize_change_dict(changes):
         "new_org_title",
         "old_desc",
         "new_desc",
+        "resource_name",
+        "old_resource_name",
+        "new_resource_name",
+        "old_name",
+        "new_name",
     ]
     for change in changes:
         for field in multilingual_fields:
