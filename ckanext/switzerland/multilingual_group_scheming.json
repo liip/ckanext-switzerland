@@ -37,6 +37,12 @@
     },
     {
       "field_name": "display_name",
+      "label": {
+        "en": "Name",
+        "de": "Name",
+        "fr": "Nom",
+        "it": "Nome"
+      },
       "preset": "multilingual_text",
       "form_snippet": null,
       "display_snippet": null
