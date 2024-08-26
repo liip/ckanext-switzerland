@@ -11,4 +11,13 @@
 {% endblock %}
 
 {% block description %}
+  {% set description = h.parse_and_localize(group.description) %}
+  {% if description %}
+    <p class="description">
+      {{ h.markdown_extract(description, 180) }}
+    </p>
+    <p class="read-more">
+      {% link_for _('read more'), named_route='group.about', id=group.name %}
+    </p>
+  {% endif %}
 {% endblock %}
