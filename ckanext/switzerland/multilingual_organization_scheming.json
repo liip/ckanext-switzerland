@@ -53,9 +53,7 @@
         "fr": "URL d'image",
         "it": "URL d'immagine"
       },
-      "form_placeholder": "http://example.com/my-image.jpg",
-      "form_snippet": "image_upload.html",
-      "url_field": "url"
+      "preset": "organization_image_upload"
     }
   ]
 }
