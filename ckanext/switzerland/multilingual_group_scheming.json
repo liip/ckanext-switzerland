@@ -33,7 +33,8 @@
         "fr": "Description",
         "it": "Descrizione"
       },
-      "preset": "multilingual_text"
+      "preset": "multilingual_text",
+      "form_snippet": "multilingual_textarea.html"
     },
     {
       "field_name": "display_name",
