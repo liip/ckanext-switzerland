@@ -198,6 +198,14 @@
         "upload_clear": "clear_upload",
         "upload_label": "File"
       }
+    },
+    {
+      "preset_name": "organization_image_upload",
+      "values": {
+        "validators": "ignore_missing unicode_safe remove_whitespace",
+        "form_snippet": "organization_upload.html",
+        "form_placeholder": "http://example.com/my-image.jpg"
+      }
     }
   ]
 }
