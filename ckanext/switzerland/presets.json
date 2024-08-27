@@ -177,7 +177,7 @@
       "preset_name": "ogdch_fluent_tags",
       "values": {
         "form_snippet": "fluent_tags.html",
-        "display_snippet": "keywords.html",
+        "display_snippet": "fluent_tags.html",
         "error_snippet": "fluent_text.html",
         "validators": "fluent_tags ogdch_fluent_tags",
         "output_validators": "fluent_tags_output",
