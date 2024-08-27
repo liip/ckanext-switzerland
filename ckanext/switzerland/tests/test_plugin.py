@@ -147,5 +147,5 @@ class TestOgdchPackagePlugin(object):
         soup = BeautifulSoup(resp.body, "html.parser")
 
         # modified date should be in UTC
-        modified = soup.find("dt", text="Modified date").findNext("dd").find("span")
+        modified = soup.find("th", text="Modified date").findNext("td").find("span")
         assert modified["data-datetime"] == "2022-04-18T12:30:00+0000"
