@@ -115,16 +115,11 @@ class TestOgdchPackagePlugin(object):
         resp = app.get(url_for("dataset.read", id="dataset", qualified=True))
         soup = BeautifulSoup(resp.body, "html.parser")
 
-        last_updated = soup.find("dt", text="Last updated").findNext("dd").find("span")
-        issued = soup.find("dt", text="Issued date").findNext("dd").find("span")
-        modified = soup.find("dt", text="Modified date").findNext("dd").find("span")
+        issued = soup.find("th", text="Issued date").findNext("td").find("span")
+        modified = soup.find("th", text="Modified date").findNext("td").find("span")
 
         # These values should be in UTC
-        assert (
-            last_updated["data-datetime"]
-            == modified["data-datetime"]
-            == "2022-04-18T12:30:00+0000"
-        )
+        assert modified["data-datetime"] == "2022-04-18T12:30:00+0000"
         assert issued["data-datetime"] == "2022-04-18T12:00:00+0000"
 
     @responses.activate
