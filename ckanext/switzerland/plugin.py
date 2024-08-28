@@ -206,15 +206,14 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
     def _package_map_ckan_default_fields(self, pkg_dict):
         if "title" in pkg_dict:
             pkg_dict["display_name"] = pkg_dict["title"]
-        if "contact_points" in pkg_dict and pkg_dict["contact_points"] is not None:
-            if pkg_dict["maintainer"] is None:
-                pkg_dict["maintainer"] = pkg_dict["contact_points"][0]["name"]
 
-            if pkg_dict["maintainer_email"] is None:
-                pkg_dict["maintainer_email"] = pkg_dict["contact_points"][0]["email"]
-        if "publishers" in pkg_dict and pkg_dict["publishers"] is not None:
-            if pkg_dict["author"] is None:
-                pkg_dict["author"] = pkg_dict["publishers"][0]["label"]
+        if pkg_dict["maintainer"] is None and pkg_dict.get("contact_points"):
+            pkg_dict["maintainer"] = pkg_dict["contact_points"][0]["name"]
+        if pkg_dict["maintainer_email"] is None and pkg_dict.get("contact_points"):
+            pkg_dict["maintainer_email"] = pkg_dict["contact_points"][0]["email"]
+
+        if pkg_dict["author"] is None and pkg_dict.get("publishers"):
+            pkg_dict["author"] = pkg_dict["publishers"][0]["label"]
         if "notes" in pkg_dict:
             del pkg_dict["notes"]
 
