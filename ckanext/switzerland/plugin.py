@@ -215,6 +215,8 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         if "publishers" in pkg_dict and pkg_dict["publishers"] is not None:
             if pkg_dict["author"] is None:
                 pkg_dict["author"] = pkg_dict["publishers"][0]["label"]
+        if "notes" in pkg_dict:
+            del pkg_dict["notes"]
 
         if "resources" in pkg_dict and pkg_dict["resources"] is not None:
             for resource in pkg_dict["resources"]:
