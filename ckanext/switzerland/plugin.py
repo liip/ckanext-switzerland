@@ -207,12 +207,12 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         if "title" in pkg_dict:
             pkg_dict["display_name"] = pkg_dict["title"]
 
-        if pkg_dict["maintainer"] is None and pkg_dict.get("contact_points"):
+        if pkg_dict.get("maintainer") is None and pkg_dict.get("contact_points"):
             pkg_dict["maintainer"] = pkg_dict["contact_points"][0]["name"]
-        if pkg_dict["maintainer_email"] is None and pkg_dict.get("contact_points"):
+        if pkg_dict.get("maintainer_email") is None and pkg_dict.get("contact_points"):
             pkg_dict["maintainer_email"] = pkg_dict["contact_points"][0]["email"]
 
-        if pkg_dict["author"] is None and pkg_dict.get("publishers"):
+        if pkg_dict.get("author") is None and pkg_dict.get("publishers"):
             pkg_dict["author"] = pkg_dict["publishers"][0]["label"]
         if "notes" in pkg_dict:
             del pkg_dict["notes"]
