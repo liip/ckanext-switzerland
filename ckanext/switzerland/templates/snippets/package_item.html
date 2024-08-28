@@ -2,15 +2,14 @@
 
 {% set truncate = truncate or 180 %}
 {% set truncate_title = truncate_title or 80 %}
-{% set description = h.truncate(package.description, truncate) %}
 
 {% block heading_title %}
-  {{ h.link_to(h.truncate(h.dataset_display_name(package), truncate_title), h.url_for('dataset.read', id=package.name)) }}
+  {{ h.link_to(h.dataset_display_name(package) | truncate(truncate_title), h.url_for('dataset.read', id=package.name)) }}
 {% endblock %}
 
 {% block notes %}
   {% if description %}
-    <p>{{ h.parse_and_localize(description) }}</p>
+    <p>{{ h.parse_and_localize(package.description) | truncate(truncate) }}</p>
   {% else %}
     <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no description for this dataset") }}</p>
   {% endif %}
