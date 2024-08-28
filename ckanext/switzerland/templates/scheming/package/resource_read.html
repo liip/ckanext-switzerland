@@ -1,8 +1,10 @@
 {% ckan_extends %}
 
 {% block head_extras -%}
-  {{ super() }}
-  {% set description = h.markdown_extract(h.get_translated(res, 'description'), extract_length=200) if res.description else h.markdown_extract(h.get_translated(package, 'notes'), extract_length=200) %}
+  <!-- This is copied from templates/base.html because we can't use super() here: the ckan core package/resource_read.html head_extras block can't handle our multilingual dict for resource description -->
+  {{ g.template_head_end | safe }}
+
+  {% set description = h.markdown_extract(h.parse_and_localize(res['description']), extract_length=200) if res.description else h.markdown_extract(h.parse_and_localize(package['description']), extract_length=200) %}
   <meta property="og:title" content="{{ h.dataset_display_name(package) }} - {{ h.resource_display_name(res) }} - {{ g.site_title }}">
   <meta property="og:description" content="{{ description|forceescape }}">
 {% endblock -%}
@@ -18,11 +20,11 @@
   {% endblock %}
   <div class="prose notes" property="rdfs:label">
     {% if res.description %}
-      {{ h.render_markdown(res.description) }}
+      {{ h.render_markdown(h.parse_and_localize(res.description)) }}
     {% endif %}
-    {% if not res.description and package.notes %}
+    {% if not res.description and package.description %}
       <h3>{{ _('Dataset description:') }}</h3>
-      <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
+      <blockquote>{{ h.markdown_extract(h.parse_and_localize(package['description'])) }}</blockquote>
       <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
     {% endif %}
   </div>
