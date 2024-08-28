@@ -1,4 +1,32 @@
 {% ckan_extends %}
 
+{% block head_extras -%}
+  {{ super() }}
+  {% set description = h.markdown_extract(h.get_translated(res, 'description'), extract_length=200) if res.description else h.markdown_extract(h.get_translated(package, 'notes'), extract_length=200) %}
+  <meta property="og:title" content="{{ h.dataset_display_name(package) }} - {{ h.resource_display_name(res) }} - {{ g.site_title }}">
+  <meta property="og:description" content="{{ description|forceescape }}">
+{% endblock -%}
+
+{% block resource_content %}
+  {% block resource_read_title %}<h1 class="page-heading" title="{{ h.resource_display_name(res) }}">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
+  {% block resource_read_url %}
+    {% if res.url and h.is_url(res.url) %}
+      <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+    {% elif res.url %}
+      <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
+    {% endif %}
+  {% endblock %}
+  <div class="prose notes" property="rdfs:label">
+    {% if res.description %}
+      {{ h.render_markdown(res.description) }}
+    {% endif %}
+    {% if not res.description and package.notes %}
+      <h3>{{ _('Dataset description:') }}</h3>
+      <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
+      <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+    {% endif %}
+  </div>
+{% endblock %}
+
 {%- block resource_more_items -%}
 {%- endblock -%}
