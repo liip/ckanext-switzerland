@@ -142,12 +142,12 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
     """
 
     def before_view(self, pkg_dict):
-        return self._prepare_package_json(pkg_dict)
+        return self._prepare_group_or_org_json(pkg_dict)
 
     def _ignore_field(self, key):
         return False
 
-    def _prepare_package_json(self, pkg_dict):
+    def _prepare_group_or_org_json(self, pkg_dict):
         # parse all json strings in dict
         pkg_dict = self._package_parse_json_strings(pkg_dict)
 
@@ -165,6 +165,15 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         pkg_dict = self._package_reduce_to_requested_language(
             pkg_dict, desired_lang_code
         )
+
+        return pkg_dict
+
+    def _prepare_package_json(self, pkg_dict):
+        # parse all json strings in dict
+        pkg_dict = self._package_parse_json_strings(pkg_dict)
+
+        # map ckan fields
+        pkg_dict = self._package_map_ckan_default_fields(pkg_dict)
 
         return pkg_dict
 
@@ -328,7 +337,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
 
-        return super(OgdchPackagePlugin, self).before_view(pkg_dict)
+        return self._prepare_package_json(pkg_dict)
 
     def after_dataset_show(self, context, pkg_dict):
         if not self.is_supported_package_type(pkg_dict):
