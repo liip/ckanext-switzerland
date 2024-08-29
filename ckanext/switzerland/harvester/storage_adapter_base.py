@@ -163,8 +163,8 @@ class StorageAdapterBase(object):
         """
         try:
             pathlib.Path(path).mkdir(mode=perms, parents=True, exist_ok=True)
-        except Exception as e:
-            log.warning(e)
+        except OSError:
+            raise
 
     def cdremote(self, remotedir=None):
         """
