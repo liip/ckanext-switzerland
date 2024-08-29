@@ -1,6 +1,6 @@
-import errno
 import logging
 import os
+import pathlib
 import zipfile
 from pprint import pformat
 
@@ -162,14 +162,9 @@ class StorageAdapterBase(object):
         :type perms: octal
         """
         try:
-            os.makedirs(path, perms)
-        except OSError as exc:  # Python >2.5
-            if exc.errno == errno.EEXIST and os.path.isdir(path):
-                # path already exists
-                pass
-            else:
-                # something went wrong with the creation of the directories
-                raise
+            pathlib.Path(path).mkdir(mode=perms, parents=True, exist_ok=True)
+        except Exception as e:
+            log.warning(e)
 
     def cdremote(self, remotedir=None):
         """
