@@ -2,203 +2,169 @@
 # #-#-#-#-#  ckanext-switzerland.po  #-#-#-#-#
 # This file was generated from translations/ckan_de.xlsx
 # #-#-#-#-#  ckan.po (CKAN)  #-#-#-#-#
-# Translations template for ckan.
+# German translations for ckan.
 # Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-
 msgid ""
 msgstr ""
-"Project-Id-Version: CKAN\n"
+"Project-Id-Version:  CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-04-15 15:30+0200\n"
+"POT-Creation-Date: 2024-09-02 13:31+0000\n"
 "PO-Revision-Date: 2020-04-15 15:43+0200\n"
 "Last-Translator: Adrian Schlegel <adrian.schlegel@liip.ch>\n"
-"Language-Team: German (http://www.transifex.com/okfn/ckan/language/de/)\n"
 "Language: de\n"
+"Language-Team: German (http://www.transifex.com/okfn/ckan/language/de/)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: xls-to-po 1.0\n"
-"X-Generator: Poedit 2.3\n"
-"Generated-By: Babel 2.1.1\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Generated-By: Babel 2.1.1\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: ckanext/switzerland/controllers.py:60 ckanext/switzerland/controllers.py:107
-#: ckanext/switzerland/controllers.py:122
+#: ckanext/switzerland/blueprints.py:49
+msgid "Unauthorized"
+msgstr ""
+
+#: ckanext/switzerland/blueprints.py:120 ckanext/switzerland/blueprints.py:163
+#: ckanext/switzerland/blueprints.py:183
 msgid "Resource not found"
 msgstr "Ressource nicht gefunden"
 
-#: ckanext/switzerland/controllers.py:62
-#, python-format
-msgid "Unauthorized to read resource %s"
-msgstr "Keine Leseberechtigung für Ressource %s"
+#: ckanext/switzerland/blueprints.py:122
+msgid "Not authorized to download resource"
+msgstr ""
 
-#: ckanext/switzerland/controllers.py:71
-msgid "Resource data not found"
-msgstr "Ressource nicht gefunden"
-
-#: ckanext/switzerland/controllers.py:80
+#: ckanext/switzerland/blueprints.py:138
 msgid "No download is available"
 msgstr "Kein Download verfügbar"
 
-#: ckanext/switzerland/controllers.py:99 ckanext/switzerland/controllers.py:117
+#: ckanext/switzerland/blueprints.py:155 ckanext/switzerland/blueprints.py:178
 msgid "Dataset not found"
 msgstr "Datensatz nicht gefunden"
 
-#: ckanext/switzerland/controllers.py:101
-#: ckanext/switzerland/controllers.py:119
+#: ckanext/switzerland/blueprints.py:157 ckanext/switzerland/blueprints.py:180
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr "Keine Berechtigung Paket %s zu lesen"
 
-#: ckanext/switzerland/controllers.py:130
-msgid "Unauthorized"
-msgstr ""
-
-#: ckanext/switzerland/helpers.py:146
+#: ckanext/switzerland/helpers.py:150
 msgid "Irregular"
 msgstr "Unregelmässig"
 
-#: ckanext/switzerland/helpers.py:147
+#: ckanext/switzerland/helpers.py:151
 msgid "Continuous"
 msgstr "Kontinuierlich"
 
-#: ckanext/switzerland/helpers.py:148
+#: ckanext/switzerland/helpers.py:152
 msgid "Hourly"
 msgstr "Stündlich"
 
-#: ckanext/switzerland/helpers.py:149
+#: ckanext/switzerland/helpers.py:153
 msgid "Daily"
 msgstr "Täglich"
 
-#: ckanext/switzerland/helpers.py:150
+#: ckanext/switzerland/helpers.py:154
 msgid "Three times a week"
 msgstr "Dreimal pro Woche"
 
-#: ckanext/switzerland/helpers.py:151
+#: ckanext/switzerland/helpers.py:155
 msgid "Semi weekly"
 msgstr "Halbwöchentlich"
 
-#: ckanext/switzerland/helpers.py:152
+#: ckanext/switzerland/helpers.py:156
 msgid "Weekly"
 msgstr "Wöchentlich"
 
-#: ckanext/switzerland/helpers.py:153
+#: ckanext/switzerland/helpers.py:157
 msgid "Three times a month"
 msgstr "Dreimal pro Monat"
 
-#: ckanext/switzerland/helpers.py:154
+#: ckanext/switzerland/helpers.py:158
 msgid "Biweekly"
 msgstr "Alle zwei Wochen"
 
-#: ckanext/switzerland/helpers.py:155
+#: ckanext/switzerland/helpers.py:159
 msgid "Semimonthly"
 msgstr "Halbmonatlich"
 
-#: ckanext/switzerland/helpers.py:156
+#: ckanext/switzerland/helpers.py:160
 msgid "Monthly"
 msgstr "Monatlich"
 
-#: ckanext/switzerland/helpers.py:157
+#: ckanext/switzerland/helpers.py:161
 msgid "Bimonthly"
 msgstr "Alle zwei Monate"
 
-#: ckanext/switzerland/helpers.py:158
+#: ckanext/switzerland/helpers.py:162
 msgid "Quarterly"
 msgstr "Vierteljährlich"
 
-#: ckanext/switzerland/helpers.py:159
+#: ckanext/switzerland/helpers.py:163
 msgid "Three times a year"
 msgstr "Dreimal pro Jahr"
 
-#: ckanext/switzerland/helpers.py:160
+#: ckanext/switzerland/helpers.py:164
 msgid "Semi Annual"
 msgstr "Halbjährlich"
 
-#: ckanext/switzerland/helpers.py:161
+#: ckanext/switzerland/helpers.py:165
 msgid "Annual"
 msgstr "Jährlich"
 
-#: ckanext/switzerland/helpers.py:162
+#: ckanext/switzerland/helpers.py:166
 msgid "Biennial"
 msgstr "Zweijährlich"
 
-#: ckanext/switzerland/helpers.py:163
+#: ckanext/switzerland/helpers.py:167
 msgid "Triennial"
 msgstr "Dreijährlich"
 
-#: ckanext/switzerland/helpers.py:174
+#: ckanext/switzerland/helpers.py:178
 msgid "Open data"
 msgstr "Open Data"
 
-#: ckanext/switzerland/helpers.py:178
+#: ckanext/switzerland/helpers.py:182
 msgid "Reference required"
 msgstr "Referenz erforderlich"
 
-#: ckanext/switzerland/helpers.py:182
+#: ckanext/switzerland/helpers.py:186
 msgid "Commercial use with permission allowed"
 msgstr "Kommerzielle Nutzung mit Erlaubnis zulässig"
 
-#: ckanext/switzerland/helpers.py:186
+#: ckanext/switzerland/helpers.py:190
 msgid "Reference required / Commercial use with permission allowed"
 msgstr "Referenz erforderlich / Kommerzielle Nutzung mit Erlaubnis zulässig"
 
-#: ckanext/switzerland/helpers.py:190
+#: ckanext/switzerland/helpers.py:194
 msgid "Closed data"
 msgstr "Closed Data"
 
-#: ckanext/switzerland/helpers.py:303
+#: ckanext/switzerland/helpers.py:309
 msgid "Unnamed resource"
 msgstr "Unbenannte Ressource"
 
-#: ckanext/switzerland/plugin.py:63 ckanext/switzerland/plugin.py:73
-#: ckanext/switzerland/plugin.py:83
-msgid "Keywords"
-msgstr "Schlagwörter"
-
-#: ckanext/switzerland/plugin.py:64 ckanext/switzerland/plugin.py:74
-#: ckanext/switzerland/templates/organization/edit_base.html:5
-#: ckanext/switzerland/templates/organization/edit_base.html:8
-#: ckanext/switzerland/templates/organization/index.html:3
-#: ckanext/switzerland/templates/organization/index.html:6
-#: ckanext/switzerland/templates/organization/index.html:11
-#: ckanext/switzerland/templates/organization/read_base.html:3
-#: ckanext/switzerland/templates/organization/read_base.html:6
-#: ckanext/switzerland/templates/package/base.html:13
-msgid "Organizations"
-msgstr ""
-
-#: ckanext/switzerland/plugin.py:65 ckanext/switzerland/plugin.py:75
-#: ckanext/switzerland/plugin.py:84
-msgid "Formats"
-msgstr ""
-
-#: ckanext/switzerland/validators.py:24 ckanext/switzerland/validators.py:120
-msgid "Invalid date"
-msgstr "Ungültiges Datum"
-
-#: ckanext/switzerland/validators.py:72
+#: ckanext/switzerland/validators.py:66
 msgid "Failed to decode JSON string"
 msgstr "Dekodierung des JSON-Strings fehlgeschlagen"
 
-#: ckanext/switzerland/validators.py:75
+#: ckanext/switzerland/validators.py:69
 msgid "Invalid encoding for JSON string"
 msgstr "Ungültige Enkodierung des JSON-Strings"
 
-#: ckanext/switzerland/validators.py:78
+#: ckanext/switzerland/validators.py:72
 msgid "expecting JSON list"
 msgstr "JSON-Liste erwartet"
 
-#: ckanext/switzerland/validators.py:108
+#: ckanext/switzerland/validators.py:102
 msgid "Invalid form data"
 msgstr "Ungültige Formulardaten"
 
-#: ckanext/switzerland/templates/macros/form.html:265
-#: ckanext/switzerland/validators.py:113 ckanext/switzerland/validators.py:127
+#: ckanext/switzerland/validators.py:107 ckanext/switzerland/validators.py:124
 msgid "This field is required"
 msgstr "Dieses Feld ist erforderlich"
+
+#: ckanext/switzerland/validators.py:116
+msgid "Invalid date"
+msgstr "Ungültiges Datum"
 
 #: ckanext/switzerland/validators.py:166 ckanext/switzerland/validators.py:230
 #: ckanext/switzerland/validators.py:279
@@ -211,107 +177,15 @@ msgstr "Erwarte eine Liste von Strings, habe \"%s\" erhalten"
 msgid "unexpected choice \"%s\""
 msgstr "Unerwartete Wahl \"%s\""
 
-#: ckanext/switzerland/validators.py:312
+#: ckanext/switzerland/validators.py:310
 msgid "Identifier is already in use, it must be unique."
 msgstr ""
-"Der Identifier wird bereits verwendet. Bitte einen eindeutigen Identifier "
-"angeben."
+"Der Identifier wird bereits verwendet. Bitte einen eindeutigen Identifier"
+" angeben."
 
-#: ckanext/switzerland/validators.py:328
+#: ckanext/switzerland/validators.py:325
 msgid "Invalid URL"
 msgstr ""
-
-#: ckanext/switzerland/fanstatic/bs3-confirm-action.js:7
-msgid "Please Confirm Action"
-msgstr "Bestätige bitte die Aktion"
-
-#: ckanext/switzerland/fanstatic/bs3-confirm-action.js:8
-msgid "Are you sure you want to perform this action?"
-msgstr "Bist du sicher, dass du diese Aktion ausführen willst?"
-
-#: ckanext/switzerland/fanstatic/bs3-confirm-action.js:9
-msgid "Confirm"
-msgstr "Bestätigen"
-
-#: ckanext/switzerland/fanstatic/bs3-confirm-action.js:10
-#: ckanext/switzerland/fanstatic/bs3-resource-reorder.js:11
-#: ckanext/switzerland/templates/group/confirm_delete.html:14
-#: ckanext/switzerland/templates/group/confirm_delete_member.html:15
-#: ckanext/switzerland/templates/organization/confirm_delete.html:14
-#: ckanext/switzerland/templates/organization/confirm_delete_member.html:15
-#: ckanext/switzerland/templates/package/confirm_delete.html:14
-#: ckanext/switzerland/templates/package/confirm_delete_resource.html:14
-msgid "Cancel"
-msgstr "Abbrechen"
-
-#: ckanext/switzerland/fanstatic/bs3-image-upload.js:15
-msgid "Upload"
-msgstr "Hochladen"
-
-#: ckanext/switzerland/fanstatic/bs3-image-upload.js:16
-msgid "Link"
-msgstr "Link"
-
-#: ckanext/switzerland/fanstatic/bs3-image-upload.js:17
-#: ckanext/switzerland/templates/group/snippets/group_item.html:43
-#: ckanext/switzerland/templates/macros/form.html:235
-#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:37
-#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:78
-#: ckanext/switzerland/templates/snippets/search_form.html:18
-msgid "Remove"
-msgstr "Entfernen"
-
-#: ckanext/switzerland/fanstatic/bs3-image-upload.js:18
-#: ckanext/switzerland/templates/macros/form.html:414
-msgid "Image"
-msgstr "Bild"
-
-#: ckanext/switzerland/fanstatic/bs3-image-upload.js:19
-msgid "Upload a file on your computer"
-msgstr "Datei von Ihrem Computer hochladen"
-
-#: ckanext/switzerland/fanstatic/bs3-image-upload.js:20
-msgid "Link to a URL on the internet (you can also link to an API)"
-msgstr ""
-"Link zu einer URL im Internet (Sie können auch den Link zu einer API angeben)"
-
-#: ckanext/switzerland/fanstatic/bs3-resource-reorder.js:8
-msgid "Reorder resources"
-msgstr "Ressourcen neu ordnen"
-
-#: ckanext/switzerland/fanstatic/bs3-resource-reorder.js:9
-msgid "Save order"
-msgstr "Reihenfolge speichern"
-
-#: ckanext/switzerland/fanstatic/bs3-resource-reorder.js:10
-msgid "Saving..."
-msgstr "Speichern..."
-
-#: ckanext/switzerland/templates/footer.html:2
-msgid "Footer"
-msgstr "Fusszeile"
-
-#: ckanext/switzerland/templates/header.html:23
-#: ckanext/switzerland/templates/snippets/home_breadcrumb_item.html:2
-msgid "Home"
-msgstr ""
-
-#: ckanext/switzerland/templates/header.html:30
-#: ckanext/switzerland/templates/header.html:32
-#: ckanext/switzerland/templates/search/search.html:13
-#: ckanext/switzerland/templates/search/search.html:32
-#: ckanext/switzerland/templates/search/search.html:37
-msgid "Search"
-msgstr ""
-
-#: ckanext/switzerland/templates/header.html:30
-#: ckanext/switzerland/templates/search/search.html:36
-msgid "min. 3 characters"
-msgstr "min. 3 Zeichen"
-
-#: ckanext/switzerland/templates/page.html:7
-msgid "Skip to content"
-msgstr "Überspringen zum Inhalt"
 
 #: ckanext/switzerland/templates/activity_streams/activity_stream_email_notifications.text:1
 msgid "You have {num} new activity on your {site_title} dashboard"
@@ -325,970 +199,89 @@ msgstr "Um dein Dashboard anzusehen, klicke auf den folgenden Link:"
 
 #: ckanext/switzerland/templates/activity_streams/activity_stream_email_notifications.text:5
 msgid ""
-"If you don't want to receive these notifications you need to unfollow all "
-"datasets you are currently following."
+"If you don't want to receive these notifications you need to unfollow all"
+" datasets you are currently following."
 msgstr ""
-"Wenn du keine weiteren Benachrichtigungen willst, musst du alle Datensätze "
-"entfolgen, denen du aktuell folgst."
-
-#: ckanext/switzerland/templates/activity_streams/activity_stream_items.html:9
-msgid "Load less"
-msgstr "Weniger laden"
-
-#: ckanext/switzerland/templates/activity_streams/activity_stream_items.html:17
-msgid "Load more"
-msgstr "Mehr laden"
-
-#: ckanext/switzerland/templates/activity_streams/activity_stream_items.html:23
-msgid "No activities are within this activity stream"
-msgstr "Keine Aktivitäten in dieser Aktivitätsanzeige"
-
-#: ckanext/switzerland/templates/admin/config.html:18
-msgid "Are you sure you want to reset the config?"
-msgstr "Bist du sicher, dass du die Konfiguration zurücksetzen willst?"
-
-#: ckanext/switzerland/templates/admin/config.html:19
-msgid "Reset"
-msgstr "Zurücksetzen"
-
-#: ckanext/switzerland/templates/admin/config.html:20
-msgid "Update Config"
-msgstr "Konfiguration aktualisieren"
-
-#: ckanext/switzerland/templates/admin/config.html:29
-msgid "CKAN config options"
-msgstr "Optionen der CKAN-Konfiguration"
-
-#: ckanext/switzerland/templates/admin/config.html:36
-#, python-format
-msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
-"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
-"Choose from a list of simple variations of the main colour scheme to get a "
-"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This "
-"is the logo that appears in the header of all the CKAN instance templates.</"
-"p> <p><strong>About:</strong> This text will appear on this CKAN instances "
-"<a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro Text:</"
-"strong> This text will appear on this CKAN instances <a href=\"%(home_url)s"
-"\">home page</a> as a welcome to visitors.</p> <p><strong>Custom CSS:</"
-"strong> This is a block of CSS that appears in <code>&lt;head&gt;</code> tag "
-"of every page. If you wish to customize the templates more fully we "
-"recommend <a href=\"%(docs_url)s\" target=\"_blank\">reading the "
-"documentation</a>.</p> <p><strong>Homepage:</strong> This is for choosing a "
-"predefined layout for the modules that appear on your homepage.</p> "
-msgstr ""
-" <p><strong>Seitenüberschrift:</strong> Dieses ist der Seitentitel dieser "
-"CKAN Installation. Er erscheint an verschiedenen Stellen in CKAN.</p> "
-"<p><strong>Style:</strong> Wählen Sie aus einer Liste von Farbschemen, um "
-"CKAN schnell individuell anzupassen.</p> <p><strong>Seiten-Logo</strong> "
-"Dieses Logo erscheint im Kopf aller CKAN Instance Templates.</p> "
-"<p><strong>Über:</strong> Dieser Text erscheint in dieser CKAN-Instanz <a "
-"href=\"%(about_url)s\">Über</a>.</p> <p><strong>Einführungstext:</strong> "
-"Dieser text erscheint in dieser CKAN Instanz <a href=\"%(home_url)s"
-"\">Startseite</a> als Willkommensseite für Besucher.</p> "
-"<p><strong>Benutzerdefiniertes CSS:</strong> Dieser CSS-Block wird in jeden "
-"Seitenkopf (<code>&lt;head&gt;</code>) eingebunden. Wenn Sie die Templates "
-"noch besser anpassen wollen, lesen Sie die <a href=\"%(docs_url)s\" target="
-"\"_blank\">Dokumentation</a>.</p> <p><strong>Startseite:</strong> Hier "
-"können Sie ein vorbereitetes Layout für die Module auf Ihrer Startseite "
-"auswählen.</p> "
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:20
-msgid "CKAN Data API"
-msgstr "CKAN Data API"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:24
-msgid "Access resource data via a web API with powerful query support"
-msgstr ""
-"Zugriff auf Ressourcen per Web-Schnittstelle mit umfangreichen "
-"Suchmöglichkeiten"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:25
-msgid ""
-" Further information in the <a       href=\"http://docs.ckan.org/en/latest/"
-"maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and "
-"DataStore documentation</a>.</p> "
-msgstr ""
-"Weiterführende Information in der <a href=\"http://docs.ckan.org/en/latest/"
-"maintaining/datastore.html\" target=\"_blank\">zentralen CKAN Data API und "
-"DataStore Dokumentation</a>.</p>"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:33
-msgid "Endpoints"
-msgstr "Endpunkt, engl. Endpoint"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:38
-msgid ""
-"The Data API can be accessed via the following actions of the CKAN action "
-"API."
-msgstr ""
-"Die Daten-Schnittstelle (Data-API) kann über folgende Schnittstellenbefehle "
-"der CKAN Action API erreicht werden."
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:43
-msgid "Create"
-msgstr "Erstellen"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:47
-msgid "Update / Insert"
-msgstr "Aktualisieren / Einfügen"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:51
-msgid "Query"
-msgstr "Abfrage"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:55
-msgid "Query (via SQL)"
-msgstr "Abfrage (mit SQL)"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:68
-msgid "Querying"
-msgstr "Abfrage läuft"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:73
-msgid "Query example (first 5 results)"
-msgstr "Abfragebeispiel (erste 5 Ergebnisse)"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:78
-msgid "Query example (results containing 'jones')"
-msgstr "Abfragebeispiel (Ergebnisse enthalten 'jones')"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:83
-msgid "Query example (via SQL statement)"
-msgstr "Abfragebeispiel (mit SQL Befehl)"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:96
-msgid "Example: Javascript"
-msgstr "Beispiel: Javascript"
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:101
-msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr "Eine einfache AJAX (JSONP) Abfrage des Data API mit jQuery."
-
-#: ckanext/switzerland/templates/ajax_snippets/api_info.html:123
-msgid "Example: Python"
-msgstr "Beispiel: Python"
+"Wenn du keine weiteren Benachrichtigungen willst, musst du alle "
+"Datensätze entfolgen, denen du aktuell folgst."
 
 #: ckanext/switzerland/templates/email_exporter/email_exporter.html:3
 #: ckanext/switzerland/templates/email_exporter/email_exporter.html:6
 msgid "Email exporter"
 msgstr ""
 
-#: ckanext/switzerland/templates/email_exporter/email_exporter.html:9
+#: ckanext/switzerland/templates/email_exporter/email_exporter.html:10
 msgid "All users"
 msgstr "Alle Benutzer"
 
-#: ckanext/switzerland/templates/email_exporter/email_exporter.html:11
-#: ckanext/switzerland/templates/group/snippets/info.html:24
-#: ckanext/switzerland/templates/package/snippets/info.html:23
-#: ckanext/switzerland/templates/snippets/organization.html:47
-#: ckanext/switzerland/templates/user/read_base.html:49
+#: ckanext/switzerland/templates/email_exporter/email_exporter.html:12
 msgid "Followers"
 msgstr "Beobachter"
 
-#: ckanext/switzerland/templates/email_exporter/email_exporter.html:14
-#: ckanext/switzerland/templates/package/resource_read.html:47
+#: ckanext/switzerland/templates/email_exporter/email_exporter.html:15
+#: ckanext/switzerland/templates/package/snippets/resource_item.html:39
 msgid "Download"
 msgstr ""
 
-#: ckanext/switzerland/templates/group/confirm_delete.html:3
-#: ckanext/switzerland/templates/group/confirm_delete.html:15
-#: ckanext/switzerland/templates/group/confirm_delete_member.html:3
-#: ckanext/switzerland/templates/group/confirm_delete_member.html:16
-#: ckanext/switzerland/templates/organization/confirm_delete.html:3
-#: ckanext/switzerland/templates/organization/confirm_delete.html:15
-#: ckanext/switzerland/templates/organization/confirm_delete_member.html:3
-#: ckanext/switzerland/templates/organization/confirm_delete_member.html:16
-#: ckanext/switzerland/templates/package/confirm_delete.html:3
-#: ckanext/switzerland/templates/package/confirm_delete.html:15
-#: ckanext/switzerland/templates/package/confirm_delete_resource.html:3
-#: ckanext/switzerland/templates/package/confirm_delete_resource.html:15
-msgid "Confirm Delete"
-msgstr "Bestätige das Löschen"
-
-#: ckanext/switzerland/templates/group/confirm_delete.html:11
-msgid "Are you sure you want to delete group - {name}?"
-msgstr "Bist du sicher, dass du die Gruppe {name} löschen willst?"
-
-#: ckanext/switzerland/templates/group/confirm_delete_member.html:11
-#: ckanext/switzerland/templates/organization/confirm_delete_member.html:11
-msgid "Are you sure you want to delete member - {name}?"
-msgstr "Bist du sicher, dass du das Mitglied {name} löschen willst?"
-
-#: ckanext/switzerland/templates/group/edit.html:4
+#: ckanext/switzerland/templates/group/edit.html:5
 #: ckanext/switzerland/templates/group/edit_base.html:3
-#: ckanext/switzerland/templates/group/edit_base.html:8
-#: ckanext/switzerland/templates/group/members.html:3
-#: ckanext/switzerland/templates/group/read_base.html:3
-#: ckanext/switzerland/templates/group/read_base.html:6
-#: ckanext/switzerland/templates/revision/diff.html:16
-msgid "Groups"
-msgstr "Gruppen"
-
-#: ckanext/switzerland/templates/group/edit.html:7
-#: ckanext/switzerland/templates/group/edit_base.html:3
-#: ckanext/switzerland/templates/group/edit_base.html:11
-#: ckanext/switzerland/templates/group/read_base.html:12
-#: ckanext/switzerland/templates/organization/edit_base.html:11
-#: ckanext/switzerland/templates/organization/read_base.html:35
-#: ckanext/switzerland/templates/package/read_base.html:23
-#: ckanext/switzerland/templates/package/resource_read.html:35
-#: ckanext/switzerland/templates/user/read_base.html:14
+#: ckanext/switzerland/templates/organization/edit.html:9
+#: ckanext/switzerland/templates/organization/edit_base.html:9
 msgid "Manage"
 msgstr "Bearbeiten"
 
-#: ckanext/switzerland/templates/group/edit.html:12
-msgid "Edit Group"
-msgstr "Bearbeite Gruppe"
-
-#: ckanext/switzerland/templates/group/edit_base.html:16
-#: ckanext/switzerland/templates/organization/edit_base.html:17
-#: ckanext/switzerland/templates/package/resource_read.html:41
-msgid "View"
-msgstr "Ansicht"
-
-#: ckanext/switzerland/templates/group/edit_base.html:20
-#: ckanext/switzerland/templates/group/members.html:34
-#: ckanext/switzerland/templates/organization/edit_base.html:22
-#: ckanext/switzerland/templates/organization/members.html:34
-#: ckanext/switzerland/templates/package/edit_base.html:11
-#: ckanext/switzerland/templates/package/resource_edit_base.html:12
-msgid "Edit"
-msgstr "Bearbeiten"
-
-#: ckanext/switzerland/templates/group/edit_base.html:21
+#: ckanext/switzerland/templates/group/edit_base.html:3
 #: ckanext/switzerland/templates/group/members.html:3
-#: ckanext/switzerland/templates/organization/edit_base.html:24
-#: ckanext/switzerland/templates/organization/members.html:3
+msgid "Groups"
+msgstr "Gruppen"
+
+#: ckanext/switzerland/templates/group/members.html:3
 msgid "Members"
 msgstr "Mitglieder"
 
-#: ckanext/switzerland/templates/group/member_new.html:10
-#: ckanext/switzerland/templates/organization/member_new.html:12
-msgid "Back to all members"
-msgstr "Zurück zu allen Mitgliedern"
-
-#: ckanext/switzerland/templates/group/member_new.html:12
-#: ckanext/switzerland/templates/organization/member_new.html:7
-#: ckanext/switzerland/templates/organization/member_new.html:14
-msgid "Edit Member"
-msgstr "Mitglied bearbeiten"
-
-#: ckanext/switzerland/templates/group/member_new.html:12
-#: ckanext/switzerland/templates/group/member_new.html:67
-#: ckanext/switzerland/templates/group/members.html:6
-#: ckanext/switzerland/templates/organization/member_new.html:7
-#: ckanext/switzerland/templates/organization/member_new.html:14
-#: ckanext/switzerland/templates/organization/member_new.html:68
-#: ckanext/switzerland/templates/organization/members.html:6
-msgid "Add Member"
-msgstr "Mitglied hinzufügen"
-
-#: ckanext/switzerland/templates/group/member_new.html:20
-#: ckanext/switzerland/templates/organization/member_new.html:22
-msgid "Existing User"
-msgstr "Bestehender Benutzer"
-
-#: ckanext/switzerland/templates/group/member_new.html:23
-#: ckanext/switzerland/templates/organization/member_new.html:25
-msgid "If you wish to add an existing user, search for their username below."
-msgstr ""
-"Um einen bestehenden Benutzer hinzuzufügen, können Sie dessen Benutzernamen "
-"unten suchen."
-
-#: ckanext/switzerland/templates/group/member_new.html:40
-#: ckanext/switzerland/templates/organization/member_new.html:42
-msgid "or"
-msgstr "oder"
-
-#: ckanext/switzerland/templates/group/member_new.html:44
-#: ckanext/switzerland/templates/organization/member_new.html:46
-msgid "New User"
-msgstr "Neuer Benutzer"
-
-#: ckanext/switzerland/templates/group/member_new.html:47
-#: ckanext/switzerland/templates/organization/member_new.html:49
-msgid "If you wish to invite a new user, enter their email address."
-msgstr ""
-"Um einen neuen Benutzer einzuladen, geben Sie dessen Email-Adresse ein."
-
-#: ckanext/switzerland/templates/group/member_new.html:57
-#: ckanext/switzerland/templates/group/members.html:20
-#: ckanext/switzerland/templates/organization/member_new.html:58
-#: ckanext/switzerland/templates/organization/members.html:20
-msgid "Role"
-msgstr "Rolle"
-
-#: ckanext/switzerland/templates/group/member_new.html:60
-#: ckanext/switzerland/templates/group/members.html:32
-#: ckanext/switzerland/templates/organization/member_new.html:61
-#: ckanext/switzerland/templates/organization/members.html:32
-msgid "Are you sure you want to delete this member?"
-msgstr "Bist du sicher, dass du dieses Mitglied löschen willst?"
-
-#: ckanext/switzerland/templates/group/member_new.html:61
-#: ckanext/switzerland/templates/group/members.html:37
-#: ckanext/switzerland/templates/group/snippets/group_form.html:63
-#: ckanext/switzerland/templates/organization/member_new.html:62
-#: ckanext/switzerland/templates/organization/members.html:37
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:63
-#: ckanext/switzerland/templates/package/snippets/package_form.html:43
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:68
-#: ckanext/switzerland/templates/scheming/group/group_form.html:22
-#: ckanext/switzerland/templates/scheming/organization/group_form.html:22
-#: ckanext/switzerland/templates/user/edit_user_form.html:40
-msgid "Delete"
-msgstr "Löschen"
-
-#: ckanext/switzerland/templates/group/member_new.html:63
-msgid "Save"
-msgstr "Speichern"
-
-#: ckanext/switzerland/templates/group/member_new.html:80
-#: ckanext/switzerland/templates/organization/member_new.html:81
-msgid "What are roles?"
-msgstr "Was sind Rollen?"
-
-#: ckanext/switzerland/templates/group/member_new.html:83
-msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage "
-"organization members.</p> <p><strong>Member:</strong> Can add/remove "
-"datasets from groups</p> "
-msgstr ""
-" <p><strong>Admin:</strong> Kann Gruppen-Informationen und "
-"Organisationsmitglieder verwalten.</p> <p><strong>Member:</strong> Kann "
-"Datensätze von Gruppen hinzufügen und entfernen.</p> "
-
-#: ckanext/switzerland/templates/group/members.html:19
-#: ckanext/switzerland/templates/organization/members.html:19
-msgid "User"
-msgstr "Benutzer"
-
-#: ckanext/switzerland/templates/group/read_base.html:17
-#: ckanext/switzerland/templates/group/snippets/info.html:28
-#: ckanext/switzerland/templates/organization/edit_base.html:23
-#: ckanext/switzerland/templates/revision/diff.html:11
-#: ckanext/switzerland/templates/snippets/organization.html:51
-#: ckanext/switzerland/templates/snippets/source_item.html:42
-#: ckanext/switzerland/templates/user/read_base.html:19
-#: ckanext/switzerland/templates/user/read_base.html:53
-msgid "Datasets"
-msgstr "Datensätze"
-
-#: ckanext/switzerland/templates/group/read_base.html:18
-#: ckanext/switzerland/templates/package/read_base.html:29
-#: ckanext/switzerland/templates/user/read_base.html:20
-msgid "Activity Stream"
-msgstr "Aktivitätsanzeige"
-
-#: ckanext/switzerland/templates/group/read_base.html:19
-#: ckanext/switzerland/templates/user/edit_user_form.html:16
-msgid "About"
-msgstr ""
-
-#: ckanext/switzerland/templates/group/snippets/group_form.html:12
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:12
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:30
-#: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:10
-#: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:45
-msgid "Name"
-msgstr "Name"
-
-#: ckanext/switzerland/templates/group/snippets/group_form.html:12
-msgid "My Group"
-msgstr "Meine Gruppe"
-
-#: ckanext/switzerland/templates/group/snippets/group_form.html:20
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:20
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:26
-#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:28
-#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:67
-msgid "URL"
-msgstr "URL"
-
-#: ckanext/switzerland/templates/group/snippets/group_form.html:20
-msgid "my-group"
-msgstr "meine-gruppe"
-
-#: ckanext/switzerland/templates/group/snippets/group_form.html:22
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:22
-#: ckanext/switzerland/templates/package/resource_read.html:69
-#: ckanext/switzerland/templates/package/snippets/description.html:16
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:34
-msgid "Description"
-msgstr ""
-
-#: ckanext/switzerland/templates/group/snippets/group_form.html:22
-msgid "A little information about my group..."
-msgstr "Ein paar Informationen zu meiner Gruppe..."
-
-#: ckanext/switzerland/templates/group/snippets/group_form.html:37
-#: ckanext/switzerland/templates/group/snippets/group_form.html:50
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:37
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:50
-msgid "Custom Field"
-msgstr "Benutzerdefiniertes Feld"
-
-#: ckanext/switzerland/templates/group/snippets/group_form.html:62
-#: ckanext/switzerland/templates/scheming/group/group_form.html:21
-msgid "Are you sure you want to delete this Group?"
-msgstr "Bist du sicher, dass du diese Gruppe löschen willst?"
-
-#: ckanext/switzerland/templates/group/snippets/group_form.html:66
-#: ckanext/switzerland/templates/scheming/group/group_form.html:25
-msgid "Save Group"
-msgstr "Gruppe speichern"
-
-#: ckanext/switzerland/templates/group/snippets/group_item.html:32
-#: ckanext/switzerland/templates/organization/snippets/organization_item.html:33
-msgid "{num} Dataset"
-msgid_plural "{num} Datasets"
-msgstr[0] ""
-msgstr[1] ""
-
-#: ckanext/switzerland/templates/group/snippets/group_item.html:34
-#: ckanext/switzerland/templates/organization/snippets/organization_item.html:35
-msgid "0 Datasets"
-msgstr "Keine Datensätze"
-
-#: ckanext/switzerland/templates/group/snippets/group_item.html:38
-#: ckanext/switzerland/templates/group/snippets/group_item.html:39
-msgid "View {name}"
-msgstr ""
-
-#: ckanext/switzerland/templates/group/snippets/group_item.html:43
-msgid "Remove dataset from this group"
-msgstr "Datensatz aus dieser Gruppe entfernen"
-
-#: ckanext/switzerland/templates/group/snippets/info.html:16
-#: ckanext/switzerland/templates/package/read.html:17
-#: ckanext/switzerland/templates/package/read.html:44
-#: ckanext/switzerland/templates/snippets/organization.html:38
-#: ckanext/switzerland/templates/snippets/package_item.html:42
+#: ckanext/switzerland/templates/group/snippets/info.html:8
+#: ckanext/switzerland/templates/snippets/organization.html:6
 #: ckanext/switzerland/templates/snippets/source_item.html:30
 msgid "Deleted"
 msgstr ""
 
-#: ckanext/switzerland/templates/macros/form.html:126
+#: ckanext/switzerland/templates/group/snippets/info.html:20
+#: ckanext/switzerland/templates/snippets/organization.html:17
+msgid "read more"
+msgstr ""
+
+#: ckanext/switzerland/templates/organization/edit.html:3
+#: ckanext/switzerland/templates/package/snippets/resource_item.html:51
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: ckanext/switzerland/templates/organization/edit.html:6
+#: ckanext/switzerland/templates/organization/edit_base.html:3
+#: ckanext/switzerland/templates/organization/edit_base.html:6
+#: ckanext/switzerland/templates/source/base.html:6
+msgid "Organizations"
+msgstr ""
+
+#: ckanext/switzerland/templates/organization/edit.html:14
+msgid "Edit Organization"
+msgstr ""
+
+#: ckanext/switzerland/templates/package/snippets/change_item.html:1
 #, python-format
-msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
-"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-html=\"true"
-"\">Markdown formatting</a> here"
-msgstr ""
-"Sie können hier <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-html="
-"\"true\">Markdown Formatierung</a> verwenden"
-
-#: ckanext/switzerland/templates/macros/form.html:265
-msgid "Custom"
-msgstr "Angepasst"
-
-#: ckanext/switzerland/templates/macros/form.html:290
-msgid "The form contains invalid entries:"
-msgstr "Das Formular enthält unzulässige Einträge:"
-
-#: ckanext/switzerland/templates/macros/form.html:395
-msgid "Required field"
-msgstr "Pflichtfeld"
-
-#: ckanext/switzerland/templates/macros/form.html:412
-msgid "http://example.com/my-image.jpg"
-msgstr "http://example.com/my-image.jpg"
-
-#: ckanext/switzerland/templates/macros/form.html:413
-msgid "Image URL"
-msgstr "Bild-URL"
-
-#: ckanext/switzerland/templates/macros/form.html:432
-msgid "Clear Upload"
-msgstr "Hochgeladene Datei löschen"
-
-#: ckanext/switzerland/templates/organization/confirm_delete.html:11
-msgid "Are you sure you want to delete organization - {name}?"
-msgstr "Bist du sicher, dass du die Organisation {name} löschen willst?"
-
-#: ckanext/switzerland/templates/organization/index.html:15
-msgid "Add Organization"
-msgstr "Organisation hinzufügen"
-
-#: ckanext/switzerland/templates/organization/index.html:27
-msgid "There are currently no organizations for this site"
+msgid "On %(timestamp)s, %(username)s:"
 msgstr ""
 
-#: ckanext/switzerland/templates/organization/index.html:29
-msgid "How about creating one?"
-msgstr "Wie wäre es, wenn du eine erstellst?"
-
-#: ckanext/switzerland/templates/organization/member_new.html:34
-#: ckanext/switzerland/templates/user/edit_user_form.html:10
-#: ckanext/switzerland/templates/user/read_base.html:76
-msgid "Username"
-msgstr "Benutzername"
-
-#: ckanext/switzerland/templates/organization/member_new.html:52
-msgid "Email address"
-msgstr "Email-Adresse"
-
-#: ckanext/switzerland/templates/organization/member_new.html:64
-msgid "Update Member"
-msgstr "Mitglied aktualisieren"
-
-#: ckanext/switzerland/templates/organization/member_new.html:84
-msgid ""
-" <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
-"manage organization members.</p> <p><strong>Editor:</strong> Can add and "
-"edit datasets, but not manage organization members.</p> <p><strong>Member:</"
-"strong> Can view the organization's private datasets, but not add new "
-"datasets.</p> "
-msgstr ""
-" <p><strong>Admin:</strong> Kann Datensätze erstellen, bearbeiten und "
-"löschen und Organisationsmitglieder verwalten.</p> <p><strong>Redakteur:</"
-"strong> Kann Datensätze erstellen und bearbeiten, aber kann Mitglieder nicht "
-"verwalten.</p> <p><strong>Mitglied:</strong> Kann die privaten Datensätze "
-"der Organisation sehen, aber keine neuen Datensätze anlegen.</p> "
-
-#: ckanext/switzerland/templates/organization/new.html:3
-#: ckanext/switzerland/templates/organization/new.html:5
-#: ckanext/switzerland/templates/organization/new.html:7
-#: ckanext/switzerland/templates/organization/new.html:12
-msgid "Create an Organization"
-msgstr "Organisation erstellen"
-
-#: ckanext/switzerland/templates/organization/read.html:8
-#, python-format
-msgid "%(count)s datasets"
-msgstr "%(count)s Datensätze"
-
-#: ckanext/switzerland/templates/organization/read_base.html:39
-#: ckanext/switzerland/templates/package/search.html:16
-msgid "Add Dataset"
-msgstr "Datensatz hinzufügen"
-
-#: ckanext/switzerland/templates/organization/snippets/helper.html:4
-msgid "What are Organizations?"
-msgstr "Was sind Organisationen?"
-
-#: ckanext/switzerland/templates/organization/snippets/helper.html:8
-msgid ""
-" The public transport Open Data Platform provides customer information about "
-"the whole public transport network in Switzerland as Open Data. Further "
-"there are information from the Federal Office of Transport, which are "
-"directly related. "
-msgstr ""
-" Die Open Data-Plattform des öffentlichen Verkehrs bietet "
-"Kundeninformationen zum gesamten öffentlichen Verkehrsnetzwerk in der "
-"Schweiz im Open Data-Format. Zudem bietet es Informationen des Bundesamts "
-"für Verkehr mit direkter Verknüpfung. "
-
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:12
-msgid "My Organization"
-msgstr "Meine Organisation"
-
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:20
-msgid "my-organization"
-msgstr "meine-organisation"
-
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:22
-msgid "A little information about my organization..."
-msgstr "Ein paar Informationen zu meiner Organisation..."
-
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:62
-msgid ""
-"Are you sure you want to delete this Organization? This will delete all the "
-"public and private datasets belonging to this organization."
-msgstr ""
-"Soll diese Organisation wirklich gelöscht werden? Dieser Vorgang wird auch "
-"alle öffentlichen und privaten Datensätze dieser Organisation löschen."
-
-#: ckanext/switzerland/templates/organization/snippets/organization_form.html:66
-#: ckanext/switzerland/templates/scheming/organization/group_form.html:25
-msgid "Save Organization"
-msgstr "Organisation speichern"
-
-#: ckanext/switzerland/templates/organization/snippets/organization_item.html:39
-#: ckanext/switzerland/templates/organization/snippets/organization_item.html:40
-msgid "View {organization_name}"
-msgstr "{organization_name} ansehen"
-
-#: ckanext/switzerland/templates/package/base.html:8
-#: ckanext/switzerland/templates/package/base.html:16
-#: ckanext/switzerland/templates/package/base.html:21
-msgid "Data"
-msgstr "Daten"
-
-#: ckanext/switzerland/templates/package/confirm_delete.html:11
-msgid "Are you sure you want to delete dataset - {name}?"
-msgstr "Bist du sicher, dass du den Datensatz {name} löschen willst?"
-
-#: ckanext/switzerland/templates/package/confirm_delete_resource.html:11
-msgid "Are you sure you want to delete resource - {name}?"
-msgstr "Bist du sicher, dass du die Ressource {name} löschen willst?"
-
-#: ckanext/switzerland/templates/package/edit_base.html:16
-msgid "View dataset"
-msgstr "Datensatz ansehen"
-
-#: ckanext/switzerland/templates/package/edit_base.html:20
-msgid "Edit metadata"
-msgstr "Metadaten bearbeiten"
-
-#: ckanext/switzerland/templates/package/edit_base.html:21
-#: ckanext/switzerland/templates/package/resources.html:5
-msgid "Resources"
+#: ckanext/switzerland/templates/package/snippets/resource_item.html:25
+msgid "Preview"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/history.html:3
-#: ckanext/switzerland/templates/package/history.html:6
-msgid "History"
-msgstr "Geschichte"
-
-#: ckanext/switzerland/templates/package/read.html:9
-#: ckanext/switzerland/templates/scheming/form_snippets/organization.html:52
-#: ckanext/switzerland/templates/snippets/package_item.html:31
-#: ckanext/switzerland/templates/user/read_base.html:82
-#: ckanext/switzerland/templates/user/read_base.html:96
-msgid "Private"
+#: ckanext/switzerland/templates/package/snippets/resource_item.html:28
+msgid "More information"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/read.html:14
-#: ckanext/switzerland/templates/package/read.html:41
-#: ckanext/switzerland/templates/snippets/package_item.html:40
-#: ckanext/switzerland/templates/snippets/source_item.html:28
-msgid "Draft"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/read.html:31
-#: ckanext/switzerland/templates/package/read_base.html:47
-#, python-format
-msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
-"differ significantly from the <a href=\"%(url)s\">current revision</a>."
-msgstr ""
-"Dies ist eine alte Version dieses Datensatzes vom %(timestamp)s. Sie kann "
-"erheblich von der <a href=\"%(url)s\">aktuellen Version</a> abweichen."
-
-#: ckanext/switzerland/templates/package/read_base.html:28
-msgid "Dataset"
-msgstr "Datensatz"
-
-#: ckanext/switzerland/templates/package/read_base.html:33
-msgid "Revisions"
-msgstr "Revisionen"
-
-#: ckanext/switzerland/templates/package/resource_edit_base.html:17
-msgid "All resources"
-msgstr "Alle Ressourcen"
-
-#: ckanext/switzerland/templates/package/resource_edit_base.html:19
-msgid "View resource"
-msgstr "Ressource ansehen"
-
-#: ckanext/switzerland/templates/package/resource_edit_base.html:24
-#: ckanext/switzerland/templates/package/resource_edit_base.html:32
-msgid "Edit resource"
-msgstr "Ressource bearbeiten"
-
-#: ckanext/switzerland/templates/package/resource_edit_base.html:26
-msgid "DataStore"
-msgstr "DataStore"
-
-#: ckanext/switzerland/templates/package/resource_edit_base.html:28
-msgid "Views"
-msgstr "Ansichten"
-
-#: ckanext/switzerland/templates/package/resource_read.html:43
-msgid "API Endpoint"
-msgstr "API-Schnittstelle"
-
-#: ckanext/switzerland/templates/package/resource_read.html:45
+#: ckanext/switzerland/templates/package/snippets/resource_item.html:42
 msgid "Go to resource"
 msgstr ""
-
-#: ckanext/switzerland/templates/package/resource_read.html:63
-#: ckanext/switzerland/templates/package/resource_read.html:65
-msgid "Download URL:"
-msgstr "Herunterladen"
-
-#: ckanext/switzerland/templates/package/resource_read.html:74
-msgid "From the dataset abstract"
-msgstr "Aus der Zusammenfassung des Datensatzes"
-
-#: ckanext/switzerland/templates/package/resource_read.html:76
-#, python-format
-msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
-msgstr "Quelle: <a href=\"%(url)s\">%(dataset)s</a>"
-
-#: ckanext/switzerland/templates/package/resource_read.html:119
-msgid "There are no views created for this resource yet."
-msgstr "Es gibt noch keine Ansichten für diese Ressource"
-
-#: ckanext/switzerland/templates/package/resource_read.html:123
-msgid "Not seeing the views you were expecting?"
-msgstr "Sehen Sie nicht die erwarteten Ansichten?"
-
-#: ckanext/switzerland/templates/package/resource_read.html:125
-#: ckanext/switzerland/templates/package/snippets/resource_view.html:26
-msgid "Click here for more information."
-msgstr "Klick hier für mehr Informationen"
-
-#: ckanext/switzerland/templates/package/resource_read.html:128
-msgid "Here are some reasons you may not be seeing expected views:"
-msgstr ""
-"Aus folgende Gründen sehen Sie die erwarteten Ansichten möglicherweise nicht:"
-
-#: ckanext/switzerland/templates/package/resource_read.html:130
-msgid "No view has been created that is suitable for this resource"
-msgstr "Es wurde keine geeignete Ansicht für diese Ressource erzeugt"
-
-#: ckanext/switzerland/templates/package/resource_read.html:131
-msgid "The site administrators may not have enabled the relevant view plugins"
-msgstr ""
-"Die Seitenadministratoren haben die erforderlichen Ansichts-Plugins nicht "
-"aktiviert"
-
-#: ckanext/switzerland/templates/package/resource_read.html:132
-msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be enabled, "
-"or the data may not have been pushed to the DataStore, or the DataStore "
-"hasn't finished processing the data yet"
-msgstr ""
-"Falls eine Ansicht den DataStore erfordert, wurde das DataStore Plugin nicht "
-"aktiviert, oder die Daten befinden sich nicht im DataStore, oder der "
-"DataStore ist noch nicht mit der Datenverarbeitung fertig"
-
-#: ckanext/switzerland/templates/package/resource_read.html:154
-#: ckanext/switzerland/templates/scheming/package/resource_read.html:20
-msgid "Additional Information"
-msgstr "Zusätzliche Informationen"
-
-#: ckanext/switzerland/templates/package/resource_read.html:158
-#: ckanext/switzerland/templates/revision/diff.html:43
-msgid "Field"
-msgstr "Feld"
-
-#: ckanext/switzerland/templates/package/resource_read.html:159
-msgid "Value"
-msgstr "Wert"
-
-#: ckanext/switzerland/templates/package/resource_read.html:164
-#: ckanext/switzerland/templates/package/snippets/description.html:31
-msgid "Last updated"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/resource_read.html:165
-#: ckanext/switzerland/templates/package/resource_read.html:169
-#: ckanext/switzerland/templates/package/resource_read.html:173
-msgid "unknown"
-msgstr "unbekannt"
-
-#: ckanext/switzerland/templates/package/resource_read.html:168
-#: ckanext/switzerland/templates/snippets/job_details.html:42
-msgid "Created"
-msgstr "Erstellt"
-
-#: ckanext/switzerland/templates/package/resource_read.html:172
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:39
-#: ckanext/switzerland/templates/package/snippets/resource_info.html:16
-msgid "Format"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/resource_read.html:176
-msgid "License"
-msgstr "Lizenz"
-
-#: ckanext/switzerland/templates/package/resources.html:8
-msgid "Add new resource"
-msgstr "Neue Ressource hinzufügen"
-
-#: ckanext/switzerland/templates/package/resources.html:21
-#: ckanext/switzerland/templates/package/snippets/resources_list.html:28
-#, python-format
-msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
-"add some?</a></p> "
-msgstr ""
-" <p class=\"empty\">Dieser Datensatz hat keine Daten, <a href=\"%(url)s"
-"\">Wollen sie welche hinzufügen?</a></p> "
-
-#: ckanext/switzerland/templates/package/search.html:29
-msgid "Relevance"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/search.html:30
-msgid "Name Ascending"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/search.html:31
-msgid "Name Descending"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/search.html:32
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:53
-msgid "Last Modified"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/search.html:33
-msgid "Popular"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/view_edit_base.html:9
-msgid "All views"
-msgstr "Alle Ansichten"
-
-#: ckanext/switzerland/templates/package/view_edit_base.html:12
-msgid "View view"
-msgstr "Ansicht anzeigen"
-
-#: ckanext/switzerland/templates/package/view_edit_base.html:37
-msgid "View preview"
-msgstr "Vorschau anzeigen"
-
-#: ckanext/switzerland/templates/package/snippets/additional_info.html:4
-msgid "Additional information"
-msgstr "Zusätzliche Informationen"
-
-#: ckanext/switzerland/templates/package/snippets/description.html:23
-msgid "Further information"
-msgstr "Weitere Informationen"
-
-#: ckanext/switzerland/templates/package/snippets/package_form.html:31
-msgid ""
-"The <i>data license</i> you select above only applies to the contents of any "
-"resource files that you add to this dataset. By submitting this form, you "
-"agree to release the <i>metadata</i> values that you enter into the form "
-"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
-"Database License</a>."
-msgstr ""
-"Die <i>Datenlizenz</i>, die Sie ausgewählt haben gilt nur für die Inhalte "
-"aller Ressourcen, die zu diesem Datensatz gehören. Wenn Sie dieses Formular "
-"absenden, stimmen Sie zu, die <i>Metadaten</i> unter der <a href=\"http://"
-"opendatacommons.org/licenses/odbl/1-0/\">Open Database License</a> zu "
-"veröffentlichen."
-
-#: ckanext/switzerland/templates/package/snippets/package_form.html:42
-msgid "Are you sure you want to delete this dataset?"
-msgstr "Bist du sicher, dass du diesen Datensatz löschen willst?"
-
-#: ckanext/switzerland/templates/package/snippets/package_form.html:47
-msgid "Next: Add Data"
-msgstr "Als nächstes: Daten hinzufügen"
-
-#: ckanext/switzerland/templates/package/snippets/related_datasets.html:15
-msgid "Related datasets"
-msgstr "Verwandte Datensätze"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:26
-msgid "File"
-msgstr "Datei"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:30
-msgid "eg. January 2011 Gold Prices"
-msgstr "z.B. Goldpreise im Januar 2011"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:34
-msgid "Some useful notes about the data"
-msgstr "Nützliche Hinweise zu den Daten"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:39
-msgid "eg. CSV, XML or JSON"
-msgstr "z.B. CSV, XML oder JSON"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:42
-msgid "This will be guessed automatically. Leave blank if you wish"
-msgstr "Dies wird automatisch generiert. Es muss nicht eingegeben werden"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:53
-msgid "eg. 2012-06-05"
-msgstr "z.B. 2012-06-05"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:55
-msgid "File Size"
-msgstr "Dateigröße"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:55
-msgid "eg. 1024"
-msgstr "z.B. 1024"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:57
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:59
-msgid "MIME Type"
-msgstr "MIME-Typ"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:57
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:59
-msgid "eg. application/json"
-msgstr "z.B. application/json"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:67
-msgid "Are you sure you want to delete this resource?"
-msgstr "Bist du sicher, dass du diese Ressource löschen willst?"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:74
-msgid "Previous"
-msgstr "Vorherige"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:77
-msgid "Save & add another"
-msgstr "Speichern & weitere hinzufügen"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:80
-msgid "Finish"
-msgstr "Beenden"
-
-#: ckanext/switzerland/templates/package/snippets/resource_form.html:84
-#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:86
-msgid "Add"
-msgstr "Hinzufügen"
-
-#: ckanext/switzerland/templates/package/snippets/resource_view.html:11
-msgid "Embed"
-msgstr "Einbettung"
-
-#: ckanext/switzerland/templates/package/snippets/resource_view.html:24
-msgid "This resource view is not available at the moment."
-msgstr ""
-"Diese Ressourcendarstellung/-view kann momentan nicht angezeigt werden."
-
-#: ckanext/switzerland/templates/package/snippets/resource_view.html:33
-msgid "Download resource"
-msgstr "Ressource herunterladen"
-
-#: ckanext/switzerland/templates/package/snippets/resource_view.html:56
-msgid "Your browser does not support iframes."
-msgstr "Dein Browser unterstützt keine Iframes."
-
-#: ckanext/switzerland/templates/package/snippets/resource_view.html:65
-msgid "Embed resource view"
-msgstr "Ressourcen-Ansicht einbetten"
-
-#: ckanext/switzerland/templates/package/snippets/resource_view.html:68
-msgid ""
-"You can copy and paste the embed code into a CMS or blog software that "
-"supports raw HTML"
-msgstr ""
-"Sie können den Einbettungs-Code in ein CMS oder eine Blog-Software, die "
-"\"raw HTML\" unterstützt, einbetten"
-
-#: ckanext/switzerland/templates/package/snippets/resource_view.html:71
-msgid "Width"
-msgstr "Breite"
-
-#: ckanext/switzerland/templates/package/snippets/resource_view.html:74
-msgid "Height"
-msgstr "Höhe"
-
-#: ckanext/switzerland/templates/package/snippets/resource_view.html:79
-msgid "Code"
-msgstr "Code"
-
-#: ckanext/switzerland/templates/package/snippets/resources_list.html:16
-msgid "Data and Resources"
-msgstr "Daten und Ressourcen"
-
-#: ckanext/switzerland/templates/package/snippets/resources_list.html:32
-msgid "This dataset has no data"
-msgstr "Dieser Datensatz hat keine Daten."
 
 #: ckanext/switzerland/templates/package/snippets/terms_of_use.html:2
 #: ckanext/switzerland/templates/package/snippets/terms_of_use.html:8
@@ -1298,24 +291,6 @@ msgstr "Nutzungsbedingungen"
 #: ckanext/switzerland/templates/package/snippets/terms_of_use.html:11
 msgid "Terms of use opentransport.swiss"
 msgstr "Nutzungsbedingungen opentransport.swiss"
-
-#: ckanext/switzerland/templates/revision/diff.html:6
-msgid "Differences"
-msgstr "Unterschiede"
-
-#: ckanext/switzerland/templates/revision/diff.html:13
-#: ckanext/switzerland/templates/revision/diff.html:18
-#: ckanext/switzerland/templates/revision/diff.html:23
-msgid "Revision Differences"
-msgstr "Revisions-Unterschiede"
-
-#: ckanext/switzerland/templates/revision/diff.html:44
-msgid "Difference"
-msgstr "Differenz"
-
-#: ckanext/switzerland/templates/revision/diff.html:54
-msgid "No Differences"
-msgstr "Keine Unterschiede"
 
 #: ckanext/switzerland/templates/scheming/display_snippets/dataset_permalink.html:2
 msgid "Permalink to the current resource"
@@ -1330,10 +305,13 @@ msgstr "Sprachunabhängig"
 msgid "Legal basis"
 msgstr "Gesetzliche Grundlage"
 
+#: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:10
+#: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:45
+msgid "Name"
+msgstr "Name"
+
 #: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:24
 #: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:60
-#: ckanext/switzerland/templates/user/edit_user_form.html:14
-#: ckanext/switzerland/templates/user/read_base.html:82
 msgid "Email"
 msgstr "Email"
 
@@ -1346,6 +324,10 @@ msgid "Visibility"
 msgstr "Sichtbarkeit"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/organization.html:52
+msgid "Private"
+msgstr ""
+
+#: ckanext/switzerland/templates/scheming/form_snippets/organization.html:52
 msgid "Public"
 msgstr "Öffentlich"
 
@@ -1353,6 +335,20 @@ msgstr "Öffentlich"
 #: ckanext/switzerland/templates/scheming/form_snippets/relations.html:52
 msgid "Title"
 msgstr "Titel"
+
+#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:28
+#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:67
+msgid "URL"
+msgstr "URL"
+
+#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:37
+#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:78
+msgid "Remove"
+msgstr "Entfernen"
+
+#: ckanext/switzerland/templates/scheming/form_snippets/relations.html:86
+msgid "Add"
+msgstr "Hinzufügen"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/temporals.html:10
 #: ckanext/switzerland/templates/scheming/form_snippets/temporals.html:45
@@ -1364,243 +360,156 @@ msgstr "Startdatum"
 msgid "End date"
 msgstr "Enddatum"
 
-#: ckanext/switzerland/templates/scheming/organization/group_form.html:21
+#: ckanext/switzerland/templates/scheming/organization/group_form.html:31
 msgid "Are you sure you want to delete this Organization?"
 msgstr "Sind Sie sicher, dass Sie diese Organisation löschen möchten?"
 
-#: ckanext/switzerland/templates/scheming/package/resource_read.html:22
-#: ckanext/switzerland/templates/scheming/package/resource_read.html:23
-msgid "Permalink"
-msgstr "Permalink"
+#: ckanext/switzerland/templates/scheming/organization/group_form.html:32
+msgid "Delete"
+msgstr "Löschen"
 
-#: ckanext/switzerland/templates/search/search.html:39
-msgid "Search term must be at least 3 characters long"
-msgstr "Suchbegriff muss mindestens 3 Zeichen umfassen"
-
-#: ckanext/switzerland/templates/search/search.html:45
-msgid "An error occured. Please try another search phrase."
-msgstr "Bitte versuchen Sie es mit einer anderen Suche."
-
-#: ckanext/switzerland/templates/search/search.html:51
-msgid ""
-"[[ datasetResults.length ]] datasets found for \"[[ currentSearchTerm ]]\""
+#: ckanext/switzerland/templates/scheming/organization/group_form.html:40
+#: ckanext/switzerland/templates/scheming/organization/group_form.html:42
+msgid "Update Organization"
 msgstr ""
-"[[ datasetResults.length ]] Datensätze für \"[[ currentSearchTerm ]]\" "
-"gefunden"
 
-#: ckanext/switzerland/templates/search/search.html:68
-msgid "[[ pageResults.length ]] pages found for \"[[ currentSearchTerm ]]\""
+#: ckanext/switzerland/templates/scheming/organization/group_form.html:46
+#: ckanext/switzerland/templates/scheming/organization/group_form.html:48
+msgid "Create Organization"
 msgstr ""
-"[[ pageResults.length ]] Seiten für \"[[ currentSearchTerm ]]\" gefunden"
 
-#: ckanext/switzerland/templates/snippets/activity_item.html:3
-msgid "New activity item"
-msgstr "Neuer Aktivitätseintrag"
+#: ckanext/switzerland/templates/scheming/package/resource_read.html:16
+#: ckanext/switzerland/templates/scheming/package/resource_read.html:18
+msgid "URL:"
+msgstr ""
 
-#: ckanext/switzerland/templates/snippets/facet_list.html:80
+#: ckanext/switzerland/templates/scheming/package/resource_read.html:26
+msgid "Dataset description:"
+msgstr ""
+
+#: ckanext/switzerland/templates/scheming/package/resource_read.html:28
+#, python-format
+msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
+msgstr "Quelle: <a href=\"%(url)s\">%(dataset)s</a>"
+
+#: ckanext/switzerland/templates/scheming/package/snippets/additional_info.html:33
+msgid "State"
+msgstr "Status"
+
+#: ckanext/switzerland/templates/snippets/facet_list.html:29
 msgid "Show More {facet_type}"
 msgstr ""
 
-#: ckanext/switzerland/templates/snippets/facet_list.html:83
+#: ckanext/switzerland/templates/snippets/facet_list.html:32
 msgid "Show Only Popular {facet_type}"
 msgstr "Nur häufig nachgefragte {facet_type} anzeigen"
 
-#: ckanext/switzerland/templates/snippets/facet_list.html:87
+#: ckanext/switzerland/templates/snippets/facet_list.html:36
 msgid "There are no {facet_type} that match this search"
 msgstr ""
 
-#: ckanext/switzerland/templates/snippets/job_details.html:26
-msgid "errors"
-msgstr "Fehler"
-
-#: ckanext/switzerland/templates/snippets/job_details.html:31
-msgid "Details"
-msgstr "Details"
-
-#: ckanext/switzerland/templates/snippets/job_details.html:38
-msgid "Id"
-msgstr "ID"
-
-#: ckanext/switzerland/templates/snippets/job_details.html:50
-msgid "Started"
-msgstr "Zuletzt aktualisiert"
-
-#: ckanext/switzerland/templates/snippets/job_details.html:58
-msgid "Finished"
-msgstr "Abgeschlossen"
-
-#: ckanext/switzerland/templates/snippets/job_details.html:66
-msgid "Status"
-msgstr "Status"
-
-#: ckanext/switzerland/templates/snippets/organization.html:23
-#: ckanext/switzerland/templates/snippets/source_item.html:45
-msgid "Organization"
-msgstr "Organisation"
-
-#: ckanext/switzerland/templates/snippets/package_item.html:61
-msgid "This dataset has no description"
+#: ckanext/switzerland/templates/snippets/organization.html:20
+msgid "There is no description for this organization"
 msgstr ""
 
-#: ckanext/switzerland/templates/snippets/related.html:2
-msgid "Related"
-msgstr "Verwandt"
-
-#: ckanext/switzerland/templates/snippets/related.html:15
-msgid ""
-"No apps, ideas, news stories or images have been related to this dataset yet."
-msgstr ""
-"Bisher wurden keine Apps, Ideen, Nachrichten oder Bilder mit diesem Daten "
-"verknüpft."
-
-#: ckanext/switzerland/templates/snippets/related.html:18
-msgid "Add Item"
-msgstr "Füge Element hinzu"
-
-#: ckanext/switzerland/templates/snippets/search_form.html:23
-msgid "Filter Results"
-msgstr "Ergebnisse filtern"
-
-#: ckanext/switzerland/templates/snippets/search_form.html:31
-msgid "Order by"
+#: ckanext/switzerland/templates/snippets/package_item.html:14
+msgid "There is no description for this dataset"
 msgstr ""
 
-#: ckanext/switzerland/templates/snippets/search_form.html:40
-msgid "Go"
-msgstr "Los"
+#: ckanext/switzerland/templates/snippets/source_item.html:28
+msgid "Draft"
+msgstr ""
 
 #: ckanext/switzerland/templates/snippets/source_item.html:37
 msgid "There is no description for this harvest source"
 msgstr "Keine Beschreibung dieser Harvest-Quelle vorhanden"
 
-#: ckanext/switzerland/templates/user/dashboard.html:6
-msgid "Dashboard"
-msgstr "Übersicht"
+#: ckanext/switzerland/templates/snippets/source_item.html:42
+#: ckanext/switzerland/templates/source/read_base.html:4
+msgid "Datasets"
+msgstr "Datensätze"
 
-#: ckanext/switzerland/templates/user/dashboard.html:16
-#: ckanext/switzerland/templates/user/dashboard.html:34
-msgid "News feed"
-msgstr "Nachrichten-Feed"
+#: ckanext/switzerland/templates/snippets/source_item.html:45
+msgid "Organization"
+msgstr "Organisation"
 
-#: ckanext/switzerland/templates/user/dashboard.html:17
-msgid "My Datasets"
-msgstr "Meine Datensätze"
+#: ckanext/switzerland/templates/snippets/stream.html:11
+#: ckanext/switzerland/templates/snippets/stream.html:18
+#: ckanext/switzerland/templates/snippets/stream.html:31
+msgid "unknown"
+msgstr "unbekannt"
 
-#: ckanext/switzerland/templates/user/dashboard.html:18
-msgid "My Organizations"
-msgstr "Meine Organisationen"
+#: ckanext/switzerland/templates/source/base.html:8
+#: ckanext/switzerland/templates/source/base.html:11
+msgid "Harvest Sources"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/dashboard.html:19
-msgid "My Groups"
-msgstr "Meine Gruppen"
+#: ckanext/switzerland/templates/source/read_base.html:5
+msgid "Description"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/dashboard.html:36
-msgid "Activity from items that I'm following"
-msgstr "Aktivitäten von Elementen, denen ich folge"
+#: ckanext/switzerland/templates/source/job/read.html:3
+#: ckanext/switzerland/templates/source/job/read.html:12
+msgid "Job Report"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:9
-msgid "Change details"
-msgstr "Änderungsdetails"
+#: ckanext/switzerland/templates/source/job/read.html:9
+msgid "Back to job list"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:12
-msgid "Full name"
-msgstr "Vollständiger Name"
+#: ckanext/switzerland/templates/source/job/read.html:18
+#: ckanext/switzerland/templates/source/job/read.html:22
+msgid "Error Summary"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:12
-msgid "eg. Joe Bloggs"
-msgstr "Erika Mustermann"
+#: ckanext/switzerland/templates/source/job/read.html:19
+msgid "No errors for this job"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:14
-msgid "eg. joe@example.com"
-msgstr "z.B. erika@example.com"
+#: ckanext/switzerland/templates/source/job/read.html:23
+msgid "Only the 20 most frequent errors are shown"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:16
-msgid "A little information about yourself"
-msgstr "Ein paar Informationen zu dir"
+#: ckanext/switzerland/templates/source/job/read.html:26
+#: ckanext/switzerland/templates/source/job/read.html:40
+msgid "Job Errors"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:19
-msgid "Subscribe to notification emails"
-msgstr "Abonniere E-Mail-Benachrichtigungen"
+#: ckanext/switzerland/templates/source/job/read.html:30
+#: ckanext/switzerland/templates/source/job/read.html:57
+msgid "Document Errors"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:28
-msgid "Change password"
-msgstr "Kennwort ändern"
+#: ckanext/switzerland/templates/source/job/read.html:37
+msgid "Error Report"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:29
-msgid "Old Password"
-msgstr "Altes Passwort"
+#: ckanext/switzerland/templates/source/job/read.html:58
+msgid "documents with errors"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:31
-msgid "Password"
-msgstr "Passwort"
+#: ckanext/switzerland/templates/source/job/read.html:69
+msgid "Remote content"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:33
-msgid "Confirm Password"
-msgstr "Passwort wiederholen"
+#: ckanext/switzerland/templates/source/job/read.html:73
+msgid "Local content"
+msgstr ""
 
-#: ckanext/switzerland/templates/user/edit_user_form.html:39
-msgid "Are you sure you want to delete this User?"
-msgstr "Sind sie sicher, dass Sie diesen Benutzer löschen wollen?"
-
-#: ckanext/switzerland/templates/user/edit_user_form.html:45
-msgid "Are you sure you want to regenerate the API key?"
-msgstr "Sind Sie sicher, dass Sie den API-Key erzeugen wollen?"
-
-#: ckanext/switzerland/templates/user/edit_user_form.html:46
-msgid "Regenerate API Key"
-msgstr "API-Key nochmals erzeugen"
-
-#: ckanext/switzerland/templates/user/edit_user_form.html:50
-msgid "Update Profile"
-msgstr "Profil aktualisieren"
-
-#: ckanext/switzerland/templates/user/read_base.html:5
-#: ckanext/switzerland/templates/user/read_base.html:8
-msgid "Users"
-msgstr "Benutzer"
-
-#: ckanext/switzerland/templates/user/read_base.html:39
-msgid "You have not provided a biography."
-msgstr "Du hast keine Biographie angegeben."
-
-#: ckanext/switzerland/templates/user/read_base.html:41
-msgid "This user has no biography."
-msgstr "Dieser Nutzer hat keine Biographie."
-
-#: ckanext/switzerland/templates/user/read_base.html:57
-msgid "Edits"
-msgstr "Änderungen"
-
-#: ckanext/switzerland/templates/user/read_base.html:73
-msgid "Open ID"
-msgstr "Open ID"
-
-#: ckanext/switzerland/templates/user/read_base.html:82
-#: ckanext/switzerland/templates/user/read_base.html:96
-msgid "This means only you can see this"
-msgstr "Das heißt, nur du kannst dies sehen"
-
-#: ckanext/switzerland/templates/user/read_base.html:87
-msgid "Member Since"
-msgstr "Mitglied seit"
-
-#: ckanext/switzerland/templates/user/read_base.html:91
-msgid "State"
-msgstr "Status"
-
-#: ckanext/switzerland/templates/user/read_base.html:96
-msgid "API Key"
-msgstr "API-Schlüssel"
-
-#: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:14
-#: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:15
+#: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:16
+#: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:17
 msgid "Activity from:"
 msgstr "Aktivität von:"
 
-#: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:23
+#: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:25
 msgid "Search list..."
 msgstr "Suche Liste..."
 
-#: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:44
+#: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:26
+msgid "Search followee"
+msgstr ""
+
+#: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:49
 msgid "You are not following anything"
 msgstr "Du folgst keinen Inhalten"
+
