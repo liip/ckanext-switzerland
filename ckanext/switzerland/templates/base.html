@@ -42,8 +42,3 @@
   {% asset 'ckanext-activity/activity' %}
   {% asset 'ckanext-harvest/harvest_css' %}
 {% endblock %}
-
-{% block title %}
-  {%- block subtitle %}{% endblock -%}
-  {%- if self.subtitle()|trim %} | {% endif -%}
-{% endblock %}
