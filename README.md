@@ -36,15 +36,13 @@ To install ckanext-switzerland:
 
 This extension uses the following config options (.ini file)
 
-    # the URL of the WordPress AJAX interface
-    ckanext.switzerland.wp_ajax_url = https://wp/wp-admin/admin-ajax.php
-    ckanext.switzerland.wp_ajax_url = http://wp/cms/wp-admin/admin-ajax.php
-    ckanext.switzerland.wp_template_url = http://wp/cms/wp-admin/admin-post.php?action=get_nav
-    ckanext.switzerland.wp_url = http://wp
+    # For exporting a CSV of users from the associated WordPress site
+    ckanext.switzerland.wp_url
+    ckanext.switzerland.user_list_api_key
 
-    # matomo config
-    matomo.site_id = 1
-    matomo.url = stats.opentransportdata.swiss
+    # For managing cookie consent and tracking with OneTrust and Matomo
+    ckanext.switzerland.cookie_law_url
+    ckanext.switzerland.cookie_law_id
 
 ## Development Installation
 
