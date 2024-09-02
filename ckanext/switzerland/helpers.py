@@ -259,13 +259,6 @@ def get_content_headers(url):
     return response
 
 
-def get_matomo_config():
-    return {
-        "url": tk.config.get("matomo.url", False),
-        "site_id": tk.config.get("matomo.site_id", False),
-    }
-
-
 def convert_post_data_to_dict(field_name, data):
     d = defaultdict(lambda: {})
     for json_field_name, value in list(data.items()):
