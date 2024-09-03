@@ -31,7 +31,7 @@ msgstr "Ressource nicht gefunden"
 
 #: ckanext/switzerland/blueprints.py:122
 msgid "Not authorized to download resource"
-msgstr ""
+msgstr "Keine Berechtigung, um Ressource herunterzuladen"
 
 #: ckanext/switzerland/blueprints.py:138
 msgid "No download is available"
@@ -44,7 +44,7 @@ msgstr "Datensatz nicht gefunden"
 #: ckanext/switzerland/blueprints.py:157 ckanext/switzerland/blueprints.py:180
 #, python-format
 msgid "Unauthorized to read package %s"
-msgstr "Keine Berechtigung Paket %s zu lesen"
+msgstr "Keine Berechtigung Paket %s zu lesens"
 
 #: ckanext/switzerland/helpers.py:150
 msgid "Irregular"
@@ -221,7 +221,7 @@ msgstr "Beobachter"
 #: ckanext/switzerland/templates/email_exporter/email_exporter.html:15
 #: ckanext/switzerland/templates/package/snippets/resource_item.html:39
 msgid "Download"
-msgstr ""
+msgstr "Herunterladen"
 
 #: ckanext/switzerland/templates/group/edit.html:5
 #: ckanext/switzerland/templates/group/edit_base.html:3
@@ -243,12 +243,12 @@ msgstr "Mitglieder"
 #: ckanext/switzerland/templates/snippets/organization.html:6
 #: ckanext/switzerland/templates/snippets/source_item.html:30
 msgid "Deleted"
-msgstr ""
+msgstr "Gelöscht"
 
 #: ckanext/switzerland/templates/group/snippets/info.html:20
 #: ckanext/switzerland/templates/snippets/organization.html:17
 msgid "read more"
-msgstr ""
+msgstr "mehr erfahren"
 
 #: ckanext/switzerland/templates/organization/edit.html:3
 #: ckanext/switzerland/templates/package/snippets/resource_item.html:51
@@ -260,28 +260,28 @@ msgstr "Bearbeiten"
 #: ckanext/switzerland/templates/organization/edit_base.html:6
 #: ckanext/switzerland/templates/source/base.html:6
 msgid "Organizations"
-msgstr ""
+msgstr "Organisationen"
 
 #: ckanext/switzerland/templates/organization/edit.html:14
 msgid "Edit Organization"
-msgstr ""
+msgstr "Organisation bearbeiten"
 
 #: ckanext/switzerland/templates/package/snippets/change_item.html:1
 #, python-format
 msgid "On %(timestamp)s, %(username)s:"
-msgstr ""
+msgstr "Auf %(timestamp)s, %(username)s:"
 
 #: ckanext/switzerland/templates/package/snippets/resource_item.html:25
 msgid "Preview"
-msgstr ""
+msgstr "Vorschau"
 
 #: ckanext/switzerland/templates/package/snippets/resource_item.html:28
 msgid "More information"
-msgstr ""
+msgstr "Mehr Information"
 
 #: ckanext/switzerland/templates/package/snippets/resource_item.html:42
 msgid "Go to resource"
-msgstr ""
+msgstr "Zur Ressource"
 
 #: ckanext/switzerland/templates/package/snippets/terms_of_use.html:2
 #: ckanext/switzerland/templates/package/snippets/terms_of_use.html:8
@@ -325,7 +325,7 @@ msgstr "Sichtbarkeit"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/organization.html:52
 msgid "Private"
-msgstr ""
+msgstr "Privat"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/organization.html:52
 msgid "Public"
@@ -371,21 +371,21 @@ msgstr "Löschen"
 #: ckanext/switzerland/templates/scheming/organization/group_form.html:40
 #: ckanext/switzerland/templates/scheming/organization/group_form.html:42
 msgid "Update Organization"
-msgstr ""
+msgstr "Organisation aktualisieren"
 
 #: ckanext/switzerland/templates/scheming/organization/group_form.html:46
 #: ckanext/switzerland/templates/scheming/organization/group_form.html:48
 msgid "Create Organization"
-msgstr ""
+msgstr "Organisation erstellen"
 
 #: ckanext/switzerland/templates/scheming/package/resource_read.html:16
 #: ckanext/switzerland/templates/scheming/package/resource_read.html:18
 msgid "URL:"
-msgstr ""
+msgstr "URL:"
 
 #: ckanext/switzerland/templates/scheming/package/resource_read.html:26
 msgid "Dataset description:"
-msgstr ""
+msgstr "Datensatzbeschreibung:"
 
 #: ckanext/switzerland/templates/scheming/package/resource_read.html:28
 #, python-format
@@ -398,7 +398,7 @@ msgstr "Status"
 
 #: ckanext/switzerland/templates/snippets/facet_list.html:29
 msgid "Show More {facet_type}"
-msgstr ""
+msgstr "Mehr {facet_type} anzeigen"
 
 #: ckanext/switzerland/templates/snippets/facet_list.html:32
 msgid "Show Only Popular {facet_type}"
@@ -406,19 +406,19 @@ msgstr "Nur häufig nachgefragte {facet_type} anzeigen"
 
 #: ckanext/switzerland/templates/snippets/facet_list.html:36
 msgid "There are no {facet_type} that match this search"
-msgstr ""
+msgstr "Für diese Suche wurden keine {facet_type} gefunden."
 
 #: ckanext/switzerland/templates/snippets/organization.html:20
 msgid "There is no description for this organization"
-msgstr ""
+msgstr "Es gibt keine Beschreibung für diese Organisation"
 
 #: ckanext/switzerland/templates/snippets/package_item.html:14
 msgid "There is no description for this dataset"
-msgstr ""
+msgstr "Es gibt keine Beschreibung für diesen Datensatz"
 
 #: ckanext/switzerland/templates/snippets/source_item.html:28
 msgid "Draft"
-msgstr ""
+msgstr "Entwurf"
 
 #: ckanext/switzerland/templates/snippets/source_item.html:37
 msgid "There is no description for this harvest source"
@@ -446,7 +446,7 @@ msgstr ""
 
 #: ckanext/switzerland/templates/source/read_base.html:5
 msgid "Description"
-msgstr ""
+msgstr "Beschreibung"
 
 #: ckanext/switzerland/templates/source/job/read.html:3
 #: ckanext/switzerland/templates/source/job/read.html:12
@@ -507,7 +507,7 @@ msgstr "Suche Liste..."
 
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:26
 msgid "Search followee"
-msgstr ""
+msgstr "Follower suchen"
 
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:49
 msgid "You are not following anything"
