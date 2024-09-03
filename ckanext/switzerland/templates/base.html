@@ -34,16 +34,3 @@
   </script>
   {{ super() }}
 {% endblock %}
-
-
-{% block styles %}
-  {{ super() }}
-  {% asset 'ckanext-activity/activity-css' %}
-  {% asset 'ckanext-activity/activity' %}
-  {% asset 'ckanext-harvest/harvest_css' %}
-{% endblock %}
-
-{% block title %}
-  {%- block subtitle %}{% endblock -%}
-  {%- if self.subtitle()|trim %} | {% endif -%}
-{% endblock %}

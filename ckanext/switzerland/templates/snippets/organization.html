@@ -9,4 +9,14 @@
 {% endblock %}
 
 {% block description %}
+  {% if organization.description %}
+    <p class="description">
+      {{ h.markdown_extract(h.parse_and_localize(organization.description), 180) }}
+    </p>
+    <p class="read-more">
+      {% link_for _('read more'), named_route=organization.type ~ '.about', id=organization.name %}
+    </p>
+  {% else %}
+    <p class="empty">{{ h.humanize_entity_type('organization', organization.type, 'no description') or _('There is no description for this organization') }}</p>
+  {% endif %}
 {% endblock %}
