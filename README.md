@@ -182,7 +182,7 @@ The harvester will receive its configuration from the Database.
 This configuration will be passed to the `StorageAdapterFactory`. 
 This object has for sole responsibility to read the configuration, and decide which Storage Adapter to instantiate. 
 
-THe two possibilities are `S3StorageAdapter` or `FTPStorageAdapter`. 
+The two possibilities are `S3StorageAdapter` or `FTPStorageAdapter`. 
 Both classes extends the `StorageAdapterBase` class. 
 In this base class, designed as an abstract class (meaning all methods are there, 
 and the ones that have to be reimplement just throw `NotImplementedException`), 
@@ -192,3 +192,52 @@ but also some common function to manage the local folder used by the harvesters 
 Each implementation (`S3StorageAdapter` and `FTPStorageAdapter`), are responsible to get their storage configuration, 
 from the storage identifier received from the harvester configuration. 
 Each implementation is also unit tested, see respectively `TestS3StorageAdapter` and `TestFTPStorageAdapter` classes.
+
+# Updating the translations
+
+The translation files for this ckanext are found in `i18n/`:
+    - `ckanext-switzerland.pot`: this is a template file containing all the translatable strings found in the code
+    - `{LANG}/LC_MESSAGES/ckanext-switzerland.po`: one translation file for each of our supported languages apart from
+English (German, French and Italian)
+    - `{LANG}/LC_MESSAGES/ckanext-switzerland.mo`: the compiled translations in binary format
+
+If you update the code and add or remove translatable strings, you will have to update the translations too.
+
+The following instructions assume you are working inside a docker container based on the official [Docker Compose setup
+for CKAN](https://github.com/ckan/ckan-docker/).
+
+1. Enter the container and go to the ckanext-switzerland directory:
+    ```shell
+    docker compose exec ckan bash
+    cd src_extensions/ckanext-switzerland/
+    ```
+2. Update the `.pot`  file:
+    ```shell
+    python setup.py extract_messages
+    ```
+3. *Optional* If you have copied templates from core CKAN to override them, you might want to copy the translations
+from CKAN too:
+   ```shell
+   msgcat i18n/de/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/de/LC_MESSAGES/ckan.po > temp_de.po
+   cp temp_de.po i18n/de/LC_MESSAGES/ckanext-switzerland.po
+   msgcat i18n/fr/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/fr/LC_MESSAGES/ckan.po > temp_fr.po
+   cp temp_fr.po i18n/fr/LC_MESSAGES/ckanext-switzerland.po
+   msgcat i18n/it/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/it/LC_MESSAGES/ckan.po > temp_it.po
+   cp temp_it.po i18n/it/LC_MESSAGES/ckanext-switzerland.po
+   rm temp_de.po temp_fr.po temp_it.po
+   ```
+   This adds a lot of translations to our `.po`  files that we don't want, but they will be removed in the next step.
+4. Update the `.po` files:
+   ```shell
+   python setup.py update_catalog --ignore-obsolete=true --no-fuzzy-matching
+   ```
+   To update one language at a time, add `-l de` (etc.) to the command.
+5. Check the `.po` files and add any new translations that are needed.
+6. Update the `.mo` files:
+   ```shell
+   python setup.py compile_catalog
+   ```
+7. Restart the docker container:
+   ```shell
+   docker compose restart ckan
+   ```
