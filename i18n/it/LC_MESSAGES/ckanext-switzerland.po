@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-02 13:31+0000\n"
+"POT-Creation-Date: 2024-09-03 13:17+0000\n"
 "PO-Revision-Date: 2020-04-15 15:47+0200\n"
 "Last-Translator: Adrian Schlegel <adrian.schlegel@liip.ch>\n"
 "Language: it\n"
@@ -138,7 +138,7 @@ msgstr "Fonte richiesta / Utilizzo commerciale ammesso previa autorizzazione"
 msgid "Closed data"
 msgstr "Closed data"
 
-#: ckanext/switzerland/helpers.py:309
+#: ckanext/switzerland/helpers.py:302
 msgid "Unnamed resource"
 msgstr "Risorsa senza nome"
 
