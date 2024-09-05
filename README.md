@@ -56,6 +56,18 @@ do:
     pip install -r dev-requirements.txt
     pip install -r requirements.txt
 
+## Schema
+
+We use [ckanext-scheming](https://github.com/ckan/ckanext-scheming) to define our schemas for datasets, groups and
+organizations. The schemas are defined in the following files:
+
+- ckanext/switzerland/dcat-ap-switzerland_scheming.json (dataset schema)
+- ckanext/switzerland/multilingual_group_scheming.json
+- ckanext/switzerland/multilingual_organization_scheming.json
+
+**NB**: If you update the dataset schema to add any fields that are not simple strings, you will also need to update
+the `OgdchPackagePlugin.before_dataset_index` method to convert the value of those fields to strings.
+
 ## FTP- and S3-Harvester 
 
 Currently, CKAN-Switzerland support two types of remote storages for harvesting data:
