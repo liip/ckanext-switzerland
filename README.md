@@ -66,7 +66,8 @@ organizations. The schemas are defined in the following files:
 - ckanext/switzerland/multilingual_organization_scheming.json
 
 **NB**: If you update the dataset schema to add any fields that are not simple strings, you will also need to update
-the `OgdchPackagePlugin.before_dataset_index` method to convert the value of those fields to strings.
+the `OgdchPackagePlugin.before_dataset_index` method to convert the value of those fields to strings, so that SOLR
+can consume our datasets and index them properly.
 
 ## FTP- and S3-Harvester 
 
