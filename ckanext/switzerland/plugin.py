@@ -411,6 +411,28 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         except KeyError:
             pass
 
+        # Flatten our extra fields that are lists, or lists of dicts.
+        # This is necessary as of this update to CKAN:
+        # https://github.com/ckan/ckan/commit/e1dde691fd12283209ccea39592c31e7013b25be
+        # The package to be updated is found using package_show and validated against
+        # our schema, so all the extra fields are added to the package dict. We need to
+        # flatten them so that Solr won't return an atomic update error.
+        for key in [
+            "publishers",
+            "contact_points",
+            "relations",
+            "temporals",
+            "keywords",
+            "language",
+            "display_name",
+        ]:
+            search_data[key] = json.dumps(search_data.get(key, []))
+
+        search_data["res_description"] = [
+            json.dumps(description)
+            for description in search_data.get("res_description", [])
+        ]
+
         return search_data
 
     # borrowed from ckanext-multilingual (core extension)
