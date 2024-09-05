@@ -429,7 +429,8 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
             search_data[key] = json.dumps(search_data.get(key, []))
 
         search_data["res_description"] = [
-            json.dumps(description) for description in search_data["res_description"]
+            json.dumps(description)
+            for description in search_data.get("res_description", [])
         ]
 
         return search_data
