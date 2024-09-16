@@ -1,0 +1,12 @@
+{% ckan_extends %}
+
+{% block heading %}
+<h1 class="heading">{{ h.parse_and_localize(organization.title) }}
+  {% if organization.state == 'deleted' %}
+    [{{ _('Deleted') }}]
+  {% endif %}
+</h1>
+{% endblock %}
+
+{% block description %}
+{% endblock %}
