@@ -1604,3 +1604,11 @@ msgstr "Suche Liste..."
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:44
 msgid "You are not following anything"
 msgstr "Du folgst keinen Inhalten"
+
+#: ckanext/activity/templates/snippets/changes/resource_extras.html:87
+msgid ""
+"Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource "
+"{resource_link} in {pkg_link}"
+msgstr ""
+"Wert des Feldes <q>{key}</q> wurde geändert zu <q>{new_val}</q> "
+"in der Ressource {resource_link} in {pkg_link}"
