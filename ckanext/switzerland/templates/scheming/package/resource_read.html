@@ -1,33 +1,34 @@
-{% extends "package/resource_read.html" %}
+{% ckan_extends %}
 
-{%- set exclude_fields = [
-    'name',
-    'description',
-    'title',
-    'url',
-    'issued',
-    'download_url',
-    'rights',
-    'license',
-    ] -%}
+{% block head_extras -%}
+  <!-- This is copied from templates/base.html because we can't use super() here: the ckan core package/resource_read.html head_extras block can't handle our multilingual dict for resource description -->
+  {{ g.template_head_end | safe }}
 
-{%- set schema = h.scheming_get_dataset_schema(dataset_type) -%}
+  {% set description = h.markdown_extract(h.parse_and_localize(res['description']), extract_length=200) if res.description else h.markdown_extract(h.parse_and_localize(package['description']), extract_length=200) %}
+  <meta property="og:title" content="{{ h.dataset_display_name(package) }} - {{ h.resource_display_name(res) }} - {{ g.site_title }}">
+  <meta property="og:description" content="{{ description|forceescape }}">
+{% endblock -%}
 
-{% block resource_additional_information_inner %}
-{%- set display_items = h.get_resource_display_items(res, exclude_fields, schema) -%}
-  <div class="module-content">
-    <h2>{{ _('Additional Information') }}</h2>
-    <dl class="dl-horizontal">
-      <dt class="dataset-label">{{ _('Permalink') }}</dt>
-      <dd class="dataset-details">{% link_for _('Permalink'), named_route='ogdch_dataset.resource_permalink', id=pkg.name, filename=h.resource_filename(res.url) %}</dd>
-      {% for key, field in display_items.items() %}
-        {% set resource_helper = dict({key: field.value}) %}
-        <dt class="dataset-label">{{- h.scheming_language_text(field.label) -}}</dt>
-        <dd class="dataset-details">
-            {%- snippet 'scheming/snippets/display_field.html',
-                      field=field, data=resource_helper, schema=schema -%}
-        </dd>
-      {% endfor %}
-    </dl>
+{% block resource_content %}
+  {% block resource_read_title %}<h1 class="page-heading" title="{{ h.resource_display_name(res) }}">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
+  {% block resource_read_url %}
+    {% if res.url and h.is_url(res.url) %}
+      <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+    {% elif res.url %}
+      <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
+    {% endif %}
+  {% endblock %}
+  <div class="prose notes" property="rdfs:label">
+    {% if res.description %}
+      {{ h.render_markdown(h.parse_and_localize(res.description)) }}
+    {% endif %}
+    {% if not res.description and package.description %}
+      <h3>{{ _('Dataset description:') }}</h3>
+      <blockquote>{{ h.markdown_extract(h.parse_and_localize(package['description'])) }}</blockquote>
+      <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+    {% endif %}
   </div>
 {% endblock %}
+
+{%- block resource_more_items -%}
+{%- endblock -%}

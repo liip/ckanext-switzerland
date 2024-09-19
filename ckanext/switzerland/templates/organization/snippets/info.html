@@ -1,0 +1,23 @@
+{% ckan_extends %}
+
+{% block heading %}
+<h1 class="heading">{{ h.parse_and_localize(organization.title) }}
+  {% if organization.state == 'deleted' %}
+    [{{ _('Deleted') }}]
+  {% endif %}
+</h1>
+{% endblock %}
+
+{% block description %}
+  {% set description = h.parse_and_localize(organization.description) %}
+  {% if description %}
+    <p class="description">
+      {{ h.markdown_extract(description, 180) }}
+    </p>
+    <p class="read-more">
+      {% link_for _('read more'), named_route=organization.type ~ '.about', id=organization.name %}
+    </p>
+  {% else %}
+    <p class="empty">{{ h.humanize_entity_type('organization', organization.type, 'no description') or _('There is no description for this organization') }}</p>
+  {% endif %}
+{% endblock %}
