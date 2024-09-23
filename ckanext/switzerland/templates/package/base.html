@@ -1,11 +1,4 @@
-{% extends "page.html" %}
-
-{% set pkg = pkg_dict %}
-{% set dataset_type = dataset_type or pkg.type or 'dataset' %}
-
-{% block breadcrumb_content_selected %} class="active"{% endblock %}
-
-{% block subtitle %}{{ _(dataset_type.title()) }}{% endblock %}
+{% ckan_extends %}
 
 {% block breadcrumb_content %}
   {% if pkg %}
