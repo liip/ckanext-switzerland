@@ -127,7 +127,7 @@ def resource_download(
         resp = flask.send_file(
             filepath,
             as_attachment=True,
-            attachment_filename=filename,
+            download_name=filename,
             mimetype=rsc.get("mimetype"),
         )
 
