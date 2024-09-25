@@ -571,6 +571,16 @@ def clean_up_list_fields(search_data, validated_dict):
             del search_data[key]
     search_data["validated_data_dict"] = json.dumps(validated_dict)
 
+    res_description = search_data.get("res_description", [])
+    if len(res_description) > 0 and not isinstance(res_description[0], str):
+        # res_description should be a list of strings (the multilingual dict
+        # of each resource description, dumped to a string). If the package dict was
+        # found using package_show, it will be a list of dicts.
+        search_data["res_description"] = [
+            json.dumps(description)
+            for description in search_data.get("res_description", [])
+        ]
+
 
 def index_language_specific_values(search_data, validated_dict):
     text_field_items = {}

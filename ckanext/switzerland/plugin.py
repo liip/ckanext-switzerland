@@ -381,16 +381,6 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
 
         sh.clean_up_list_fields(search_data, validated_dict)
 
-        res_description = search_data.get("res_description", [])
-        if len(res_description) > 0 and not isinstance(res_description[0], str):
-            # res_description should be a list of strings (the multilingual dict
-            # of each resource description, dumped to a string). If it contains the
-            # dicts themselves, we need to dump them to string here.
-            search_data["res_description"] = [
-                json.dumps(description)
-                for description in search_data.get("res_description", [])
-            ]
-
         return search_data
 
     # borrowed from ckanext-multilingual (core extension)
