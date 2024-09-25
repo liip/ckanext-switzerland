@@ -249,7 +249,7 @@ def multiple_text_output(value):
     """
     Return stored json representation as a list
     """
-    return parse_json(value, default_value=[value])
+    return parse_json(value)
 
 
 @scheming_validator
