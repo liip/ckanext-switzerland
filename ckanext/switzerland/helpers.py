@@ -16,7 +16,7 @@ from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
 from ckan.lib.helpers import lang, literal
 from ckan.lib.helpers import organization_link as organization_link_orig
 from ckan.lib.helpers import url_for
-from ckan.lib.munge import munge_filename
+from ckan.lib.munge import munge_filename, munge_title_to_name
 from jinja2.utils import urlize
 from simplejson import JSONDecodeError
 
@@ -542,3 +542,65 @@ def request_is_api_request():
     except RuntimeError:
         # we get here if there is no request (i.e. on the command line)
         return False
+
+
+def clean_up_list_fields(search_data, validated_dict):
+    # Remove extra fields that are lists, or lists of dicts.
+    # This is necessary as of this update to CKAN:
+    # https://github.com/ckan/ckan/commit/e1dde691fd12283209ccea39592c31e7013b25be
+    # The package to be updated is found using package_show and validated against
+    # our schema, so all the extra fields are added to the package dict. We don't
+    # need them in the Solr document and they will cause an atomic error if left in.
+    for key in [
+        "publishers",
+        "contact_points",
+        "relations",
+        "temporals",
+        "keywords",
+        "language",
+        "display_name",
+    ]:
+        if key in search_data:
+            if key not in validated_dict:
+                # This is a hack. :( Fields that use the validator
+                # json_list_of_dicts_field are removed from the dataset dict during
+                # validation and I can't work out why. If this has happened, add
+                # them back now.
+                validated_dict[key] = search_data[key]
+            del search_data[key]
+    search_data["validated_data_dict"] = json.dumps(validated_dict)
+
+
+def index_language_specific_values(search_data, validated_dict):
+    try:
+        # index language-specific values (or it's fallback)
+        text_field_items = {}
+        for lang_code in get_langs():
+            search_data["title_" + lang_code] = get_localized_value(
+                validated_dict["title"], lang_code
+            )
+            search_data["title_string_" + lang_code] = munge_title_to_name(
+                get_localized_value(validated_dict["title"], lang_code)
+            )
+            search_data["description_" + lang_code] = get_localized_value(
+                validated_dict["description"], lang_code
+            )
+
+            search_data["keywords_" + lang_code] = validated_dict["keywords"].get(
+                lang_code
+            )
+
+            text_field_items["text_" + lang_code] = [
+                get_localized_value(validated_dict["description"], lang_code)
+            ]
+            if search_data["keywords_" + lang_code]:
+                text_field_items["text_" + lang_code].append(
+                    " ".join(search_data["keywords_" + lang_code])
+                )
+
+        # flatten values for text_* fields
+        for key, value in list(text_field_items.items()):
+            search_data[key] = " ".join(value)
+
+    except KeyError:
+        pass
