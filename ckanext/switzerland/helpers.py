@@ -573,34 +573,31 @@ def clean_up_list_fields(search_data, validated_dict):
 
 
 def index_language_specific_values(search_data, validated_dict):
-    try:
-        text_field_items = {}
-        for lang_code in get_langs():
-            search_data["title_" + lang_code] = get_localized_value(
-                validated_dict["title"], lang_code
-            )
-            search_data["title_string_" + lang_code] = munge_title_to_name(
-                get_localized_value(validated_dict["title"], lang_code)
-            )
-            search_data["description_" + lang_code] = get_localized_value(
-                validated_dict["description"], lang_code
+    text_field_items = {}
+    for lang_code in get_langs():
+        validated_title = validated_dict.get("title", "")
+        search_data["title_" + lang_code] = get_localized_value(
+            validated_title, lang_code
+        )
+        search_data["title_string_" + lang_code] = munge_title_to_name(
+            get_localized_value(validated_title, lang_code)
+        )
+
+        validated_description = validated_dict.get("description", "")
+        search_data["description_" + lang_code] = get_localized_value(
+            validated_description, lang_code
+        )
+        text_field_items["text_" + lang_code] = [
+            get_localized_value(validated_description, lang_code)
+        ]
+
+        validated_keywords = validated_dict.get("keywords", [])
+        search_data["keywords_" + lang_code] = validated_keywords.get(lang_code, [])
+        if search_data["keywords_" + lang_code]:
+            text_field_items["text_" + lang_code].append(
+                " ".join(search_data["keywords_" + lang_code])
             )
 
-            search_data["keywords_" + lang_code] = validated_dict["keywords"].get(
-                lang_code
-            )
-
-            text_field_items["text_" + lang_code] = [
-                get_localized_value(validated_dict["description"], lang_code)
-            ]
-            if search_data["keywords_" + lang_code]:
-                text_field_items["text_" + lang_code].append(
-                    " ".join(search_data["keywords_" + lang_code])
-                )
-
-        # flatten values for text_* fields
-        for key, value in list(text_field_items.items()):
-            search_data[key] = " ".join(value)
-
-    except KeyError:
-        pass
+    # flatten values for text_* fields
+    for key, value in list(text_field_items.items()):
+        search_data[key] = " ".join(value)
