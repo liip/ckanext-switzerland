@@ -545,12 +545,13 @@ def request_is_api_request():
 
 
 def clean_up_list_fields(search_data, validated_dict):
-    # Remove extra fields that are lists, or lists of dicts.
-    # This is necessary as of this update to CKAN:
-    # https://github.com/ckan/ckan/commit/e1dde691fd12283209ccea39592c31e7013b25be
-    # The package to be updated is found using package_show and validated against
-    # our schema, so all the extra fields are added to the package dict. We don't
-    # need them in the Solr document and they will cause an atomic error if left in.
+    """Remove extra fields that are lists, or lists of dicts.
+    This is necessary as of this update to CKAN:
+    https://github.com/ckan/ckan/commit/e1dde691fd12283209ccea39592c31e7013b25be
+    The package to be updated is found using package_show and validated against
+    our schema, so all the extra fields are added to the package dict. We don't
+    need them in the Solr document and they will cause an atomic error if left in.
+    """
     for key in [
         "publishers",
         "contact_points",
@@ -573,7 +574,6 @@ def clean_up_list_fields(search_data, validated_dict):
 
 def index_language_specific_values(search_data, validated_dict):
     try:
-        # index language-specific values (or it's fallback)
         text_field_items = {}
         for lang_code in get_langs():
             search_data["title_" + lang_code] = get_localized_value(
