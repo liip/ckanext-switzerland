@@ -411,12 +411,12 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         except KeyError:
             pass
 
-        # Flatten our extra fields that are lists, or lists of dicts.
+        # Remove extra fields that are lists, or lists of dicts.
         # This is necessary as of this update to CKAN:
         # https://github.com/ckan/ckan/commit/e1dde691fd12283209ccea39592c31e7013b25be
         # The package to be updated is found using package_show and validated against
-        # our schema, so all the extra fields are added to the package dict. We need to
-        # flatten them so that Solr won't return an atomic update error.
+        # our schema, so all the extra fields are added to the package dict. We don't
+        # need them in the Solr document and they will cause an atomic error if left in.
         for key in [
             "publishers",
             "contact_points",
@@ -426,8 +426,16 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
             "language",
             "display_name",
         ]:
-            if not isinstance(search_data.get(key, []), str):
-                search_data[key] = json.dumps(search_data.get(key, []))
+            if key in search_data:
+                if key not in validated_dict:
+                    # This is a hack. :( Fields that use the validator
+                    # json_list_of_dicts_field are removed from the dataset dict during
+                    # validation and I can't work out why. If this has happened, add
+                    # them back now.
+                    validated_dict[key] = search_data[key]
+                del search_data[key]
+
+        search_data["validated_data_dict"] = json.dumps(validated_dict)
 
         res_description = search_data.get("res_description", [])
         if len(res_description) > 0 and not isinstance(res_description[0], str):
