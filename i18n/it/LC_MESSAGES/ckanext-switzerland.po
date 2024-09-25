@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-03 13:17+0000\n"
+"POT-Creation-Date: 2024-09-24 17:02+0000\n"
 "PO-Revision-Date: 2020-04-15 15:47+0200\n"
 "Last-Translator: Adrian Schlegel <adrian.schlegel@liip.ch>\n"
 "Language: it\n"
@@ -185,6 +185,116 @@ msgstr "Identificatore già in uso. Inserirne uno univoco."
 msgid "Invalid URL"
 msgstr ""
 
+#: ckanext/switzerland/templates/footer.html:4
+msgid "Rules of the game"
+msgstr "Regole"
+
+#: ckanext/switzerland/templates/footer.html:5
+msgid "en/terms-of-use"
+msgstr "it/terms-of-use"
+
+#: ckanext/switzerland/templates/footer.html:5
+msgid "General terms of use"
+msgstr "Condizioni generali d’utilizzo"
+
+#: ckanext/switzerland/templates/footer.html:6
+msgid "en/netiquette"
+msgstr "it/netiquette-it-2"
+
+#: ckanext/switzerland/templates/footer.html:6
+msgid "Netiquette"
+msgstr "Netiquette"
+
+#: ckanext/switzerland/templates/footer.html:7
+msgid "en/limits-and-costs"
+msgstr "it/limits-costs-it"
+
+#: ckanext/switzerland/templates/footer.html:7
+msgid "Limits and costs"
+msgstr "Limite e costi"
+
+#: ckanext/switzerland/templates/footer.html:8
+msgid "en/authorised-databases"
+msgstr "it/authorised-database"
+
+#: ckanext/switzerland/templates/footer.html:8
+msgid "Authorised databases"
+msgstr "Database"
+
+#: ckanext/switzerland/templates/footer.html:9
+msgid "en/tac-fedro"
+msgstr "it/tac-fedro"
+
+#: ckanext/switzerland/templates/footer.html:9
+msgid "TAC FEDRO"
+msgstr "CGC USTRA"
+
+#: ckanext/switzerland/templates/footer.html:10
+msgid "en/data-privacy-statement-2"
+msgstr "it/informativa-sulla-tutela-dei-dati-personali-2"
+
+#: ckanext/switzerland/templates/footer.html:10
+msgid "Data Privacy Statement"
+msgstr "Informativa sulla tutela dei dati personali"
+
+#: ckanext/switzerland/templates/footer.html:11
+msgid "Cookie settings"
+msgstr "Impostazioni dei cookie"
+
+#: ckanext/switzerland/templates/footer.html:12
+msgid "About"
+msgstr ""
+
+#: ckanext/switzerland/templates/footer.html:13
+msgid "en/impressum-2"
+msgstr "it/impressum-4"
+
+#: ckanext/switzerland/templates/footer.html:13
+msgid "Imprint"
+msgstr "Impressum"
+
+#: ckanext/switzerland/templates/footer.html:14
+msgid "en/contact"
+msgstr "it/contact"
+
+#: ckanext/switzerland/templates/footer.html:14
+msgid "Contact"
+msgstr "Contatti"
+
+#: ckanext/switzerland/templates/footer.html:15
+msgid "en/newsletter-registration"
+msgstr "it/registrazione-alla-newsletter"
+
+#: ckanext/switzerland/templates/footer.html:15
+msgid "Newsletter"
+msgstr "Newsletter"
+
+#: ckanext/switzerland/templates/footer.html:16
+msgid "https://oev-info.ch"
+msgstr "https://www.tp-info.ch/it"
+
+#: ckanext/switzerland/templates/footer.html:16
+msgid "oev-info.ch"
+msgstr "tp-info.ch"
+
+#: ckanext/switzerland/templates/footer.html:17
+msgid "Operational status"
+msgstr "Condizione di attività"
+
+#: ckanext/switzerland/templates/footer.html:26
+msgid ""
+"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
+msgstr ""
+
+#: ckanext/switzerland/templates/footer.html:29
+msgid "CKAN API"
+msgstr ""
+
+#: ckanext/switzerland/templates/footer.html:30
+msgid "CKAN Association"
+msgstr ""
+
 #: ckanext/switzerland/templates/activity_streams/activity_stream_email_notifications.text:1
 msgid "You have {num} new activity on your {site_title} dashboard"
 msgid_plural "You have {num} new activities on your {site_title} dashboard"
@@ -213,6 +323,7 @@ msgid "All users"
 msgstr "Tutti gli utenti"
 
 #: ckanext/switzerland/templates/email_exporter/email_exporter.html:12
+#: ckanext/switzerland/templates/snippets/organization.html:55
 msgid "Followers"
 msgstr "Sostenitori"
 
@@ -238,13 +349,15 @@ msgid "Members"
 msgstr "Membri"
 
 #: ckanext/switzerland/templates/group/snippets/info.html:8
-#: ckanext/switzerland/templates/snippets/organization.html:6
+#: ckanext/switzerland/templates/organization/snippets/info.html:6
+#: ckanext/switzerland/templates/snippets/organization.html:35
 #: ckanext/switzerland/templates/snippets/source_item.html:30
 msgid "Deleted"
 msgstr "Eliminato"
 
 #: ckanext/switzerland/templates/group/snippets/info.html:20
-#: ckanext/switzerland/templates/snippets/organization.html:17
+#: ckanext/switzerland/templates/organization/snippets/info.html:18
+#: ckanext/switzerland/templates/snippets/organization.html:45
 msgid "read more"
 msgstr "leggi di più"
 
@@ -263,6 +376,11 @@ msgstr "Organizzazioni"
 #: ckanext/switzerland/templates/organization/edit.html:14
 msgid "Edit Organization"
 msgstr "Modifica Organizzazione"
+
+#: ckanext/switzerland/templates/organization/snippets/info.html:21
+#: ckanext/switzerland/templates/snippets/organization.html:48
+msgid "There is no description for this organization"
+msgstr "Non c'è una descrizione per questa organizzazione"
 
 #: ckanext/switzerland/templates/package/snippets/change_item.html:1
 #, python-format
@@ -406,9 +524,16 @@ msgstr "Mostra solo {facet_type} popolari"
 msgid "There are no {facet_type} that match this search"
 msgstr "Non ci sono {facet_type} che corrispondono a questa ricerca"
 
-#: ckanext/switzerland/templates/snippets/organization.html:20
-msgid "There is no description for this organization"
-msgstr "Non c'è una descrizione per questa organizzazione"
+#: ckanext/switzerland/templates/snippets/organization.html:21
+#: ckanext/switzerland/templates/snippets/source_item.html:45
+msgid "Organization"
+msgstr "Organizzazione"
+
+#: ckanext/switzerland/templates/snippets/organization.html:59
+#: ckanext/switzerland/templates/snippets/source_item.html:42
+#: ckanext/switzerland/templates/source/read_base.html:4
+msgid "Datasets"
+msgstr "Dataset"
 
 #: ckanext/switzerland/templates/snippets/package_item.html:14
 msgid "There is no description for this dataset"
@@ -421,15 +546,6 @@ msgstr "Bozza"
 #: ckanext/switzerland/templates/snippets/source_item.html:37
 msgid "There is no description for this harvest source"
 msgstr "Non c’è descrizione per questa fonte di raccolta"
-
-#: ckanext/switzerland/templates/snippets/source_item.html:42
-#: ckanext/switzerland/templates/source/read_base.html:4
-msgid "Datasets"
-msgstr "Dataset"
-
-#: ckanext/switzerland/templates/snippets/source_item.html:45
-msgid "Organization"
-msgstr "Organizzazione"
 
 #: ckanext/switzerland/templates/snippets/stream.html:11
 #: ckanext/switzerland/templates/snippets/stream.html:18

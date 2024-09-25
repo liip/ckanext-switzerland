@@ -1,0 +1,32 @@
+{% ckan_extends %}
+
+{% block footer_links %}
+    <li><strong>{{ _('Rules of the game') }}</strong></li>
+    <li><a href="https://opentransportdata.swiss/{{ _('en/terms-of-use') }}">{{ _('General terms of use') }}</a></li>
+    <li><a href="https://opentransportdata.swiss/{{ _('en/netiquette') }}">{{ _('Netiquette') }}</a></li>
+    <li><a href="https://opentransportdata.swiss/{{ _('en/limits-and-costs') }}">{{ _('Limits and costs') }}</a></li>
+    <li><a href="https://opentransportdata.swiss/{{ _('en/authorised-databases') }}">{{ _('Authorised databases') }}</a></li>
+    <li><a href="https://opentransportdata.swiss/{{ _('en/tac-fedro') }}">{{ _('TAC FEDRO') }}</a></li>
+    <li><a href="https://opentransportdata.swiss/{{ _('en/data-privacy-statement-2') }}">{{ _('Data Privacy Statement') }}</a></li>
+    <li><a href="https://opentransportdata.swiss/de/cookie-settings'" class="ot-sdk-show-settings">{{ _('Cookie settings') }}</a></li>
+    <li><strong>{{ _('About') }}</strong></li>
+    <li><a href="https://opentransportdata.swiss/{{ _('en/impressum-2') }}">{{ _('Imprint') }}</a></li>
+    <li><a href="https://opentransportdata.swiss/{{ _('en/contact') }}">{{ _('Contact') }}</a></li>
+    <li><a href="https://opentransportdata.swiss/{{ _('en/newsletter-registration') }}">{{ _('Newsletter') }}</a></li>
+    <li><a href="{{ _('https://oev-info.ch') }}">{{ _('oev-info.ch') }}</a></li>
+    <li><a href="https://status.opentransportdata.swiss/">{{ _('Operational status') }}</a></li>
+{% endblock %}
+
+{% block footer_links_ckan %}
+
+{% endblock %}
+
+{% block footer_attribution %}
+    <p>{% trans %}<strong>Powered by</strong> <a class="hide-text ckan-footer-logo" href="http://ckan.org">CKAN</a>{% endtrans %}</p>
+    <ul class="list-unstyled">
+        {% set api_url = 'http://docs.ckan.org/en/{0}/api/'.format(g.ckan_doc_version) %}
+        <li><a href="{{ api_url }}">{{ _('CKAN API') }}</a></li>
+        <li><a href="http://www.ckan.org/">{{ _('CKAN Association') }}</a></li>
+        <li><p><a href="http://www.opendefinition.org/okd/"><img src="{{ h.url_for_static('/base/images/od_80x15_blue.png') }}" alt="Open Data"></a></p></li>
+    </ul>
+{% endblock %}
