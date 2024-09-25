@@ -426,11 +426,11 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
             "language",
             "display_name",
         ]:
-            if isinstance(search_data.get(key, []), list):
+            if not isinstance(search_data.get(key, []), str):
                 search_data[key] = json.dumps(search_data.get(key, []))
 
         res_description = search_data.get("res_description", [])
-        if len(res_description) > 0 and isinstance(res_description[0], dict):
+        if len(res_description) > 0 and not isinstance(res_description[0], str):
             # res_description should be a list of strings (the multilingual dict
             # of each resource description, dumped to a string). If it contains the
             # dicts themselves, we need to dump them to string here.
