@@ -51,10 +51,11 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(dataset["resources"][0]["identifier"], data.filename)
 
         # There is no dataset to copy metadata data from, so we use the dataset's
-        # identifier as the title
+        # identifier as the title and use the default value for relations.
         self.assert_dataset_data(
             dataset,
             title={"de": "Dataset", "it": "Dataset", "fr": "Dataset", "en": "Dataset"},
+            relations=[],
         )
 
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")

@@ -98,37 +98,20 @@ class BaseSBBHarvesterTests(unittest.TestCase):
             ],
             "publishers": [{"label": "Publisher 1"}],
             "relations": [{"url": "http://example.org", "label": "Example"}],
-            "temporals": [{"start_date": "01.01.2015", "end_date": "31.12.2015"}],
+            "temporals": [
+                {"start_date": "2014-03-21T00:00:00", "end_date": "2019-03-21T00:00:00"}
+            ],
         }
 
         for k, v in kwargs.items():
             expected_data[k] = v
 
-        self.assertEqual(
-            expected_data["identifier"],
-            dataset_data["identifier"],
-            "Dataset identifier is wrong after harvesting",
-        )
-        self.assertEqual(
-            expected_data["title"],
-            dataset_data["title"],
-            "Dataset title is wrong after harvesting",
-        )
-        self.assertEqual(
-            expected_data["description"],
-            dataset_data["description"],
-            "Dataset description is wrong after harvesting",
-        )
-        self.assertEqual(
-            expected_data["contact_points"],
-            dataset_data["contact_points"],
-            "Dataset contact points are wrong after harvesting",
-        )
-        self.assertEqual(
-            expected_data["publishers"],
-            dataset_data["publishers"],
-            "Dataset publishers are wrong after harvesting",
-        )
+        for key in expected_data:
+            self.assertEqual(
+                expected_data[key],
+                dataset_data[key],
+                f"Dataset field {key} is wrong after harvesting",
+            )
 
     def assert_resource_data(self, resource_id, resource_data):
         resource_obj = model.Resource.get(resource_id)
