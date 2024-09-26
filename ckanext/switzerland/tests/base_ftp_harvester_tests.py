@@ -88,6 +88,31 @@ class BaseSBBHarvesterTests(unittest.TestCase):
         fs.settimes(path, modified=datetime(2000, 1, 1))
         return fs
 
+    def assert_dataset_data(self, dataset_data, **kwargs):
+        expected_data = {
+            "identifier": "Dataset",
+            "title": {"de": "", "it": "", "fr": "", "en": ""},
+            "description": {"de": "", "it": "", "fr": "", "en": ""},
+            "contact_points": [
+                {"name": "Contact Name", "email": "contact@example.com"}
+            ],
+            "publishers": [{"label": "Publisher 1"}],
+            "relations": [{"url": "http://example.org", "label": "Example"}],
+            "temporals": [
+                {"start_date": "2014-03-21T00:00:00", "end_date": "2019-03-21T00:00:00"}
+            ],
+        }
+
+        for k, v in kwargs.items():
+            expected_data[k] = v
+
+        for key in expected_data:
+            self.assertEqual(
+                expected_data[key],
+                dataset_data[key],
+                f"Dataset field {key} is wrong after harvesting",
+            )
+
     def assert_resource_data(self, resource_id, resource_data):
         resource_obj = model.Resource.get(resource_id)
         resource = resource_dictize(resource_obj, {"model": model})

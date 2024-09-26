@@ -7,7 +7,6 @@ import sys
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from ckan.lib.munge import munge_title_to_name
 
 import ckanext.switzerland.helpers as sh
 from ckanext.switzerland import logic as l
@@ -378,60 +377,9 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         search_data["title_string"] = extract_title(validated_dict)
         search_data["description"] = LangToString("description")(validated_dict)
 
-        try:
-            # index language-specific values (or it's fallback)
-            text_field_items = {}
-            for lang_code in sh.get_langs():
-                search_data["title_" + lang_code] = sh.get_localized_value(
-                    validated_dict["title"], lang_code
-                )
-                search_data["title_string_" + lang_code] = munge_title_to_name(
-                    sh.get_localized_value(validated_dict["title"], lang_code)
-                )
-                search_data["description_" + lang_code] = sh.get_localized_value(
-                    validated_dict["description"], lang_code
-                )
+        sh.index_language_specific_values(search_data, validated_dict)
 
-                search_data["keywords_" + lang_code] = validated_dict["keywords"].get(
-                    lang_code
-                )
-
-                text_field_items["text_" + lang_code] = [
-                    sh.get_localized_value(validated_dict["description"], lang_code)
-                ]
-                if search_data["keywords_" + lang_code]:
-                    text_field_items["text_" + lang_code].append(
-                        " ".join(search_data["keywords_" + lang_code])
-                    )
-
-            # flatten values for text_* fields
-            for key, value in list(text_field_items.items()):
-                search_data[key] = " ".join(value)
-
-        except KeyError:
-            pass
-
-        # Flatten our extra fields that are lists, or lists of dicts.
-        # This is necessary as of this update to CKAN:
-        # https://github.com/ckan/ckan/commit/e1dde691fd12283209ccea39592c31e7013b25be
-        # The package to be updated is found using package_show and validated against
-        # our schema, so all the extra fields are added to the package dict. We need to
-        # flatten them so that Solr won't return an atomic update error.
-        for key in [
-            "publishers",
-            "contact_points",
-            "relations",
-            "temporals",
-            "keywords",
-            "language",
-            "display_name",
-        ]:
-            search_data[key] = json.dumps(search_data.get(key, []))
-
-        search_data["res_description"] = [
-            json.dumps(description)
-            for description in search_data.get("res_description", [])
-        ]
+        sh.clean_up_list_fields(search_data, validated_dict)
 
         return search_data
 

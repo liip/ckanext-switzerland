@@ -102,6 +102,10 @@ def dataset(slug=None):
         description={"de": "", "it": "", "fr": "", "en": ""},
         contact_points=[{"name": "Contact Name", "email": "contact@example.com"}],
         publishers=[{"label": "Publisher 1"}],
+        relations=[{"url": "http://example.org", "label": "Example"}],
+        temporals=[
+            {"start_date": "2014-03-21T00:00:00", "end_date": "2019-03-21T00:00:00"}
+        ],
     )
 
 
