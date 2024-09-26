@@ -88,6 +88,46 @@ class BaseSBBHarvesterTests(unittest.TestCase):
         fs.settimes(path, modified=datetime(2000, 1, 1))
         return fs
 
+    def assert_dataset_data(self, dataset_data, **kwargs):
+        expected_data = {
+            "identifier": "Dataset",
+            "title": {"de": "", "it": "", "fr": "", "en": ""},
+            "description": {"de": "", "it": "", "fr": "", "en": ""},
+            "contact_points": [
+                {"name": "Contact Name", "email": "contact@example.com"}
+            ],
+            "publishers": [{"label": "Publisher 1"}],
+        }
+
+        for k, v in kwargs.items():
+            expected_data[k] = v
+
+        self.assertEqual(
+            expected_data["identifier"],
+            dataset_data["identifier"],
+            "Dataset identifier is wrong after harvesting",
+        )
+        self.assertEqual(
+            expected_data["title"],
+            dataset_data["title"],
+            "Dataset title is wrong after harvesting",
+        )
+        self.assertEqual(
+            expected_data["description"],
+            dataset_data["description"],
+            "Dataset description is wrong after harvesting",
+        )
+        self.assertEqual(
+            expected_data["contact_points"],
+            dataset_data["contact_points"],
+            "Dataset contact points are wrong after harvesting",
+        )
+        self.assertEqual(
+            expected_data["publishers"],
+            dataset_data["publishers"],
+            "Dataset publishers are wrong after harvesting",
+        )
+
     def assert_resource_data(self, resource_id, resource_data):
         resource_obj = model.Resource.get(resource_id)
         resource = resource_dictize(resource_obj, {"model": model})

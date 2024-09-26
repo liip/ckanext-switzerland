@@ -89,6 +89,16 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
         )
 
         dataset = self.get_dataset(name="Station List")
+        self.assert_dataset_data(
+            dataset,
+            identifier="Station List",
+            title={
+                "de": "Station List",
+                "it": "Station List",
+                "fr": "Station List",
+                "en": "Station List",
+            },
+        )
 
         self.assertEqual(len(dataset["resources"]), 1)
 
