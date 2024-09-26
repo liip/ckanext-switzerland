@@ -97,6 +97,8 @@ class BaseSBBHarvesterTests(unittest.TestCase):
                 {"name": "Contact Name", "email": "contact@example.com"}
             ],
             "publishers": [{"label": "Publisher 1"}],
+            "relations": [{"url": "http://example.org", "label": "Example"}],
+            "temporals": [{"start_date": "01.01.2015", "end_date": "31.12.2015"}],
         }
 
         for k, v in kwargs.items():
