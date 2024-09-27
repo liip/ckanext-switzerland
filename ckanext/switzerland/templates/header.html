@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+{% block header_site_navigation_tabs %}
+    {{ super() }}
+    {{ h.build_nav_main(('harvest.search', _('Harvester'))) }}
+{% endblock %}
