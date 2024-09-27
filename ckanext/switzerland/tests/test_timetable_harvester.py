@@ -40,6 +40,17 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
         )
 
         dataset = self.get_dataset(name="Timetable 2016")
+        self.assert_dataset_data(
+            dataset,
+            identifier="Timetable 2016",
+            title={
+                "de": "Timetable 2016",
+                "it": "Timetable 2016",
+                "fr": "Timetable 2016",
+                "en": "Timetable 2016",
+            },
+            relations=[],
+        )
 
         self.assertEqual(len(dataset["resources"]), 1)
 
@@ -61,12 +72,34 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
         )
 
         dataset1 = self.get_dataset(name="Timetable 2016")
+        self.assert_dataset_data(
+            dataset1,
+            identifier="Timetable 2016",
+            title={
+                "de": "Timetable 2016",
+                "it": "Timetable 2016",
+                "fr": "Timetable 2016",
+                "en": "Timetable 2016",
+            },
+            relations=[],
+        )
         self.assertEqual(len(dataset1["resources"]), 1)
         self.assert_resource_data(
             dataset1["resources"][0]["id"], data.dataset_content_1
         )
 
         dataset2 = self.get_dataset(name="Timetable 2015")
+        self.assert_dataset_data(
+            dataset2,
+            identifier="Timetable 2015",
+            title={
+                "de": "Timetable 2015",
+                "it": "Timetable 2015",
+                "fr": "Timetable 2015",
+                "en": "Timetable 2015",
+            },
+            relations=[],
+        )
         self.assertEqual(len(dataset2["resources"]), 1)
         self.assert_resource_data(
             dataset2["resources"][0]["id"], data.dataset_content_3

@@ -90,6 +90,20 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
 
         dataset = self.get_dataset(name="Station List")
 
+        # There is no dataset to copy metadata data from, so we use the dataset's
+        # identifier as the title and use the default value for relations.
+        self.assert_dataset_data(
+            dataset,
+            identifier="Station List",
+            title={
+                "de": "Station List",
+                "it": "Station List",
+                "fr": "Station List",
+                "en": "Station List",
+            },
+            relations=[],
+        )
+
         self.assertEqual(len(dataset["resources"]), 1)
 
         self.assertIn("issued", dataset)

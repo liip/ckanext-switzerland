@@ -50,6 +50,14 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(len(dataset["resources"]), 1)
         self.assertEqual(dataset["resources"][0]["identifier"], data.filename)
 
+        # There is no dataset to copy metadata data from, so we use the dataset's
+        # identifier as the title and use the default value for relations.
+        self.assert_dataset_data(
+            dataset,
+            title={"de": "Dataset", "it": "Dataset", "fr": "Dataset", "en": "Dataset"},
+            relations=[],
+        )
+
     @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
     def test_existing_dataset(self):
         data.dataset(slug="testslug-other-than-munge-name")
@@ -63,6 +71,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         )
 
         self.assertEqual(dataset1["id"], dataset2["id"])
+        self.assert_dataset_data(dataset2)
+
         with self.assertRaises(NotFound):
             get_action("package_show")({}, {"id": munge_name(data.dataset_name)})
 
@@ -79,6 +89,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(ftp_server="testserver")
 
         dataset = self.get_dataset()
+
+        self.assert_dataset_data(dataset)
 
         self.assertEqual(len(dataset["resources"]), 2)
         r1 = dataset["resources"][0]
@@ -108,6 +120,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(ftp_server="testserver")
 
         dataset = self.get_dataset()
+
+        self.assert_dataset_data(dataset)
 
         self.assertEqual(len(dataset["resources"]), 1)
         resource = dataset["resources"][0]
