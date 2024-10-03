@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block notes %}
-  {% if description %}
+  {% if package.description %}
     <p>{{ h.parse_and_localize(package.description) | truncate(truncate) }}</p>
   {% else %}
     <p class="empty">{{ h.humanize_entity_type('package', package.type, 'no description') or _("There is no description for this dataset") }}</p>
