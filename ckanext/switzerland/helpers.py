@@ -579,3 +579,10 @@ def index_language_specific_values(search_data, validated_dict):
     # flatten values for text_* fields
     for key, value in list(text_field_items.items()):
         search_data[key] = " ".join(value)
+
+
+def get_request_language():
+    try:
+        return tk.request.environ["CKAN_LANG"]
+    except TypeError:
+        return tk.config.get("ckan.locale_default", "en")

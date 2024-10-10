@@ -23,6 +23,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.ITranslation)
     plugins.implements(plugins.IBlueprint, inherit=True)
+    plugins.implements(plugins.IFacets)
 
     # IConfigurer
 
@@ -125,6 +126,27 @@ class OgdchPlugin(plugins.SingletonPlugin):
     def get_blueprint(self):
         return [ogdch_admin, ogdch_dataset]
 
+    # IFacets
+
+    def _update_facets(self, facets_dict):
+        """Remove the Tags facet (which we don't use) and add a Keywords facet in the
+        language of the current request.
+        """
+        lang_code = sh.get_request_language()
+        facets_dict["keywords_" + lang_code] = toolkit._("Keywords")
+        del facets_dict["tags"]
+
+        return facets_dict
+
+    def dataset_facets(self, facets_dict, package_type):
+        return self._update_facets(facets_dict)
+
+    def group_facets(self, facets_dict, group_type, package_type):
+        return self._update_facets(facets_dict)
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        return self._update_facets(facets_dict)
+
 
 # monkey patch template helpers to return translated names/titles
 h.dataset_display_name = sh.dataset_display_name
@@ -159,7 +181,7 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
             return pkg_dict
 
         # replace langauge dicts with requested language strings
-        desired_lang_code = self._get_request_language()
+        desired_lang_code = sh.get_request_language()
         pkg_dict = self._package_reduce_to_requested_language(
             pkg_dict, desired_lang_code
         )
@@ -174,12 +196,6 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         pkg_dict = self._package_map_ckan_default_fields(pkg_dict)
 
         return pkg_dict
-
-    def _get_request_language(self):
-        try:
-            return toolkit.request.environ["CKAN_LANG"]
-        except TypeError:
-            return toolkit.config.get("ckan.locale_default", "en")
 
     def _package_parse_json_strings(self, pkg_dict):
         # try to parse all values as JSON
