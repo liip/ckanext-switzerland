@@ -11,4 +11,27 @@
 {% endblock %}
 
 {% block description %}
+  {% set description = h.parse_and_localize(group.description) %}
+  {% if description %}
+    <p class="description">
+      {{ h.markdown_extract(description, 180) }}
+    </p>
+    <p class="read-more">
+      {% link_for _('read more'), named_route='group.about', id=group.name %}
+    </p>
+  {% endif %}
+{% endblock %}
+
+{% block nums %}
+{% set num_followers = h.follow_count('group', group.id) %}
+<div class="nums">
+  <dl>
+    <dt>{{ _('Followers') }}</dt>
+    <dd>{{ h.SI_number_span(num_followers) }}</dd>
+  </dl>
+  <dl>
+    <dt>{{ h.humanize_entity_type('package', dataset_type, 'facet label') or _('Datasets') }}</dt>
+    <dd>{{ h.SI_number_span(group.package_count) }}</dd>
+  </dl>
+</div>
 {% endblock %}

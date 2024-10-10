@@ -1,13 +1,4 @@
 {% ckan_extends %}
 
-{% block subtitle %}Data{% endblock %}
-
-{% block breadcrumb_content %}
-  <li class="active">{{ h.nav_link('Data', named_route='%s.search' % dataset_type, highlight_actions = 'new index') }}</li>
-{% endblock %}
-
 {% block package_search_results_api %}
-{% endblock %}
-
-{% block secondary_content %}
 {% endblock %}
