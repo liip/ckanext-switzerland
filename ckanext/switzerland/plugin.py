@@ -128,26 +128,24 @@ class OgdchPlugin(plugins.SingletonPlugin):
 
     # IFacets
 
-    def dataset_facets(self, facets_dict, package_type):
+    def _update_facets(self, facets_dict):
+        """Remove the Tags facet (which we don't use) and add a Keywords facet in the
+        language of the current request.
+        """
         lang_code = sh.get_request_language()
         facets_dict["keywords_" + lang_code] = toolkit._("Keywords")
         del facets_dict["tags"]
 
         return facets_dict
+
+    def dataset_facets(self, facets_dict, package_type):
+        return self._update_facets(facets_dict)
 
     def group_facets(self, facets_dict, group_type, package_type):
-        lang_code = sh.get_request_language()
-        facets_dict["keywords_" + lang_code] = toolkit._("Keywords")
-        del facets_dict["tags"]
-
-        return facets_dict
+        return self._update_facets(facets_dict)
 
     def organization_facets(self, facets_dict, organization_type, package_type):
-        lang_code = sh.get_request_language()
-        facets_dict["keywords_" + lang_code] = toolkit._("Keywords")
-        del facets_dict["tags"]
-
-        return facets_dict
+        return self._update_facets(facets_dict)
 
 
 # monkey patch template helpers to return translated names/titles
