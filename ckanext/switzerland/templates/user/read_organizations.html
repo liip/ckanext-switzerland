@@ -2,11 +2,16 @@
 
 {% set user = user_dict %}
 {% set org_type = h.default_group_type('organization') %}
-{% set orgs_available = h.organizations_available(permission='manage_group',
-  include_dataset_count=True,
-  include_member_count=True,
-  user=user['id'])
-%}
+
+{% if user.state == 'deleted' %}
+  {% set orgs_available = [] %}
+{% else %}
+  {% set orgs_available = h.organizations_available(permission='manage_group',
+    include_dataset_count=True,
+    include_member_count=True,
+    user=user['id'])
+  %}
+{% endif %}
 
 {% block primary_content_inner %}
   <h2 class="hide-heading">{{ h.humanize_entity_type('organization', org_type, 'facet label') or _('Organizations') }}</h2>

@@ -1,14 +1,20 @@
 {% set user = user_dict if not user else user %}
-{% set orgs_available = h.organizations_available(permission='manage_group',
-  include_dataset_count=True,
-  include_member_count=True,
-  user=user['id'])
-%}
-{% set groups_available = h.groups_available(am_member=True,
-  include_dataset_count=True,
-  include_member_count=True,
-  user=user['id'])
-%}
+
+{% if user.state == 'deleted' %}
+  {% set orgs_available = [] %}
+  {% set groups_available = [] %}
+{% else %}
+  {% set orgs_available = h.organizations_available(permission='manage_group',
+    include_dataset_count=True,
+    include_member_count=True,
+    user=user['id'])
+  %}
+  {% set groups_available = h.groups_available(am_member=True,
+    include_dataset_count=True,
+    include_member_count=True,
+    user=user['id'])
+  %}
+{% endif %}
 
 
 <div id="user-info" class="module context-info">
