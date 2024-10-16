@@ -5,7 +5,6 @@ import os
 import sys
 
 import ckan.lib.helpers as h
-import ckan.logic
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
@@ -156,8 +155,6 @@ h.resource_display_name = sh.resource_display_name
 h.group_link = sh.group_link
 h.resource_link = sh.resource_link
 h.organization_link = sh.organization_link
-# monkey patch validator to accept usernames with capital letters
-ckan.logic.name_validator = v.ogdch_name_validator
 
 
 class OgdchLanguagePlugin(plugins.SingletonPlugin):
