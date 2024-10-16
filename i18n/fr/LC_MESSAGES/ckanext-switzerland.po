@@ -204,6 +204,8 @@ msgstr "Le nom doit être d'une longueur inférieur à %i caractères"
 #: ckanext/switzerland/validators.py:398
 msgid "Must be purely alphanumeric (ascii) characters and these symbols: -_@"
 msgstr ""
+"Doit contenir uniquement des caractères alphanumériques "
+"(ascii) et ces symboles : -_@"
 
 #: ckanext/switzerland/validators.py:406
 msgid ""

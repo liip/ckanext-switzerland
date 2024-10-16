@@ -205,7 +205,7 @@ msgstr "Name darf maximal %i Zeichen lang sein"
 
 #: ckanext/switzerland/validators.py:398
 msgid "Must be purely alphanumeric (ascii) characters and these symbols: -_@"
-msgstr ""
+msgstr "Darf nur Buchstaben (ASCII) enthalten und diese Zeichen: -_@"
 
 #: ckanext/switzerland/validators.py:406
 msgid ""

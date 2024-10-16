@@ -203,7 +203,7 @@ msgstr "Il nome deve contenere un numero massimo di %i caratteri"
 
 #: ckanext/switzerland/validators.py:398
 msgid "Must be purely alphanumeric (ascii) characters and these symbols: -_@"
-msgstr ""
+msgstr "Deve consistere solamente di caratteri (base) e questi simboli: -_@"
 
 #: ckanext/switzerland/validators.py:406
 msgid ""
