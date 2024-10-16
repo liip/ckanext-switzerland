@@ -16,15 +16,15 @@ class TestNameValidator(unittest.TestCase):
 
     def test_valid_existing_username(self):
         # Existing usernames (created on WordPress) are also allowed to include capital
-        # letters and the @ character
-        value = "Valid_Username@1"
+        # letters, a space and the @ character
+        value = "Valid_User Name@1"
         context = {"user_obj": data.user()}
 
         self.assertEqual(value, ogdch_name_validator(value, context))
 
     def test_invalid_existing_username(self):
         # Even existing usernames are not allowed to include characters outside of
-        # a-z, A-Z, 0-9 and -_@
+        # a-z, A-Z, 0-9, space and -_@
         value = "Invalid_Username;#´"
         context = {"user_obj": data.user()}
 
@@ -40,7 +40,7 @@ class TestNameValidator(unittest.TestCase):
 
     def test_invalid_new_username_that_would_be_valid_existing_username(self):
         # New usernames have to conform to CKAN validation: only a-z, 0-9 and -_
-        value = "Invalid_Username@1"
+        value = "Invalid_User Name@1"
         context = {}
 
         with self.assertRaisesRegex(Invalid, "Must be purely lowercase alphanumeric"):

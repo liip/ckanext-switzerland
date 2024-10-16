@@ -16,7 +16,7 @@ from ckanext.switzerland.helpers import parse_json
 
 log = logging.getLogger(__name__)
 name_match = re.compile(r"[a-z0-9_\-]*$")
-user_name_match = re.compile(r"[a-zA-Z0-9_\-@]*$")
+user_name_match = re.compile(r"[a-zA-Z0-9_\-@ ]*$")
 
 
 @scheming_validator
@@ -367,8 +367,8 @@ def ogdch_fluent_tags(field, schema):
 
 
 def ogdch_name_validator(value, context):
-    """Monkeypatched version of ckan.logic.validators.name_validator that allows
-    usernames to contain uppercase letters and the @ symbol.
+    """Overridden version of ckan.logic.validators.name_validator that allows
+    usernames to contain uppercase letters, spaces and the @ symbol.
 
     This is needed because we have a large number of user accounts that were originally
     created in WordPress (which has different requirements for usernames) and copied
