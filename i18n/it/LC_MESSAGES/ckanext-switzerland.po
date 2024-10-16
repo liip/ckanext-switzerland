@@ -1,19 +1,13 @@
 # #-#-#-#-#  ckanext-switzerland.po (CKAN)  #-#-#-#-#
-# #-#-#-#-#  ckanext-switzerland.po  #-#-#-#-#
-# This file was generated from translations/ckan_it.xlsx
-# #-#-#-#-#  ckan.po (CKAN)  #-#-#-#-#
-# Italian translations for ckan.
-# Copyright (C) 2015 ORGANIZATION
-# This file is distributed under the same license as the ckan project.
 msgid ""
 msgstr ""
 "Project-Id-Version:  CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-10 13:50+0000\n"
-"PO-Revision-Date: 2020-04-15 15:47+0200\n"
-"Last-Translator: Adrian Schlegel <adrian.schlegel@liip.ch>\n"
+"POT-Creation-Date: 2024-10-16 15:13+0000\n"
+"PO-Revision-Date: 2024-10-16 15:13+0000\n"
+"Last-Translator: Rae Knowler <rae.knowler@liip.ch>\n"
 "Language: it\n"
-"Language-Team: Italian (http://www.transifex.com/okfn/ckan/language/it/)\n"
+"Language-Team: Liip <ogdch@liip.ch>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -142,6 +136,10 @@ msgstr "Closed data"
 msgid "Unnamed resource"
 msgstr "Risorsa senza nome"
 
+#: ckanext/switzerland/plugin.py:136
+msgid "Keywords"
+msgstr ""
+
 #: ckanext/switzerland/validators.py:66
 msgid "Failed to decode JSON string"
 msgstr "Impossibile decodificare la stringa JSON"
@@ -243,7 +241,7 @@ msgstr "Impostazioni dei cookie"
 
 #: ckanext/switzerland/templates/footer.html:12
 msgid "About"
-msgstr ""
+msgstr "Informazioni"
 
 #: ckanext/switzerland/templates/footer.html:13
 msgid "en/impressum-2"
@@ -286,14 +284,16 @@ msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
+"<strong>Fatto con</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 
 #: ckanext/switzerland/templates/footer.html:28
 msgid "CKAN API"
-msgstr ""
+msgstr "CKAN API"
 
 #: ckanext/switzerland/templates/footer.html:29
 msgid "CKAN Association"
-msgstr ""
+msgstr "CKAN Association"
 
 #: ckanext/switzerland/templates/header.html:5
 msgid "Harvester"
@@ -329,6 +329,7 @@ msgstr "Tutti gli utenti"
 #: ckanext/switzerland/templates/email_exporter/email_exporter.html:12
 #: ckanext/switzerland/templates/group/snippets/info.html:29
 #: ckanext/switzerland/templates/organization/snippets/info.html:29
+#: ckanext/switzerland/templates/user/snippets/info.html:46
 msgid "Followers"
 msgstr "Sostenitori"
 
@@ -346,6 +347,8 @@ msgstr "Gestisci"
 
 #: ckanext/switzerland/templates/group/edit_base.html:3
 #: ckanext/switzerland/templates/group/members.html:3
+#: ckanext/switzerland/templates/user/read_groups.html:17
+#: ckanext/switzerland/templates/user/snippets/info.html:58
 msgid "Groups"
 msgstr "Gruppi"
 
@@ -368,6 +371,7 @@ msgstr "leggi di più"
 #: ckanext/switzerland/templates/organization/snippets/info.html:33
 #: ckanext/switzerland/templates/snippets/source_item.html:42
 #: ckanext/switzerland/templates/source/read_base.html:4
+#: ckanext/switzerland/templates/user/snippets/info.html:50
 msgid "Datasets"
 msgstr "Dataset"
 
@@ -381,6 +385,8 @@ msgstr "Modifica"
 #: ckanext/switzerland/templates/organization/edit_base.html:6
 #: ckanext/switzerland/templates/package/base.html:9
 #: ckanext/switzerland/templates/source/base.html:6
+#: ckanext/switzerland/templates/user/read_organizations.html:17
+#: ckanext/switzerland/templates/user/snippets/info.html:54
 msgid "Organizations"
 msgstr "Organizzazioni"
 
@@ -394,7 +400,7 @@ msgstr "Non c'è una descrizione per questa organizzazione"
 
 #: ckanext/switzerland/templates/package/base.html:17
 msgid "Create Dataset"
-msgstr ""
+msgstr "Crea un dataset"
 
 #: ckanext/switzerland/templates/package/resource_history.html:10
 #, python-format
@@ -450,6 +456,7 @@ msgstr "Nome"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:24
 #: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:60
+#: ckanext/switzerland/templates/user/snippets/info.html:90
 msgid "Email"
 msgstr "E-mail"
 
@@ -462,6 +469,7 @@ msgid "Visibility"
 msgstr "Visibilità"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/organization.html:52
+#: ckanext/switzerland/templates/user/snippets/info.html:90
 msgid "Private"
 msgstr "Privato"
 
@@ -481,6 +489,7 @@ msgstr "URL"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/relations.html:37
 #: ckanext/switzerland/templates/scheming/form_snippets/relations.html:78
+#: ckanext/switzerland/templates/snippets/search_form.html:17
 msgid "Remove"
 msgstr "Rimuovi"
 
@@ -531,6 +540,7 @@ msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
 msgstr "Sorgente: <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckanext/switzerland/templates/scheming/package/snippets/additional_info.html:33
+#: ckanext/switzerland/templates/user/snippets/info.html:105
 msgid "State"
 msgstr "Stato"
 
@@ -549,6 +559,10 @@ msgstr "Non ci sono {facet_type} che corrispondono a questa ricerca"
 #: ckanext/switzerland/templates/snippets/package_item.html:14
 msgid "There is no description for this dataset"
 msgstr ""
+
+#: ckanext/switzerland/templates/snippets/search_form.html:22
+msgid "Filter Results"
+msgstr "Risultato del Filtro"
 
 #: ckanext/switzerland/templates/snippets/source_item.html:28
 msgid "Draft"
@@ -625,6 +639,22 @@ msgstr ""
 msgid "Local content"
 msgstr ""
 
+#: ckanext/switzerland/templates/user/read_groups.html:25
+msgid "You are not a member of any groups."
+msgstr "Non sei membro di alcun gruppo"
+
+#: ckanext/switzerland/templates/user/read_groups.html:27
+msgid "User isn't a member of any groups."
+msgstr ""
+
+#: ckanext/switzerland/templates/user/read_organizations.html:25
+msgid "You are not a member of any organizations."
+msgstr "Non sei membro di alcuna organizzazione"
+
+#: ckanext/switzerland/templates/user/read_organizations.html:27
+msgid "User isn't a member of any organizations."
+msgstr ""
+
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:16
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:17
 msgid "Activity from:"
@@ -641,4 +671,32 @@ msgstr ""
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:49
 msgid "You are not following anything"
 msgstr "Non stai seguendo nessun elemento"
+
+#: ckanext/switzerland/templates/user/snippets/info.html:35
+msgid "You have not provided a biography."
+msgstr "Non hai inserito una tua biografia."
+
+#: ckanext/switzerland/templates/user/snippets/info.html:37
+msgid "This user has no biography."
+msgstr "Questo utente non ha una biografia."
+
+#: ckanext/switzerland/templates/user/snippets/info.html:81
+msgid "Open ID"
+msgstr "Open ID"
+
+#: ckanext/switzerland/templates/user/snippets/info.html:84
+msgid "Username"
+msgstr "Nome utente"
+
+#: ckanext/switzerland/templates/user/snippets/info.html:90
+msgid "This information is private and visible only to you"
+msgstr ""
+
+#: ckanext/switzerland/templates/user/snippets/info.html:95
+msgid "Member Since"
+msgstr "Membro dal"
+
+#: ckanext/switzerland/templates/user/snippets/info.html:100
+msgid "Last Active"
+msgstr ""
 

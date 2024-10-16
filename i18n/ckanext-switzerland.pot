@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-switzerland 0.0.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-10 13:50+0000\n"
+"POT-Creation-Date: 2024-10-16 15:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -138,6 +138,10 @@ msgstr ""
 
 #: ckanext/switzerland/helpers.py:302
 msgid "Unnamed resource"
+msgstr ""
+
+#: ckanext/switzerland/plugin.py:136
+msgid "Keywords"
 msgstr ""
 
 #: ckanext/switzerland/validators.py:66
@@ -325,6 +329,7 @@ msgstr ""
 #: ckanext/switzerland/templates/email_exporter/email_exporter.html:12
 #: ckanext/switzerland/templates/group/snippets/info.html:29
 #: ckanext/switzerland/templates/organization/snippets/info.html:29
+#: ckanext/switzerland/templates/user/snippets/info.html:46
 msgid "Followers"
 msgstr ""
 
@@ -342,6 +347,8 @@ msgstr ""
 
 #: ckanext/switzerland/templates/group/edit_base.html:3
 #: ckanext/switzerland/templates/group/members.html:3
+#: ckanext/switzerland/templates/user/read_groups.html:17
+#: ckanext/switzerland/templates/user/snippets/info.html:58
 msgid "Groups"
 msgstr ""
 
@@ -364,6 +371,7 @@ msgstr ""
 #: ckanext/switzerland/templates/organization/snippets/info.html:33
 #: ckanext/switzerland/templates/snippets/source_item.html:42
 #: ckanext/switzerland/templates/source/read_base.html:4
+#: ckanext/switzerland/templates/user/snippets/info.html:50
 msgid "Datasets"
 msgstr ""
 
@@ -377,6 +385,8 @@ msgstr ""
 #: ckanext/switzerland/templates/organization/edit_base.html:6
 #: ckanext/switzerland/templates/package/base.html:9
 #: ckanext/switzerland/templates/source/base.html:6
+#: ckanext/switzerland/templates/user/read_organizations.html:17
+#: ckanext/switzerland/templates/user/snippets/info.html:54
 msgid "Organizations"
 msgstr ""
 
@@ -446,6 +456,7 @@ msgstr ""
 
 #: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:24
 #: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:60
+#: ckanext/switzerland/templates/user/snippets/info.html:90
 msgid "Email"
 msgstr ""
 
@@ -458,6 +469,7 @@ msgid "Visibility"
 msgstr ""
 
 #: ckanext/switzerland/templates/scheming/form_snippets/organization.html:52
+#: ckanext/switzerland/templates/user/snippets/info.html:90
 msgid "Private"
 msgstr ""
 
@@ -477,6 +489,7 @@ msgstr ""
 
 #: ckanext/switzerland/templates/scheming/form_snippets/relations.html:37
 #: ckanext/switzerland/templates/scheming/form_snippets/relations.html:78
+#: ckanext/switzerland/templates/snippets/search_form.html:17
 msgid "Remove"
 msgstr ""
 
@@ -527,6 +540,7 @@ msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
 msgstr ""
 
 #: ckanext/switzerland/templates/scheming/package/snippets/additional_info.html:33
+#: ckanext/switzerland/templates/user/snippets/info.html:105
 msgid "State"
 msgstr ""
 
@@ -544,6 +558,10 @@ msgstr ""
 
 #: ckanext/switzerland/templates/snippets/package_item.html:14
 msgid "There is no description for this dataset"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/search_form.html:22
+msgid "Filter Results"
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/source_item.html:28
@@ -621,6 +639,22 @@ msgstr ""
 msgid "Local content"
 msgstr ""
 
+#: ckanext/switzerland/templates/user/read_groups.html:25
+msgid "You are not a member of any groups."
+msgstr ""
+
+#: ckanext/switzerland/templates/user/read_groups.html:27
+msgid "User isn't a member of any groups."
+msgstr ""
+
+#: ckanext/switzerland/templates/user/read_organizations.html:25
+msgid "You are not a member of any organizations."
+msgstr ""
+
+#: ckanext/switzerland/templates/user/read_organizations.html:27
+msgid "User isn't a member of any organizations."
+msgstr ""
+
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:16
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:17
 msgid "Activity from:"
@@ -636,5 +670,33 @@ msgstr ""
 
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:49
 msgid "You are not following anything"
+msgstr ""
+
+#: ckanext/switzerland/templates/user/snippets/info.html:35
+msgid "You have not provided a biography."
+msgstr ""
+
+#: ckanext/switzerland/templates/user/snippets/info.html:37
+msgid "This user has no biography."
+msgstr ""
+
+#: ckanext/switzerland/templates/user/snippets/info.html:81
+msgid "Open ID"
+msgstr ""
+
+#: ckanext/switzerland/templates/user/snippets/info.html:84
+msgid "Username"
+msgstr ""
+
+#: ckanext/switzerland/templates/user/snippets/info.html:90
+msgid "This information is private and visible only to you"
+msgstr ""
+
+#: ckanext/switzerland/templates/user/snippets/info.html:95
+msgid "Member Since"
+msgstr ""
+
+#: ckanext/switzerland/templates/user/snippets/info.html:100
+msgid "Last Active"
 msgstr ""
 
