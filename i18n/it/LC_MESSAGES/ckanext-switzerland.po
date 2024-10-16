@@ -136,52 +136,82 @@ msgstr "Closed data"
 msgid "Unnamed resource"
 msgstr "Risorsa senza nome"
 
-#: ckanext/switzerland/plugin.py:136
+#: ckanext/switzerland/plugin.py:137
 msgid "Keywords"
 msgstr ""
 
-#: ckanext/switzerland/validators.py:66
+#: ckanext/switzerland/validators.py:70
 msgid "Failed to decode JSON string"
 msgstr "Impossibile decodificare la stringa JSON"
 
-#: ckanext/switzerland/validators.py:69
+#: ckanext/switzerland/validators.py:73
 msgid "Invalid encoding for JSON string"
 msgstr "Codifica non valida per la stringa JSON"
 
-#: ckanext/switzerland/validators.py:72
+#: ckanext/switzerland/validators.py:76
 msgid "expecting JSON list"
 msgstr "attesa lista JSON"
 
-#: ckanext/switzerland/validators.py:102
+#: ckanext/switzerland/validators.py:106
 msgid "Invalid form data"
 msgstr "Data modulo non valida"
 
-#: ckanext/switzerland/validators.py:107 ckanext/switzerland/validators.py:124
+#: ckanext/switzerland/validators.py:111 ckanext/switzerland/validators.py:128
 msgid "This field is required"
 msgstr "Questo è un campo richiesto"
 
-#: ckanext/switzerland/validators.py:116
+#: ckanext/switzerland/validators.py:120
 msgid "Invalid date"
 msgstr "Data non valida"
 
-#: ckanext/switzerland/validators.py:166 ckanext/switzerland/validators.py:230
-#: ckanext/switzerland/validators.py:279
+#: ckanext/switzerland/validators.py:170 ckanext/switzerland/validators.py:234
+#: ckanext/switzerland/validators.py:283
 #, python-format
 msgid "Expecting list of strings, got \"%s\""
 msgstr "Il tipo di dato atteso è un elenco di stringhe, il dato immesso è \"%s\""
 
-#: ckanext/switzerland/validators.py:290
+#: ckanext/switzerland/validators.py:294
 #, python-format
 msgid "unexpected choice \"%s\""
 msgstr "selezione inattesa \"%s\""
 
-#: ckanext/switzerland/validators.py:310
+#: ckanext/switzerland/validators.py:314
 msgid "Identifier is already in use, it must be unique."
 msgstr "Identificatore già in uso. Inserirne uno univoco."
 
-#: ckanext/switzerland/validators.py:325
+#: ckanext/switzerland/validators.py:329
 msgid "Invalid URL"
 msgstr ""
+
+#: ckanext/switzerland/validators.py:383
+msgid "Names must be strings"
+msgstr "I nomi devono essere stringhe"
+
+#: ckanext/switzerland/validators.py:387
+msgid "That name cannot be used"
+msgstr "Questo nome non può essere usato"
+
+#: ckanext/switzerland/validators.py:390
+#, python-format
+msgid "Must be at least %s characters long"
+msgstr "La lunghezza dev'essere di almeno %s caratteri"
+
+#: ckanext/switzerland/validators.py:393
+#, python-format
+msgid "Name must be a maximum of %i characters long"
+msgstr "Il nome deve contenere un numero massimo di %i caratteri"
+
+#: ckanext/switzerland/validators.py:398
+msgid "Must be purely alphanumeric (ascii) characters and these symbols: -_@"
+msgstr ""
+
+#: ckanext/switzerland/validators.py:406
+msgid ""
+"Must be purely lowercase alphanumeric (ascii) characters and these "
+"symbols: -_"
+msgstr ""
+"Deve consistere solamente di caratteri (base) minuscoli e questi simboli:"
+" -_"
 
 #: ckanext/switzerland/templates/footer.html:4
 msgid "Rules of the game"
