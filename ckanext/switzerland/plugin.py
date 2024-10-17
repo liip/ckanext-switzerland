@@ -23,6 +23,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.ITranslation)
     plugins.implements(plugins.IBlueprint, inherit=True)
+    plugins.implements(plugins.IFacets)
 
     # IConfigurer
 
@@ -46,6 +47,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "json_list_of_dicts_field": v.json_list_of_dicts_field,
             "parse_json": sh.parse_json,
             "url": v.url_validator,
+            "name_validator": v.ogdch_name_validator,
         }
 
     # IActions
@@ -82,11 +84,9 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "get_dataset_terms_of_use": sh.get_dataset_terms_of_use,
             "get_dataset_by_identifier": sh.get_dataset_by_identifier,
             "get_readable_file_size": sh.get_readable_file_size,
-            "get_matomo_config": sh.get_matomo_config,
             "parse_json": sh.parse_json,
             "convert_post_data_to_dict": sh.convert_post_data_to_dict,
             "resource_filename": sh.resource_filename,
-            "load_wordpress_templates": sh.load_wordpress_templates,
             "render_description": sh.render_description,
             "get_resource_display_items": sh.get_resource_display_items,
             "convert_datetimes_for_api": sh.convert_datetimes_for_api,
@@ -127,6 +127,27 @@ class OgdchPlugin(plugins.SingletonPlugin):
     def get_blueprint(self):
         return [ogdch_admin, ogdch_dataset]
 
+    # IFacets
+
+    def _update_facets(self, facets_dict):
+        """Remove the Tags facet (which we don't use) and add a Keywords facet in the
+        language of the current request.
+        """
+        lang_code = sh.get_request_language()
+        facets_dict["keywords_" + lang_code] = toolkit._("Keywords")
+        del facets_dict["tags"]
+
+        return facets_dict
+
+    def dataset_facets(self, facets_dict, package_type):
+        return self._update_facets(facets_dict)
+
+    def group_facets(self, facets_dict, group_type, package_type):
+        return self._update_facets(facets_dict)
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        return self._update_facets(facets_dict)
+
 
 # monkey patch template helpers to return translated names/titles
 h.dataset_display_name = sh.dataset_display_name
@@ -142,12 +163,12 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
     """
 
     def before_view(self, pkg_dict):
-        return self._prepare_package_json(pkg_dict)
+        return self._prepare_group_or_org_json(pkg_dict)
 
     def _ignore_field(self, key):
         return False
 
-    def _prepare_package_json(self, pkg_dict):
+    def _prepare_group_or_org_json(self, pkg_dict):
         # parse all json strings in dict
         pkg_dict = self._package_parse_json_strings(pkg_dict)
 
@@ -161,18 +182,21 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
             return pkg_dict
 
         # replace langauge dicts with requested language strings
-        desired_lang_code = self._get_request_language()
+        desired_lang_code = sh.get_request_language()
         pkg_dict = self._package_reduce_to_requested_language(
             pkg_dict, desired_lang_code
         )
 
         return pkg_dict
 
-    def _get_request_language(self):
-        try:
-            return toolkit.request.environ["CKAN_LANG"]
-        except TypeError:
-            return toolkit.config.get("ckan.locale_default", "en")
+    def _prepare_package_json(self, pkg_dict):
+        # parse all json strings in dict
+        pkg_dict = self._package_parse_json_strings(pkg_dict)
+
+        # map ckan fields
+        pkg_dict = self._package_map_ckan_default_fields(pkg_dict)
+
+        return pkg_dict
 
     def _package_parse_json_strings(self, pkg_dict):
         # try to parse all values as JSON
@@ -197,15 +221,16 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
     def _package_map_ckan_default_fields(self, pkg_dict):
         if "title" in pkg_dict:
             pkg_dict["display_name"] = pkg_dict["title"]
-        if "contact_points" in pkg_dict and pkg_dict["contact_points"] is not None:
-            if pkg_dict["maintainer"] is None:
-                pkg_dict["maintainer"] = pkg_dict["contact_points"][0]["name"]
 
-            if pkg_dict["maintainer_email"] is None:
-                pkg_dict["maintainer_email"] = pkg_dict["contact_points"][0]["email"]
-        if "publishers" in pkg_dict and pkg_dict["publishers"] is not None:
-            if pkg_dict["author"] is None:
-                pkg_dict["author"] = pkg_dict["publishers"][0]["label"]
+        if pkg_dict.get("maintainer") is None and pkg_dict.get("contact_points"):
+            pkg_dict["maintainer"] = pkg_dict["contact_points"][0]["name"]
+        if pkg_dict.get("maintainer_email") is None and pkg_dict.get("contact_points"):
+            pkg_dict["maintainer_email"] = pkg_dict["contact_points"][0]["email"]
+
+        if pkg_dict.get("author") is None and pkg_dict.get("publishers"):
+            pkg_dict["author"] = pkg_dict["publishers"][0]["label"]
+        if "notes" in pkg_dict:
+            del pkg_dict["notes"]
 
         if "resources" in pkg_dict and pkg_dict["resources"] is not None:
             for resource in pkg_dict["resources"]:
@@ -328,7 +353,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
 
-        return super(OgdchPackagePlugin, self).before_view(pkg_dict)
+        return self._prepare_package_json(pkg_dict)
 
     def after_dataset_show(self, context, pkg_dict):
         if not self.is_supported_package_type(pkg_dict):

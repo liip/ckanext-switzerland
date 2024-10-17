@@ -18,35 +18,38 @@
 
 {% block resource_item_explore_links %}
 {% block explore_view %}
-<li>
+  <li>
     <a class="dropdown-item" href="{{ url }}">
-        {% if res.has_views %}
+      {% if res.has_views %}
         <i class="fa fa-chart-bar"></i>
         {{ _('Preview') }}
-        {% else %}
+      {% else %}
         <i class="fa fa-info-circle"></i>
         {{ _('More information') }}
-        {% endif %}
+      {% endif %}
     </a>
-</li>
+  </li>
 {% endblock explore_view %}
 
 {% if res.url and h.is_url(res.url) %}
 <li>
-    <a class="dropdown-item resource-url-analytics" href="{{ res.url }}" download="{{res.name}}" rel="noreferrer">
-        {% if res.has_views or res.url_type == 'upload' %}
-        <i class="fa fa-arrow-circle-down"></i>
-        {{ _('Download') }}
-        {% else %}
-        <i class="fa fa-external-link"></i>
-        {{ _('Go to resource') }}
-        {% endif %}
-    </a>
+<a class="dropdown-item resource-url-analytics" href="{{ res.url }}" download="{{res.name}}" rel="noreferrer">
+  {% if res.has_views or res.url_type == 'upload' %}
+    <i class="fa fa-arrow-circle-down"></i>
+    {{ _('Download') }}
+  {% else %}
+    <i class="fa fa-external-link"></i>
+    {{ _('Go to resource') }}
+  {% endif %}
+</a>
 </li>
 {% endif %}
 {% if can_edit %}
-<li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='pencil' %}</li>
-{% block resource_item_explore_inner scoped %}{% endblock %}
-<li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='chart-bar' %}</li>
+<li>
+<a class="dropdown-item" href="{{ h.url_for(pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id) }}">
+  <i class="fa fa-pencil-square"></i>
+  {{ _('Edit') }}
+</a>
+</li>
 {% endif %}
 {% endblock %}

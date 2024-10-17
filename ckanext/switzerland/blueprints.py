@@ -127,7 +127,7 @@ def resource_download(
         resp = flask.send_file(
             filepath,
             as_attachment=True,
-            attachment_filename=filename,
+            download_name=filename,
             mimetype=rsc.get("mimetype"),
         )
 
@@ -185,10 +185,6 @@ def dataset_permalink(id):
     return redirect(dataset["permalink"])
 
 
-def search():
-    return render("search/search.html")
-
-
 ogdch_admin.add_url_rule("/email_exporter", view_func=email_address_exporter)
 
 ogdch_dataset.add_url_rule(
@@ -201,5 +197,3 @@ ogdch_dataset.add_url_rule(
     "/<id>/resource_permalink/<filename>", view_func=resource_permalink
 )
 ogdch_dataset.add_url_rule("/<id>/permalink", view_func=dataset_permalink)
-
-ogdch_resource.add_url_rule("/search", view_func=search)
