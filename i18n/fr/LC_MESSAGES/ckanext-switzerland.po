@@ -1,20 +1,14 @@
 # #-#-#-#-#  ckanext-switzerland.po (CKAN)  #-#-#-#-#
-# #-#-#-#-#  ckanext-switzerland.po  #-#-#-#-#
-# This file was generated from translations/ckan_fr.xlsx
-# #-#-#-#-#  ckan.po (CKAN)  #-#-#-#-#
-# French translations for ckan.
-# Copyright (C) 2015 ORGANIZATION
-# This file is distributed under the same license as the ckan project.
 msgid ""
 msgstr ""
 "Project-Id-Version:  CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-10 13:50+0000\n"
-"PO-Revision-Date: 2020-04-15 15:46+0200\n"
-"Last-Translator: Adrian Schlegel <adrian.schlegel@liip.ch>\n"
+"POT-Creation-Date: 2024-10-16 15:13+0000\n"
+"PO-Revision-Date: 2024-10-16 15:13+0000\n"
+"Last-Translator: Rae Knowler <rae.knowler@liip.ch>\n"
 "Language: fr\n"
-"Language-Team: French (http://www.transifex.com/okfn/ckan/language/fr/)\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language-Team: Liip <ogdch@liip.ch>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -142,48 +136,84 @@ msgstr "Closed data"
 msgid "Unnamed resource"
 msgstr "Ressource sans nom"
 
-#: ckanext/switzerland/validators.py:66
+#: ckanext/switzerland/plugin.py:137
+msgid "Keywords"
+msgstr ""
+
+#: ckanext/switzerland/validators.py:70
 msgid "Failed to decode JSON string"
 msgstr "Échec du décodage de JSON string"
 
-#: ckanext/switzerland/validators.py:69
+#: ckanext/switzerland/validators.py:73
 msgid "Invalid encoding for JSON string"
 msgstr "Encodage invalide pour JSON string"
 
-#: ckanext/switzerland/validators.py:72
+#: ckanext/switzerland/validators.py:76
 msgid "expecting JSON list"
 msgstr "Attente liste JSON"
 
-#: ckanext/switzerland/validators.py:102
+#: ckanext/switzerland/validators.py:106
 msgid "Invalid form data"
 msgstr "Format de données invalide"
 
-#: ckanext/switzerland/validators.py:107 ckanext/switzerland/validators.py:124
+#: ckanext/switzerland/validators.py:111 ckanext/switzerland/validators.py:128
 msgid "This field is required"
 msgstr "Ce champ est requis"
 
-#: ckanext/switzerland/validators.py:116
+#: ckanext/switzerland/validators.py:120
 msgid "Invalid date"
 msgstr "Date invalide"
 
-#: ckanext/switzerland/validators.py:166 ckanext/switzerland/validators.py:230
-#: ckanext/switzerland/validators.py:279
+#: ckanext/switzerland/validators.py:170 ckanext/switzerland/validators.py:234
+#: ckanext/switzerland/validators.py:283
 #, python-format
 msgid "Expecting list of strings, got \"%s\""
 msgstr "Veuillez saisir une chaîne de caractères, vous avez indiqué \"%s\""
 
-#: ckanext/switzerland/validators.py:290
+#: ckanext/switzerland/validators.py:294
 #, python-format
 msgid "unexpected choice \"%s\""
 msgstr "Choix inattendu \"%s\""
 
-#: ckanext/switzerland/validators.py:310
+#: ckanext/switzerland/validators.py:314
 msgid "Identifier is already in use, it must be unique."
 msgstr "L'identifiant est déjà utilisé, or il doit être unique."
 
-#: ckanext/switzerland/validators.py:325
+#: ckanext/switzerland/validators.py:329
 msgid "Invalid URL"
 msgstr ""
+
+#: ckanext/switzerland/validators.py:383
+msgid "Names must be strings"
+msgstr "Les noms doivent être des chaînes de caractères"
+
+#: ckanext/switzerland/validators.py:387
+msgid "That name cannot be used"
+msgstr "Ce nom ne peut pas être utilisé"
+
+#: ckanext/switzerland/validators.py:390
+#, python-format
+msgid "Must be at least %s characters long"
+msgstr "Doit contenir au moins %s caractères"
+
+#: ckanext/switzerland/validators.py:393
+#, python-format
+msgid "Name must be a maximum of %i characters long"
+msgstr "Le nom doit être d'une longueur inférieur à %i caractères"
+
+#: ckanext/switzerland/validators.py:398
+msgid "Must be purely alphanumeric (ascii) characters and these symbols: -_@"
+msgstr ""
+"Doit contenir uniquement des caractères alphanumériques "
+"(ascii) et ces symboles : -_@"
+
+#: ckanext/switzerland/validators.py:406
+msgid ""
+"Must be purely lowercase alphanumeric (ascii) characters and these "
+"symbols: -_"
+msgstr ""
+"Doit contenir uniquement des caractères alphanumériques en minuscules "
+"(ascii) et ces symboles : -_"
 
 #: ckanext/switzerland/templates/footer.html:4
 msgid "Rules of the game"
@@ -243,7 +273,7 @@ msgstr "Paramètres des cookies"
 
 #: ckanext/switzerland/templates/footer.html:12
 msgid "About"
-msgstr ""
+msgstr "À propos"
 
 #: ckanext/switzerland/templates/footer.html:13
 msgid "en/impressum-2"
@@ -286,14 +316,16 @@ msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
+"<strong>Généré par</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 
 #: ckanext/switzerland/templates/footer.html:28
 msgid "CKAN API"
-msgstr ""
+msgstr "API CKAN"
 
 #: ckanext/switzerland/templates/footer.html:29
 msgid "CKAN Association"
-msgstr ""
+msgstr "Association CKAN"
 
 #: ckanext/switzerland/templates/header.html:5
 msgid "Harvester"
@@ -329,6 +361,7 @@ msgstr "Tous les utilisateurs"
 #: ckanext/switzerland/templates/email_exporter/email_exporter.html:12
 #: ckanext/switzerland/templates/group/snippets/info.html:29
 #: ckanext/switzerland/templates/organization/snippets/info.html:29
+#: ckanext/switzerland/templates/user/snippets/info.html:46
 msgid "Followers"
 msgstr "Abonnés"
 
@@ -346,6 +379,8 @@ msgstr "Éditer"
 
 #: ckanext/switzerland/templates/group/edit_base.html:3
 #: ckanext/switzerland/templates/group/members.html:3
+#: ckanext/switzerland/templates/user/read_groups.html:17
+#: ckanext/switzerland/templates/user/snippets/info.html:58
 msgid "Groups"
 msgstr "Groupes"
 
@@ -368,6 +403,7 @@ msgstr "lire plus"
 #: ckanext/switzerland/templates/organization/snippets/info.html:33
 #: ckanext/switzerland/templates/snippets/source_item.html:42
 #: ckanext/switzerland/templates/source/read_base.html:4
+#: ckanext/switzerland/templates/user/snippets/info.html:50
 msgid "Datasets"
 msgstr "Jeux de données"
 
@@ -381,6 +417,8 @@ msgstr "Éditer"
 #: ckanext/switzerland/templates/organization/edit_base.html:6
 #: ckanext/switzerland/templates/package/base.html:9
 #: ckanext/switzerland/templates/source/base.html:6
+#: ckanext/switzerland/templates/user/read_organizations.html:17
+#: ckanext/switzerland/templates/user/snippets/info.html:54
 msgid "Organizations"
 msgstr "Organisations"
 
@@ -394,7 +432,7 @@ msgstr "Il n'y a pas de description pour cette organisation"
 
 #: ckanext/switzerland/templates/package/base.html:17
 msgid "Create Dataset"
-msgstr ""
+msgstr "Créer le jeu de données"
 
 #: ckanext/switzerland/templates/package/resource_history.html:10
 #, python-format
@@ -450,6 +488,7 @@ msgstr "Titre"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:24
 #: ckanext/switzerland/templates/scheming/form_snippets/contact_points.html:60
+#: ckanext/switzerland/templates/user/snippets/info.html:90
 msgid "Email"
 msgstr "e-mail"
 
@@ -462,6 +501,7 @@ msgid "Visibility"
 msgstr "Visibilité"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/organization.html:52
+#: ckanext/switzerland/templates/user/snippets/info.html:90
 msgid "Private"
 msgstr "Privée"
 
@@ -481,6 +521,7 @@ msgstr "URL"
 
 #: ckanext/switzerland/templates/scheming/form_snippets/relations.html:37
 #: ckanext/switzerland/templates/scheming/form_snippets/relations.html:78
+#: ckanext/switzerland/templates/snippets/search_form.html:17
 msgid "Remove"
 msgstr "Supprimer"
 
@@ -531,6 +572,7 @@ msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
 msgstr "Source: <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckanext/switzerland/templates/scheming/package/snippets/additional_info.html:33
+#: ckanext/switzerland/templates/user/snippets/info.html:105
 msgid "State"
 msgstr "État"
 
@@ -549,6 +591,10 @@ msgstr "Il n'y a pas de {facet_type} qui corresponde à cette recherche"
 #: ckanext/switzerland/templates/snippets/package_item.html:14
 msgid "There is no description for this dataset"
 msgstr ""
+
+#: ckanext/switzerland/templates/snippets/search_form.html:22
+msgid "Filter Results"
+msgstr "Filtrer les resultats"
 
 #: ckanext/switzerland/templates/snippets/source_item.html:28
 msgid "Draft"
@@ -625,6 +671,22 @@ msgstr ""
 msgid "Local content"
 msgstr ""
 
+#: ckanext/switzerland/templates/user/read_groups.html:25
+msgid "You are not a member of any groups."
+msgstr "Vous n'êtes membre d'aucun groupe."
+
+#: ckanext/switzerland/templates/user/read_groups.html:27
+msgid "User isn't a member of any groups."
+msgstr ""
+
+#: ckanext/switzerland/templates/user/read_organizations.html:25
+msgid "You are not a member of any organizations."
+msgstr "Vous n'êtes membre d'aucune organisation."
+
+#: ckanext/switzerland/templates/user/read_organizations.html:27
+msgid "User isn't a member of any organizations."
+msgstr ""
+
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:16
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:17
 msgid "Activity from:"
@@ -641,4 +703,32 @@ msgstr ""
 #: ckanext/switzerland/templates/user/snippets/followee_dropdown.html:49
 msgid "You are not following anything"
 msgstr "Vous ne suivez rien"
+
+#: ckanext/switzerland/templates/user/snippets/info.html:35
+msgid "You have not provided a biography."
+msgstr "Vous n'avez pas fourni de biographie."
+
+#: ckanext/switzerland/templates/user/snippets/info.html:37
+msgid "This user has no biography."
+msgstr "Il n'y a pas de biographie pour cet utilisateur."
+
+#: ckanext/switzerland/templates/user/snippets/info.html:81
+msgid "Open ID"
+msgstr "Open ID"
+
+#: ckanext/switzerland/templates/user/snippets/info.html:84
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#: ckanext/switzerland/templates/user/snippets/info.html:90
+msgid "This information is private and visible only to you"
+msgstr ""
+
+#: ckanext/switzerland/templates/user/snippets/info.html:95
+msgid "Member Since"
+msgstr "Membre Depuis"
+
+#: ckanext/switzerland/templates/user/snippets/info.html:100
+msgid "Last Active"
+msgstr ""
 

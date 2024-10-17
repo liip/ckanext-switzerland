@@ -218,6 +218,7 @@ for CKAN](https://github.com/ckan/ckan-docker/).
 3. *Optional* If you have copied templates from core CKAN to override them, you might want to copy the translations
 from CKAN too:
    ```shell
+   apt-get install gettext
    msgcat i18n/de/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/de/LC_MESSAGES/ckan.po > temp_de.po
    cp temp_de.po i18n/de/LC_MESSAGES/ckanext-switzerland.po
    msgcat i18n/fr/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/fr/LC_MESSAGES/ckan.po > temp_fr.po
