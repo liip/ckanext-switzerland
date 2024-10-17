@@ -5,14 +5,18 @@ import re
 from collections import defaultdict
 
 import ckan.lib.navl.dictization_functions as df
+from ckan.common import asbool
 from ckan.lib.munge import munge_tag
 from ckan.logic import NotFound, get_action
+from ckan.model import PACKAGE_NAME_MAX_LENGTH
 from ckan.plugins.toolkit import _, missing
 
 from ckanext.scheming.validation import scheming_validator
 from ckanext.switzerland.helpers import parse_json
 
 log = logging.getLogger(__name__)
+name_match = re.compile(r"[a-z0-9_\-]*$")
+user_name_match = re.compile(r"[a-zA-Z0-9_\-@ ]*$")
 
 
 @scheming_validator
@@ -360,3 +364,49 @@ def ogdch_fluent_tags(field, schema):
         data[key] = json.dumps(new_value)
 
     return validator
+
+
+def ogdch_name_validator(value, context):
+    """Overridden version of ckan.logic.validators.name_validator that allows
+    usernames to contain uppercase letters, spaces and the @ symbol.
+
+    This is needed because we have a large number of user accounts that were originally
+    created in WordPress (which has different requirements for usernames) and copied
+    across to CKAN. Now we don't sync users between WP and CKAN, we need to be able to
+    update those users in the CKAN GUI without running into validation errors.
+    """
+    # Check if we're validating a username for an existing user: we don't want to allow
+    # uppercase letters for any other kind of name.
+    existing_username = asbool(context.get("user_obj"))
+
+    if not isinstance(value, str):
+        raise df.Invalid(_("Names must be strings"))
+
+    # check basic textual rules
+    if value in ["new", "edit", "search"]:
+        raise df.Invalid(_("That name cannot be used"))
+
+    if len(value) < 2:
+        raise df.Invalid(_("Must be at least %s characters long") % 2)
+    if len(value) > PACKAGE_NAME_MAX_LENGTH:
+        raise df.Invalid(
+            _("Name must be a maximum of %i characters long") % PACKAGE_NAME_MAX_LENGTH
+        )
+    if existing_username:
+        if not user_name_match.match(value):
+            raise df.Invalid(
+                _(
+                    "Must be purely alphanumeric "
+                    "(ascii) characters and these symbols: -_@"
+                )
+            )
+    else:
+        if not name_match.match(value):
+            raise df.Invalid(
+                _(
+                    "Must be purely lowercase alphanumeric "
+                    "(ascii) characters and these symbols: -_"
+                )
+            )
+
+    return value

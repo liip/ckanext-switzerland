@@ -47,6 +47,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "json_list_of_dicts_field": v.json_list_of_dicts_field,
             "parse_json": sh.parse_json,
             "url": v.url_validator,
+            "name_validator": v.ogdch_name_validator,
         }
 
     # IActions
