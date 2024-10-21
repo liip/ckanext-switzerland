@@ -427,8 +427,11 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         # treat current lang differenly so remove from set
         lang_set.remove(current_lang)
 
+        # add default query field(s)
+        query_fields = "text"
+
         # weight current lang more highly
-        query_fields = "title_%s^8 text_%s^4" % (current_lang, current_lang)
+        query_fields += " title_%s^8 text_%s^4" % (current_lang, current_lang)
 
         for lang in lang_set:
             query_fields += " title_%s^2 text_%s" % (lang, lang)
