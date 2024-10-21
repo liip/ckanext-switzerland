@@ -427,26 +427,16 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         # treat current lang differenly so remove from set
         lang_set.remove(current_lang)
 
+        # add default query field(s)
+        query_fields = "text"
+
         # weight current lang more highly
-        query_fields = "title_%s^8 text_%s^4" % (current_lang, current_lang)
+        query_fields += " title_%s^8 text_%s^4" % (current_lang, current_lang)
 
         for lang in lang_set:
             query_fields += " title_%s^2 text_%s" % (lang, lang)
 
         search_params["qf"] = query_fields + " res_name res_description"
-
-        """
-        Unless the query is already being filtered by any type
-        (either positively, or negatively), reduce to only display
-        'dataset' type
-        This is done because by standard all types are displayed, this
-        leads to strange situations where e.g. harvest sources are shown
-        on organization pages.
-        TODO: fix issue https://github.com/ckan/ckan/issues/2803 in CKAN core
-        """
-        fq = search_params.get("fq", "")
-        if "dataset_type:" not in fq:
-            search_params.update({"fq": "%s +dataset_type:dataset" % fq})
 
         return search_params
 
