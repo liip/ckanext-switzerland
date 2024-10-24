@@ -280,15 +280,6 @@ class OgdchOrganizationPlugin(OgdchLanguagePlugin):
         return super(OgdchOrganizationPlugin, self).before_view(pkg_dict)
 
 
-class OgdchResourcePlugin(OgdchLanguagePlugin):
-    plugins.implements(plugins.IResourceController, inherit=True)
-
-    # IResourceController
-
-    def _ignore_field(self, key):
-        return key == "tracking_summary"
-
-
 class OgdchPackagePlugin(OgdchLanguagePlugin):
     plugins.implements(plugins.IPackageController, inherit=True)
 
