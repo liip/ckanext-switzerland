@@ -1,0 +1,14 @@
+{% extends "package/read.html" %}
+
+{%- set schema = h.scheming_get_dataset_schema(dataset_type) -%}
+
+{% block package_notes %}
+  <div class="notes embedded-content">
+    {{ h.render_markdown(h.parse_and_localize(pkg.description)) }}
+  </div>
+{% endblock %}
+
+{% block package_additional_info %}
+  {% snippet "scheming/package/snippets/additional_info.html",
+    pkg_dict=pkg, dataset_type=dataset_type, schema=schema %}
+{% endblock %}

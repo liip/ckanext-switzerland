@@ -33,10 +33,17 @@
         "fr": "Description",
         "it": "Descrizione"
       },
-      "preset": "multilingual_text"
+      "preset": "multilingual_text",
+      "form_snippet": "multilingual_textarea.html"
     },
     {
       "field_name": "display_name",
+      "label": {
+        "en": "Name",
+        "de": "Name",
+        "fr": "Nom",
+        "it": "Nome"
+      },
       "preset": "multilingual_text",
       "form_snippet": null,
       "display_snippet": null
@@ -49,9 +56,7 @@
         "fr": "URL d'image",
         "it": "URL d'immagine"
       },
-      "form_placeholder": "http://example.com/my-image.jpg",
-      "form_snippet": "image_upload.html",
-      "url_field": "url"
+      "preset": "organization_image_upload"
     }
   ]
 }
