@@ -16,6 +16,7 @@ from ckan.lib import signals
 from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.types import Context, Response
+from ckan.views.dataset import search
 from flask import Blueprint, make_response
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 
@@ -38,6 +39,7 @@ lookup_package_plugin = lookup_package_plugin
 
 ogdch_admin = Blueprint("ogdch_admin", __name__, url_prefix="/ckan-admin")
 ogdch_dataset = Blueprint("ogdch_dataset", __name__, url_prefix="/dataset")
+ogdch_home = Blueprint("ogdch_home", __name__, url_defaults={"package_type": "dataset"})
 
 
 def email_address_exporter():
@@ -196,3 +198,5 @@ ogdch_dataset.add_url_rule(
     "/<id>/resource_permalink/<filename>", view_func=resource_permalink
 )
 ogdch_dataset.add_url_rule("/<id>/permalink", view_func=dataset_permalink)
+
+ogdch_home.add_url_rule("/", view_func=search, strict_slashes=False)
