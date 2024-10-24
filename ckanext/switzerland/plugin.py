@@ -261,51 +261,6 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
             if not self._ignore_field(key):
                 pkg_dict[key] = self._extract_lang_value(value, desired_lang_code)
 
-        # groups
-        pkg_dict = self._reduce_group_language(pkg_dict, desired_lang_code)
-
-        # organization
-        pkg_dict = self._reduce_org_language(pkg_dict, desired_lang_code)
-
-        # resources
-        pkg_dict = self._reduce_res_language(pkg_dict, desired_lang_code)
-
-        return pkg_dict
-
-    def _reduce_group_language(self, pkg_dict, desired_lang_code):
-        if "groups" in pkg_dict and pkg_dict["groups"] is not None:
-            try:
-                for element in pkg_dict["groups"]:
-                    for field in element:
-                        element[field] = self._extract_lang_value(
-                            element[field], desired_lang_code
-                        )
-            except TypeError:
-                pass
-
-        return pkg_dict
-
-    def _reduce_org_language(self, pkg_dict, desired_lang_code):
-        if "organization" in pkg_dict and pkg_dict["organization"] is not None:
-            try:
-                for field in pkg_dict["organization"]:
-                    pkg_dict["organization"][field] = self._extract_lang_value(
-                        pkg_dict["organization"][field], desired_lang_code
-                    )
-            except TypeError:
-                pass
-        return pkg_dict
-
-    def _reduce_res_language(self, pkg_dict, desired_lang_code):
-        if "resources" in pkg_dict and pkg_dict["resources"] is not None:
-            try:
-                for element in pkg_dict["resources"]:
-                    for field in element:
-                        element[field] = self._extract_lang_value(
-                            element[field], desired_lang_code
-                        )
-            except TypeError:
-                pass
         return pkg_dict
 
 
