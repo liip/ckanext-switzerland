@@ -11,7 +11,7 @@ import ckan.plugins.toolkit as toolkit
 import ckanext.switzerland.helpers as sh
 from ckanext.switzerland import logic as l
 from ckanext.switzerland import validators as v
-from ckanext.switzerland.blueprints import ogdch_admin, ogdch_dataset, ogdch_resource
+from ckanext.switzerland.blueprints import ogdch_admin, ogdch_dataset
 
 log = logging.getLogger(__name__)
 
@@ -317,17 +317,11 @@ class OgdchOrganizationPlugin(OgdchLanguagePlugin):
 
 class OgdchResourcePlugin(OgdchLanguagePlugin):
     plugins.implements(plugins.IResourceController, inherit=True)
-    plugins.implements(plugins.IBlueprint, inherit=True)
 
     # IResourceController
 
     def _ignore_field(self, key):
         return key == "tracking_summary"
-
-    # IBlueprint
-
-    def get_blueprint(self):
-        return ogdch_resource
 
 
 class OgdchPackagePlugin(OgdchLanguagePlugin):
