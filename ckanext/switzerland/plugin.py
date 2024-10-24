@@ -168,55 +168,57 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
     def _ignore_field(self, key):
         return False
 
-    def _prepare_group_or_org_json(self, pkg_dict):
+    def _prepare_group_or_org_json(self, group_or_org_dict):
         # parse all json strings in dict
-        pkg_dict = self._package_parse_json_strings(pkg_dict)
+        group_or_org_dict = self._parse_json_strings(group_or_org_dict)
 
         # map ckan fields
-        pkg_dict = self._package_map_ckan_default_fields(pkg_dict)
+        group_or_org_dict = self._group_or_org_map_ckan_default_fields(
+            group_or_org_dict
+        )
 
-        # Do not change the resulting dict for API requests and form saves
-        # _package_reduce_to_requested_language removes all translation dicts needed
+        # Do not change the resulting dict for API requests and form saves.
+        # _reduce_to_requested_language removes all translation dicts needed
         # to show the form on resource_edit, so we skip it here
         if sh.request_is_api_request() or toolkit.request.method == "POST":
-            return pkg_dict
+            return group_or_org_dict
 
         # replace langauge dicts with requested language strings
         desired_lang_code = sh.get_request_language()
-        pkg_dict = self._package_reduce_to_requested_language(
-            pkg_dict, desired_lang_code
+        group_or_org_dict = self._reduce_to_requested_language(
+            group_or_org_dict, desired_lang_code
         )
 
-        return pkg_dict
+        return group_or_org_dict
 
     def _prepare_package_json(self, pkg_dict):
         # parse all json strings in dict
-        pkg_dict = self._package_parse_json_strings(pkg_dict)
+        pkg_dict = self._parse_json_strings(pkg_dict)
 
         # map ckan fields
         pkg_dict = self._package_map_ckan_default_fields(pkg_dict)
 
         return pkg_dict
 
-    def _package_parse_json_strings(self, pkg_dict):
+    def _parse_json_strings(self, data_dict):
         # try to parse all values as JSON
-        for key, value in list(pkg_dict.items()):
-            pkg_dict[key] = sh.parse_json(value)
+        for key, value in list(data_dict.items()):
+            data_dict[key] = sh.parse_json(value)
 
         # groups
-        if "groups" in pkg_dict and pkg_dict["groups"] is not None:
-            for group in pkg_dict["groups"]:
+        if "groups" in data_dict and data_dict["groups"] is not None:
+            for group in data_dict["groups"]:
                 for field in group:
                     group[field] = sh.parse_json(group[field])
 
         # organization
-        if "organization" in pkg_dict and pkg_dict["organization"] is not None:
-            for field in pkg_dict["organization"]:
-                pkg_dict["organization"][field] = sh.parse_json(
-                    pkg_dict["organization"][field]
+        if "organization" in data_dict and data_dict["organization"] is not None:
+            for field in data_dict["organization"]:
+                data_dict["organization"][field] = sh.parse_json(
+                    data_dict["organization"][field]
                 )
 
-        return pkg_dict
+        return data_dict
 
     def _package_map_ckan_default_fields(self, pkg_dict):
         if "title" in pkg_dict:
@@ -238,6 +240,14 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
                     resource["name"] = resource["title"]
         return pkg_dict
 
+    def _group_or_org_map_ckan_default_fields(self, group_or_org_dict):
+        if "title" in group_or_org_dict:
+            group_or_org_dict["display_name"] = group_or_org_dict["title"]
+        if "notes" in group_or_org_dict:
+            del group_or_org_dict["notes"]
+
+        return group_or_org_dict
+
     def _extract_lang_value(self, value, lang_code):
         new_value = sh.parse_json(value)
 
@@ -245,7 +255,7 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
             return sh.get_localized_value(new_value, lang_code, default_value="")
         return value
 
-    def _package_reduce_to_requested_language(self, pkg_dict, desired_lang_code):
+    def _reduce_to_requested_language(self, pkg_dict, desired_lang_code):
         # pkg fields
         for key, value in list(pkg_dict.items()):
             if not self._ignore_field(key):
