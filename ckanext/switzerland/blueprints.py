@@ -38,7 +38,6 @@ lookup_package_plugin = lookup_package_plugin
 
 ogdch_admin = Blueprint("ogdch_admin", __name__, url_prefix="/ckan-admin")
 ogdch_dataset = Blueprint("ogdch_dataset", __name__, url_prefix="/dataset")
-ogdch_resource = Blueprint("ogdch_resource", __name__)
 
 
 def email_address_exporter():
