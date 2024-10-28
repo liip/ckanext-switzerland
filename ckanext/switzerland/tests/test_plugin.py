@@ -132,3 +132,8 @@ class TestOgdchPackagePlugin(object):
         # modified date should be in UTC
         modified = soup.find("th", text="Modified date").findNext("td").find("span")
         assert modified["data-datetime"] == "2022-04-18T12:30:00+0000"
+
+    def test_get_correct_url_for_ogdch_home_search_rule(self, app):
+        url = url_for("ogdch_home.search")
+
+        assert url == "/"
