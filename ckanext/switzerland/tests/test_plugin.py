@@ -137,3 +137,13 @@ class TestOgdchPackagePlugin(object):
         url = url_for("ogdch_home.search")
 
         assert url == "/"
+
+    def test_get_dataset_search_page_for_home_url(self, app):
+        self._set_up_responses()
+        self._create_dataset()
+
+        resp = app.get("/")
+        soup = BeautifulSoup(resp.body, "html.parser")
+
+        assert soup.find("li", class_="active").text == "Datensätze"
+        assert "1 Datensatz gefunden" in soup.find("h1").text
