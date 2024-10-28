@@ -61,23 +61,6 @@ class TestOgdchPackagePlugin(object):
 
         Add a passthru for every url prefix we don't want to mock (e.g. solr).
         """
-        responses.add(
-            responses.GET,
-            "http://wp.test?action=get_nav&lang=en",
-            content_type="text/css",
-            status=200,
-            json={
-                "success": True,
-                "data": {
-                    "main": "",
-                    "admin": "",
-                    "footer": "",
-                    "user": "",
-                    "title": "",
-                    "css": "",
-                },
-            },
-        )
         responses.add_passthru("http://solr")
 
     def test_get_correct_datetime_format_from_api(self, app):
