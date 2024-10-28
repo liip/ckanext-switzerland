@@ -145,5 +145,5 @@ class TestOgdchPackagePlugin(object):
         resp = app.get("/")
         soup = BeautifulSoup(resp.body, "html.parser")
 
-        assert soup.find("li", class_="active").text == "Datensätze"
-        assert "1 Datensatz gefunden" in soup.find("h1").text
+        assert soup.find("li", class_="active").text == "Datasets"
+        assert "1 dataset found" in soup.find("h1").text
