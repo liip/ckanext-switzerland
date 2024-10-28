@@ -64,7 +64,6 @@ setup(
         [ckan.plugins]
         ogdch=ckanext.switzerland.plugin:OgdchPlugin
         ogdch_pkg=ckanext.switzerland.plugin:OgdchPackagePlugin
-        ogdch_res=ckanext.switzerland.plugin:OgdchResourcePlugin
         ogdch_group=ckanext.switzerland.plugin:OgdchGroupPlugin
         ogdch_org=ckanext.switzerland.plugin:OgdchOrganizationPlugin
         dcat_ch_rdf_harvester=ckanext.switzerland.dcat.harvesters:SwissDCATRDFHarvester
