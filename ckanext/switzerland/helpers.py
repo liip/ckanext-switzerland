@@ -472,3 +472,7 @@ def get_request_language():
         return tk.request.environ["CKAN_LANG"]
     except TypeError:
         return tk.config.get("ckan.locale_default", "en")
+
+
+def get_wordpress_url():
+    return tk.config.get("ckanext.switzerland.wp_url")

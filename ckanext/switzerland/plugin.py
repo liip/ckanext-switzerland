@@ -90,6 +90,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "localize_change_dict": sh.localize_change_dict,
             "get_cookie_law_url": sh.get_cookie_law_url,
             "get_cookie_law_id": sh.get_cookie_law_id,
+            "get_wordpress_url": sh.get_wordpress_url,
         }
 
     def i18n_directory(self):
