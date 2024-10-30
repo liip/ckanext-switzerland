@@ -24,13 +24,13 @@
 
 {% block header_logo %}
   {% if g.site_logo %}
-    <a class="logo" href="{{ h.url_for('home.index') }}">
+    <a class="logo" href="{{ h.get_wordpress_url() }}">
       <img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}"
         aria-label="{{ _('Navigate to Home - {site_title}').format(site_title=g.site_title) }}"/>
     </a>
   {% else %}
     <h1>
-      <a href="{{ h.url_for('home.index') }}">{{ g.site_title }}</a>
+      <a href="{{ h.get_wordpress_url() }}">{{ g.site_title }}</a>
     </h1>
     {% if g.site_description %}
       <h2>{{ g.site_description }}</h2>
