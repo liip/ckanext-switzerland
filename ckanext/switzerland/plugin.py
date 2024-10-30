@@ -57,10 +57,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
         Expose new API methods
         """
         return {
-            "ogdch_dataset_count": l.ogdch_dataset_count,
-            "ogdch_dataset_terms_of_use": l.ogdch_dataset_terms_of_use,
             "ogdch_dataset_by_identifier": l.ogdch_dataset_by_identifier,
-            "ogdch_content_headers": l.ogdch_content_headers,
         }
 
     # ITemplateHelpers
