@@ -70,25 +70,14 @@ class OgdchPlugin(plugins.SingletonPlugin):
         Provide template helper functions
         """
         return {
-            "get_dataset_count": sh.get_dataset_count,
-            "get_group_count": sh.get_group_count,
-            "get_app_count": sh.get_app_count,
-            "get_org_count": sh.get_org_count,
-            "get_tweet_count": sh.get_tweet_count,
-            "get_localized_org": sh.get_localized_org,
             "get_localized_value": sh.get_localized_value,
-            "localize_json_title": sh.localize_json_title,
             "parse_and_localize": sh.parse_and_localize,
             "get_frequency_name": sh.get_frequency_name,
             "get_terms_of_use_icon": sh.get_terms_of_use_icon,
-            "get_dataset_terms_of_use": sh.get_dataset_terms_of_use,
-            "get_dataset_by_identifier": sh.get_dataset_by_identifier,
             "get_readable_file_size": sh.get_readable_file_size,
             "parse_json": sh.parse_json,
             "convert_post_data_to_dict": sh.convert_post_data_to_dict,
             "resource_filename": sh.resource_filename,
-            "render_description": sh.render_description,
-            "get_resource_display_items": sh.get_resource_display_items,
             "convert_datetimes_for_api": sh.convert_datetimes_for_api,
             "request_is_api_request": sh.request_is_api_request,
             # monkey patch template helpers to return translated names/titles
