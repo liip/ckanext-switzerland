@@ -11,7 +11,7 @@ import ckan.plugins.toolkit as toolkit
 import ckanext.switzerland.helpers as sh
 from ckanext.switzerland import logic as l
 from ckanext.switzerland import validators as v
-from ckanext.switzerland.blueprints import ogdch_admin, ogdch_dataset, ogdch_home
+from ckanext.switzerland.blueprints import ogdch_dataset, ogdch_home
 
 log = logging.getLogger(__name__)
 
@@ -115,7 +115,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     # IBlueprint
 
     def get_blueprint(self):
-        return [ogdch_admin, ogdch_dataset, ogdch_home]
+        return [ogdch_dataset, ogdch_home]
 
     # IFacets
 
