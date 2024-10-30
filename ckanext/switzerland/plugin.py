@@ -11,7 +11,7 @@ import ckan.plugins.toolkit as toolkit
 import ckanext.switzerland.helpers as sh
 from ckanext.switzerland import logic as l
 from ckanext.switzerland import validators as v
-from ckanext.switzerland.blueprints import ogdch_admin, ogdch_dataset, ogdch_home
+from ckanext.switzerland.blueprints import ogdch_dataset, ogdch_home
 
 log = logging.getLogger(__name__)
 
@@ -57,10 +57,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
         Expose new API methods
         """
         return {
-            "ogdch_dataset_count": l.ogdch_dataset_count,
-            "ogdch_dataset_terms_of_use": l.ogdch_dataset_terms_of_use,
             "ogdch_dataset_by_identifier": l.ogdch_dataset_by_identifier,
-            "ogdch_content_headers": l.ogdch_content_headers,
         }
 
     # ITemplateHelpers
@@ -70,25 +67,14 @@ class OgdchPlugin(plugins.SingletonPlugin):
         Provide template helper functions
         """
         return {
-            "get_dataset_count": sh.get_dataset_count,
-            "get_group_count": sh.get_group_count,
-            "get_app_count": sh.get_app_count,
-            "get_org_count": sh.get_org_count,
-            "get_tweet_count": sh.get_tweet_count,
-            "get_localized_org": sh.get_localized_org,
             "get_localized_value": sh.get_localized_value,
-            "localize_json_title": sh.localize_json_title,
             "parse_and_localize": sh.parse_and_localize,
             "get_frequency_name": sh.get_frequency_name,
             "get_terms_of_use_icon": sh.get_terms_of_use_icon,
-            "get_dataset_terms_of_use": sh.get_dataset_terms_of_use,
-            "get_dataset_by_identifier": sh.get_dataset_by_identifier,
             "get_readable_file_size": sh.get_readable_file_size,
             "parse_json": sh.parse_json,
             "convert_post_data_to_dict": sh.convert_post_data_to_dict,
             "resource_filename": sh.resource_filename,
-            "render_description": sh.render_description,
-            "get_resource_display_items": sh.get_resource_display_items,
             "convert_datetimes_for_api": sh.convert_datetimes_for_api,
             "request_is_api_request": sh.request_is_api_request,
             # monkey patch template helpers to return translated names/titles
@@ -101,6 +87,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "localize_change_dict": sh.localize_change_dict,
             "get_cookie_law_url": sh.get_cookie_law_url,
             "get_cookie_law_id": sh.get_cookie_law_id,
+            "get_wordpress_url": sh.get_wordpress_url,
         }
 
     def i18n_directory(self):
@@ -125,7 +112,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     # IBlueprint
 
     def get_blueprint(self):
-        return [ogdch_admin, ogdch_dataset, ogdch_home]
+        return [ogdch_dataset, ogdch_home]
 
     # IFacets
 

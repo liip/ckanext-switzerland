@@ -6,18 +6,14 @@ from collections import defaultdict
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-import ckan.logic as logic
-import ckan.model as model
 import ckan.plugins.toolkit as tk
 import requests
-from ckan.common import _, c
+from ckan.common import _
 from ckan.lib.helpers import _link_to
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
-from ckan.lib.helpers import literal
 from ckan.lib.helpers import organization_link as organization_link_orig
 from ckan.lib.helpers import url_for
 from ckan.lib.munge import munge_filename, munge_title_to_name
-from jinja2.utils import urlize
 
 log = logging.getLogger(__name__)
 
@@ -32,70 +28,6 @@ DATETIME_FIELDS = [
 ]
 UTC = ZoneInfo("UTC")
 ZURICH = ZoneInfo("Europe/Zurich")
-
-
-def get_dataset_count():
-    user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
-    req_context = {"user": user["name"]}
-
-    packages = tk.get_action("package_search")(
-        req_context, {"fq": "+dataset_type:dataset"}
-    )
-    return packages["count"]
-
-
-def get_group_count():
-    """
-    Return the number of groups
-    """
-    user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
-    req_context = {"user": user["name"]}
-    groups = tk.get_action("group_list")(req_context, {})
-    return len(groups)
-
-
-def get_org_count():
-    user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
-    req_context = {"user": user["name"]}
-    orgs = tk.get_action("organization_list")(req_context, {})
-    return len(orgs)
-
-
-def get_app_count():
-    result = _call_wp_api("app_statistics")
-    if result is not None:
-        return result["data"]["app_count"]
-    return "N/A"
-
-
-def get_tweet_count():
-    result = _call_wp_api("tweet_statistics")
-    if result is not None:
-        return result["data"]["tweet_count"]
-    return "N/A"
-
-
-def _call_wp_api(action):
-    return None
-
-
-def get_localized_org(org_id=None, include_datasets=False):
-    if not org_id or org_id is None:
-        return {}
-    try:
-        return logic.get_action("organization_show")(
-            {"for_view": True}, {"id": org_id, "include_datasets": include_datasets}
-        )
-    except (logic.NotFound, logic.ValidationError, logic.NotAuthorized, AttributeError):
-        return {}
-
-
-def localize_json_title(facet_item):
-    try:
-        lang_dict = json.loads(facet_item["display_name"])
-        return get_localized_value(lang_dict, default_value=facet_item["display_name"])
-    except (ValueError, TypeError, AttributeError):
-        return facet_item["display_name"]
 
 
 def get_langs():
@@ -210,20 +142,6 @@ def simplify_terms_of_use(term_id):
     if term_id in terms:
         return term_id
     return "ClosedData"
-
-
-def get_dataset_terms_of_use(pkg):
-    rights = logic.get_action("ogdch_dataset_terms_of_use")({}, {"id": pkg})
-    return rights["dataset_rights"]
-
-
-def get_dataset_by_identifier(identifier):
-    try:
-        return logic.get_action("ogdch_dataset_by_identifier")(
-            {"for_view": True}, {"identifier": identifier}
-        )
-    except logic.NotFound:
-        return None
 
 
 def get_readable_file_size(num, suffix="B"):
@@ -343,40 +261,8 @@ def resource_link(resource_dict, package_id):
     return _link_to(text, url)
 
 
-def get_resource_display_items(res, exclude_fields, schema):
-    context = {
-        "model": model,
-        "session": model.Session,
-        "user": c.user,
-        "auth_user_obj": c.userobj,
-        "for_view": False,
-    }  # fetching the resource-data in API-style
-
-    resource = tk.get_action("resource_show")(
-        context, {"id": res.get("id"), "use_default_schema": True}
-    )
-
-    resource["byte_size"] = resource["size"]
-
-    display_items = dict()
-
-    for field in schema.get("resource_fields"):
-        if field.get("field_name", "") not in exclude_fields:
-            field.update({"value": resource.get(field.get("field_name", ""))})
-            display_items[field.get("field_name")] = field
-
-    return display_items
-
-
 def resource_filename(resource_url):
     return munge_filename(os.path.basename(resource_url))
-
-
-def render_description(pkg):
-    text = parse_and_localize(pkg["description"])
-    text = urlize(text)
-    text = text.replace("\n", "\n<br>")
-    return literal(text)
 
 
 # all formats that need to be mapped have to be entered lower-case
@@ -586,3 +472,7 @@ def get_request_language():
         return tk.request.environ["CKAN_LANG"]
     except TypeError:
         return tk.config.get("ckan.locale_default", "en")
+
+
+def get_wordpress_url():
+    return tk.config.get("ckanext.switzerland.wp_url")
