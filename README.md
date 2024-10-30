@@ -36,9 +36,8 @@ To install ckanext-switzerland:
 
 This extension uses the following config options (.ini file)
 
-    # For exporting a CSV of users from the associated WordPress site
+    # For linking to the associated WordPress site from the header logo
     ckanext.switzerland.wp_url
-    ckanext.switzerland.user_list_api_key
 
     # For managing cookie consent and tracking with OneTrust and Matomo
     ckanext.switzerland.cookie_law_url
