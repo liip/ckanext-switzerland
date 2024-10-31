@@ -18,17 +18,7 @@
 
 {% block resource_item_explore_links %}
 {% block explore_view %}
-  <li>
-    <a class="dropdown-item" href="{{ url }}">
-      {% if res.has_views %}
-        <i class="fa fa-chart-bar"></i>
-        {{ _('Preview') }}
-      {% else %}
-        <i class="fa fa-info-circle"></i>
-        {{ _('More information') }}
-      {% endif %}
-    </a>
-  </li>
+  {{ super() }}
 {% endblock explore_view %}
 
 {% if res.url and h.is_url(res.url) %}
