@@ -20,4 +20,5 @@ sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/'
 # Init db and re-enable required plugins
 ckan config-tool /__w/ckanext-switzerland/ckanext-switzerland/test.ini "ckan.plugins = "
 ckan -c /__w/ckanext-switzerland/ckanext-switzerland/test.ini db init
+ckan -c /__w/ckanext-switzerland/ckanext-switzerland/test.ini db pending-migrations --apply
 ckan config-tool /__w/ckanext-switzerland/ckanext-switzerland/test.ini "ckan.plugins = ogdch ogdch_pkg ogdch_group ogdch_org harvest sbb_harvester timetable_harvester datastore fluent scheming_datasets scheming_groups scheming_organizations"
