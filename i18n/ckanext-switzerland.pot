@@ -733,3 +733,9 @@ msgstr ""
 msgid "Last Active"
 msgstr ""
 
+#: ckanext/activity/templates/snippets/changes/resource_extras.html:87
+msgid ""
+"Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource "
+"{resource_link} in {pkg_link}"
+msgstr ""
+
