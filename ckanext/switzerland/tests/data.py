@@ -81,7 +81,7 @@ def user():
 
 
 def harvest_user():
-    return factories.User(id="harvest", sysadmin=True)
+    return factories.User(name="harvest", sysadmin=True)
 
 
 def organization(user):
