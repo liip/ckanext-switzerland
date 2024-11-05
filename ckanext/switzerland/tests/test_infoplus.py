@@ -54,7 +54,10 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
             )
         )
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    @pytest.mark.ckan_config(
+        "ckan.plugins", "ogdch ogdch_pkg harvest timetable_harvester fluent scheming_datasets activity"
+    )
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_simple(self):
         filesystem = self.get_filesystem(filename="FP2016_Jahresfahrplan.zip")
         MockFTPStorageAdapter.filesystem = filesystem
