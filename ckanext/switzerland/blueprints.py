@@ -56,12 +56,14 @@ def resource_download(
     """
     context: Context = {"user": current_user.name, "auth_user_obj": current_user}
 
-    try:
-        resource_obj = model.Resource.get(resource_id)
-        rsc = resource_dictize(resource_obj, {"model": model})
-        get_action("package_show")(context, {"id": id})
-    except NotFound:
+    resource_obj = model.Resource.get(resource_id)
+    if resource_obj is None:
         return base.abort(404, _("Resource not found"))
+
+    rsc = resource_dictize(resource_obj, {"model": model})
+
+    try:
+        get_action("package_show")(context, {"id": id})
     except NotAuthorized:
         return base.abort(403, _("Not authorized to download resource"))
 
