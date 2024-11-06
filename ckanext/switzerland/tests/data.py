@@ -80,10 +80,6 @@ def user():
     return factories.User()
 
 
-def harvest_user():
-    return factories.User(name="harvest", sysadmin=True)
-
-
 def organization(user):
     return factories.Organization(
         users=[{"name": user["id"], "capacity": "admin"}],
