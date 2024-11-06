@@ -22,3 +22,6 @@ ckan config-tool /__w/ckanext-switzerland/ckanext-switzerland/test.ini "ckan.plu
 ckan -c /__w/ckanext-switzerland/ckanext-switzerland/test.ini db init
 ckan config-tool /__w/ckanext-switzerland/ckanext-switzerland/test.ini "ckan.plugins = ogdch ogdch_pkg ogdch_group ogdch_org harvest timetable_harvester sbb_harvester datastore fluent scheming_datasets scheming_groups scheming_organizations"
 ckan -c /__w/ckanext-switzerland/ckanext-switzerland/test.ini db pending-migrations --apply
+
+ckan config search --with-current ckan.plugins
+cat /__w/ckanext-switzerland/ckanext-switzerland/test.ini
