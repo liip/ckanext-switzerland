@@ -15,10 +15,7 @@ from . import data
 log = logging.getLogger(__name__)
 
 
-@pytest.mark.ckan_config(
-    "ckan.plugins", "ogdch ogdch_pkg harvest fluent scheming_datasets activity"
-)
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
 class TestOgdchPackagePlugin(object):
     @time_machine.travel(
         datetime.datetime(2022, 4, 20, 14, 15, 0, 0, ZoneInfo("UTC")), tick=False
