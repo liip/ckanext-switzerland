@@ -15,7 +15,5 @@ pip install -e git+https://github.com/ckan/ckanext-fluent.git#egg=ckanext-fluent
 pip install -r https://raw.githubusercontent.com/ckan/ckanext-fluent/master/requirements.txt
 
 # Init db and re-enable required plugins
-ckan config-tool /__w/ckanext-switzerland/ckanext-switzerland/test.ini "ckan.plugins = "
 ckan -c /__w/ckanext-switzerland/ckanext-switzerland/test.ini db init
-ckan config-tool /__w/ckanext-switzerland/ckanext-switzerland/test.ini "ckan.plugins = ogdch ogdch_pkg ogdch_group ogdch_org harvest timetable_harvester sbb_harvester datastore fluent scheming_datasets scheming_groups scheming_organizations activity"
 ckan -c /__w/ckanext-switzerland/ckanext-switzerland/test.ini db pending-migrations --apply
