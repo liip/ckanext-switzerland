@@ -218,11 +218,11 @@ for CKAN](https://github.com/ckan/ckan-docker/).
 from CKAN too:
    ```shell
    apt-get install gettext
-   msgcat i18n/de/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/de/LC_MESSAGES/ckan.po > temp_de.po
+   msgcat --use-first i18n/de/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/de/LC_MESSAGES/ckan.po > temp_de.po
    cp temp_de.po i18n/de/LC_MESSAGES/ckanext-switzerland.po
-   msgcat i18n/fr/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/fr/LC_MESSAGES/ckan.po > temp_fr.po
+   msgcat --use-first i18n/fr/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/fr/LC_MESSAGES/ckan.po > temp_fr.po
    cp temp_fr.po i18n/fr/LC_MESSAGES/ckanext-switzerland.po
-   msgcat i18n/it/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/it/LC_MESSAGES/ckan.po > temp_it.po
+   msgcat --use-first i18n/it/LC_MESSAGES/ckanext-switzerland.po ../../src/ckan/ckan/i18n/it/LC_MESSAGES/ckan.po > temp_it.po
    cp temp_it.po i18n/it/LC_MESSAGES/ckanext-switzerland.po
    rm temp_de.po temp_fr.po temp_it.po
    ```
