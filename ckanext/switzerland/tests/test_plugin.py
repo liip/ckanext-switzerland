@@ -15,10 +15,7 @@ from . import data
 log = logging.getLogger(__name__)
 
 
-@pytest.mark.ckan_config(
-    "ckan.plugins", "ogdch ogdch_pkg harvest fluent scheming_datasets activity"
-)
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
 class TestOgdchPackagePlugin(object):
     @time_machine.travel(
         datetime.datetime(2022, 4, 20, 14, 15, 0, 0, ZoneInfo("UTC")), tick=False
@@ -45,14 +42,15 @@ class TestOgdchPackagePlugin(object):
             "issued": "2022-04-18T12:00:00",
             "modified": "2022-04-18T12:30:00",
         }
+        user = data.user()
         dataset = data.dataset()
         resource = data.resource(dataset=dataset)
 
         dataset.update(**dataset_datetime_fields)
         resource.update(**resource_datetime_fields)
 
-        helpers.call_action("package_update", **dataset)
-        helpers.call_action("resource_create", **resource)
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
+        helpers.call_action("resource_create", {"user": user["name"]}, **resource)
 
     def test_get_correct_datetime_format_from_api(self, app):
         self._create_dataset()
