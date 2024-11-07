@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-switzerland 0.0.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-30 11:07+0000\n"
+"POT-Creation-Date: 2024-11-07 09:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,24 +18,24 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.15.0\n"
 
-#: ckanext/switzerland/blueprints.py:64 ckanext/switzerland/blueprints.py:107
-#: ckanext/switzerland/blueprints.py:127
+#: ckanext/switzerland/blueprints.py:61 ckanext/switzerland/blueprints.py:109
+#: ckanext/switzerland/blueprints.py:129
 msgid "Resource not found"
 msgstr ""
 
-#: ckanext/switzerland/blueprints.py:66
+#: ckanext/switzerland/blueprints.py:68
 msgid "Not authorized to download resource"
 msgstr ""
 
-#: ckanext/switzerland/blueprints.py:82
+#: ckanext/switzerland/blueprints.py:84
 msgid "No download is available"
 msgstr ""
 
-#: ckanext/switzerland/blueprints.py:99 ckanext/switzerland/blueprints.py:122
+#: ckanext/switzerland/blueprints.py:101 ckanext/switzerland/blueprints.py:124
 msgid "Dataset not found"
 msgstr ""
 
-#: ckanext/switzerland/blueprints.py:101 ckanext/switzerland/blueprints.py:124
+#: ckanext/switzerland/blueprints.py:103 ckanext/switzerland/blueprints.py:126
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr ""
@@ -392,7 +392,7 @@ msgid "Followers"
 msgstr ""
 
 #: ckanext/switzerland/templates/email_exporter/email_exporter.html:15
-#: ckanext/switzerland/templates/package/snippets/resource_item.html:39
+#: ckanext/switzerland/templates/package/snippets/resource_item.html:29
 msgid "Download"
 msgstr ""
 
@@ -419,7 +419,7 @@ msgid "read more"
 msgstr ""
 
 #: ckanext/switzerland/templates/organization/edit.html:3
-#: ckanext/switzerland/templates/package/snippets/resource_item.html:51
+#: ckanext/switzerland/templates/package/snippets/resource_item.html:41
 msgid "Edit"
 msgstr ""
 
@@ -448,15 +448,7 @@ msgstr ""
 msgid "On %(timestamp)s, %(username)s:"
 msgstr ""
 
-#: ckanext/switzerland/templates/package/snippets/resource_item.html:25
-msgid "Preview"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/snippets/resource_item.html:28
-msgid "More information"
-msgstr ""
-
-#: ckanext/switzerland/templates/package/snippets/resource_item.html:42
+#: ckanext/switzerland/templates/package/snippets/resource_item.html:32
 msgid "Go to resource"
 msgstr ""
 
@@ -610,9 +602,66 @@ msgid "Organization"
 msgstr ""
 
 #: ckanext/switzerland/templates/snippets/stream.html:11
-#: ckanext/switzerland/templates/snippets/stream.html:18
-#: ckanext/switzerland/templates/snippets/stream.html:31
+#: ckanext/switzerland/templates/snippets/stream.html:19
+#: ckanext/switzerland/templates/snippets/stream.html:32
 msgid "unknown"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/stream.html:62
+msgid "No activity found for this type"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:5
+msgid ""
+"Added field <q>{key}</q> with value <q>{value}</q> to resource "
+"{resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:16
+msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:26
+msgid "Added the following fields to resource {resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:35
+msgid "{key} with value {value}"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:40
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:67
+msgid "{key}"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:49
+msgid "Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:59
+msgid "Removed the following fields from resource {resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:75
+msgid ""
+"Changed value of field <q>{key}</q> of resource {resource_link} to "
+"<q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:87
+msgid ""
+"Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource "
+"{resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:98
+msgid ""
+"Removed the value of field <q>{key}</q> in resource {resource_link} in "
+"{pkg_link}"
+msgstr ""
+
+#: ckanext/switzerland/templates/snippets/changes/resource_extras.html:108
+msgid "No fields were updated. See the metadata diff for more details."
 msgstr ""
 
 #: ckanext/switzerland/templates/source/base.html:8
