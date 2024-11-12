@@ -299,7 +299,7 @@ msgstr "Newsletter"
 
 #: ckanext/switzerland/templates/footer.html:16
 msgid "https://oev-info.ch"
-msgstr "https://tp-info.ch"
+msgstr "https://www.tp-info.ch/fr"
 
 #: ckanext/switzerland/templates/footer.html:16
 msgid "oev-info.ch"
