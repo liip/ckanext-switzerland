@@ -480,6 +480,6 @@ def get_wordpress_url():
 
 
 def strxfrm(s):
-    """Overriden from ckan.lib.helpers.strxfrm to handle our multilingual fields.
-    """
-    return unicodedata.normalize('NFD', s).lower()
+    """Overriden from ckan.lib.helpers.strxfrm to handle our multilingual fields."""
+    s = parse_and_localize(s)
+    return unicodedata.normalize("NFD", s).lower()
