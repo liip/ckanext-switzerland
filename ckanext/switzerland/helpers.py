@@ -2,6 +2,7 @@ import ast
 import json
 import logging
 import os
+import unicodedata
 from collections import defaultdict
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -476,3 +477,9 @@ def get_request_language():
 
 def get_wordpress_url():
     return tk.config.get("ckanext.switzerland.wp_url")
+
+
+def strxfrm(s):
+    """Overriden from ckan.lib.helpers.strxfrm to handle our multilingual fields.
+    """
+    return unicodedata.normalize('NFD', s).lower()
