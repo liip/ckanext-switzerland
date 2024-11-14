@@ -50,7 +50,7 @@ def get_localized_value(lang_dict, desired_lang_code=None, default_value=""):
 
     # if no specific lang is requested, read from environment
     if desired_lang_code is None:
-        desired_lang_code = tk.request.environ["CKAN_LANG"]
+        desired_lang_code = get_request_language()
 
     try:
         # return desired lang if available
@@ -471,7 +471,7 @@ def index_language_specific_values(search_data, validated_dict):
 def get_request_language():
     try:
         return tk.request.environ["CKAN_LANG"]
-    except TypeError:
+    except (RuntimeError, TypeError):
         return tk.config.get("ckan.locale_default", "en")
 
 
