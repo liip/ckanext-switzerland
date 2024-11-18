@@ -458,7 +458,7 @@ msgid "Terms of use"
 msgstr ""
 
 #: ckanext/switzerland/templates/package/snippets/terms_of_use.html:11
-msgid "Terms of use opentransport.swiss"
+msgid "Terms of use opentransportdata.swiss"
 msgstr ""
 
 #: ckanext/switzerland/templates/scheming/display_snippets/dataset_permalink.html:2
