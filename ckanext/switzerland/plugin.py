@@ -83,6 +83,8 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "group_link": sh.group_link,
             "resource_link": sh.resource_link,
             "organization_link": sh.organization_link,
+            "strxfrm": sh.strxfrm,
+            # end monkey-patched helpers
             "get_langs": sh.get_langs,
             "localize_change_dict": sh.localize_change_dict,
             "get_cookie_law_url": sh.get_cookie_law_url,
@@ -142,6 +144,7 @@ h.resource_display_name = sh.resource_display_name
 h.group_link = sh.group_link
 h.resource_link = sh.resource_link
 h.organization_link = sh.organization_link
+h.strxfrm = sh.strxfrm
 
 
 class OgdchLanguagePlugin(plugins.SingletonPlugin):
