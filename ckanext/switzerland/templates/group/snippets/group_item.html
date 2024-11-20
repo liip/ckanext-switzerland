@@ -1,3 +1,5 @@
+{% ckan_extends %}
+
 {% block members %}
   {% if 'member_count' in group and group.member_count %}
     <strong class="count">{{ ungettext('{num} Member', '{num} Members', group.member_count).format(num=group.member_count) }}</strong>
