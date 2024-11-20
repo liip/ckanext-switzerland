@@ -28,7 +28,7 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
 
     harvester_class = TimetableHarvester
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_simple(self):
         MockFTPStorageAdapter.filesystem = self.get_filesystem(
             filename="FP2016_Jahresfahrplan.zip"
@@ -54,7 +54,7 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
 
         self.assertEqual(len(dataset["resources"]), 1)
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_multi_year(self):
         filesystem = self.get_filesystem(filename="FP2016_Jahresfahrplan.zip")
         MockFTPStorageAdapter.filesystem = filesystem

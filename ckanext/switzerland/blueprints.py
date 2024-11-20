@@ -1,6 +1,4 @@
-import csv
 import logging
-from io import StringIO
 from typing import Optional, Union
 
 import ckan.lib.base as base
@@ -10,13 +8,13 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins.toolkit as toolkit
 import flask
-import requests
-from ckan.common import _, c, current_user, request
+from ckan.common import _, c, current_user
 from ckan.lib import signals
 from ckan.lib.dictization.model_dictize import resource_dictize
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.types import Context, Response
-from flask import Blueprint, make_response
+from ckan.views.dataset import search
+from flask import Blueprint
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from ckanext.switzerland.helpers import resource_filename
@@ -36,62 +34,8 @@ parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
 lookup_package_plugin = lookup_package_plugin
 
-ogdch_admin = Blueprint("ogdch_admin", __name__, url_prefix="/ckan-admin")
 ogdch_dataset = Blueprint("ogdch_dataset", __name__, url_prefix="/dataset")
-ogdch_resource = Blueprint("ogdch_resource", __name__)
-
-
-def email_address_exporter():
-    """Returns a CSV of all Wordpress users: first name, last name and email address.
-    Does not return information about CKAN users.
-    """
-    if not (c.userobj and c.userobj.sysadmin):
-        abort(401, _("Unauthorized"))
-
-    if "filter" in request.args:
-        fobj = StringIO()
-        writer = csv.writer(fobj)
-        writer.writerow(["First Name", "Last Name", "Email"])
-
-        wp_url = toolkit.config.get("ckanext.switzerland.wp_url")
-        api_key = toolkit.config.get("ckanext.switzerland.user_list_api_key")
-        url = "{}/wp-admin/admin-post.php?action=user_list&key={}".format(
-            wp_url, api_key
-        )
-        users = requests.get(url).json()["data"]
-
-        if request.args["filter"] != "all":
-            followers = get_action("dataset_follower_list")(
-                {}, {"id": request.args["filter"]}
-            )
-            followers = {follower["name"] for follower in followers}
-            users = [u for u in users if u["user_login"] in followers]
-
-        for user in users:
-            writer.writerow([user["first_name"], user["last_name"], user["user_email"]])
-
-        response = make_response(fobj.getvalue())
-        response.headers["Content-Type"] = "text/csv"
-        response.headers["Content-Disposition"] = 'attachment; filename="emails.csv"'
-
-        return response
-
-    packages = get_action("package_search")({}, {"sort": "name asc", "rows": 1000})[
-        "results"
-    ]
-    for package in packages:
-        try:
-            package["follower_count"] = get_action("dataset_follower_count")(
-                {}, {"id": package["id"]}
-            )
-        except ValidationError as e:
-            log.error(
-                f"Error getting follower count from dataset {package['name']} "
-                f"with id {package['id']}: {e}"
-            )
-
-    c.datasets = packages
-    return render("email_exporter/email_exporter.html")
+ogdch_home = Blueprint("ogdch_home", __name__, url_defaults={"package_type": "dataset"})
 
 
 def resource_download(
@@ -112,12 +56,14 @@ def resource_download(
     """
     context: Context = {"user": current_user.name, "auth_user_obj": current_user}
 
-    try:
-        resource_obj = model.Resource.get(resource_id)
-        rsc = resource_dictize(resource_obj, {"model": model})
-        get_action("package_show")(context, {"id": id})
-    except NotFound:
+    resource_obj = model.Resource.get(resource_id)
+    if resource_obj is None:
         return base.abort(404, _("Resource not found"))
+
+    rsc = resource_dictize(resource_obj, {"model": model})
+
+    try:
+        get_action("package_show")(context, {"id": id})
     except NotAuthorized:
         return base.abort(403, _("Not authorized to download resource"))
 
@@ -127,7 +73,7 @@ def resource_download(
         resp = flask.send_file(
             filepath,
             as_attachment=True,
-            attachment_filename=filename,
+            download_name=filename,
             mimetype=rsc.get("mimetype"),
         )
 
@@ -185,12 +131,6 @@ def dataset_permalink(id):
     return redirect(dataset["permalink"])
 
 
-def search():
-    return render("search/search.html")
-
-
-ogdch_admin.add_url_rule("/email_exporter", view_func=email_address_exporter)
-
 ogdch_dataset.add_url_rule(
     "/<id>/resource/<resource_id>/download", view_func=resource_download
 )
@@ -202,4 +142,4 @@ ogdch_dataset.add_url_rule(
 )
 ogdch_dataset.add_url_rule("/<id>/permalink", view_func=dataset_permalink)
 
-ogdch_resource.add_url_rule("/search", view_func=search)
+ogdch_home.add_url_rule("/", view_func=search, strict_slashes=False)

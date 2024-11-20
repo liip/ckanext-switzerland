@@ -32,7 +32,7 @@ class TestIstFileHarvester(BaseSBBHarvesterTests):
 
     harvester_class = SBBHarvester
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index", "harvest_setup")
+    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_simple(self):
         filesystem = self.get_filesystem(filename="ist_file.csv")
         path = os.path.join(data.environment, data.folder, "ist_file.csv")

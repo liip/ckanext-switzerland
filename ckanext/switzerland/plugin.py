@@ -11,7 +11,7 @@ import ckan.plugins.toolkit as toolkit
 import ckanext.switzerland.helpers as sh
 from ckanext.switzerland import logic as l
 from ckanext.switzerland import validators as v
-from ckanext.switzerland.blueprints import ogdch_admin, ogdch_dataset, ogdch_resource
+from ckanext.switzerland.blueprints import ogdch_dataset, ogdch_home
 
 log = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.ITranslation)
     plugins.implements(plugins.IBlueprint, inherit=True)
+    plugins.implements(plugins.IFacets)
 
     # IConfigurer
 
@@ -46,6 +47,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "json_list_of_dicts_field": v.json_list_of_dicts_field,
             "parse_json": sh.parse_json,
             "url": v.url_validator,
+            "name_validator": v.ogdch_name_validator,
         }
 
     # IActions
@@ -55,10 +57,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
         Expose new API methods
         """
         return {
-            "ogdch_dataset_count": l.ogdch_dataset_count,
-            "ogdch_dataset_terms_of_use": l.ogdch_dataset_terms_of_use,
             "ogdch_dataset_by_identifier": l.ogdch_dataset_by_identifier,
-            "ogdch_content_headers": l.ogdch_content_headers,
         }
 
     # ITemplateHelpers
@@ -68,27 +67,14 @@ class OgdchPlugin(plugins.SingletonPlugin):
         Provide template helper functions
         """
         return {
-            "get_dataset_count": sh.get_dataset_count,
-            "get_group_count": sh.get_group_count,
-            "get_app_count": sh.get_app_count,
-            "get_org_count": sh.get_org_count,
-            "get_tweet_count": sh.get_tweet_count,
-            "get_localized_org": sh.get_localized_org,
             "get_localized_value": sh.get_localized_value,
-            "localize_json_title": sh.localize_json_title,
             "parse_and_localize": sh.parse_and_localize,
             "get_frequency_name": sh.get_frequency_name,
             "get_terms_of_use_icon": sh.get_terms_of_use_icon,
-            "get_dataset_terms_of_use": sh.get_dataset_terms_of_use,
-            "get_dataset_by_identifier": sh.get_dataset_by_identifier,
             "get_readable_file_size": sh.get_readable_file_size,
-            "get_matomo_config": sh.get_matomo_config,
             "parse_json": sh.parse_json,
             "convert_post_data_to_dict": sh.convert_post_data_to_dict,
             "resource_filename": sh.resource_filename,
-            "load_wordpress_templates": sh.load_wordpress_templates,
-            "render_description": sh.render_description,
-            "get_resource_display_items": sh.get_resource_display_items,
             "convert_datetimes_for_api": sh.convert_datetimes_for_api,
             "request_is_api_request": sh.request_is_api_request,
             # monkey patch template helpers to return translated names/titles
@@ -97,10 +83,13 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "group_link": sh.group_link,
             "resource_link": sh.resource_link,
             "organization_link": sh.organization_link,
+            "strxfrm": sh.strxfrm,
+            # end monkey-patched helpers
             "get_langs": sh.get_langs,
             "localize_change_dict": sh.localize_change_dict,
             "get_cookie_law_url": sh.get_cookie_law_url,
             "get_cookie_law_id": sh.get_cookie_law_id,
+            "get_wordpress_url": sh.get_wordpress_url,
         }
 
     def i18n_directory(self):
@@ -125,7 +114,28 @@ class OgdchPlugin(plugins.SingletonPlugin):
     # IBlueprint
 
     def get_blueprint(self):
-        return [ogdch_admin, ogdch_dataset]
+        return [ogdch_dataset, ogdch_home]
+
+    # IFacets
+
+    def _update_facets(self, facets_dict):
+        """Remove the Tags facet (which we don't use) and add a Keywords facet in the
+        language of the current request.
+        """
+        lang_code = sh.get_request_language()
+        facets_dict["keywords_" + lang_code] = toolkit._("Keywords")
+        del facets_dict["tags"]
+
+        return facets_dict
+
+    def dataset_facets(self, facets_dict, package_type):
+        return self._update_facets(facets_dict)
+
+    def group_facets(self, facets_dict, group_type, package_type):
+        return self._update_facets(facets_dict)
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        return self._update_facets(facets_dict)
 
 
 # monkey patch template helpers to return translated names/titles
@@ -134,6 +144,7 @@ h.resource_display_name = sh.resource_display_name
 h.group_link = sh.group_link
 h.resource_link = sh.resource_link
 h.organization_link = sh.organization_link
+h.strxfrm = sh.strxfrm
 
 
 class OgdchLanguagePlugin(plugins.SingletonPlugin):
@@ -142,76 +153,90 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
     """
 
     def before_view(self, pkg_dict):
-        return self._prepare_package_json(pkg_dict)
+        return self._prepare_group_or_org_json(pkg_dict)
 
     def _ignore_field(self, key):
         return False
 
+    def _prepare_group_or_org_json(self, group_or_org_dict):
+        # parse all json strings in dict
+        group_or_org_dict = self._parse_json_strings(group_or_org_dict)
+
+        # map ckan fields
+        group_or_org_dict = self._group_or_org_map_ckan_default_fields(
+            group_or_org_dict
+        )
+
+        # Do not change the resulting dict for API requests and form saves.
+        # _reduce_to_requested_language removes all translation dicts needed
+        # to show the form on resource_edit, so we skip it here
+        if sh.request_is_api_request() or toolkit.request.method == "POST":
+            return group_or_org_dict
+
+        # replace langauge dicts with requested language strings
+        desired_lang_code = sh.get_request_language()
+        group_or_org_dict = self._reduce_to_requested_language(
+            group_or_org_dict, desired_lang_code
+        )
+
+        return group_or_org_dict
+
     def _prepare_package_json(self, pkg_dict):
         # parse all json strings in dict
-        pkg_dict = self._package_parse_json_strings(pkg_dict)
+        pkg_dict = self._parse_json_strings(pkg_dict)
 
         # map ckan fields
         pkg_dict = self._package_map_ckan_default_fields(pkg_dict)
 
-        # Do not change the resulting dict for API requests and form saves
-        # _package_reduce_to_requested_language removes all translation dicts needed
-        # to show the form on resource_edit, so we skip it here
-        if sh.request_is_api_request() or toolkit.request.method == "POST":
-            return pkg_dict
-
-        # replace langauge dicts with requested language strings
-        desired_lang_code = self._get_request_language()
-        pkg_dict = self._package_reduce_to_requested_language(
-            pkg_dict, desired_lang_code
-        )
-
         return pkg_dict
 
-    def _get_request_language(self):
-        try:
-            return toolkit.request.environ["CKAN_LANG"]
-        except TypeError:
-            return toolkit.config.get("ckan.locale_default", "en")
-
-    def _package_parse_json_strings(self, pkg_dict):
+    def _parse_json_strings(self, data_dict):
         # try to parse all values as JSON
-        for key, value in list(pkg_dict.items()):
-            pkg_dict[key] = sh.parse_json(value)
+        for key, value in list(data_dict.items()):
+            data_dict[key] = sh.parse_json(value)
 
         # groups
-        if "groups" in pkg_dict and pkg_dict["groups"] is not None:
-            for group in pkg_dict["groups"]:
+        if "groups" in data_dict and data_dict["groups"] is not None:
+            for group in data_dict["groups"]:
                 for field in group:
                     group[field] = sh.parse_json(group[field])
 
         # organization
-        if "organization" in pkg_dict and pkg_dict["organization"] is not None:
-            for field in pkg_dict["organization"]:
-                pkg_dict["organization"][field] = sh.parse_json(
-                    pkg_dict["organization"][field]
+        if "organization" in data_dict and data_dict["organization"] is not None:
+            for field in data_dict["organization"]:
+                data_dict["organization"][field] = sh.parse_json(
+                    data_dict["organization"][field]
                 )
 
-        return pkg_dict
+        return data_dict
 
     def _package_map_ckan_default_fields(self, pkg_dict):
         if "title" in pkg_dict:
             pkg_dict["display_name"] = pkg_dict["title"]
-        if "contact_points" in pkg_dict and pkg_dict["contact_points"] is not None:
-            if pkg_dict["maintainer"] is None:
-                pkg_dict["maintainer"] = pkg_dict["contact_points"][0]["name"]
 
-            if pkg_dict["maintainer_email"] is None:
-                pkg_dict["maintainer_email"] = pkg_dict["contact_points"][0]["email"]
-        if "publishers" in pkg_dict and pkg_dict["publishers"] is not None:
-            if pkg_dict["author"] is None:
-                pkg_dict["author"] = pkg_dict["publishers"][0]["label"]
+        if pkg_dict.get("maintainer") is None and pkg_dict.get("contact_points"):
+            pkg_dict["maintainer"] = pkg_dict["contact_points"][0]["name"]
+        if pkg_dict.get("maintainer_email") is None and pkg_dict.get("contact_points"):
+            pkg_dict["maintainer_email"] = pkg_dict["contact_points"][0]["email"]
+
+        if pkg_dict.get("author") is None and pkg_dict.get("publishers"):
+            pkg_dict["author"] = pkg_dict["publishers"][0]["label"]
+        if "notes" in pkg_dict:
+            del pkg_dict["notes"]
 
         if "resources" in pkg_dict and pkg_dict["resources"] is not None:
             for resource in pkg_dict["resources"]:
                 if "title" in resource:
                     resource["name"] = resource["title"]
         return pkg_dict
+
+    def _group_or_org_map_ckan_default_fields(self, group_or_org_dict):
+        if "title" in group_or_org_dict:
+            group_or_org_dict["display_name"] = group_or_org_dict["title"]
+        if "notes" in group_or_org_dict:
+            del group_or_org_dict["notes"]
+
+        return group_or_org_dict
 
     def _extract_lang_value(self, value, lang_code):
         new_value = sh.parse_json(value)
@@ -220,57 +245,12 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
             return sh.get_localized_value(new_value, lang_code, default_value="")
         return value
 
-    def _package_reduce_to_requested_language(self, pkg_dict, desired_lang_code):
+    def _reduce_to_requested_language(self, pkg_dict, desired_lang_code):
         # pkg fields
         for key, value in list(pkg_dict.items()):
             if not self._ignore_field(key):
                 pkg_dict[key] = self._extract_lang_value(value, desired_lang_code)
 
-        # groups
-        pkg_dict = self._reduce_group_language(pkg_dict, desired_lang_code)
-
-        # organization
-        pkg_dict = self._reduce_org_language(pkg_dict, desired_lang_code)
-
-        # resources
-        pkg_dict = self._reduce_res_language(pkg_dict, desired_lang_code)
-
-        return pkg_dict
-
-    def _reduce_group_language(self, pkg_dict, desired_lang_code):
-        if "groups" in pkg_dict and pkg_dict["groups"] is not None:
-            try:
-                for element in pkg_dict["groups"]:
-                    for field in element:
-                        element[field] = self._extract_lang_value(
-                            element[field], desired_lang_code
-                        )
-            except TypeError:
-                pass
-
-        return pkg_dict
-
-    def _reduce_org_language(self, pkg_dict, desired_lang_code):
-        if "organization" in pkg_dict and pkg_dict["organization"] is not None:
-            try:
-                for field in pkg_dict["organization"]:
-                    pkg_dict["organization"][field] = self._extract_lang_value(
-                        pkg_dict["organization"][field], desired_lang_code
-                    )
-            except TypeError:
-                pass
-        return pkg_dict
-
-    def _reduce_res_language(self, pkg_dict, desired_lang_code):
-        if "resources" in pkg_dict and pkg_dict["resources"] is not None:
-            try:
-                for element in pkg_dict["resources"]:
-                    for field in element:
-                        element[field] = self._extract_lang_value(
-                            element[field], desired_lang_code
-                        )
-            except TypeError:
-                pass
         return pkg_dict
 
 
@@ -288,21 +268,6 @@ class OgdchOrganizationPlugin(OgdchLanguagePlugin):
     # IOrganizationController
     def before_view(self, pkg_dict):
         return super(OgdchOrganizationPlugin, self).before_view(pkg_dict)
-
-
-class OgdchResourcePlugin(OgdchLanguagePlugin):
-    plugins.implements(plugins.IResourceController, inherit=True)
-    plugins.implements(plugins.IBlueprint, inherit=True)
-
-    # IResourceController
-
-    def _ignore_field(self, key):
-        return key == "tracking_summary"
-
-    # IBlueprint
-
-    def get_blueprint(self):
-        return ogdch_resource
 
 
 class OgdchPackagePlugin(OgdchLanguagePlugin):
@@ -328,7 +293,7 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         if not self.is_supported_package_type(pkg_dict):
             return pkg_dict
 
-        return super(OgdchPackagePlugin, self).before_view(pkg_dict)
+        return self._prepare_package_json(pkg_dict)
 
     def after_dataset_show(self, context, pkg_dict):
         if not self.is_supported_package_type(pkg_dict):
@@ -402,26 +367,16 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         # treat current lang differenly so remove from set
         lang_set.remove(current_lang)
 
+        # add default query field(s)
+        query_fields = "text"
+
         # weight current lang more highly
-        query_fields = "title_%s^8 text_%s^4" % (current_lang, current_lang)
+        query_fields += " title_%s^8 text_%s^4" % (current_lang, current_lang)
 
         for lang in lang_set:
             query_fields += " title_%s^2 text_%s" % (lang, lang)
 
         search_params["qf"] = query_fields + " res_name res_description"
-
-        """
-        Unless the query is already being filtered by any type
-        (either positively, or negatively), reduce to only display
-        'dataset' type
-        This is done because by standard all types are displayed, this
-        leads to strange situations where e.g. harvest sources are shown
-        on organization pages.
-        TODO: fix issue https://github.com/ckan/ckan/issues/2803 in CKAN core
-        """
-        fq = search_params.get("fq", "")
-        if "dataset_type:" not in fq:
-            search_params.update({"fq": "%s +dataset_type:dataset" % fq})
 
         return search_params
 

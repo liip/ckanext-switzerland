@@ -1,12 +1,7 @@
-{% extends "group/base_form_page.html" %}
+{% ckan_extends %}
 
-{% block breadcrumb_content %}
-  <li>{% link_for _('Groups'), named_route='group.index' %}</li>
-  {% block breadcrumb_content_inner %}
-    <li>{% link_for h.parse_and_localize(group.title)|truncate(35), named_route='group.read', id=group.name %}</li>
-    <li class="active">{% link_for _('Manage'), named_route='group.edit', id=group.name %}</li>
-  {% endblock %}
+{% block breadcrumb_content_inner %}
+  <li>{% link_for h.parse_and_localize(group.title)|truncate(35), named_route=group_type+'.read', id=group.name, title=h.parse_and_localize(group.title) %}</li>
+  <li class="active">{% link_for _('Manage'), named_route=group_type+'.edit', id=group.name %}</li>
 {% endblock %}
 
-{% block page_heading_class %}hide-heading{% endblock %}
-{% block page_heading %}{{ _('Edit Group') }}{% endblock %}

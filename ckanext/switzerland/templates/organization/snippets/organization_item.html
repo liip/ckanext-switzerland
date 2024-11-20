@@ -5,45 +5,19 @@ organization - A organization dict.
 
 Example:
 
-    <ul class="media-grid">
-      {% for organization in organizations %}
-        {% snippet "organization/snippets/organization_item.html", organization=organization %}
-      {% endfor %}
-    </ul>
+<ul class="media-grid">
+    {% for organization in organizations %}
+    {% snippet "organization/snippets/organization_item.html", organization=organization %}
+    {% endfor %}
+</ul>
 #}
-{% set url = h.url_for(organization.type ~ '.read', id=organization.name) %}
-{% set org_display_name = h.parse_and_localize(organization.display_name) %}
-{% block item %}
-<div class="col-sm-3 organization-item">
-  <div class=" organization-item-inner">
-  {% block item_inner %}
-  {% block image %}
-    <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="media-image">
-  {% endblock %}
-  {% block title %}
-    <h3 class="media-heading">{{ h.dataset_display_name(organization) }}</h3>
-  {% endblock %}
-  {% block description %}
-    {% if organization.description %}
-      <p>{{ h.markdown_extract(h.parse_and_localize(organization.description), extract_length=80) }}</p>
-    {% endif %}
-  {% endblock %}
-  {% block datasets %}
-    {% if organization.package_count %}
-      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.package_count).format(num=organization.package_count) }}</strong>
-    {% else %}
-      <span class="count">{{ _('0 Datasets') }}</span>
-    {% endif %}
-  {% endblock %}
-  {% block link %}
-  <a href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=org_display_name) }}" class="media-view">
-    <span>{{ _('View {organization_name}').format(organization_name=org_display_name) }}</span>
-  </a>
-  {% endblock %}
-  {% endblock %}
-  </div>
-</div>
+{% ckan_extends %}
+{% block title %}
+<h2 class="media-heading">{{ h.parse_and_localize(organization.display_name) }}</h2>
 {% endblock %}
-{% if position is divisibleby 3 %}
-  <li class="clearfix js-hide"></li>
+{% block description %}
+{% if organization.description %}
+{% set description = h.parse_and_localize(organization.description) %}
+<p class="media-description">{{ h.markdown_extract(description, 80) }}</p>
 {% endif %}
+{% endblock %}
