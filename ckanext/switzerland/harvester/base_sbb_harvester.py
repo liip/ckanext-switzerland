@@ -38,7 +38,6 @@ from werkzeug.datastructures import FileStorage
 
 from ckanext.harvest.harvesters.base import HarvesterBase
 from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
-from ckanext.switzerland.helpers import resource_filename
 
 log = logging.getLogger(__name__)
 
