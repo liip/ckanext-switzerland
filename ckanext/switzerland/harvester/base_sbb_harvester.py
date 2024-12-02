@@ -444,7 +444,7 @@ class BaseSBBHarvester(HarvesterBase):
             )
             return False
 
-    def _fetch_stage(self, harvest_object):  # noqa
+    def _fetch_stage(self, harvest_object):  # noqa: C901
         """
         Fetching of resources. Runs once for each gathered resource.
 
@@ -602,7 +602,7 @@ class BaseSBBHarvester(HarvesterBase):
             )
             return False
 
-    def _import_stage(self, harvest_object):  # noqa
+    def _import_stage(self, harvest_object):  # noqa: C901
         """
         Importing the fetched files into CKAN storage.
         Runs once for each fetched resource.
@@ -996,7 +996,8 @@ class BaseSBBHarvester(HarvesterBase):
 
         return ordered_resources, unmatched_resources
 
-    def finalize(self, harvest_object, harvest_object_data):
+    def finalize(self, harvest_object, harvest_object_data):  # noqa: C901
+        # TODO: Simplify this method.
         user_name = self._get_user_name()
         context = {"model": model, "session": Session, "user": user_name}
         stage = "Import"
