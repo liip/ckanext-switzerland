@@ -1073,7 +1073,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             for resource in ordered_resources[max_resources:]:
                 try:
-                    # We need a new context each time, otherwise, if there is an
+                    # We need a new context each time: otherwise, if there is an
                     # exception deleting the resource, there will be auth data left in
                     # the context that won't get deleted. Then all subsequent calls to
                     # resource_delete will seem unauthorized and fail.
@@ -1082,9 +1082,7 @@ class BaseSBBHarvester(HarvesterBase):
                         "session": Session,
                         "user": user_name,
                     }
-                    self._delete_version(
-                        delete_context, package, resource_filename(resource["url"])
-                    )
+                    self._fully_delete_resource(delete_context, resource)
                 except Exception as e:
                     self._save_object_error(
                         "Error deleting resource {} in finalizing tasks: {}".format(
@@ -1142,27 +1140,25 @@ class BaseSBBHarvester(HarvesterBase):
 
         search.rebuild(package["id"])
 
-    def _delete_version(self, context, package, filename):
-        """Fully delete the resource with the given filename"""
-        for resource in package["resources"]:
-            if resource_filename(resource["url"]) == filename:
-                log.debug(
-                    "Deleting resource {} with filename {}".format(
-                        resource["id"], filename
-                    )
-                )
-                # delete the file from the filestore
-                path = uploader.ResourceUpload(resource).get_path(resource["id"])
-                if os.path.exists(path):
-                    os.remove(path)
+    def _fully_delete_resource(self, context, resource):
+        """Fully delete a resource and its file."""
+        log.debug(
+            "Deleting resource {} with filename {}".format(
+                resource["id"], resource["url"]
+            )
+        )
+        # delete the file from the filestore
+        path = uploader.ResourceUpload(resource).get_path(resource["id"])
+        if os.path.exists(path):
+            os.remove(path)
 
-                # delete the datastore table
-                try:
-                    get_action("datastore_delete")(
-                        context, {"resource_id": resource["id"], "force": True}
-                    )
-                except NotFound:
-                    pass  # Sometimes importing the data into the datastore fails
+        # delete the datastore table
+        try:
+            get_action("datastore_delete")(
+                context, {"resource_id": resource["id"], "force": True}
+            )
+        except NotFound:
+            pass  # Sometimes importing the data into the datastore fails
 
-                # delete the resource itself
-                get_action("resource_delete")(context, {"id": resource["id"]})
+        # delete the resource itself
+        get_action("resource_delete")(context, {"id": resource["id"]})
