@@ -1104,15 +1104,27 @@ class BaseSBBHarvester(HarvesterBase):
             },
         )
 
-        # reorder resources
-        # not matched resources come first in the list, then the ordered
-        get_action("package_resource_reorder")(
-            context,
-            {
-                "id": package["id"],
-                "order": [r["id"] for r in unmatched_resources + ordered_resources],
-            },
-        )
+        try:
+            # reorder resources
+            # not matched resources come first in the list, then the ordered
+            get_action("package_resource_reorder")(
+                context,
+                {
+                    "id": package["id"],
+                    "order": [r["id"] for r in unmatched_resources + ordered_resources],
+                },
+            )
+        except ValidationError:
+            self._save_object_error(
+                f"Error reordering resources for dataset "
+                f"{harvest_object_data['dataset']}. "
+                f"This could be due to a failed connection to the database. "
+                f"{traceback.format_exc()}",
+                harvest_object,
+                stage,
+            )
+
+            return False
 
         from ckanext.harvest.model import harvest_object_table
 
