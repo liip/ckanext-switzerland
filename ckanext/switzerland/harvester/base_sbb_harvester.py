@@ -1039,7 +1039,7 @@ class BaseSBBHarvester(HarvesterBase):
             log.exception(message)
             self._save_object_error(message, harvest_object, "Import")
 
-            return True
+            return False
 
         try:
             ordered_resources, unmatched_resources = self._get_ordered_resources(
