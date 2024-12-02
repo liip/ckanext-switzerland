@@ -1006,7 +1006,8 @@ class BaseSBBHarvester(HarvesterBase):
         return ordered_resources, unmatched_resources
 
     def finalize(self, harvest_object, harvest_object_data):
-        context = {"model": model, "session": Session, "user": self._get_user_name()}
+        user_name = self._get_user_name()
+        context = {"model": model, "session": Session, "user": user_name}
         stage = "Import"
 
         log.info("Running finalizing tasks:")
@@ -1072,8 +1073,17 @@ class BaseSBBHarvester(HarvesterBase):
 
             for resource in ordered_resources[max_resources:]:
                 try:
+                    # We need a new context each time, otherwise, if there is an
+                    # exception deleting the resource, there will be auth data left in
+                    # the context that won't get deleted. Then all subsequent calls to
+                    # resource_delete will seem unauthorized and fail.
+                    delete_context = {
+                        "model": model,
+                        "session": Session,
+                        "user": user_name,
+                    }
                     self._delete_version(
-                        context, package, resource_filename(resource["url"])
+                        delete_context, package, resource_filename(resource["url"])
                     )
                 except Exception as e:
                     self._save_object_error(
