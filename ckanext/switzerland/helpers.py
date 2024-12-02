@@ -471,7 +471,7 @@ def index_language_specific_values(search_data, validated_dict):
 def get_request_language():
     try:
         return tk.request.environ["CKAN_LANG"]
-    except (RuntimeError, TypeError):
+    except (KeyError, RuntimeError, TypeError):
         return tk.config.get("ckan.locale_default", "en")
 
 
