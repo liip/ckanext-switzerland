@@ -939,21 +939,13 @@ class BaseSBBHarvester(HarvesterBase):
             if old_resource_id:
                 log.info("Deleting old resource: %s", old_resource_id)
 
-                # delete the datastore table
                 try:
-                    get_action("datastore_delete")(
-                        context, {"resource_id": old_resource_id, "force": True}
-                    )
-                except NotFound:
-                    pass  # Sometimes importing the data into the datastore fails
-
-                try:
-                    get_action("resource_delete")(context, {"id": old_resource_id})
+                    self._fully_delete_resource(context, old_resource_meta)
                 except NotFound:
                     self._save_object_error(
                         f"Error deleting old resource {old_resource_id} for "
-                        f"filename {file_name}: the resource was not found. "
-                        f"This could be due to a failed connection to the database. "
+                        f"filename {file_name}. This could be due to a failed "
+                        f"connection to the database. "
                         f"{traceback.format_exc()}",
                         harvest_object,
                         stage,
