@@ -947,7 +947,17 @@ class BaseSBBHarvester(HarvesterBase):
                 except NotFound:
                     pass  # Sometimes importing the data into the datastore fails
 
-                get_action("resource_delete")(context, {"id": old_resource_id})
+                try:
+                    get_action("resource_delete")(context, {"id": old_resource_id})
+                except NotFound:
+                    self._save_object_error(
+                        f"Error deleting old resource {old_resource_id} for "
+                        f"filename {file_name}: the resource was not found. "
+                        f"This could be due to a failed connection to the database. "
+                        f"{traceback.format_exc()}",
+                        harvest_object,
+                        stage,
+                    )
 
             Session.commit()
 
