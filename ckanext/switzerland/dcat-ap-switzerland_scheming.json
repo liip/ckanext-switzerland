@@ -105,7 +105,6 @@
         "fr": "Organisation",
         "it": "Organizzazione"
       },
-      "display_snippet": "dataset_organization.html",
       "preset": "dataset_organization"
     },
     {
@@ -140,8 +139,7 @@
         "fr": "Mots clés",
         "it": "Parole chiave"
       },
-      "preset": "ogdch_fluent_tags",
-      "display_snippet": "keywords.html"
+      "preset": "ogdch_fluent_tags"
     },
     {
       "field_name": "relations",
@@ -215,45 +213,7 @@
         "fr": "Langues",
         "it": "Lingue"
       },
-      "preset": "languages",
-      "choices": [
-        {
-          "value": "en",
-          "label": {
-            "en": "English",
-            "de": "Englisch",
-            "fr": "Anglais",
-            "it": "Inglese"
-          }
-        },
-        {
-          "value": "de",
-          "label": {
-            "en": "German",
-            "de": "Deutsch",
-            "fr": "Allemand",
-            "it": "Tedesco"
-          }
-        },
-        {
-          "value": "fr",
-          "label": {
-            "en": "French",
-            "de": "Französisch",
-            "fr": "Français",
-            "it": "Francese"
-          }
-        },
-        {
-          "value": "it",
-          "label": {
-            "en": "Italian",
-            "de": "Italienisch",
-            "fr": "Italien",
-            "it": "Italiano"
-          }
-        }
-      ]
+      "preset": "languages"
     }
   ],
   "resource_fields": [
@@ -360,45 +320,7 @@
         "fr": "Langues",
         "it": "Lingue"
       },
-      "preset": "languages",
-      "choices": [
-        {
-          "value": "en",
-          "label": {
-            "en": "English",
-            "de": "Englisch",
-            "fr": "Anglais",
-            "it": "Inglese"
-          }
-        },
-        {
-          "value": "de",
-          "label": {
-            "en": "German",
-            "de": "Deutsch",
-            "fr": "Allemand",
-            "it": "Tedesco"
-          }
-        },
-        {
-          "value": "fr",
-          "label": {
-            "en": "French",
-            "de": "Französisch",
-            "fr": "Français",
-            "it": "Francese"
-          }
-        },
-        {
-          "value": "it",
-          "label": {
-            "en": "Italian",
-            "de": "Italienisch",
-            "fr": "Italien",
-            "it": "Italiano"
-          }
-        }
-      ]
+      "preset": "languages"
     },
     {
       "field_name": "url",

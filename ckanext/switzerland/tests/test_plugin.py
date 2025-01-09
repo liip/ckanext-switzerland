@@ -6,7 +6,6 @@ from zoneinfo import ZoneInfo
 
 import ckan.tests.helpers as helpers
 import pytest
-import responses
 import time_machine
 from bs4 import BeautifulSoup
 from ckan.lib.helpers import url_for
@@ -16,10 +15,7 @@ from . import data
 log = logging.getLogger(__name__)
 
 
-@pytest.mark.ckan_config(
-    "ckan.plugins", "ogdch ogdch_pkg harvest fluent scheming_datasets activity"
-)
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
 class TestOgdchPackagePlugin(object):
     @time_machine.travel(
         datetime.datetime(2022, 4, 20, 14, 15, 0, 0, ZoneInfo("UTC")), tick=False
@@ -46,39 +42,15 @@ class TestOgdchPackagePlugin(object):
             "issued": "2022-04-18T12:00:00",
             "modified": "2022-04-18T12:30:00",
         }
+        user = data.user()
         dataset = data.dataset()
         resource = data.resource(dataset=dataset)
 
         dataset.update(**dataset_datetime_fields)
         resource.update(**resource_datetime_fields)
 
-        helpers.call_action("package_update", **dataset)
-        helpers.call_action("resource_create", **resource)
-
-    def _set_up_responses(self):
-        """Add the urls that we need to mock to the responses registry, with the mocked
-        response.
-
-        Add a passthru for every url prefix we don't want to mock (e.g. solr).
-        """
-        responses.add(
-            responses.GET,
-            "http://wp.test?action=get_nav&lang=en",
-            content_type="text/css",
-            status=200,
-            json={
-                "success": True,
-                "data": {
-                    "main": "",
-                    "admin": "",
-                    "footer": "",
-                    "user": "",
-                    "title": "",
-                    "css": "",
-                },
-            },
-        )
-        responses.add_passthru("http://solr")
+        helpers.call_action("package_update", {"user": user["name"]}, **dataset)
+        helpers.call_action("resource_create", {"user": user["name"]}, **resource)
 
     def test_get_correct_datetime_format_from_api(self, app):
         self._create_dataset()
@@ -107,29 +79,20 @@ class TestOgdchPackagePlugin(object):
         assert resource_dict["issued"] == "2022-04-18T14:00:00+02:00"
         assert resource_dict["modified"] == "2022-04-18T14:30:00+02:00"
 
-    @responses.activate
     def test_get_correct_datetime_format_for_dataset_display(self, app):
-        self._set_up_responses()
         self._create_dataset()
 
         resp = app.get(url_for("dataset.read", id="dataset", qualified=True))
         soup = BeautifulSoup(resp.body, "html.parser")
 
-        last_updated = soup.find("dt", text="Last updated").findNext("dd").find("span")
-        issued = soup.find("dt", text="Issued date").findNext("dd").find("span")
-        modified = soup.find("dt", text="Modified date").findNext("dd").find("span")
+        issued = soup.find("th", text="Issued date").findNext("td").find("span")
+        modified = soup.find("th", text="Modified date").findNext("td").find("span")
 
         # These values should be in UTC
-        assert (
-            last_updated["data-datetime"]
-            == modified["data-datetime"]
-            == "2022-04-18T12:30:00+0000"
-        )
+        assert modified["data-datetime"] == "2022-04-18T12:30:00+0000"
         assert issued["data-datetime"] == "2022-04-18T12:00:00+0000"
 
-    @responses.activate
     def test_get_correct_datetime_format_for_resource_display(self, app):
-        self._set_up_responses()
         self._create_dataset()
 
         pkg_resp = app.get(
@@ -152,5 +115,19 @@ class TestOgdchPackagePlugin(object):
         soup = BeautifulSoup(resp.body, "html.parser")
 
         # modified date should be in UTC
-        modified = soup.find("dt", text="Modified date").findNext("dd").find("span")
+        modified = soup.find("th", text="Modified date").findNext("td").find("span")
         assert modified["data-datetime"] == "2022-04-18T12:30:00+0000"
+
+    def test_get_correct_url_for_ogdch_home_search_rule(self, app):
+        url = url_for("ogdch_home.search")
+
+        assert url == "/"
+
+    def test_get_dataset_search_page_for_home_url(self, app):
+        self._create_dataset()
+
+        resp = app.get("/")
+        soup = BeautifulSoup(resp.body, "html.parser")
+
+        assert soup.find("li", class_="active").text == "Datasets"
+        assert "1 dataset found" in soup.find("h1").text

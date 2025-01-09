@@ -35,8 +35,7 @@ setup(
         "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.10",
     ],
     # What does your project relate to?
     keywords="""CKAN schema dcat dcat-ap switzerland""",
@@ -65,7 +64,6 @@ setup(
         [ckan.plugins]
         ogdch=ckanext.switzerland.plugin:OgdchPlugin
         ogdch_pkg=ckanext.switzerland.plugin:OgdchPackagePlugin
-        ogdch_res=ckanext.switzerland.plugin:OgdchResourcePlugin
         ogdch_group=ckanext.switzerland.plugin:OgdchGroupPlugin
         ogdch_org=ckanext.switzerland.plugin:OgdchOrganizationPlugin
         dcat_ch_rdf_harvester=ckanext.switzerland.dcat.harvesters:SwissDCATRDFHarvester

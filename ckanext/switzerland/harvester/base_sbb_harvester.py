@@ -33,10 +33,10 @@ from ckan.logic import NotFound, ValidationError, check_access, get_action
 from ckan.model import Session
 from ckan.plugins.toolkit import config as ckanconf
 from simplejson.scanner import JSONDecodeError
-from sqlalchemy.sql import bindparam, update
 from werkzeug.datastructures import FileStorage
 
 from ckanext.harvest.harvesters.base import HarvesterBase
+from ckanext.harvest.model import HarvestObject
 from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
 
 log = logging.getLogger(__name__)
@@ -1126,15 +1126,9 @@ class BaseSBBHarvester(HarvesterBase):
 
             return False
 
-        from ckanext.harvest.model import harvest_object_table
-
-        conn = Session.connection()
-        u = (
-            update(harvest_object_table)
-            .where(harvest_object_table.c.package_id == bindparam("b_package_id"))
-            .values(current=False)
-        )
-        conn.execute(u, b_package_id=package["id"])
+        Session.query(HarvestObject).filter(
+            HarvestObject.package_id == package["id"]
+        ).update({"current": False})
 
         harvest_object.package_id = package["id"]
         harvest_object.current = True

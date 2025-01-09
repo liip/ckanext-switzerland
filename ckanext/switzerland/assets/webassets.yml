@@ -15,11 +15,3 @@ relations:
   extra:
     preload:
       - base/main
-
-search:
-  output: switzerland/search.js
-  contents:
-    - a_vue.js
-    - b_vuevalidator.js
-    - c_search.js
-  filters: rjsmin

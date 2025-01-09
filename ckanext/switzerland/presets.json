@@ -37,6 +37,7 @@
       "preset_name": "multilingual_text",
       "values": {
         "form_snippet": "fluent_text.html",
+        "display_snippet": "fluent_text.html",
         "validators": "fluent_text",
         "output_validators": "multilingual_text_output"
       }
@@ -45,6 +46,7 @@
       "preset_name": "multilingual_markdown",
       "values": {
         "form_snippet": "fluent_markdown.html",
+        "display_snippet": "fluent_markdown.html",
         "validators": "fluent_text",
         "output_validators": "multilingual_text_output"
       }
@@ -67,6 +69,7 @@
       "preset_name": "dataset_organization",
       "values": {
         "validators": "owner_org_validator unicode_safe",
+        "display_snippet": "dataset_organization.html",
         "form_snippet": "organization.html"
       }
     },
@@ -107,7 +110,45 @@
         "form_snippet": "multiple_checkbox.html",
         "display_snippet": "languages.html",
         "validators": "ogdch_multiple_choice",
-        "output_validators": "scheming_multiple_choice_output"
+        "output_validators": "scheming_multiple_choice_output",
+        "choices": [
+          {
+            "value": "en",
+            "label": {
+              "en": "English",
+              "de": "Englisch",
+              "fr": "Anglais",
+              "it": "Inglese"
+            }
+          },
+          {
+            "value": "de",
+            "label": {
+              "en": "German",
+              "de": "Deutsch",
+              "fr": "Allemand",
+              "it": "Tedesco"
+            }
+          },
+          {
+            "value": "fr",
+            "label": {
+              "en": "French",
+              "de": "Französisch",
+              "fr": "Français",
+              "it": "Francese"
+            }
+          },
+          {
+            "value": "it",
+            "label": {
+              "en": "Italian",
+              "de": "Italienisch",
+              "fr": "Italien",
+              "it": "Italiano"
+            }
+          }
+        ]
       }
     },
     {
@@ -147,6 +188,25 @@
           "data-module-tags": "",
           "data-module-source": "/api/2/util/tag/autocomplete?incomplete=?"
         }
+      }
+    },
+    {
+      "preset_name": "resource_url_upload",
+      "values": {
+        "validators": "ignore_missing unicode_safe remove_whitespace",
+        "form_snippet": "upload.html",
+        "form_placeholder": "http://example.com/my-data.csv",
+        "upload_field": "upload",
+        "upload_clear": "clear_upload",
+        "upload_label": "File"
+      }
+    },
+    {
+      "preset_name": "organization_image_upload",
+      "values": {
+        "validators": "ignore_missing unicode_safe remove_whitespace",
+        "form_snippet": "organization_upload.html",
+        "form_placeholder": "http://example.com/my-image.jpg"
       }
     }
   ]

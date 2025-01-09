@@ -2,23 +2,19 @@ import ast
 import json
 import logging
 import os
+import unicodedata
 from collections import defaultdict
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-import ckan.logic as logic
-import ckan.model as model
 import ckan.plugins.toolkit as tk
 import requests
-from ckan.common import _, c, request
+from ckan.common import _
 from ckan.lib.helpers import _link_to
 from ckan.lib.helpers import dataset_display_name as dataset_display_name_orig
-from ckan.lib.helpers import lang, literal
 from ckan.lib.helpers import organization_link as organization_link_orig
 from ckan.lib.helpers import url_for
 from ckan.lib.munge import munge_filename, munge_title_to_name
-from jinja2.utils import urlize
-from simplejson import JSONDecodeError
 
 log = logging.getLogger(__name__)
 
@@ -33,70 +29,6 @@ DATETIME_FIELDS = [
 ]
 UTC = ZoneInfo("UTC")
 ZURICH = ZoneInfo("Europe/Zurich")
-
-
-def get_dataset_count():
-    user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
-    req_context = {"user": user["name"]}
-
-    packages = tk.get_action("package_search")(
-        req_context, {"fq": "+dataset_type:dataset"}
-    )
-    return packages["count"]
-
-
-def get_group_count():
-    """
-    Return the number of groups
-    """
-    user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
-    req_context = {"user": user["name"]}
-    groups = tk.get_action("group_list")(req_context, {})
-    return len(groups)
-
-
-def get_org_count():
-    user = tk.get_action("get_site_user")({"ignore_auth": True}, {})
-    req_context = {"user": user["name"]}
-    orgs = tk.get_action("organization_list")(req_context, {})
-    return len(orgs)
-
-
-def get_app_count():
-    result = _call_wp_api("app_statistics")
-    if result is not None:
-        return result["data"]["app_count"]
-    return "N/A"
-
-
-def get_tweet_count():
-    result = _call_wp_api("tweet_statistics")
-    if result is not None:
-        return result["data"]["tweet_count"]
-    return "N/A"
-
-
-def _call_wp_api(action):
-    return None
-
-
-def get_localized_org(org_id=None, include_datasets=False):
-    if not org_id or org_id is None:
-        return {}
-    try:
-        return logic.get_action("organization_show")(
-            {"for_view": True}, {"id": org_id, "include_datasets": include_datasets}
-        )
-    except (logic.NotFound, logic.ValidationError, logic.NotAuthorized, AttributeError):
-        return {}
-
-
-def localize_json_title(facet_item):
-    try:
-        lang_dict = json.loads(facet_item["display_name"])
-        return get_localized_value(lang_dict, default_value=facet_item["display_name"])
-    except (ValueError, TypeError, AttributeError):
-        return facet_item["display_name"]
 
 
 def get_langs():
@@ -118,7 +50,7 @@ def get_localized_value(lang_dict, desired_lang_code=None, default_value=""):
 
     # if no specific lang is requested, read from environment
     if desired_lang_code is None:
-        desired_lang_code = tk.request.environ["CKAN_LANG"]
+        desired_lang_code = get_request_language()
 
     try:
         # return desired lang if available
@@ -213,20 +145,6 @@ def simplify_terms_of_use(term_id):
     return "ClosedData"
 
 
-def get_dataset_terms_of_use(pkg):
-    rights = logic.get_action("ogdch_dataset_terms_of_use")({}, {"id": pkg})
-    return rights["dataset_rights"]
-
-
-def get_dataset_by_identifier(identifier):
-    try:
-        return logic.get_action("ogdch_dataset_by_identifier")(
-            {"for_view": True}, {"identifier": identifier}
-        )
-    except logic.NotFound:
-        return None
-
-
 def get_readable_file_size(num, suffix="B"):
     try:
         for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
@@ -258,13 +176,6 @@ def parse_json(value, default_value=None):
 def get_content_headers(url):
     response = requests.head(url)
     return response
-
-
-def get_matomo_config():
-    return {
-        "url": tk.config.get("matomo.url", False),
-        "site_id": tk.config.get("matomo.site_id", False),
-    }
 
 
 def convert_post_data_to_dict(field_name, data):
@@ -351,69 +262,8 @@ def resource_link(resource_dict, package_id):
     return _link_to(text, url)
 
 
-def get_resource_display_items(res, exclude_fields, schema):
-    context = {
-        "model": model,
-        "session": model.Session,
-        "user": c.user,
-        "auth_user_obj": c.userobj,
-        "for_view": False,
-    }  # fetching the resource-data in API-style
-
-    resource = tk.get_action("resource_show")(
-        context, {"id": res.get("id"), "use_default_schema": True}
-    )
-
-    resource["byte_size"] = resource["size"]
-
-    display_items = dict()
-
-    for field in schema.get("resource_fields"):
-        if field.get("field_name", "") not in exclude_fields:
-            field.update({"value": resource.get(field.get("field_name", ""))})
-            display_items[field.get("field_name")] = field
-
-    return display_items
-
-
 def resource_filename(resource_url):
     return munge_filename(os.path.basename(resource_url))
-
-
-def load_wordpress_templates():
-    site_url = tk.config.get("ckanext.switzerland.wp_template_url", "")
-    url = "{}&lang={}".format(site_url, lang())
-
-    resp = requests.get(url, cookies=request.cookies)
-    if resp.status_code != 200:
-        log.error(
-            "Error getting WordPress templates. Status code: {}."
-            " Content: {}".format(resp.status_code, resp.content)
-        )
-        return
-
-    try:
-        data = resp.json()["data"]
-    except JSONDecodeError:
-        content = resp.content[resp.content.index(b"{") :]
-        data = json.loads(content)["data"]
-    except (ValueError, KeyError) as e:
-        log.error("Error getting WordPress templates: {}".format(e))
-        return
-
-    c.wordpress_user_navigation = data["user"]
-    c.wordpress_main_navigation = data["main"]
-    c.wordpress_admin_navigation = data["admin"]
-    c.wordpress_footer = data["footer"]
-    c.wordpress_title = data["title"]
-    c.wordpress_css = data["css"]
-
-
-def render_description(pkg):
-    text = parse_and_localize(pkg["description"])
-    text = urlize(text)
-    text = text.replace("\n", "\n<br>")
-    return literal(text)
 
 
 # all formats that need to be mapped have to be entered lower-case
@@ -469,6 +319,11 @@ def localize_change_dict(changes):
         "new_org_title",
         "old_desc",
         "new_desc",
+        "resource_name",
+        "old_resource_name",
+        "new_resource_name",
+        "old_name",
+        "new_name",
     ]
     for change in changes:
         for field in multilingual_fields:
@@ -611,3 +466,20 @@ def index_language_specific_values(search_data, validated_dict):
     # flatten values for text_* fields
     for key, value in list(text_field_items.items()):
         search_data[key] = " ".join(value)
+
+
+def get_request_language():
+    try:
+        return tk.request.environ["CKAN_LANG"]
+    except (KeyError, RuntimeError, TypeError):
+        return tk.config.get("ckan.locale_default", "en")
+
+
+def get_wordpress_url():
+    return tk.config.get("ckanext.switzerland.wp_url")
+
+
+def strxfrm(s):
+    """Overriden from ckan.lib.helpers.strxfrm to handle our multilingual fields."""
+    s = parse_and_localize(s)
+    return unicodedata.normalize("NFD", s).lower()
