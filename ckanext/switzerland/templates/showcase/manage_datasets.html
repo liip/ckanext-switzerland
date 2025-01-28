@@ -13,6 +13,7 @@
   <div class="container">
 
     <div class="module-content">
+      {% set title_string = 'title_string_' ~ h.lang() %}
       {% set facets = {
         'fields': c.fields_grouped,
         'search': c.search_facets,
@@ -22,8 +23,8 @@
       %}
       {% set sorting = [
         (_('Relevance'), 'score desc, metadata_modified desc'),
-        (_('Name Ascending'), 'title_string asc'),
-        (_('Name Descending'), 'title_string desc'),
+        (_('Name Ascending'), title_string ~ ' asc'),
+        (_('Name Descending'), title_string ~ ' desc'),
         (_('Last Modified'), 'metadata_modified desc'),
         (_('Popular'), 'views_recent desc') if g.tracking_enabled else (false, false) ]
       %}
@@ -59,7 +60,8 @@
                     {% for package in c.page.items %}
                       {% set truncate = truncate or 180 %}
                       {% set truncate_title = truncate_title or 80 %}
-                      {% set title = package.title or package.name %}
+                      {% set title = h.parse_and_localize(package.title) or package.name %}
+                      {% set description = h.markdown_extract(h.parse_and_localize(package.description), extract_length=truncate) %}
                       {% set notes = h.markdown_extract(package.notes, extract_length=truncate) %}
                       <tr>
                         <td>
@@ -69,8 +71,8 @@
                             <h3 class="dataset-heading">
                                 {{ h.link_to(title|truncate(truncate_title), h.url_for('dataset.read', id=package.name)) }}
                             </h3>
-                            {% if notes %}
-                                <p>{{ notes|urlize }}</p>
+                            {% if description %}
+                              <p>{{ description|urlize }}</p>
                             {% endif %}
                         </td>
                       </tr>
@@ -118,8 +120,8 @@
                               {% for package in c.showcase_pkgs %}
                                   {% set truncate = truncate or 180 %}
                                   {% set truncate_title = truncate_title or 80 %}
-                                  {% set title = package.title or package.name %}
-                                  {% set notes = h.markdown_extract(package.notes, extract_length=truncate) %}
+                                  {% set title = h.parse_and_localize(package.title) or package.name %}
+                                  {% set description = h.markdown_extract(h.parse_and_localize(package.description), extract_length=truncate) %}
                                   <tr>
                                       <td>
                                           <input type="checkbox" name="dataset_{{ package.id }}">
@@ -128,8 +130,8 @@
                                           <h3 class="dataset-heading">
                                               {{ h.link_to(title|truncate(truncate_title), h.url_for('dataset.read', id=package.name)) }}
                         </h3>
-                        {% if notes %}
-                          <p>{{ notes|urlize }}</p>
+                        {% if description %}
+                          <p>{{ description|urlize }}</p>
                         {% endif %}
                       </td>
                     </tr>
