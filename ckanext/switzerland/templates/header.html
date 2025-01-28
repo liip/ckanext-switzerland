@@ -3,6 +3,7 @@
 {% block header_site_navigation_tabs %}
   {% set org_type = h.default_group_type('organization') %}
   {% set group_type = h.default_group_type('group') %}
+  {% set showcase_route = 'showcase_blueprint.index' %}
 
   {% if c.userobj %}
     {{ h.build_nav_main(
@@ -11,6 +12,7 @@
         h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations'), ['organization']),
       (group_type ~ '.index',
         h.humanize_entity_type('group', group_type, 'main nav') or _('Groups'), ['group']),
+      (showcase_route, _('Showcases')),
       ('harvest.search', _('Harvester')),
       ('home.about', _('About')) ) }}
   {% else %}
