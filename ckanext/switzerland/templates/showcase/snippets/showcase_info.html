@@ -39,7 +39,7 @@ Example:
                     <ul class="nav nav-simple">
                         {% for package in showcase_pkgs %}
                             {% set truncate_title = truncate_title or 80 %}
-                            {% set title = package.title or package.name %}
+                            {% set title = h.parse_and_localize(package.title) or package.name %}
                             <li class="nav-item">{{ h.link_to(title|truncate(truncate_title), h.url_for('dataset.read', id=package.name)) }}</li>
                         {% endfor %}
                     </ul>
