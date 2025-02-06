@@ -226,18 +226,12 @@ from CKAN too:
    cp temp_it.po i18n/it/LC_MESSAGES/ckanext-switzerland.po
    rm temp_de.po temp_fr.po temp_it.po
    ```
-   This adds a lot of translations to our `.po`  files that we don't want, but they will be removed in the next step.
-4. Update the `.po` files:
-   ```shell
-   python setup.py update_catalog --ignore-obsolete=true --no-fuzzy-matching
-   ```
-   To update one language at a time, add `-l de` (etc.) to the command.
-5. Check the `.po` files and add any new translations that are needed.
-6. Update the `.mo` files:
+4. Check the `.po` files and add any new translations that are needed.
+5. Update the `.mo` files:
    ```shell
    python setup.py compile_catalog
    ```
-7. Restart the docker container:
+6. Restart the docker container:
    ```shell
    docker compose restart ckan
    ```
