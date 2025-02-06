@@ -174,8 +174,8 @@ msgstr "Unerwartete Wahl \"%s\""
 #: ckanext/switzerland/validators.py:314
 msgid "Identifier is already in use, it must be unique."
 msgstr ""
-"Der Identifier wird bereits verwendet. Bitte einen eindeutigen Identifier"
-" angeben."
+"Der Identifier wird bereits verwendet. Bitte einen eindeutigen Identifier "
+"angeben."
 
 #: ckanext/switzerland/validators.py:329
 msgid "Invalid URL"
@@ -205,8 +205,8 @@ msgstr "Darf nur Buchstaben (ASCII) enthalten und diese Zeichen: -_@"
 
 #: ckanext/switzerland/validators.py:406
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: -"
+"_"
 msgstr "Darf nur Kleinbuchstaben (ASCII) enthalten und diese Zeichen: -_"
 
 #: ckanext/switzerland/templates/footer.html:4
@@ -313,8 +313,8 @@ msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
-"<strong>Eingesetzte Software ist </strong> <a class=\"hide-text ckan-"
-"footer-logo\" href=\"http://ckan.org\">CKAN</a>"
+"<strong>Eingesetzte Software ist </strong> <a class=\"hide-text ckan-footer-"
+"logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckanext/switzerland/templates/footer.html:28
 msgid "CKAN API"
@@ -378,11 +378,11 @@ msgstr "Um dein Dashboard anzusehen, klicke auf den folgenden Link:"
 
 #: ckanext/switzerland/templates/activity_streams/activity_stream_email_notifications.text:5
 msgid ""
-"If you don't want to receive these notifications you need to unfollow all"
-" datasets you are currently following."
+"If you don't want to receive these notifications you need to unfollow all "
+"datasets you are currently following."
 msgstr ""
-"Wenn du keine weiteren Benachrichtigungen willst, musst du alle "
-"Datensätze entfolgen, denen du aktuell folgst."
+"Wenn du keine weiteren Benachrichtigungen willst, musst du alle Datensätze "
+"entfolgen, denen du aktuell folgst."
 
 #: ckanext/switzerland/templates/email_exporter/email_exporter.html:3
 #: ckanext/switzerland/templates/email_exporter/email_exporter.html:6
@@ -457,13 +457,13 @@ msgstr "Datensatz anlegen"
 #: ckanext/switzerland/templates/package/resource_history.html:10
 #, python-format
 msgid ""
-"You're currently viewing an old version of this dataset. Data files may "
-"not match the old version of the metadata. <a href=\"%(url)s\">View the "
-"current version</a>."
+"You're currently viewing an old version of this dataset. Data files may not "
+"match the old version of the metadata. <a href=\"%(url)s\">View the current "
+"version</a>."
 msgstr ""
-"Sie sehen hier eine alte Version dieses Datensatzes. Datendateien können "
-"von der alten Version der Metadaten abweichen. <a "
-"href=\"%(url)s\">Aktuellen Version angezeigen</a>."
+"Sie sehen hier eine alte Version dieses Datensatzes. Datendateien können von "
+"der alten Version der Metadaten abweichen. <a href=\"%(url)s\">Aktuellen "
+"Version angezeigen</a>."
 
 #: ckanext/switzerland/templates/package/snippets/change_item.html:1
 #, python-format
@@ -707,7 +707,8 @@ msgstr ""
 
 #: ckanext/switzerland/templates/snippets/changes/resource_extras.html:16
 msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
-msgstr "Feld <q>{key}</q> hinzugefügt zur Ressource {resource_link} in {pkg_link}"
+msgstr ""
+"Feld <q>{key}</q> hinzugefügt zur Ressource {resource_link} in {pkg_link}"
 
 #: ckanext/switzerland/templates/snippets/changes/resource_extras.html:26
 msgid "Added the following fields to resource {resource_link} in {pkg_link}"
@@ -731,18 +732,19 @@ msgstr ""
 "entfernt"
 
 #: ckanext/switzerland/templates/snippets/changes/resource_extras.html:59
-msgid "Removed the following fields from resource {resource_link} in {pkg_link}"
+msgid ""
+"Removed the following fields from resource {resource_link} in {pkg_link}"
 msgstr ""
-"Die folgenden Felder wurden von der Ressource {resource_link} in "
-"{pkg_link} entfernt"
+"Die folgenden Felder wurden von der Ressource {resource_link} in {pkg_link} "
+"entfernt"
 
 #: ckanext/switzerland/templates/snippets/changes/resource_extras.html:75
 msgid ""
 "Changed value of field <q>{key}</q> of resource {resource_link} to "
 "<q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}"
 msgstr ""
-"Wert des Feldes <q>{key}</q> der Resource {resource_link} wurde geändert "
-"zu <q>{new_val}</q> (hatte den Wert <q>{old_val}</q>) in {pkg_link}"
+"Wert des Feldes <q>{key}</q> der Resource {resource_link} wurde geändert zu "
+"<q>{new_val}</q> (hatte den Wert <q>{old_val}</q>) in {pkg_link}"
 
 #: ckanext/switzerland/templates/snippets/changes/resource_extras.html:87
 msgid ""
@@ -884,3 +886,371 @@ msgstr "Mitglied seit"
 msgid "Last Active"
 msgstr "Zuletzt aktiv"
 
+#: ckanext/showcase/controller.py:56
+msgid "Unauthorized to create a package"
+msgstr "Nicht zum Anlegen eines Datensatzes autorisiert"
+
+#: ckanext/showcase/controller.py:71 ckanext/showcase/controller.py:267
+msgid "User not authorized to edit {showcase_id}"
+msgstr "Benutzer hat keine Berechtigung, {showcase_id} zu bearbeiten"
+
+#: ckanext/showcase/controller.py:147 ckanext/showcase/controller.py:184
+#: ckanext/showcase/controller.py:224 ckanext/showcase/controller.py:238
+#: ckanext/showcase/controller.py:274
+msgid "Showcase not found"
+msgstr "Showcase nicht gefunden"
+
+#: ckanext/showcase/controller.py:149 ckanext/showcase/controller.py:276
+msgid "Unauthorized to read showcase"
+msgstr "Keine Berechtigung, den Showcase anzuzeigen"
+
+#: ckanext/showcase/controller.py:171 ckanext/showcase/controller.py:182
+msgid "Unauthorized to delete showcase"
+msgstr "Keine Berechtigung, den Showcase zu löschen"
+
+#: ckanext/showcase/controller.py:176
+msgid "Showcase has been deleted."
+msgstr "Showcase wurde gelöscht"
+
+#: ckanext/showcase/controller.py:203
+msgid "Not authorized to see this page"
+msgstr "Keine Berechtigung zum Anzeigen dieser Seite"
+
+#: ckanext/showcase/controller.py:212
+msgid "Unauthorized to read package"
+msgstr "Nicht leseberechtigt für diesen Datensatz"
+
+#: ckanext/showcase/controller.py:227 ckanext/showcase/controller.py:329
+msgid "The dataset has been added to the showcase."
+msgid_plural "The datasets have been added to the showcase."
+msgstr[0] "Der Datensatz wurde dem Showcase hinzugefügt."
+msgstr[1] "Die Datensätze wurden dem Showcase hinzugefügt."
+
+#: ckanext/showcase/controller.py:241 ckanext/showcase/controller.py:297
+msgid "The dataset has been removed from the showcase."
+msgid_plural "The datasets have been removed from the showcase."
+msgstr[0] "Der Datensatz wurde aus dem Showcase entfernt."
+msgstr[1] "Die Datensätze wurden aus dem Showcase entfernt."
+
+#: ckanext/showcase/controller.py:464 ckanext/showcase/plugin.py:103
+#: ckanext/showcase/templates/showcase/new_package_form.html:33
+msgid "Tags"
+msgstr "Tags"
+
+#: ckanext/showcase/controller.py:465
+msgid "Formats"
+msgstr "Formate"
+
+#: ckanext/showcase/controller.py:466
+msgid "Licenses"
+msgstr "Lizenzen"
+
+#: ckanext/showcase/controller.py:516
+msgid "Parameter '{parameter_name}' is not an integer"
+msgstr "Parameter '{parameter_name}' ist kein Ganzzahlwert"
+
+#: ckanext/showcase/controller.py:531 ckanext/showcase/controller.py:567
+msgid "User not authorized to view page"
+msgstr "Benutzer hat keine Berechtigung, die Seite zu betrachten"
+
+#: ckanext/showcase/controller.py:540 ckanext/showcase/controller.py:581
+msgid "Unauthorized to perform that action"
+msgstr "Nicht berechtigt, diese Aktion auszuführen"
+
+#: ckanext/showcase/controller.py:542
+msgid "User '{user_name}' not found."
+msgstr "Benutzer '{user_name}' nicht gefunden."
+
+#: ckanext/showcase/controller.py:547
+msgid "The user is now a Showcase Admin"
+msgstr "Der Benutzer ist jetzt ein Showcase-Administrator"
+
+#: ckanext/showcase/controller.py:583
+msgid "The user is not a Showcase Admin"
+msgstr "Der Benutzer ist kein Showcase-Administrator"
+
+#: ckanext/showcase/controller.py:585
+msgid "The user is no longer a Showcase Admin"
+msgstr "Der Benutzer ist kein Showcase-Administrator mehr"
+
+#: ckanext/showcase/logic/converters.py:24
+#: ckanext/showcase/logic/validators.py:29
+msgid "Not found"
+msgstr "Nicht gefunden"
+
+#: ckanext/showcase/logic/converters.py:24
+#: ckanext/showcase/logic/validators.py:29
+#: ckanext/showcase/templates/package/read_base.html:4
+msgid "Dataset"
+msgstr "Datensatz"
+
+#: ckanext/showcase/templates/admin/confirm_remove_showcase_admin.html:3
+#: ckanext/showcase/templates/admin/confirm_remove_showcase_admin.html:16
+msgid "Confirm Remove"
+msgstr "Bitte Entfernen bestätigen"
+
+#: ckanext/showcase/templates/admin/confirm_remove_showcase_admin.html:11
+msgid "Are you sure you want to remove this user as a Showcase Admin - {name}?"
+msgstr ""
+"Sind Sie sicher, dass Sie diesen Benutzer als Showcase-Administrator "
+"entfernen wollen - {name}?"
+
+#: ckanext/showcase/templates/admin/confirm_remove_showcase_admin.html:15
+#: ckanext/showcase/templates/showcase/confirm_delete.html:14
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ckanext/showcase/templates/admin/manage_showcase_admins.html:9
+msgid "Manage Showcase Admins"
+msgstr "Showcase-Administratoren verwalten"
+
+#: ckanext/showcase/templates/admin/manage_showcase_admins.html:16
+msgid "Add an Existing User"
+msgstr "Füge einen bestehenden Benutzer hinzu"
+
+#: ckanext/showcase/templates/admin/manage_showcase_admins.html:19
+msgid ""
+"To make an existing user a Showcase Admin, search for their username below."
+msgstr ""
+"Um einen bestehenden Benutzer zu einem Showcase-Administrator zu machen, "
+"können Sie dessen Benutzernamen unten suchen."
+
+#: ckanext/showcase/templates/admin/manage_showcase_admins.html:32
+msgid "Add User"
+msgstr "Benutzer hinzufügen"
+
+#: ckanext/showcase/templates/admin/manage_showcase_admins.html:38
+msgid "Showcase Admins"
+msgstr "Showcase-Administratoren"
+
+#: ckanext/showcase/templates/admin/manage_showcase_admins.html:43
+msgid "User"
+msgstr "Benutzer"
+
+#: ckanext/showcase/templates/admin/manage_showcase_admins.html:51
+msgid "Are you sure you want to remove this user from the Showcase Admin list?"
+msgstr ""
+"Sind Sie sicher, dass Sie diesen Benutzer aus der Liste der "
+"Showcase-Administratoren entfernen möchten?"
+
+#: ckanext/showcase/templates/admin/manage_showcase_admins.html:61
+msgid "There are currently no Showcase Admins."
+msgstr "Es gibt momentan keine Showcase-Administratoren."
+
+#: ckanext/showcase/templates/admin/manage_showcase_admins.html:69
+msgid ""
+"<p><strong>Showcase Admin:</strong> Can create and remove showcases. Can add "
+"and remove datasets from showcases.</p>"
+msgstr ""
+"<p><strong>Showcase-Administrator:</strong> Kann Showcases erstellen und "
+"entfernen. Kann Datensätze Showcases hinzufügen und aus diesen entfernen.</"
+"p>"
+
+#: ckanext/showcase/templates/home/snippets/stats.html:5
+msgid "{site_title} statistics"
+msgstr "{site_title} Statistik"
+
+#: ckanext/showcase/templates/home/snippets/stats.html:10
+msgid "dataset"
+msgid_plural "datasets"
+msgstr[0] "Datensatz"
+msgstr[1] "Datensätze"
+
+#: ckanext/showcase/templates/home/snippets/stats.html:16
+msgid "organization"
+msgid_plural "organizations"
+msgstr[0] "Organisation"
+msgstr[1] "Organisationen"
+
+#: ckanext/showcase/templates/home/snippets/stats.html:22
+msgid "group"
+msgid_plural "groups"
+msgstr[0] "Gruppe"
+msgstr[1] "Gruppen"
+
+#: ckanext/showcase/templates/home/snippets/stats.html:28
+msgid "showcase"
+msgid_plural "showcases"
+msgstr[0] "Showcase"
+msgstr[1] "Showcases"
+
+#: ckanext/showcase/templates/package/dataset_showcase_list.html:13
+msgid "Associate this showcase with this dataset"
+msgstr "Diesen Showcase mit einem Datensatz verbinden"
+
+#: ckanext/showcase/templates/package/dataset_showcase_list.html:13
+msgid "Add to showcase"
+msgstr "Zu einem Showcase hinzufügen"
+
+#: ckanext/showcase/templates/package/dataset_showcase_list.html:17
+msgid "Showcases featuring {dataset_name}"
+msgstr "Showcases für {dataset_name}"
+
+#: ckanext/showcase/templates/package/dataset_showcase_list.html:22
+msgid "There are no showcases that feature this dataset"
+msgstr "Es gibt keine Showcases für diesen Datensatz"
+
+#: ckanext/showcase/templates/package/read_base.html:6
+msgid "Activity Stream"
+msgstr "Aktivitäten"
+
+#: ckanext/showcase/templates/showcase/add_datasets.html:3
+msgid "Showcases - Add datasets"
+msgstr "Showcases - Datensätze hinzufügen"
+
+#: ckanext/showcase/templates/showcase/confirm_delete.html:3
+#: ckanext/showcase/templates/showcase/confirm_delete.html:15
+msgid "Confirm Delete"
+msgstr "Bitte Löschen bestätigen"
+
+#: ckanext/showcase/templates/showcase/confirm_delete.html:11
+msgid "Are you sure you want to delete showcase - {showcase_name}?"
+msgstr ""
+"Sind Sie sicher, dass Sie den Showcase {showcase_name} löschen wollen?"
+
+#: ckanext/showcase/templates/showcase/edit_base.html:22
+#: ckanext/showcase/templates/showcase/new.html:3
+#: ckanext/showcase/templates/showcase/new_package_form.html:63
+msgid "Create Showcase"
+msgstr "Showcase erstellen"
+
+#: ckanext/showcase/templates/showcase/edit_base.html:35
+msgid "View showcase"
+msgstr "Showcase ansehen"
+
+#: ckanext/showcase/templates/showcase/edit_base.html:41
+msgid "Edit showcase"
+msgstr "Showcase bearbeiten"
+
+#: ckanext/showcase/templates/showcase/edit_base.html:42
+msgid "Manage datasets"
+msgstr "Datensätze verwalten"
+
+#: ckanext/showcase/templates/showcase/new.html:8
+msgid "Create a Showcase"
+msgstr "Showcase erstellen"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:15
+msgid "eg. A descriptive title"
+msgstr "z.B. ein beschreibender Titel"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:24
+msgid "eg. my-showcase"
+msgstr "z.B. mein-Showcase"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:28
+msgid "eg. Some useful notes about the data"
+msgstr "z.B. nützliche Hinweise zu den Daten"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:33
+msgid "eg. economy, mental health, government"
+msgstr "z.B. Wirtschaft, Gesundheit, Regierung"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:44
+msgid "External link"
+msgstr "Externer Link"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:44
+msgid "http://www.example.com"
+msgstr "http://www.example.com"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:48
+msgid "Submitted By"
+msgstr "Eingereicht von"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:48
+msgid "Joe Bloggs"
+msgstr "Erika Mustermann"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:50
+msgid "Submitter Email"
+msgstr "Einreicher Email"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:50
+msgid "joe@example.com"
+msgstr "erika@example.com"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:58
+msgid "Are you sure you want to delete this showcase?"
+msgstr "Sind Sie sicher, dass Sie diesen Showcase löschen wollen?"
+
+#: ckanext/showcase/templates/showcase/new_package_form.html:63
+msgid "Update Showcase"
+msgstr "Showcase aktualisieren"
+
+#: ckanext/showcase/templates/showcase/search.html:13
+msgid "Add Showcase"
+msgstr "Showcase hinzufügen"
+
+#: ckanext/showcase/templates/showcase/search.html:33
+msgid "Search showcases..."
+msgstr "Showcases suchen..."
+
+#: ckanext/showcase/templates/showcase/snippets/helper.html:4
+msgid "What are Showcases?"
+msgstr "Was sind Showcases?"
+
+#: ckanext/showcase/templates/showcase/snippets/helper.html:8
+msgid ""
+"Datasets have been used to build apps, websites and visualizations. They've "
+"been featured in articles, and written about in news reports and blog posts. "
+"Showcases collect together the best examples of datasets in use, to provide "
+"further insight, ideas, and inspiration."
+msgstr ""
+"Datensätze wurden genutzt um Apps, Webseiten und Visualisierungen zu "
+"erstellen. Sie werden in Artikeln präsentiert und in Nachrichten und Blogs "
+"wird über sie berichtet. Showcases bündeln die meistbenutzten Datensätze "
+"mit den Ziel,mehr Einblick, Ideen und Inspiration über deren Nutzung zu "
+"geben."
+
+#: ckanext/showcase/templates/showcase/snippets/helper.html:12
+#, python-format
+msgid ""
+"Sysadmins can manage Showcase Admins from the <a href='%(url)s'>Showcase "
+"configuration page</a>."
+msgstr ""
+"Sysadmins können die Showcase-Administratoren auf der <a "
+"href='%(url)s'>Showcase-Konfiguratonsseite</a> verwalten."
+
+#: ckanext/showcase/templates/showcase/snippets/showcase_item.html:30
+msgid "This showcase has no description"
+msgstr "Dieser Showcase hat keine Beschreibung"
+
+#: ckanext/showcase/templates/showcase/snippets/showcase_item.html:35
+msgid "{num} Dataset"
+msgid_plural "{num} Datasets"
+msgstr[0] "{num} Datensatz"
+msgstr[1] "{num} Datensätze"
+
+#: ckanext/showcase/templates/showcase/snippets/showcase_item.html:37
+msgid "0 Datasets"
+msgstr "Keine Datensätze"
+
+#: ckanext/showcase/templates/showcase/snippets/showcase_item.html:41
+#: ckanext/showcase/templates/showcase/snippets/showcase_item.html:42
+msgid "View {showcase_title}"
+msgstr "{showcase_title} ansehen"
+
+#: ckanext/showcase/templates/showcase/snippets/showcase_item.html:46
+msgid "Remove dataset from this showcase"
+msgstr "Datensatz aus diesem Showcase entfernen"
+
+#: ckanext/showcase/templates/showcase/snippets/showcase_search_result_text.html:7
+msgid "{number} showcase found for '{query}'"
+msgid_plural "{number} showcases found for '{query}'"
+msgstr[0] "{number} Showcase gefunden für '{query}'"
+msgstr[1] "{number} Showcases gefunden für '{query}'"
+
+#: ckanext/showcase/templates/showcase/snippets/showcase_search_result_text.html:8
+msgid "No showcases found for '{query}'"
+msgstr "Keine Showcases gefunden bei der Suche nach '{query}'"
+
+#: ckanext/showcase/templates/showcase/snippets/showcase_search_result_text.html:9
+msgid "{number} showcase found"
+msgid_plural "{number} showcases found"
+msgstr[0] "{number} Showcase gefunden"
+msgstr[1] "{number} Showcases gefunden"
+
+#: ckanext/showcase/templates/showcase/snippets/showcase_search_result_text.html:10
+msgid "No showcases found"
+msgstr "Keine Showcases gefunden"
