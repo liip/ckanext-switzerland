@@ -20,6 +20,7 @@
       (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'), ["dataset", "resource"]),
       (group_type ~ '.index',
         h.humanize_entity_type('group', group_type, 'main nav') or _('Groups'), ['group']),
+      (showcase_route, _('Showcases')),
       ('home.about', _('About')) ) }}
   {% endif %}
 {% endblock %}
