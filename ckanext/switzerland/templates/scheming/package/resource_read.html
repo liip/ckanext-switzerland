@@ -114,11 +114,6 @@
           {%- endfor -%}
         {%- endblock -%}
         {%- block resource_more_items -%}
-          {% for key, value in h.format_resource_items(res.items()) %}
-            {% if key not in ('created', 'metadata modified', 'last modified', 'format') %}
-              <tr class="toggle-more"><th scope="row">{{ key | capitalize }}</th><td>{{ value }}</td></tr>
-            {% endif %}
-          {% endfor %}
         {%- endblock -%}
       </tbody>
     </table>
