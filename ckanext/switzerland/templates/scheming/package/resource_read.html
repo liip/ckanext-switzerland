@@ -30,6 +30,18 @@
   </div>
 {% endblock %}
 
+{% block resource_additional_information_inner %}
+  {% if res.datastore_active %}
+    {% block resource_data_dictionary %}
+      {% if c.userobj %}
+        {% snippet 'datastore/snippets/dictionary_view.html',
+          ddict=h.datastore_dictionary(res.id), res=res %}
+      {% endif %}
+    {% endblock %}
+  {% endif %}
+  {{ super() }}
+{% endblock %}
+
 {% block secondary_content %}
 
   {% block resources_list %}
