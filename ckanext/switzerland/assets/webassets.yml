@@ -1,12 +1,3 @@
-sort_resources:
-  output: switzerland/sort_resources.js
-  contents:
-    - sort_resources.js
-  filters: rjsmin
-  extra:
-    preload:
-      - vendor/jquery
-
 relations:
   output: switzerland/relations.js
   contents:
