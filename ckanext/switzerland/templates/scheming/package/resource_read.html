@@ -30,6 +30,14 @@
   </div>
 {% endblock %}
 
+{%- set exclude_fields = [
+  'name',
+  'description',
+  'url',
+  'format',
+  ] -%}
+{%- set schema = h.scheming_get_dataset_schema(dataset_type) -%}
+
 {% block resource_additional_information_inner %}
   {% if res.datastore_active %}
     {% block resource_data_dictionary %}
