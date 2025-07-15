@@ -114,9 +114,12 @@ class TestOgdchPackagePlugin(object):
         )
         soup = BeautifulSoup(resp.body, "html.parser")
 
-        # modified date should be in UTC
-        modified = soup.find("th", text="Modified date").findNext("td").find("span")
-        assert modified["data-datetime"] == "2022-04-18T12:30:00+0000"
+        # All dates should be in UTC
+        data_updated = soup.find("th", text="Data last updated").findNext("td").find("span")
+        assert data_updated["data-datetime"] == "2022-04-18T12:30:00+0000"
+
+        metadata_updated = soup.find("th", text="Metadata last updated").findNext("td").find("span")
+        assert metadata_updated["data-datetime"] == "2022-04-20T14:15:00+0000"
 
     def test_get_correct_url_for_ogdch_home_search_rule(self, app):
         url = url_for("ogdch_home.search")
