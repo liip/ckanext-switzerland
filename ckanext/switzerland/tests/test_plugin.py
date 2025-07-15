@@ -104,45 +104,40 @@ class TestOgdchPackagePlugin(object):
         resp = app.get(url_for("dataset.read", id="dataset", qualified=True))
         soup = BeautifulSoup(resp.body, "html.parser")
 
+        # All dates should be in UTC.
+        # All dates should be passed to the automatic-local-datetime function, which
+        # displays them as a date with time and timezone info.
         issued = soup.find("th", text="Issued date").findNext("td").find("span")
-        modified = soup.find("th", text="Modified date").findNext("td").find("span")
-
-        # These values should be in UTC
-        assert modified["data-datetime"] == "2022-04-18T12:30:00+0000"
+        assert issued["class"][0] == "automatic-local-datetime"
         assert issued["data-datetime"] == "2022-04-18T12:00:00+0000"
+
+        modified = soup.find("th", text="Modified date").findNext("td").find("span")
+        assert modified["class"][0] == "automatic-local-datetime"
+        assert modified["data-datetime"] == "2022-04-18T12:30:00+0000"
 
     def test_get_correct_datetime_format_for_resource_display(self, app):
         self._create_dataset()
-
-        pkg_resp = app.get(
-            url_for(
-                "api.action",
-                logic_function="package_show",
-                ver=3,
-                id="dataset",
-                status=200,
-            )
-        )
-        pkg_dict = json.loads(pkg_resp.body)["result"]
-        resource_id = pkg_dict["resources"][0]["id"]
-
-        resp = app.get(
-            url_for(
-                "resource.read", id="dataset", resource_id=resource_id, qualified=True
-            )
-        )
+        resp = self._get_resource_page(app)
         soup = BeautifulSoup(resp.body, "html.parser")
 
-        # All dates should be in UTC
+        # All dates should be in UTC.
+        # All dates should be passed to the automatic-local-datetime function, which
+        # displays them as a date with time and timezone info.
         data_updated = (
             soup.find("th", text="Data last updated").findNext("td").find("span")
         )
+        assert data_updated["class"][0] == "automatic-local-datetime"
         assert data_updated["data-datetime"] == "2022-04-18T12:30:00+0000"
 
         metadata_updated = (
             soup.find("th", text="Metadata last updated").findNext("td").find("span")
         )
+        assert metadata_updated["class"][0] == "automatic-local-datetime"
         assert metadata_updated["data-datetime"] == "2022-04-20T14:15:00+0000"
+
+        created = soup.find("th", text="Created").findNext("td").find("span")
+        assert created["class"][0] == "automatic-local-datetime"
+        assert created["data-datetime"] == "2022-04-20T14:15:00+0000"
 
     def test_get_correct_url_for_ogdch_home_search_rule(self, app):
         url = url_for("ogdch_home.search")
