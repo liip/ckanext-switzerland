@@ -123,6 +123,12 @@
             {%- endfor -%}
           {% endif %}
         {%- endblock -%}
+        {%- block resource_id -%}
+        <tr>
+          <th scope="row">{{ _('ID') }}</th>
+          <td>{{ res.id }}</td>
+        </tr>
+        {%- endblock -%}
         {%- block resource_more_items -%}
         {%- endblock -%}
       </tbody>
