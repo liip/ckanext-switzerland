@@ -1,4 +1,4 @@
-{% ckan_extends %}
+{% extends "package/resource_read.html" %}
 
 {% block head_extras -%}
   <!-- This is copied from templates/base.html because we can't use super() here: the ckan core package/resource_read.html head_extras block can't handle our multilingual dict for resource description -->
