@@ -68,8 +68,8 @@
       <tbody>
         {%- block resource_permalink -%}
         <tr>
-          <th class="dataset-label">{{ _('Permalink') }}</th>
-          <td class="dataset-details">{% link_for _('Permalink'), named_route='ogdch_dataset.resource_permalink', id=pkg.name, filename=h.resource_filename(res.url) %}</td>
+          <th scope="row">{{ _('Permalink') }}</th>
+          <td>{% link_for _('Permalink'), named_route='ogdch_dataset.resource_permalink', id=pkg.name, filename=h.resource_filename(res.url) %}</td>
         </tr>
         {%- endblock -%}
         {%- block resource_last_updated -%}
