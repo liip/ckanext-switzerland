@@ -35,6 +35,7 @@
   'description',
   'url',
   'format',
+  'license',
   ] -%}
 {%- set schema = h.scheming_get_dataset_schema(dataset_type) -%}
 
@@ -96,12 +97,6 @@
         <tr>
           <th scope="row">{{ _('Format') }}</th>
           <td>{{ res.format or res.mimetype_inner or res.mimetype or _('unknown') }}</td>
-        </tr>
-        {%- endblock -%}
-        {%- block resource_license -%}
-        <tr>
-          <th scope="row">{{ _('License') }}</th>
-          <td>{% snippet "snippets/license.html", pkg_dict=pkg, text_only=True %}</td>
         </tr>
         {%- endblock -%}
         {%- block resource_fields -%}
