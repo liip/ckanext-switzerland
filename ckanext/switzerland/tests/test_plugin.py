@@ -52,6 +52,25 @@ class TestOgdchPackagePlugin(object):
         helpers.call_action("package_update", {"user": user["name"]}, **dataset)
         helpers.call_action("resource_create", {"user": user["name"]}, **resource)
 
+    def _get_resource_page(self, app):
+        pkg_resp = app.get(
+            url_for(
+                "api.action",
+                logic_function="package_show",
+                ver=3,
+                id="dataset",
+                status=200,
+            )
+        )
+        pkg_dict = json.loads(pkg_resp.body)["result"]
+        resource_id = pkg_dict["resources"][0]["id"]
+
+        return app.get(
+            url_for(
+                "resource.read", id="dataset", resource_id=resource_id, qualified=True
+            )
+        )
+
     def test_get_correct_datetime_format_from_api(self, app):
         self._create_dataset()
 
@@ -138,3 +157,58 @@ class TestOgdchPackagePlugin(object):
 
         assert soup.find("li", class_="active").text == "Datasets"
         assert "1 dataset found" in soup.find("h1").text
+
+    def test_get_correct_fields_for_dataset_page(self, app):
+        self._create_dataset()
+        resp = app.get(url_for("dataset.read", id="dataset", qualified=True))
+        soup = BeautifulSoup(resp.body, "html.parser")
+
+        expected_dataset_fields = [
+            "Identifier",
+            "Slug",
+            "Issued date",
+            "Modified date",
+            "Permalink",
+            "Organization",
+            "Publishers",
+            "Contact points",
+            "Keywords",
+            "Further information",
+            "Temporal coverage",
+            "Update interval",
+            "Landing page",
+            "Languages",
+            "Terms of use",
+        ]
+
+        table = soup.find(
+            "table", class_="table table-striped table-bordered table-condensed"
+        )
+        actual_dataset_fields = [th.text for th in table.find_all("th", scope="row")]
+        assert actual_dataset_fields == expected_dataset_fields
+
+    def test_get_correct_fields_for_resource_page(self, app):
+        self._create_dataset()
+        resp = self._get_resource_page(app)
+        soup = BeautifulSoup(resp.body, "html.parser")
+
+        expected_resource_fields = [
+            "Permalink",
+            "Data last updated",
+            "Metadata last updated",
+            "Created",
+            "Format",
+            "Identifier",
+            "Title",
+            "Media type",
+            "Media type (inner)",
+            "Coverage",
+            "File size",
+            "ID",
+        ]
+
+        table = soup.find(
+            "table", class_="table table-striped table-bordered table-condensed"
+        )
+        actual_resource_fields = [th.text for th in table.find_all("th", scope="row")]
+        assert actual_resource_fields == expected_resource_fields
