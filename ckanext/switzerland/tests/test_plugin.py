@@ -44,9 +44,10 @@ class TestOgdchPackagePlugin(object):
         }
         user = data.user()
         dataset = data.dataset()
-        resource = data.resource(dataset=dataset)
+        resource = data.resource(dataset=dataset, filename="my_file.csv")
 
         dataset.update(**dataset_datetime_fields)
+        dataset.update(permalink=resource["url"])
         resource.update(**resource_datetime_fields)
 
         helpers.call_action("package_update", {"user": user["name"]}, **dataset)
@@ -182,6 +183,15 @@ class TestOgdchPackagePlugin(object):
         actual_dataset_fields = [th.text for th in table.find_all("th", scope="row")]
         assert actual_dataset_fields == expected_dataset_fields
 
+    def test_dataset_permalink(self, app):
+        self._create_dataset()
+        resp = app.get(url_for("dataset.read", id="dataset", qualified=True))
+        soup = BeautifulSoup(resp.body, "html.parser")
+
+        permalink = soup.find("th", text="Permalink").findNext("td").find("a")
+        assert permalink.text.strip() == "Permalink to the current resource"
+        assert permalink["href"] == "/dataset/dataset/permalink"
+
     def test_get_correct_fields_for_resource_page(self, app):
         self._create_dataset()
         resp = self._get_resource_page(app)
@@ -207,3 +217,12 @@ class TestOgdchPackagePlugin(object):
         )
         actual_resource_fields = [th.text for th in table.find_all("th", scope="row")]
         assert actual_resource_fields == expected_resource_fields
+
+    def test_resource_permalink(self, app):
+        self._create_dataset()
+        resp = self._get_resource_page(app)
+        soup = BeautifulSoup(resp.body, "html.parser")
+
+        permalink = soup.find("th", text="Permalink").findNext("td").find("a")
+        assert permalink.text == "Permalink"
+        assert permalink["href"] == "/dataset/dataset/resource_permalink/my_file.csv"
