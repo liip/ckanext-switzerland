@@ -93,10 +93,14 @@
           </tr>
         {%- endblock -%}
         {%- block resource_created -%}
-        <tr>
-          <th scope="row">{{ _('Created') }}</th>
-          <td>{{ h.render_datetime(res.created) or _('unknown') }}</td>
-        </tr>
+          {% set value = h.render_datetime(res.created, date_format='%Y-%m-%dT%H:%M:%S%z') or _('unknown') %}
+          <tr>
+            <th scope="row">{{ _('Created') }}</th>
+            <td><span class="automatic-local-datetime" data-datetime="{{ value }}">
+                {{ value }}
+              </span>
+            </td>
+          </tr>
         {%- endblock -%}
         {%- block resource_format -%}
         <tr>
