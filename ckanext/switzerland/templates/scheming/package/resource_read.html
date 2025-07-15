@@ -1,4 +1,4 @@
-{% ckan_extends %}
+{% extends "package/resource_read.html" %}
 
 {% block head_extras -%}
   <!-- This is copied from templates/base.html because we can't use super() here: the ckan core package/resource_read.html head_extras block can't handle our multilingual dict for resource description -->
@@ -35,6 +35,12 @@
   'description',
   'url',
   'format',
+  'license',
+  'issued',
+  'modified',
+  'language',
+  'rights',
+  'download_url',
   ] -%}
 {%- set schema = h.scheming_get_dataset_schema(dataset_type) -%}
 
@@ -96,12 +102,6 @@
         <tr>
           <th scope="row">{{ _('Format') }}</th>
           <td>{{ res.format or res.mimetype_inner or res.mimetype or _('unknown') }}</td>
-        </tr>
-        {%- endblock -%}
-        {%- block resource_license -%}
-        <tr>
-          <th scope="row">{{ _('License') }}</th>
-          <td>{% snippet "snippets/license.html", pkg_dict=pkg, text_only=True %}</td>
         </tr>
         {%- endblock -%}
         {%- block resource_fields -%}
