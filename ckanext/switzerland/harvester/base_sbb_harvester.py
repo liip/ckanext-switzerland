@@ -1079,6 +1079,21 @@ class BaseSBBHarvester(HarvesterBase):
         else:
             permalink = None
 
+        if permalink is not None and permalink.split('/')[-1] == package["permalink"].split('/')[-1]:
+            message = (
+                f"Dataset {harvest_object_data['dataset']} would have the same "
+                f"permalink after harvesting as before, even though the harvester "
+                f"found new file(s) to import that match the identifier_regex.\n\n"
+                f"The finalizer found these resources in the package: "
+                f"{[r['identifier'] for r in package['resources']]}.\n"
+                f"These are the ordered resources that match the identifier_regex: "
+                f"{[r['identifier'] for r in ordered_resources]}.\n"
+                f"The permalink would go to resource {ordered_resources[0]['identifier']}.\n"
+                f"The identifier_regex is: {self.config['resource_regex']}.\n"
+                f"The date_pattern is: {self.config['date_pattern']}"
+            )
+            self._save_object_error(message, harvest_object, stage)
+
         now = datetime.utcnow().isoformat()
         get_action("package_patch")(
             context,
