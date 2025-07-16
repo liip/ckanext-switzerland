@@ -1034,21 +1034,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             return False
 
-        try:
-            ordered_resources, unmatched_resources = self._get_ordered_resources(
-                package
-            )
-        except NotFound:
-            self._save_object_error(
-                f"Error reordering resources for dataset "
-                f"{harvest_object_data['dataset']}. "
-                f"This could be due to a failed connection to the database. "
-                f"{traceback.format_exc()}",
-                harvest_object,
-                stage,
-            )
-
-            return False
+        ordered_resources, unmatched_resources = self._get_ordered_resources(package)
 
         # ----------------------------------------------------------------------------
         # delete old resources
