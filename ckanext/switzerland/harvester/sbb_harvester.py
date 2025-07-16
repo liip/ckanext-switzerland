@@ -53,7 +53,7 @@ class SBBHarvester(BaseSBBHarvester):
             }
         )
 
-    def gather_stage_impl(self, harvest_job):  # noqa
+    def gather_stage_impl(self, harvest_job):  # noqa: C901
         """
         Dummy stage that launches the next phase
 
