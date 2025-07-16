@@ -68,8 +68,8 @@
       <tbody>
         {%- block resource_permalink -%}
         <tr>
-          <th class="dataset-label">{{ _('Permalink') }}</th>
-          <td class="dataset-details">{% link_for _('Permalink'), named_route='ogdch_dataset.resource_permalink', id=pkg.name, filename=h.resource_filename(res.url) %}</td>
+          <th scope="row">{{ _('Permalink') }}</th>
+          <td>{% link_for _('Permalink'), named_route='ogdch_dataset.resource_permalink', id=pkg.name, filename=h.resource_filename(res.url) %}</td>
         </tr>
         {%- endblock -%}
         {%- block resource_last_updated -%}
@@ -93,10 +93,14 @@
           </tr>
         {%- endblock -%}
         {%- block resource_created -%}
-        <tr>
-          <th scope="row">{{ _('Created') }}</th>
-          <td>{{ h.render_datetime(res.created) or _('unknown') }}</td>
-        </tr>
+          {% set value = h.render_datetime(res.created, date_format='%Y-%m-%dT%H:%M:%S%z') or _('unknown') %}
+          <tr>
+            <th scope="row">{{ _('Created') }}</th>
+            <td><span class="automatic-local-datetime" data-datetime="{{ value }}">
+                {{ value }}
+              </span>
+            </td>
+          </tr>
         {%- endblock -%}
         {%- block resource_format -%}
         <tr>
