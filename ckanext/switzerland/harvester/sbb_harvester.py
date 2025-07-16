@@ -7,7 +7,6 @@ import traceback
 from datetime import datetime
 
 import voluptuous
-from ckan import model
 from ckan.lib.helpers import json
 from ckan.logic import NotFound
 from ckan.model import Session
@@ -53,7 +52,7 @@ class SBBHarvester(BaseSBBHarvester):
             }
         )
 
-    def gather_stage_impl(self, harvest_job):  # noqa
+    def gather_stage_impl(self, harvest_job):  # noqa: C901
         """
         Dummy stage that launches the next phase
 
@@ -164,8 +163,6 @@ class SBBHarvester(BaseSBBHarvester):
 
             if not force_all:
                 try:
-                    existing_dataset = self._get_dataset(self.config["dataset"])
-                    package = model.Package.get(existing_dataset["id"])
                     # Request only the resources modified since last harvest job
                     for f in filelist[:]:
                         modified_date = modified_dates.get(f)
