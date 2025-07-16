@@ -1079,7 +1079,7 @@ class BaseSBBHarvester(HarvesterBase):
         else:
             permalink = None
 
-        if permalink is not None and permalink.split('/')[-1] == package["permalink"].split('/')[-1]:
+        if not self._new_permalink_okay(permalink, package["permalink"]):
             message = (
                 f"Dataset {harvest_object_data['dataset']} would have the same "
                 f"permalink after harvesting as before, even though the harvester "
@@ -1167,3 +1167,27 @@ class BaseSBBHarvester(HarvesterBase):
 
         # delete the resource itself
         get_action("resource_delete")(context, {"id": resource["id"]})
+
+    def _new_permalink_okay(self, new_permalink, old_permalink):
+        # Cases:
+        # 1. Permalink was None and will be None. OK
+        # 2. Permalink was None and will be set. OK
+        # 3. Permalink was set and it will be None. NOK
+        # 4. Permalink was set, and it will go to a different file. OK
+        # 5. Permalink was set, and it will go to the same file.
+        #    - if force_all is True, OK
+        #    - otherwise, NOK
+        if old_permalink is None:
+            # Nothing to mess up, whether or not the permalink has changed
+            return True
+
+        if new_permalink is None:
+            return False
+
+        if new_permalink.split("/")[-1] != old_permalink.split("/")[-1]:
+            return True
+
+        if self.config["force_all"] is True:
+            return True
+
+        return False
