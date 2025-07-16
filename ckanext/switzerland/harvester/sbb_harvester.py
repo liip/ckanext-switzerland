@@ -166,7 +166,12 @@ class SBBHarvester(BaseSBBHarvester):
             except NotFound:  # dataset does not exist yet, download all files
                 existing_dataset = None
 
-            if not force_all and existing_dataset is not None:
+            if force_all or existing_dataset is None:
+                log.warning(
+                    "force_all is activated, downloading all files from ftp/s3 without "
+                    "modification date checking"
+                )
+            else:
                 # Request only the resources modified since last harvest job
                 for f in filelist[:]:
                     modified_date = modified_dates.get(f)
@@ -181,11 +186,6 @@ class SBBHarvester(BaseSBBHarvester):
                         "since the last harvest job"
                     )
                     return []  # no files to harvest this time
-            else:
-                log.warning(
-                    "force_all is activated, downloading all files from ftp/s3 without "
-                    "modification date checking"
-                )
 
             # ------------------------------------------------------
 
