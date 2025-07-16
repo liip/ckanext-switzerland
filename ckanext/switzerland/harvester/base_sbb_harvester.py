@@ -1030,7 +1030,7 @@ class BaseSBBHarvester(HarvesterBase):
                 f"reason we could not save this dataset."
             )
             log.exception(message)
-            self._save_object_error(message, harvest_object, "Import")
+            self._save_object_error(message, harvest_object, stage)
 
             return False
 
