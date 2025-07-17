@@ -163,13 +163,18 @@ class SBBHarvester(BaseSBBHarvester):
 
             try:
                 existing_dataset = self._get_dataset(self.config["dataset"])
-            except NotFound:  # dataset does not exist yet, download all files
+            except NotFound:
                 existing_dataset = None
 
-            if force_all or existing_dataset is None:
+            if force_all:
                 log.warning(
                     "force_all is activated, downloading all files from ftp/s3 without "
                     "modification date checking"
+                )
+            elif existing_dataset is None:
+                log.info(
+                    f"Dataset {self.config['dataset']} doesn't exist yet, downloading "
+                    f"all files from ftp/s3 without modification date checking"
                 )
             else:
                 # Request only the resources modified since last harvest job
