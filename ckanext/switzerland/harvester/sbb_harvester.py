@@ -161,33 +161,36 @@ class SBBHarvester(BaseSBBHarvester):
             # files
             force_all = self.config["force_all"]
 
-            if not force_all:
-                try:
-                    # Request only the resources modified since last harvest job
-                    for f in filelist[:]:
-                        modified_date = modified_dates.get(f)
-                        # skip file if it's older than last harvester run date and it
-                        # actually exists on the dataset
-                        if (
-                            modified_date
-                            and modified_date < previous_job.gather_started
-                        ):
-                            # do not run the harvest for this file
-                            filelist.remove(f)
+            try:
+                existing_dataset = self._get_dataset(self.config["dataset"])
+            except NotFound:
+                existing_dataset = None
 
-                    if not len(filelist):
-                        log.info(
-                            "No files have been updated on the ftp/s3 aws server "
-                            "since the last harvest job"
-                        )
-                        return []  # no files to harvest this time
-                except NotFound:  # dataset does not exist yet, download all files
-                    pass
-            else:
+            if force_all:
                 log.warning(
                     "force_all is activated, downloading all files from ftp/s3 without "
                     "modification date checking"
                 )
+            elif existing_dataset is None:
+                log.info(
+                    f"Dataset {self.config['dataset']} doesn't exist yet, downloading "
+                    f"all files from ftp/s3 without modification date checking"
+                )
+            else:
+                # Request only the resources modified since last harvest job
+                for f in filelist[:]:
+                    modified_date = modified_dates.get(f)
+                    # skip file if it's older than last harvester run date
+                    if modified_date and modified_date < previous_job.gather_started:
+                        # do not run the harvest for this file
+                        filelist.remove(f)
+
+                if not len(filelist):
+                    log.info(
+                        "No files have been updated on the ftp/s3 aws server "
+                        "since the last harvest job"
+                    )
+                    return []  # no files to harvest this time
 
             # ------------------------------------------------------
 
