@@ -1079,7 +1079,7 @@ class BaseSBBHarvester(HarvesterBase):
         else:
             permalink = None
 
-        if not self._new_permalink_okay(permalink, package.get("permalink")):
+        if not self._permalink_update_as_expected(permalink, package.get("permalink")):
             message = (
                 f"Dataset {harvest_object_data['dataset']} would have the same "
                 f"permalink after harvesting as before, even though the harvester "
@@ -1168,7 +1168,7 @@ class BaseSBBHarvester(HarvesterBase):
         # delete the resource itself
         get_action("resource_delete")(context, {"id": resource["id"]})
 
-    def _new_permalink_okay(self, new_permalink, old_permalink):
+    def _permalink_update_as_expected(self, new_permalink, old_permalink):
         # Cases:
         # 1. Permalink was None and will be None. OK
         # 2. Permalink was None and will be set. OK
@@ -1176,7 +1176,10 @@ class BaseSBBHarvester(HarvesterBase):
         # 4. Permalink was set, and it will go to a different file. OK
         # 5. Permalink was set, and it will go to the same file.
         #    - if force_all is True, OK
-        #    - otherwise, NOK
+        #    - otherwise, probably NOK
+        #    - but: there is a chance that an older resource file was updated, causing
+        #      us to harvest it, but not giving a reason to update the permalink.
+        #      In this case, return False, and let the calling method log it as needed.
         if old_permalink is None:
             # Nothing to mess up, whether or not the permalink has changed
             return True
