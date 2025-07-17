@@ -1092,7 +1092,7 @@ class BaseSBBHarvester(HarvesterBase):
                 f"The identifier_regex is: {self.config['resource_regex']}.\n"
                 f"The date_pattern is: {self.config['date_pattern']}"
             )
-            self._save_object_error(message, harvest_object, stage)
+            log.warning(message)
 
         now = datetime.utcnow().isoformat()
         get_action("package_patch")(
