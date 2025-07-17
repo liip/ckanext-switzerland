@@ -1030,25 +1030,11 @@ class BaseSBBHarvester(HarvesterBase):
                 f"reason we could not save this dataset."
             )
             log.exception(message)
-            self._save_object_error(message, harvest_object, "Import")
+            self._save_object_error(message, harvest_object, stage)
 
             return False
 
-        try:
-            ordered_resources, unmatched_resources = self._get_ordered_resources(
-                package
-            )
-        except NotFound:
-            self._save_object_error(
-                f"Error reordering resources for dataset "
-                f"{harvest_object_data['dataset']}. "
-                f"This could be due to a failed connection to the database. "
-                f"{traceback.format_exc()}",
-                harvest_object,
-                stage,
-            )
-
-            return False
+        ordered_resources, unmatched_resources = self._get_ordered_resources(package)
 
         # ----------------------------------------------------------------------------
         # delete old resources
@@ -1092,6 +1078,21 @@ class BaseSBBHarvester(HarvesterBase):
             log.info("Permalink for dataset %s is %s", package["name"], permalink)
         else:
             permalink = None
+
+        if not self._permalink_update_as_expected(permalink, package.get("permalink")):
+            message = (
+                f"Dataset {harvest_object_data['dataset']} would have the same "
+                f"permalink after harvesting as before, even though the harvester "
+                f"found new file(s) to import that match the identifier_regex.\n\n"
+                f"The finalizer found these resources in the package: "
+                f"{[r['identifier'] for r in package['resources']]}.\n"
+                f"These are the ordered resources that match the identifier_regex: "
+                f"{[r['identifier'] for r in ordered_resources]}.\n"
+                f"The permalink would go to resource {ordered_resources[0]['identifier']}.\n"
+                f"The identifier_regex is: {self.config['resource_regex']}.\n"
+                f"The date_pattern is: {self.config['date_pattern']}"
+            )
+            log.warning(message)
 
         now = datetime.utcnow().isoformat()
         get_action("package_patch")(
@@ -1166,3 +1167,30 @@ class BaseSBBHarvester(HarvesterBase):
 
         # delete the resource itself
         get_action("resource_delete")(context, {"id": resource["id"]})
+
+    def _permalink_update_as_expected(self, new_permalink, old_permalink):
+        # Cases:
+        # 1. Permalink was None and will be None. OK
+        # 2. Permalink was None and will be set. OK
+        # 3. Permalink was set and it will be None. NOK
+        # 4. Permalink was set, and it will go to a different file. OK
+        # 5. Permalink was set, and it will go to the same file.
+        #    - if force_all is True, OK
+        #    - otherwise, probably NOK
+        #    - but: there is a chance that an older resource file was updated, causing
+        #      us to harvest it, but not giving a reason to update the permalink.
+        #      In this case, return False, and let the calling method log it as needed.
+        if old_permalink is None:
+            # Nothing to mess up, whether or not the permalink has changed
+            return True
+
+        if new_permalink is None:
+            return False
+
+        if new_permalink.split("/")[-1] != old_permalink.split("/")[-1]:
+            return True
+
+        if self.config["force_all"] is True:
+            return True
+
+        return False
