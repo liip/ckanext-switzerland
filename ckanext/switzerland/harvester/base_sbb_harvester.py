@@ -1079,7 +1079,7 @@ class BaseSBBHarvester(HarvesterBase):
         else:
             permalink = None
 
-        if not self._new_permalink_okay(permalink, package["permalink"]):
+        if not self._new_permalink_okay(permalink, package.get("permalink")):
             message = (
                 f"Dataset {harvest_object_data['dataset']} would have the same "
                 f"permalink after harvesting as before, even though the harvester "
