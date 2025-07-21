@@ -172,7 +172,6 @@ class TestOgdchPackagePlugin(object):
             "Further information",
             "Temporal coverage",
             "Update interval",
-            "Landing page",
             "Languages",
             "Terms of use",
         ]
