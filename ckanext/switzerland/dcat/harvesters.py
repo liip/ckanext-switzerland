@@ -10,10 +10,10 @@ class SwissDCATRDFHarvester(DCATRDFHarvester):
         return {
             "name": "dcat_ch_rdf",
             "title": "DCAT-AP Switzerland RDF Harvester",
-            "description": "Harvester for DCAT-AP Switzerland datasets from an RDF graph",  # noqa
+            "description": "Harvester for DCAT-AP Switzerland datasets from an RDF graph",
         }
 
-    def _get_guid(self, dataset_dict, source_url=None):  # noqa
+    def _get_guid(self, dataset_dict, source_url=None):
         """
         Try to get a unique identifier for a harvested dataset
         It will be the first found of:
@@ -53,6 +53,6 @@ class SwissDCATRDFHarvester(DCATRDFHarvester):
 
     def _gen_new_name(self, title):
         try:
-            return super(SwissDCATRDFHarvester, self)._gen_new_name(title["de"])  # noqa
+            return super(SwissDCATRDFHarvester, self)._gen_new_name(title["de"])
         except TypeError:
-            return super(SwissDCATRDFHarvester, self)._gen_new_name(title)  # noqa
+            return super(SwissDCATRDFHarvester, self)._gen_new_name(title)

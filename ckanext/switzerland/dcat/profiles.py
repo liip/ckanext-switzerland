@@ -28,9 +28,7 @@ OWL = Namespace("http://www.w3.org/2002/07/owl#")
 SPDX = Namespace("http://spdx.org/rdf/terms#")
 XML = Namespace("http://www.w3.org/2001/XMLSchema")
 
-GEOJSON_IMT = (
-    "https://www.iana.org/assignments/media-types/application/vnd.geo+json"  # noqa
-)
+GEOJSON_IMT = "https://www.iana.org/assignments/media-types/application/vnd.geo+json"
 
 namespaces = {
     "dct": DCT,
@@ -153,9 +151,7 @@ class SwissDCATAPProfile(RDFProfile):
         except (ValueError, KeyError, TypeError, IndexError):
             return None
 
-    def _add_multilang_value(
-        self, subject, predicate, dataset_key, dataset_dict
-    ):  # noqa
+    def _add_multilang_value(self, subject, predicate, dataset_key, dataset_dict):
         multilang_values = dataset_dict.get(dataset_key)
         if multilang_values:
             for key, values in list(multilang_values.items()):
@@ -165,11 +161,9 @@ class SwissDCATAPProfile(RDFProfile):
                     if not isinstance(values, list):
                         values = [values]
                     for value in values:
-                        self.g.add(
-                            (subject, predicate, Literal(value, lang=key))
-                        )  # noqa
+                        self.g.add((subject, predicate, Literal(value, lang=key)))
 
-    def parse_dataset(self, dataset_dict, dataset_ref):  # noqa
+    def parse_dataset(self, dataset_dict, dataset_ref):
         dataset_dict["temporals"] = []
         dataset_dict["tags"] = []
         dataset_dict["extras"] = []
@@ -324,7 +318,7 @@ class SwissDCATAPProfile(RDFProfile):
 
         return dataset_dict
 
-    def graph_from_dataset(self, dataset_dict, dataset_ref):  # noqa
+    def graph_from_dataset(self, dataset_dict, dataset_ref):
         g = self.g
 
         for prefix, namespace in list(namespaces.items()):
@@ -359,9 +353,8 @@ class SwissDCATAPProfile(RDFProfile):
 
         self._add_multilang_value(
             dataset_ref, DCT.description, "description", dataset_dict
-        )  # noqa
-        self._add_multilang_value(dataset_ref, DCT.title, "title", dataset_dict)  # noqa
-
+        )
+        self._add_multilang_value(dataset_ref, DCT.title, "title", dataset_dict)
         # LandingPage
         g.add(
             (
@@ -377,9 +370,7 @@ class SwissDCATAPProfile(RDFProfile):
                 ),
             )
         )
-        self._add_multilang_value(
-            dataset_ref, DCAT.keyword, "keywords", dataset_dict
-        )  # noqa
+        self._add_multilang_value(dataset_ref, DCAT.keyword, "keywords", dataset_dict)
 
         # Dates
         items = [
@@ -427,24 +418,17 @@ class SwissDCATAPProfile(RDFProfile):
             references = dataset_dict.get("see_alsos")
             for reference in references:
                 reference_identifier = reference["dataset_identifier"]
-                g.add(
-                    (dataset_ref, RDFS.seeAlso, Literal(reference_identifier))
-                )  # noqa
-
+                g.add((dataset_ref, RDFS.seeAlso, Literal(reference_identifier)))
         # Contact details
         if dataset_dict.get("contact_points"):
-            contact_points = self._get_dataset_value(
-                dataset_dict, "contact_points"
-            )  # noqa
+            contact_points = self._get_dataset_value(dataset_dict, "contact_points")
             for contact_point in contact_points:
                 contact_details = BNode()
                 contact_point_email = contact_point["email"]
                 contact_point_name = contact_point["name"]
 
                 g.add((contact_details, RDF.type, VCARD.Organization))
-                g.add(
-                    (contact_details, VCARD.hasEmail, URIRef(contact_point_email))
-                )  # noqa
+                g.add((contact_details, VCARD.hasEmail, URIRef(contact_point_email)))
                 g.add((contact_details, VCARD.fn, Literal(contact_point_name)))
 
                 g.add((dataset_ref, DCAT.contactPoint, contact_details))
@@ -470,13 +454,9 @@ class SwissDCATAPProfile(RDFProfile):
                     temporal_extent = BNode()
                     g.add((temporal_extent, RDF.type, DCT.PeriodOfTime))
                     if start:
-                        self._add_date_triple(
-                            temporal_extent, SCHEMA.startDate, start
-                        )  # noqa
+                        self._add_date_triple(temporal_extent, SCHEMA.startDate, start)
                     if end:
-                        self._add_date_triple(
-                            temporal_extent, SCHEMA.endDate, end
-                        )  # noqa
+                        self._add_date_triple(temporal_extent, SCHEMA.endDate, end)
                     g.add((dataset_ref, DCT.temporal, temporal_extent))
 
         # Themes
@@ -514,12 +494,10 @@ class SwissDCATAPProfile(RDFProfile):
 
             self._add_triples_from_dict(resource_dict, distribution, items)
 
-            self._add_multilang_value(
-                distribution, DCT.title, "title", resource_dict
-            )  # noqa
+            self._add_multilang_value(distribution, DCT.title, "title", resource_dict)
             self._add_multilang_value(
                 distribution, DCT.description, "description", resource_dict
-            )  # noqa
+            )
 
             #  Lists
             items = [

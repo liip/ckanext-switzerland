@@ -20,7 +20,7 @@ user_name_match = re.compile(r"[a-zA-Z0-9_\-@ ]*$")
 
 
 @scheming_validator
-def json_list_of_dicts_field(field, schema):  # noqa
+def json_list_of_dicts_field(field, schema):
     # TODO: Simplify this method.
     field_type = {
         "temporals": {
