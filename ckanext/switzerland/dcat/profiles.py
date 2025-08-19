@@ -184,22 +184,10 @@ class SwissDCATAPProfile(RDFProfile):
                 dataset_dict[key] = value
 
         # Timestamp fields
-        for key, predicate in (
-            ("issued", DCT.issued),
-            ("modified", DCT.modified),
-        ):
-            value = self._object_value(dataset_ref, predicate)
-            if value:
-                dataset_dict[key] = self._clean_datetime(value)
+        self._timestamp_fields(dataset_ref, dataset_dict)
 
         # Multilingual basic fields
-        for key, predicate in (
-            ("title", DCT.title),
-            ("description", DCT.description),
-        ):
-            value = self._object_value(dataset_ref, predicate, multilang=True)
-            if value:
-                dataset_dict[key] = value
+        self._multilingual_fields(dataset_ref, dataset_dict)
 
         # Tags
         keywords = self._object_value_list(dataset_ref, DCAT.keyword) or []
@@ -250,73 +238,71 @@ class SwissDCATAPProfile(RDFProfile):
 
         # Resources
         for distribution in self._distributions(dataset_ref):
-            resource_dict = {
-                "media_type": None,
-                "language": [],
-            }
-
-            #  Simple values
-            for key, predicate in (
-                ("identifier", DCT.identifier),
-                ("format", DCT["format"]),
-                ("mimetype", DCAT.mediaType),
-                ("media_type", DCAT.mediaType),
-                ("download_url", DCAT.downloadURL),
-                ("url", DCAT.accessURL),
-                ("rights", DCT.rights),
-                ("license", DCT.license),
-            ):
-                value = self._object_value(distribution, predicate)
-                if value:
-                    resource_dict[key] = value
-
-            # if media type is not set, use format as fallback
-            if not resource_dict.get("media_type") and resource_dict.get("format"):
-                resource_dict["media_type"] = resource_dict["mimetype"] = resource_dict[
-                    "format"
-                ]
-
-            # Timestamp fields
-            for key, predicate in (
-                ("issued", DCT.issued),
-                ("modified", DCT.modified),
-            ):
-                value = self._object_value(distribution, predicate)
-                if value:
-                    resource_dict[key] = self._clean_datetime(value)
-
-            # Multilingual fields
-            for key, predicate in (
-                ("title", DCT.title),
-                ("description", DCT.description),
-            ):
-                value = self._object_value(distribution, predicate, multilang=True)
-                if value:
-                    resource_dict[key] = value
-
-            resource_dict["url"] = self._object_value(
-                distribution, DCAT.accessURL
-            ) or self._object_value(distribution, DCAT.downloadURL)
-
-            # languages
-            for language in self._object_value_list(distribution, DCAT.language):
-                resource_dict["language"].append(language)
-
-            # byteSize
-            byte_size = self._object_value_int(distribution, DCAT.byteSize)
-            if byte_size is not None:
-                resource_dict["byte_size"] = byte_size
-
-            # Distribution URI (explicitly show the missing ones)
-            resource_dict["uri"] = (
-                str(distribution)
-                if isinstance(distribution, rdflib.term.URIRef)
-                else None
-            )
-
-            dataset_dict["resources"].append(resource_dict)
+            self._parse_resource(dataset_dict, distribution)
 
         return dataset_dict
+
+    def _parse_resource(self, dataset_dict, distribution):
+        resource_dict = {
+            "media_type": None,
+            "language": [],
+        }
+        #  Simple values
+        for key, predicate in (
+            ("identifier", DCT.identifier),
+            ("format", DCT["format"]),
+            ("mimetype", DCAT.mediaType),
+            ("media_type", DCAT.mediaType),
+            ("download_url", DCAT.downloadURL),
+            ("url", DCAT.accessURL),
+            ("rights", DCT.rights),
+            ("license", DCT.license),
+        ):
+            value = self._object_value(distribution, predicate)
+            if value:
+                resource_dict[key] = value
+        # if media type is not set, use format as fallback
+        if not resource_dict.get("media_type") and resource_dict.get("format"):
+            resource_dict["media_type"] = resource_dict["mimetype"] = resource_dict[
+                "format"
+            ]
+        # Timestamp fields
+        self._timestamp_fields(distribution, resource_dict)
+        # Multilingual fields
+        self._multilingual_fields(distribution, resource_dict)
+        resource_dict["url"] = self._object_value(
+            distribution, DCAT.accessURL
+        ) or self._object_value(distribution, DCAT.downloadURL)
+        # languages
+        for language in self._object_value_list(distribution, DCAT.language):
+            resource_dict["language"].append(language)
+        # byteSize
+        byte_size = self._object_value_int(distribution, DCAT.byteSize)
+        if byte_size is not None:
+            resource_dict["byte_size"] = byte_size
+        # Distribution URI (explicitly show the missing ones)
+        resource_dict["uri"] = (
+            str(distribution) if isinstance(distribution, rdflib.term.URIRef) else None
+        )
+        dataset_dict["resources"].append(resource_dict)
+
+    def _multilingual_fields(self, subject, destination_dict):
+        for key, predicate in (
+            ("title", DCT.title),
+            ("description", DCT.description),
+        ):
+            value = self._object_value(subject, predicate, multilang=True)
+            if value:
+                destination_dict[key] = value
+
+    def _timestamp_fields(self, subject, destination_dict):
+        for key, predicate in (
+            ("issued", DCT.issued),
+            ("modified", DCT.modified),
+        ):
+            value = self._object_value(subject, predicate)
+            if value:
+                destination_dict[key] = self._clean_datetime(value)
 
     def graph_from_dataset(self, dataset_dict, dataset_ref):
         g = self.g
