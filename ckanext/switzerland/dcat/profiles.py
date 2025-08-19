@@ -341,6 +341,7 @@ class SwissDCATAPProfile(RDFProfile):
             dataset_ref, DCT.description, "description", dataset_dict
         )
         self._add_multilang_value(dataset_ref, DCT.title, "title", dataset_dict)
+
         # LandingPage
         g.add(
             (
@@ -405,6 +406,7 @@ class SwissDCATAPProfile(RDFProfile):
             for reference in references:
                 reference_identifier = reference["dataset_identifier"]
                 g.add((dataset_ref, RDFS.seeAlso, Literal(reference_identifier)))
+
         # Contact details
         if dataset_dict.get("contact_points"):
             contact_points = self._get_dataset_value(dataset_dict, "contact_points")
@@ -450,77 +452,69 @@ class SwissDCATAPProfile(RDFProfile):
 
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
-            distribution = URIRef(resource_uri(resource_dict))
+            self._add_distribution_graph_from_resource(dataset_ref, resource_dict)
 
-            g.add((dataset_ref, DCAT.distribution, distribution))
-            g.add((distribution, RDF.type, DCAT.Distribution))
+    def _add_distribution_graph_from_resource(self, dataset_ref, resource_dict):
+        g = self.g
 
-            #  Simple values
-            items = [
-                ("status", ADMS.status, None, Literal),
-                ("identifier", DCT.identifier, None, Literal),
-                ("media_type", DCAT.mediaType, ["mimetype"], Literal),
-                ("spatial", DCT.spatial, None, Literal),
-            ]
-
-            g.add(
-                (
-                    distribution,
-                    DCT.rights,
-                    Literal("NonCommercialAllowed-CommercialAllowed-ReferenceRequired"),
-                )
+        distribution = URIRef(resource_uri(resource_dict))
+        g.add((dataset_ref, DCAT.distribution, distribution))
+        g.add((distribution, RDF.type, DCAT.Distribution))
+        #  Simple values
+        items = [
+            ("status", ADMS.status, None, Literal),
+            ("identifier", DCT.identifier, None, Literal),
+            ("media_type", DCAT.mediaType, ["mimetype"], Literal),
+            ("spatial", DCT.spatial, None, Literal),
+        ]
+        g.add(
+            (
+                distribution,
+                DCT.rights,
+                Literal("NonCommercialAllowed-CommercialAllowed-ReferenceRequired"),
             )
-            g.add(
-                (
-                    distribution,
-                    DCT.license,
-                    Literal("NonCommercialAllowed-CommercialAllowed-ReferenceRequired"),
-                )
+        )
+        g.add(
+            (
+                distribution,
+                DCT.license,
+                Literal("NonCommercialAllowed-CommercialAllowed-ReferenceRequired"),
             )
+        )
+        self._add_triples_from_dict(resource_dict, distribution, items)
+        self._add_multilang_value(distribution, DCT.title, "title", resource_dict)
+        self._add_multilang_value(
+            distribution, DCT.description, "description", resource_dict
+        )
+        #  Lists
+        items = [
+            ("documentation", FOAF.page, None, Literal),
+            ("language", DCT.language, None, Literal),
+            ("conforms_to", DCT.conformsTo, None, Literal),
+        ]
+        self._add_list_triples_from_dict(resource_dict, distribution, items)
+        # URL
+        url = resource_dict.get("url")
+        g.add((distribution, DCAT.accessURL, URIRef(url)))
+        if resource_dict["url_type"] == "upload":
+            g.add((distribution, DCAT.downloadURL, URIRef(url)))
 
-            self._add_triples_from_dict(resource_dict, distribution, items)
-
-            self._add_multilang_value(distribution, DCT.title, "title", resource_dict)
-            self._add_multilang_value(
-                distribution, DCT.description, "description", resource_dict
-            )
-
-            #  Lists
-            items = [
-                ("documentation", FOAF.page, None, Literal),
-                ("language", DCT.language, None, Literal),
-                ("conforms_to", DCT.conformsTo, None, Literal),
-            ]
-            self._add_list_triples_from_dict(resource_dict, distribution, items)
-
-            # URL
-            url = resource_dict.get("url")
-            g.add((distribution, DCAT.accessURL, URIRef(url)))
-            if resource_dict["url_type"] == "upload":
-                g.add((distribution, DCAT.downloadURL, URIRef(url)))
-
-                # Format from Download-Url
-                format_value = str(url).rsplit(".", 1)[1]
-                mapped_format = map_to_valid_format(format_value)
-                g.add((distribution, DCT["format"], Literal(mapped_format)))
-
-            # Mime-Type
-            if resource_dict.get("mimetype"):
-                g.add(
-                    (distribution, DCAT.mediaType, Literal(resource_dict["mimetype"]))
-                )
-
-            # Dates
-            items = [
-                ("issued", DCT.issued, None, Literal),
-                ("modified", DCT.modified, None, Literal),
-            ]
-
-            self._add_date_triples_from_dict(resource_dict, distribution, items)
-
-            # Numbers
-            if resource_dict.get("byte_size"):
-                g.add((distribution, DCAT.byteSize, Literal(resource_dict["size"])))
+            # Format from Download-Url
+            format_value = str(url).rsplit(".", 1)[1]
+            mapped_format = map_to_valid_format(format_value)
+            g.add((distribution, DCT["format"], Literal(mapped_format)))
+        # Mime-Type
+        if resource_dict.get("mimetype"):
+            g.add((distribution, DCAT.mediaType, Literal(resource_dict["mimetype"])))
+        # Dates
+        items = [
+            ("issued", DCT.issued, None, Literal),
+            ("modified", DCT.modified, None, Literal),
+        ]
+        self._add_date_triples_from_dict(resource_dict, distribution, items)
+        # Numbers
+        if resource_dict.get("byte_size"):
+            g.add((distribution, DCAT.byteSize, Literal(resource_dict["size"])))
 
     def graph_from_catalog(self, catalog_dict, catalog_ref):
         g = self.g
