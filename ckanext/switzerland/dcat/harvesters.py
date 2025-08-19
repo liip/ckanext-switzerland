@@ -21,31 +21,21 @@ class SwissDCATRDFHarvester(DCATRDFHarvester):
          * dcat:identifier
          * Source URL + Dataset name
          * Dataset name
-         The last two are obviously not optimal, as depend on title, which
-         might change.
+         The last two are obviously not optimal, as depend on title, which might change.
          Returns None if no guid could be decided.
         """
+        uri = self._get_dict_value(dataset_dict, "uri")
+        if uri:
+            return uri
+
+        identifier = self._get_dict_value(dataset_dict, "identifier")
+        if identifier:
+            return identifier
+
         guid = None
-        for extra in dataset_dict.get("extras", []):
-            if extra["key"] == "uri" and extra["value"]:
-                return extra["value"]
-
-        if dataset_dict.get("uri"):
-            return dataset_dict["uri"]
-
-        for extra in dataset_dict.get("extras", []):
-            if extra["key"] == "identifier" and extra["value"]:
-                return extra["value"]
-
-        if dataset_dict.get("identifier"):
-            return dataset_dict["identifier"]
-
-        for extra in dataset_dict.get("extras", []):
-            if extra["key"] == "dcat_identifier" and extra["value"]:
-                return extra["value"]
-
-        if dataset_dict.get("name"):
-            guid = dataset_dict["name"]
+        name = self._get_dict_value(dataset_dict, "name")
+        if name:
+            guid = name
             if source_url:
                 guid = source_url.rstrip("/") + "/" + guid
 
