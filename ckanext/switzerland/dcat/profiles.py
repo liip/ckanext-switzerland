@@ -367,7 +367,7 @@ class SwissDCATAPProfile(RDFProfile):
             (
                 dataset_ref,
                 DCAT.landingPage,
-                Literal(
+                URIRef(
                     url_for(
                         "dataset.read",
                         id=dataset_dict["name"],
