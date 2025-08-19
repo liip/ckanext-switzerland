@@ -422,17 +422,30 @@ class SwissDCATAPProfile(RDFProfile):
                 g.add((dataset_ref, DCAT.contactPoint, contact_details))
 
         # Publisher
+        self._add_publishers_to_graph(dataset_dict, dataset_ref)
+
+        # Temporals
+        self._add_temporals_to_graph(dataset_dict, dataset_ref)
+
+        # Themes
+        g.add((dataset_ref, DCAT.theme, URIRef("http://opendata.swiss/group/mobility")))
+
+        # Resources
+        for resource_dict in dataset_dict.get("resources", []):
+            self._add_distribution_to_graph(dataset_ref, resource_dict)
+
+    def _add_publishers_to_graph(self, dataset_dict, dataset_ref):
         if dataset_dict.get("publishers"):
             publishers = dataset_dict.get("publishers")
             for publisher in publishers:
                 publisher_name = publisher["label"]
 
                 publisher_details = BNode()
-                g.add((publisher_details, RDF.type, DCT.Description))
-                g.add((publisher_details, RDFS.label, Literal(publisher_name)))
-                g.add((dataset_ref, DCT.publisher, publisher_details))
+                self.g.add((publisher_details, RDF.type, DCT.Description))
+                self.g.add((publisher_details, RDFS.label, Literal(publisher_name)))
+                self.g.add((dataset_ref, DCT.publisher, publisher_details))
 
-        # Temporals
+    def _add_temporals_to_graph(self, dataset_dict, dataset_ref):
         temporals = dataset_dict.get("temporals")
         if temporals:
             for temporal in temporals:
@@ -440,21 +453,14 @@ class SwissDCATAPProfile(RDFProfile):
                 end = temporal["end_date"]
                 if start or end:
                     temporal_extent = BNode()
-                    g.add((temporal_extent, RDF.type, DCT.PeriodOfTime))
+                    self.g.add((temporal_extent, RDF.type, DCT.PeriodOfTime))
                     if start:
                         self._add_date_triple(temporal_extent, SCHEMA.startDate, start)
                     if end:
                         self._add_date_triple(temporal_extent, SCHEMA.endDate, end)
-                    g.add((dataset_ref, DCT.temporal, temporal_extent))
+                    self.g.add((dataset_ref, DCT.temporal, temporal_extent))
 
-        # Themes
-        g.add((dataset_ref, DCAT.theme, URIRef("http://opendata.swiss/group/mobility")))
-
-        # Resources
-        for resource_dict in dataset_dict.get("resources", []):
-            self._add_distribution_graph_from_resource(dataset_ref, resource_dict)
-
-    def _add_distribution_graph_from_resource(self, dataset_ref, resource_dict):
+    def _add_distribution_to_graph(self, dataset_ref, resource_dict):
         g = self.g
 
         distribution = URIRef(resource_uri(resource_dict))
