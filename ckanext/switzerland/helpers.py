@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import unicodedata
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -78,27 +78,97 @@ def _lang_fallback(lang_dict, default_value):
     return default_value
 
 
-def get_frequency_name(identifier):
-    frequencies = {
-        "http://purl.org/cld/freq/completelyIrregular": _("Irregular"),
-        "http://purl.org/cld/freq/continuous": _("Continuous"),
-        "http://purl.org/cld/freq/hourly": _("Hourly"),
-        "http://purl.org/cld/freq/daily": _("Daily"),
-        "http://purl.org/cld/freq/threeTimesAWeek": _("Three times a week"),
-        "http://purl.org/cld/freq/semiweekly": _("Semi weekly"),
-        "http://purl.org/cld/freq/weekly": _("Weekly"),
-        "http://purl.org/cld/freq/threeTimesAMonth": _("Three times a month"),
-        "http://purl.org/cld/freq/biweekly": _("Biweekly"),
-        "http://purl.org/cld/freq/semimonthly": _("Semimonthly"),
-        "http://purl.org/cld/freq/monthly": _("Monthly"),
-        "http://purl.org/cld/freq/bimonthly": _("Bimonthly"),
-        "http://purl.org/cld/freq/quarterly": _("Quarterly"),
-        "http://purl.org/cld/freq/threeTimesAYear": _("Three times a year"),
-        "http://purl.org/cld/freq/semiannual": _("Semi Annual"),
-        "http://purl.org/cld/freq/annual": _("Annual"),
-        "http://purl.org/cld/freq/biennial": _("Biennial"),
-        "http://purl.org/cld/freq/triennial": _("Triennial"),
-    }
+def ogdch_get_accrual_periodicity_choices(field):
+    map = [
+        {"label": label, "value": value}
+        for value, label in get_frequency_name(get_map=True).items()
+    ]
+    return map
+
+
+def get_frequency_name(identifier=None, get_map=False):
+    frequencies = OrderedDict(
+        [
+            (
+                "http://publications.europa.eu/resource/authority/frequency/IRREG",
+                _("Irregular"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/CONT",
+                _("Continuous"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/HOURLY",
+                _("Hourly"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/DAILY",
+                _("Daily"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/WEEKLY_3",
+                _("Three times a week"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/WEEKLY_2",
+                _("Two times a week"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/WEEKLY",
+                _("Weekly"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/MONTHLY_3",
+                _("Three times a month"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/BIWEEKLY",
+                _("Every two weeks"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/MONTHLY_2",
+                _("Twice a month"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/MONTHLY",
+                _("Monthly"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/BIMONTHLY",
+                _("Every two months"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/QUARTERLY",
+                _("Every three months"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/ANNUAL_3",
+                _("Three times a year"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/ANNUAL_2",
+                _("Twice a year"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/ANNUAL",
+                _("Annual"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/BIENNIAL",
+                _("Every two years"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/TRIENNIAL",
+                _("Every three years"),
+            ),
+            (
+                "http://publications.europa.eu/resource/authority/frequency/OTHER",
+                _("Other"),
+            ),
+        ]
+    )
+    if get_map:
+        return frequencies
     try:
         return frequencies[identifier]
     except KeyError:

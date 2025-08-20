@@ -91,6 +91,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "get_cookie_law_url": sh.get_cookie_law_url,
             "get_cookie_law_id": sh.get_cookie_law_id,
             "get_wordpress_url": sh.get_wordpress_url,
+            "ogdch_get_accrual_periodicity_choices": sh.ogdch_get_accrual_periodicity_choices,
         }
 
     def i18n_directory(self):
