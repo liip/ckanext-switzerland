@@ -71,7 +71,6 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "get_localized_value": sh.get_localized_value,
             "parse_and_localize": sh.parse_and_localize,
             "get_frequency_name": sh.get_frequency_name,
-            "get_terms_of_use_icon": sh.get_terms_of_use_icon,
             "get_readable_file_size": sh.get_readable_file_size,
             "parse_json": sh.parse_json,
             "convert_post_data_to_dict": sh.convert_post_data_to_dict,
