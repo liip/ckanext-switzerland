@@ -425,7 +425,15 @@ class SwissDCATAPProfile(RDFProfile):
         self._add_temporals_to_graph(dataset_dict, dataset_ref)
 
         # Themes
-        g.add((dataset_ref, DCAT.theme, URIRef("http://opendata.swiss/group/mobility")))
+        g.add(
+            (
+                dataset_ref,
+                DCAT.theme,
+                URIRef(
+                    "http://publications.europa.eu/resource/authority/data-theme/TRAN"
+                ),
+            )
+        )
 
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
