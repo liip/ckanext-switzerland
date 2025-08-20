@@ -78,6 +78,36 @@ def _lang_fallback(lang_dict, default_value):
     return default_value
 
 
+def ogdch_get_media_type_choices(field):
+    map = [
+        {"label": label, "value": value}
+        for value, label in get_media_type_name(get_map=True).items()
+    ]
+    return map
+
+
+def get_media_type_name(identifier=None, get_map=False):
+    media_types = OrderedDict(
+        [
+            ("application/zip", "ZIP"),
+            ("application/csv", "CSV"),
+            ("application/json", "JSON"),
+            ("application/xml", "XML"),
+            (
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "XLSX",
+            ),
+            ("application/protobuf", "Protocol Buffer"),
+        ]
+    )
+    if get_map:
+        return media_types
+    try:
+        return media_types[identifier]
+    except KeyError:
+        return identifier
+
+
 def ogdch_get_accrual_periodicity_choices(field):
     map = [
         {"label": label, "value": value}
