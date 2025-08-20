@@ -45,8 +45,6 @@ namespaces = {
     "xml": XML,
 }
 
-ogd_theme_base_url = "http://opendata.swiss/group/"
-
 slug_id_pattern = re.compile("[^/]+(?=/$|$)")
 
 
