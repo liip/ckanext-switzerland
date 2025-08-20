@@ -1,6 +1,7 @@
 boto3==1.28.21
 ckantoolkit==0.0.7
 geomet==1.0.0
+paramiko==3.5.1
 pysftp==0.2.9
 requests==2.31.0
 routes==2.5.1
