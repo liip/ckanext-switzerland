@@ -372,7 +372,6 @@ class SwissDCATAPProfile(RDFProfile):
         # Lists
         items = [
             ("language", DCT.language, None, Literal),
-            ("theme", DCAT.theme, None, URIRef),
             ("conforms_to", DCT.conformsTo, None, Literal),
             ("alternate_identifier", ADMS.identifier, None, Literal),
             ("documentation", FOAF.page, None, Literal),
