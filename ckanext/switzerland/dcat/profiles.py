@@ -45,8 +45,6 @@ namespaces = {
     "xml": XML,
 }
 
-ogd_theme_base_url = "http://opendata.swiss/group/"
-
 slug_id_pattern = re.compile("[^/]+(?=/$|$)")
 
 
@@ -374,7 +372,6 @@ class SwissDCATAPProfile(RDFProfile):
         # Lists
         items = [
             ("language", DCT.language, None, Literal),
-            ("theme", DCAT.theme, None, URIRef),
             ("conforms_to", DCT.conformsTo, None, Literal),
             ("alternate_identifier", ADMS.identifier, None, Literal),
             ("documentation", FOAF.page, None, Literal),
@@ -428,7 +425,15 @@ class SwissDCATAPProfile(RDFProfile):
         self._add_temporals_to_graph(dataset_dict, dataset_ref)
 
         # Themes
-        g.add((dataset_ref, DCAT.theme, URIRef("http://opendata.swiss/group/mobility")))
+        g.add(
+            (
+                dataset_ref,
+                DCAT.theme,
+                URIRef(
+                    "http://publications.europa.eu/resource/authority/data-theme/TRAN"
+                ),
+            )
+        )
 
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
