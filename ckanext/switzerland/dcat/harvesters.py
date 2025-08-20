@@ -10,10 +10,10 @@ class SwissDCATRDFHarvester(DCATRDFHarvester):
         return {
             "name": "dcat_ch_rdf",
             "title": "DCAT-AP Switzerland RDF Harvester",
-            "description": "Harvester for DCAT-AP Switzerland datasets from an RDF graph",  # noqa
+            "description": "Harvester for DCAT-AP Switzerland datasets from an RDF graph",
         }
 
-    def _get_guid(self, dataset_dict, source_url=None):  # noqa
+    def _get_guid(self, dataset_dict, source_url=None):
         """
         Try to get a unique identifier for a harvested dataset
         It will be the first found of:
@@ -21,31 +21,21 @@ class SwissDCATRDFHarvester(DCATRDFHarvester):
          * dcat:identifier
          * Source URL + Dataset name
          * Dataset name
-         The last two are obviously not optimal, as depend on title, which
-         might change.
+         The last two are obviously not optimal, as depend on title, which might change.
          Returns None if no guid could be decided.
         """
+        uri = self._get_dict_value(dataset_dict, "uri")
+        if uri:
+            return uri
+
+        identifier = self._get_dict_value(dataset_dict, "identifier")
+        if identifier:
+            return identifier
+
         guid = None
-        for extra in dataset_dict.get("extras", []):
-            if extra["key"] == "uri" and extra["value"]:
-                return extra["value"]
-
-        if dataset_dict.get("uri"):
-            return dataset_dict["uri"]
-
-        for extra in dataset_dict.get("extras", []):
-            if extra["key"] == "identifier" and extra["value"]:
-                return extra["value"]
-
-        if dataset_dict.get("identifier"):
-            return dataset_dict["identifier"]
-
-        for extra in dataset_dict.get("extras", []):
-            if extra["key"] == "dcat_identifier" and extra["value"]:
-                return extra["value"]
-
-        if dataset_dict.get("name"):
-            guid = dataset_dict["name"]
+        name = self._get_dict_value(dataset_dict, "name")
+        if name:
+            guid = name
             if source_url:
                 guid = source_url.rstrip("/") + "/" + guid
 
@@ -53,6 +43,6 @@ class SwissDCATRDFHarvester(DCATRDFHarvester):
 
     def _gen_new_name(self, title):
         try:
-            return super(SwissDCATRDFHarvester, self)._gen_new_name(title["de"])  # noqa
+            return super(SwissDCATRDFHarvester, self)._gen_new_name(title["de"])
         except TypeError:
-            return super(SwissDCATRDFHarvester, self)._gen_new_name(title)  # noqa
+            return super(SwissDCATRDFHarvester, self)._gen_new_name(title)
