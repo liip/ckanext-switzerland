@@ -185,13 +185,15 @@
     },
     {
       "field_name": "accrual_periodicity",
+      "preset": "select",
       "label": {
         "en": "Update interval",
         "de": "Aktualisierungsintervall",
         "fr": "Intervalle d'actualisation",
         "it": "Intervallo di aggiornamento"
       },
-      "display_snippet": "periodicity.html"
+      "display_snippet": "periodicity.html",
+      "choices_helper": "ogdch_get_accrual_periodicity_choices"
     },
     {
       "field_name": "url",
