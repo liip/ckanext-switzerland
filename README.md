@@ -214,7 +214,11 @@ for CKAN](https://github.com/ckan/ckan-docker/).
     ```shell
     python setup.py extract_messages
     ```
-3. *Optional* If you have copied templates from core CKAN to override them, you might want to copy the translations
+3. Transfer all new terms to the `.po`-files:
+    ```shell
+    python setup.py update_catalog
+    ```
+4. *Optional* If you have copied templates from core CKAN to override them, you might want to copy the translations
 from CKAN too:
    ```shell
    apt-get install gettext
@@ -226,12 +230,12 @@ from CKAN too:
    cp temp_it.po i18n/it/LC_MESSAGES/ckanext-switzerland.po
    rm temp_de.po temp_fr.po temp_it.po
    ```
-4. Check the `.po` files and add any new translations that are needed.
-5. Update the `.mo` files:
+5. Check the `.po` files and add any new translations that are needed.
+6. Update the `.mo` files:
    ```shell
    python setup.py compile_catalog
    ```
-6. Restart the docker container:
+7. Restart the docker container:
    ```shell
    docker compose restart ckan
    ```
