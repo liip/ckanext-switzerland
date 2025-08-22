@@ -121,12 +121,13 @@ class OgdchPlugin(plugins.SingletonPlugin):
     # IFacets
 
     def _update_facets(self, facets_dict):
-        """Remove the Tags facet (which we don't use) and add a Keywords facet in the
+        """Remove the Tags and Licenses facet (which we don't use) and add a Keywords facet in the
         language of the current request.
         """
         lang_code = sh.get_request_language()
         facets_dict["keywords_" + lang_code] = toolkit._("Keywords")
         del facets_dict["tags"]
+        del facets_dict["license_id"]
 
         return facets_dict
 
