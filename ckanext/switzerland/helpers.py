@@ -29,6 +29,11 @@ DATETIME_FIELDS = [
 ]
 UTC = ZoneInfo("UTC")
 ZURICH = ZoneInfo("Europe/Zurich")
+TERMS_OF_USE_OPEN = "http://dcat-ap.ch/vocabulary/licenses/terms_open"
+TERMS_OF_USE_BY = "http://dcat-ap.ch/vocabulary/licenses/terms_by"
+TERMS_OF_USE_ASK = "http://dcat-ap.ch/vocabulary/licenses/terms_ask"
+TERMS_OF_USE_BY_ASK = "http://dcat-ap.ch/vocabulary/licenses/terms_by_ask"
+TERMS_OF_USE_CLOSED = "ClosedData"
 
 
 def get_langs():
@@ -84,6 +89,35 @@ def ogdch_get_accrual_periodicity_choices(field):
         for value, label in get_frequency_name(get_map=True).items()
     ]
     return map
+
+
+def ogdch_get_license_choices(field):
+    return [
+        {
+            "label": _(
+                "Non-commercial Allowed / Commercial Allowed / Reference Not Required"
+            ),
+            "value": TERMS_OF_USE_OPEN,
+        },
+        {
+            "label": _(
+                "Non-commercial Allowed / Commercial With Permission Allowed / Reference Not Required"
+            ),
+            "value": TERMS_OF_USE_ASK,
+        },
+        {
+            "label": _(
+                "Non-commercial Allowed / Commercial With Permission Allowed / Reference Required"
+            ),
+            "value": TERMS_OF_USE_BY_ASK,
+        },
+        {
+            "label": _(
+                "Non-commercial Allowed / Commercial Allowed / Reference Required"
+            ),
+            "value": TERMS_OF_USE_BY,
+        },
+    ]
 
 
 def get_frequency_name(identifier=None, get_map=False):

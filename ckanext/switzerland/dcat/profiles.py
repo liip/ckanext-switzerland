@@ -489,7 +489,7 @@ class SwissDCATAPProfile(RDFProfile):
             (
                 distribution,
                 DCT.license,
-                Literal("NonCommercialAllowed-CommercialAllowed-ReferenceRequired"),
+                URIRef("http://dcat-ap.ch/vocabulary/licenses/terms_by"),
             )
         )
         self._add_triples_from_dict(resource_dict, distribution, items)

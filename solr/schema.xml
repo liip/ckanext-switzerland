@@ -248,8 +248,6 @@ attribute with the form `ckan-X.Y` -->
     <field name="author_email" type="text_general" indexed="true" stored="true" />
     <field name="maintainer" type="text_general" indexed="true" stored="true" />
     <field name="maintainer_email" type="text_general" indexed="true" stored="true" />
-    <field name="license" type="string" indexed="true" stored="true" />
-    <field name="license_id" type="string" indexed="true" stored="true" />
     <field name="tags" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="groups" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="organization" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -341,7 +339,6 @@ attribute with the form `ckan-X.Y` -->
 <copyField source="name" dest="text"/>
 <copyField source="title" dest="text"/>
 <copyField source="text" dest="text"/>
-<copyField source="license" dest="text"/>
 <copyField source="notes" dest="text"/>
 <copyField source="tags" dest="text"/>
 <copyField source="groups" dest="text"/>

@@ -9,8 +9,6 @@
     'tag_string',
     'spatial',
     'coverage',
-    'odpch_license_url',
-    'odpch_license_name',
     'url',
     ] -%}
 
@@ -28,7 +26,6 @@
       </tr>
     {%- endif -%}
   {%- endfor -%}
-  {% snippet "package/snippets/terms_of_use.html", pkg=pkg_dict %}
   {% if h.check_access('package_update',{'id':pkg_dict.id}) %}
     <tr>
       <th scope="row" class="dataset-label">{{ _("State") }}</th>

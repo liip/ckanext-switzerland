@@ -67,26 +67,6 @@
       "form_snippet": "multilingual_textarea.html"
     },
     {
-      "field_name": "odpch_license_url",
-      "label": {
-        "en": "License URL",
-        "de": "Lizenz-URL",
-        "fr": "URL de la licence",
-        "it": "URL di licenza"
-      },
-      "preset": "url",
-      "validators": "ignore_missing url"
-    },
-    {
-      "field_name": "odpch_license_name",
-      "label": {
-        "en": "License Name",
-        "de": "Name der Lizenz",
-        "fr": "Nom de la licence",
-        "it": "Nome della licenza"
-      }
-    },
-    {
       "field_name": "permalink",
       "label": {
         "en": "Permalink",
@@ -357,13 +337,15 @@
     },
     {
       "field_name": "license",
+      "preset": "select",
+      "choices_helper": "ogdch_get_license_choices",
+      "required": true,
       "label": {
-        "en": "License",
-        "de": "Lizenz",
-        "fr": "Licence",
-        "it": "Licenza"
-      },
-      "form_snippet": null
+        "en": "License (Terms of use)",
+        "de": "Lizenz (Nutzungsbedingungen)",
+        "fr": "Licence (Conditions d'utilisation)",
+        "it": "Licenza (Condizioni d'uso)"
+      }
     },
     {
       "field_name": "coverage",
