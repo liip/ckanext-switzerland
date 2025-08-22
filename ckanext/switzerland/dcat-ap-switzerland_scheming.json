@@ -337,13 +337,15 @@
     },
     {
       "field_name": "license",
+      "preset": "select",
+      "choices_helper": "ogdch_get_license_choices",
+      "required": true,
       "label": {
-        "en": "License",
-        "de": "Lizenz",
-        "fr": "Licence",
-        "it": "Licenza"
-      },
-      "form_snippet": null
+        "en": "License (Terms of use)",
+        "de": "Lizenz (Nutzungsbedingungen)",
+        "fr": "Licence (Conditions d'utilisation)",
+        "it": "Licenza (Condizioni d'uso)"
+      }
     },
     {
       "field_name": "coverage",
