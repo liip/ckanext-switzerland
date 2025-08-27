@@ -33,7 +33,6 @@ TERMS_OF_USE_OPEN = "http://dcat-ap.ch/vocabulary/licenses/terms_open"
 TERMS_OF_USE_BY = "http://dcat-ap.ch/vocabulary/licenses/terms_by"
 TERMS_OF_USE_ASK = "http://dcat-ap.ch/vocabulary/licenses/terms_ask"
 TERMS_OF_USE_BY_ASK = "http://dcat-ap.ch/vocabulary/licenses/terms_by_ask"
-TERMS_OF_USE_CLOSED = "ClosedData"
 
 
 def get_langs():
