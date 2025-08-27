@@ -83,6 +83,12 @@ def _lang_fallback(lang_dict, default_value):
     return default_value
 
 
+def get_default_licence_for_organization(org_dict):
+    if org_dict["name"] == "astra":
+        return TERMS_OF_USE_BY_ASK
+    return TERMS_OF_USE_BY
+
+
 def ogdch_get_accrual_periodicity_choices(field):
     map = [
         {"label": label, "value": value}
