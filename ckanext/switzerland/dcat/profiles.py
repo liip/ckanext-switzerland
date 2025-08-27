@@ -477,21 +477,8 @@ class SwissDCATAPProfile(RDFProfile):
             ("identifier", DCT.identifier, None, Literal),
             ("media_type", DCAT.mediaType, ["mimetype"], Literal),
             ("spatial", DCT.spatial, None, Literal),
+            ("license", DCT.license, None, URIRef),
         ]
-        g.add(
-            (
-                distribution,
-                DCT.rights,
-                Literal("NonCommercialAllowed-CommercialAllowed-ReferenceRequired"),
-            )
-        )
-        g.add(
-            (
-                distribution,
-                DCT.license,
-                URIRef("http://dcat-ap.ch/vocabulary/licenses/terms_by"),
-            )
-        )
         self._add_triples_from_dict(resource_dict, distribution, items)
         self._add_multilang_value(distribution, DCT.title, "title", resource_dict)
         self._add_multilang_value(
