@@ -129,7 +129,7 @@ def resource(dataset, filename="filenamethatshouldnotmatch.csv"):
         },
         state="active",
         rights="Other (Open)",
-        license="Other (Open)",
+        license="http://dcat-ap.ch/vocabulary/licenses/terms_open",
         coverage="Coverage",
         url="http://odp.test/dataset/testdataset/resource/download/{}".format(
             munge_filename(filename)
