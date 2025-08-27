@@ -104,6 +104,16 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(r1["description"]["de"], "AAAResource Desc")
         self.assertEqual(r2["description"]["de"], "AAAResource Desc")
 
+        # the new resource copies the license from the existing resource
+        self.assertEqual(
+            r1["license"],
+            "http://dcat-ap.ch/vocabulary/licenses/terms_open",
+        )
+        self.assertEqual(
+            r2["license"],
+            "http://dcat-ap.ch/vocabulary/licenses/terms_open",
+        )
+
     def test_existing_resource_same_filename(self):
         """
         Tests harvesting a new file which was not harvested before but manually uploaded
@@ -366,6 +376,34 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(package.resources[0].extras["identifier"], "20160904.csv")
         self.assertEqual(package.resources[1].extras["identifier"], "20160903.csv")
         self.assertEqual(package.resources[2].extras["identifier"], "20160902.csv")
+
+    def test_resource_license_no_existing_resource(self):
+        """With no existing resource to copy metadata from, the default license should
+        be used."""
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
+        self.run_harvester(ftp_server="testserver")
+
+        dataset = self.get_dataset()
+
+        resource = dataset["resources"][0]
+        self.assertEqual(
+            resource["license"],
+            "http://dcat-ap.ch/vocabulary/licenses/terms_by",
+        )
+
+    def test_resource_license_no_existing_resource_astra_organization(self):
+        """With no existing resource to copy metadata from, the default license for the
+        ASTRA organization should be used."""
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
+        self.run_harvester(ftp_server="testserver", org_name="astra")
+
+        dataset = self.get_dataset()
+
+        resource = dataset["resources"][0]
+        self.assertEqual(
+            resource["license"],
+            "http://dcat-ap.ch/vocabulary/licenses/terms_by_ask",
+        )
 
     def test_resource_formats(self):
         filesystem = self.get_filesystem(filename="20160901.csv")
