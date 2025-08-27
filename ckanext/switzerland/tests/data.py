@@ -1,4 +1,3 @@
-# coding=utf-8
 from ckan.lib.munge import munge_filename, munge_name
 from ckan.tests import factories
 
