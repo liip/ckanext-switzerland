@@ -31,9 +31,10 @@ class BaseSBBHarvesterTests(unittest.TestCase):
         infoplus=None,
         ist_file=None,
         ftp_server=None,
+        org_name=None,
     ):
         self.user = data.user()
-        self.organization = data.organization(self.user)
+        self.organization = data.organization(self.user, org_name)
 
         harvester = self.harvester_class()
 
