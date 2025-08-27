@@ -173,7 +173,6 @@ class TestOgdchPackagePlugin(object):
             "Temporal coverage",
             "Update interval",
             "Languages",
-            "Terms of use",
         ]
 
         table = soup.find(
@@ -206,6 +205,7 @@ class TestOgdchPackagePlugin(object):
             "Title",
             "Media type",
             "Media type (inner)",
+            "License (Terms of use)",
             "Coverage",
             "File size",
             "ID",
