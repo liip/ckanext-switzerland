@@ -33,6 +33,7 @@ from .base_ftp_harvester_tests import BaseSBBHarvesterTests
     "ckanext.switzerland.harvester.sbb_harvester.StorageAdapterFactory",
     MockStorageAdapterFactory,
 )
+@pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
 class TestSBBHarvester(BaseSBBHarvesterTests):
     """
     Integration test for SBBHarvester
@@ -40,7 +41,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
     harvester_class = SBBHarvester
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_simple(self):
         MockFTPStorageAdapter.filesystem = self.get_filesystem()
         self.run_harvester(ftp_server="testserver")
@@ -58,7 +58,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
             relations=[],
         )
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_existing_dataset(self):
         data.dataset(slug="testslug-other-than-munge-name")
 
@@ -76,7 +75,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         with self.assertRaises(NotFound):
             get_action("package_show")({}, {"id": munge_name(data.dataset_name)})
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_existing_resource(self):
         """
         Tests harvesting a new file which was not harvested before. Should create a new
@@ -106,7 +104,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(r1["description"]["de"], "AAAResource Desc")
         self.assertEqual(r2["description"]["de"], "AAAResource Desc")
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_existing_resource_same_filename(self):
         """
         Tests harvesting a new file which was not harvested before but manually uploaded
@@ -127,8 +124,11 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         resource = dataset["resources"][0]
 
         self.assertEqual(resource["description"]["de"], "AAAResource Desc")
+        self.assertEqual(
+            resource["license"],
+            "http://dcat-ap.ch/vocabulary/licenses/terms_open",
+        )
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_skip_already_harvested_file(self):
         """
         When modified date of file is older than the last harvester run date, the file
@@ -145,7 +145,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         self.assertEqual(len(package.resources), 1)
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_force_all(self):
         """
         When modified date of file is older than the last harvester run date, the file
@@ -173,7 +172,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
             "The resource has not been harvested a second time",
         )
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_updated_file_before_last_harvester_run(self):
         """
         When modified date of file is older than the last harvester run date, the file
@@ -194,7 +192,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(len(dataset["resources"]), 1)
         self.assertEqual(dataset["resources"][0]["identifier"], "Didok.csv")
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_update_version(self):
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem
@@ -228,7 +225,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assert_resource_data(package.resources[0].id, data.dataset_content_2)
         self.assert_resource_data(package.resources[1].id, data.dataset_content_1)
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_update_file_of_old_version(self):
         """
         initial state:
@@ -276,7 +272,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assert_resource_data(package.resources[0].id, data.dataset_content_2)
         self.assert_resource_data(package.resources[1].id, data.dataset_content_3)
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_update_file_of_newest_version(self):
         """
         initial state:
@@ -322,7 +317,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assert_resource_data(package.resources[0].id, data.dataset_content_3)
         self.assert_resource_data(package.resources[1].id, data.dataset_content_1)
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_order_permalink_regex(self):
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem
@@ -350,7 +344,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
             ),
         )
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     # cleanup tests
     def test_max_resources(self):
         filesystem = self.get_filesystem(filename="20160901.csv")
@@ -374,7 +367,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(package.resources[1].extras["identifier"], "20160903.csv")
         self.assertEqual(package.resources[2].extras["identifier"], "20160902.csv")
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_resource_formats(self):
         filesystem = self.get_filesystem(filename="20160901.csv")
         MockFTPStorageAdapter.filesystem = filesystem
@@ -436,7 +428,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         # mimetype_inner is None, so CKAN doesn't save it on the resource
         self.assertNotIn("mimetype_inner", json_resource)
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_resource_formats_zip(self):
         currpath = os.path.dirname(os.path.realpath(__file__))
         src_path = os.path.join(currpath, "fixtures/zip/my.zip")
@@ -464,7 +455,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(resource["mimetype"], "application/zip")
         self.assertEqual(resource["mimetype_inner"], "text/plain")
 
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_filter_regex(self):
         filesystem = self.get_filesystem(filename="File.zip")
         MockFTPStorageAdapter.filesystem = filesystem
@@ -511,7 +501,6 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
     @time_machine.travel(
         datetime(2022, 4, 20, 14, 15, 0, 0, ZoneInfo("UTC")), tick=False
     )
-    @pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
     def test_datetime_fields(self):
         """Test that all datetime fields for a new dataset are set to the current time
         in UTC.
