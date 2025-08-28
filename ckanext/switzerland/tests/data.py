@@ -1,4 +1,3 @@
-# coding=utf-8
 from ckan.lib.munge import munge_filename, munge_name
 from ckan.tests import factories
 
@@ -80,12 +79,15 @@ def user():
     return factories.User()
 
 
-def organization(user):
-    return factories.Organization(
-        users=[{"name": user["id"], "capacity": "admin"}],
-        description={"de": "", "it": "", "fr": "", "en": ""},
-        title={"de": "", "it": "", "fr": "", "en": ""},
-    )
+def organization(user, name=None):
+    kwargs = {
+        "users": [{"name": user["id"], "capacity": "admin"}],
+        "description": {"de": "", "it": "", "fr": "", "en": ""},
+        "title": {"de": "", "it": "", "fr": "", "en": ""},
+    }
+    if name:
+        kwargs["name"] = name
+    return factories.Organization(**kwargs)
 
 
 def dataset(slug=None):
