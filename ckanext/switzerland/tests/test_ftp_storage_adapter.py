@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 """Tests for the ckanext.switzerland.ftp_helper.py"""
 
 import logging

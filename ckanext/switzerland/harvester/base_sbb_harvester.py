@@ -38,6 +38,7 @@ from werkzeug.datastructures import FileStorage
 from ckanext.harvest.harvesters.base import HarvesterBase
 from ckanext.harvest.model import HarvestObject
 from ckanext.switzerland.harvester.storage_adapter_factory import StorageAdapterFactory
+from ckanext.switzerland.helpers import get_default_licence_for_organization
 
 log = logging.getLogger(__name__)
 
@@ -265,13 +266,13 @@ class BaseSBBHarvester(HarvesterBase):
 
         return package_dict
 
-    def _add_package_orgs(self, package_dict, context, organization):
+    def _add_package_org(self, package_dict, org_dict):
         """
         Fetch organization and set it on the package_dict
 
         :param package_dict: Package metadata
         :type package_dict: dict
-        :param context: CKAN context
+        :param org_dict: Organization metadata
         :type context: dict
 
         :returns: Package dictionary
@@ -279,9 +280,8 @@ class BaseSBBHarvester(HarvesterBase):
         """
 
         # check if this organization exists
-        org_dict = get_action("organization_show")(context, {"id": organization})
         if org_dict:
-            package_dict["owner_org"] = organization
+            package_dict["owner_org"] = org_dict["id"]
             package_dict["organization"] = org_dict
 
         return package_dict
@@ -686,6 +686,9 @@ class BaseSBBHarvester(HarvesterBase):
         old_resource_id = None
         old_resource_meta = {}
 
+        source_org_id = model.Package.get(harvest_object.source.id).owner_org
+        source_org = get_action("organization_show")(context, {"id": source_org_id})
+
         try:
             # -----------------------------------------------------------------------
             # use the existing package dictionary (if it exists)
@@ -774,8 +777,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             package_dict = self._add_package_tags(package_dict)
             package_dict = self._add_package_groups(package_dict, context)
-            source_org = model.Package.get(harvest_object.source.id).owner_org
-            package_dict = self._add_package_orgs(package_dict, context, source_org)
+            package_dict = self._add_package_org(package_dict, source_org)
             package_dict = self._add_package_extras(package_dict, harvest_object)
 
             # version
@@ -900,7 +902,6 @@ class BaseSBBHarvester(HarvesterBase):
             # take this metadata from the old version if available
             fields_from_old_resource_meta = [
                 "rights",
-                "license",
                 "coverage",
                 "description",
                 "relations",
@@ -908,6 +909,10 @@ class BaseSBBHarvester(HarvesterBase):
             for field in fields_from_old_resource_meta:
                 if old_resource_meta.get(field):
                     resource_meta[field] = old_resource_meta.get(field)
+
+            resource_meta["license"] = old_resource_meta.get(
+                "license", get_default_licence_for_organization(source_org)
+            )
 
             resource_meta["package_id"] = dataset["id"]
 

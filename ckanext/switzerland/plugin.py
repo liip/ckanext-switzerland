@@ -1,4 +1,3 @@
-# coding=UTF-8
 import json
 import logging
 import os
@@ -92,6 +91,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "get_cookie_law_id": sh.get_cookie_law_id,
             "get_wordpress_url": sh.get_wordpress_url,
             "ogdch_get_accrual_periodicity_choices": sh.ogdch_get_accrual_periodicity_choices,
+            "ogdch_get_license_choices": sh.ogdch_get_license_choices,
         }
 
     def i18n_directory(self):
@@ -121,12 +121,13 @@ class OgdchPlugin(plugins.SingletonPlugin):
     # IFacets
 
     def _update_facets(self, facets_dict):
-        """Remove the Tags facet (which we don't use) and add a Keywords facet in the
+        """Remove the Tags and Licenses facet (which we don't use) and add a Keywords facet in the
         language of the current request.
         """
         lang_code = sh.get_request_language()
         facets_dict["keywords_" + lang_code] = toolkit._("Keywords")
         del facets_dict["tags"]
+        del facets_dict["license_id"]
 
         return facets_dict
 
