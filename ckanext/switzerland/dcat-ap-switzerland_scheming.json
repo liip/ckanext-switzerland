@@ -405,6 +405,7 @@
       "field_name": "license",
       "preset": "select",
       "choices_helper": "ogdch_get_license_choices",
+      "required": true,
       "label": {
         "en": "License (Terms of use)",
         "de": "Lizenz (Nutzungsbedingungen)",
