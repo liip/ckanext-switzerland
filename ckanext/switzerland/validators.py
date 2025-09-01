@@ -45,12 +45,6 @@ def json_list_of_dicts_field(field, schema):  # noqa C901
             },
             "required": True,
         },
-        "publishers": {
-            "fields": {
-                "label": lambda text: text,
-            },
-            "required": True,
-        },
         "relations": {
             "fields": {
                 "url": lambda text: text,
