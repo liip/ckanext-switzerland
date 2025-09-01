@@ -93,6 +93,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "ogdch_get_accrual_periodicity_choices": sh.ogdch_get_accrual_periodicity_choices,
             "ogdch_get_license_choices": sh.ogdch_get_license_choices,
             "ogdch_render_publisher": sh.ogdch_render_publisher,
+            "ogdch_publisher_form_helper": sh.ogdch_publisher_form_helper,
         }
 
     def i18n_directory(self):
