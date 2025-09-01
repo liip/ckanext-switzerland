@@ -89,7 +89,9 @@
     },
     {
       "field_name": "publishers",
-      "preset": "json_list_of_dicts_field"
+      "preset": "json_list_of_dicts_field",
+      "display_snippet": null,
+      "form_snippet": null
     },
     {
       "field_name": "publisher",
@@ -114,8 +116,8 @@
         "fr": "Editeur",
         "it": "Editore"
       },
-      "form_snippet": "publishers.html",
-      "display_snippet": "publishers.html",
+      "form_snippet": "publisher.html",
+      "display_snippet": "publisher.html",
       "label_name": {
         "en": "Publisher name",
         "de": "Publisher Name",
