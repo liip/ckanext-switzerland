@@ -48,6 +48,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "parse_json": sh.parse_json,
             "url": v.url_validator,
             "name_validator": v.ogdch_name_validator,
+            "ogdch_validate_formfield_publisher": v.ogdch_validate_formfield_publisher,
         }
 
     # IActions
