@@ -208,6 +208,14 @@
         "form_snippet": "organization_upload.html",
         "form_placeholder": "http://example.com/my-image.jpg"
       }
+    },
+    {
+      "preset_name": "multilingual_text_full",
+      "values": {
+        "form_snippet": "fluent_text_full.html",
+        "validators": "fluent_text",
+        "output_validators": "multilingual_text_output"
+      }
     }
   ]
 }

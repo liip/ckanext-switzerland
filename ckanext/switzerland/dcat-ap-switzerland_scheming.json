@@ -89,15 +89,53 @@
     },
     {
       "field_name": "publishers",
+      "validators": "ogdch_validate_formfield_publisher",
+      "preset": "multilingual_text_full",
+      "mark_required": true,
+      "name": {
+        "en": "Name",
+        "de": "Name",
+        "fr": "Nom",
+        "it": "Nome"
+      },
+      "url": {
+        "en": "URL",
+        "de": "URL",
+        "fr": "URL",
+        "it": "URL"
+      },
       "label": {
         "en": "Publishers",
         "de": "Publishers",
         "fr": "Editeurs",
         "it": "Editori"
       },
-      "preset": "json_list_of_dicts_field",
       "form_snippet": "publishers.html",
-      "display_snippet": "publishers.html"
+      "display_snippet": "publishers.html",
+      "label_name": {
+        "en": "Name",
+        "de": "Name",
+        "fr": "Nom",
+        "it": "Nome"
+      },
+      "label_url": {
+        "en": "URL",
+        "de": "URL",
+        "fr": "URL",
+        "it": "URL"
+      },
+      "form_placeholder_name": {
+        "en": "Publisher name",
+        "de": "Publisher Name",
+        "fr": "Éditeur",
+        "it": "Nome Publisher"
+      },
+      "form_placeholder_url": {
+        "en": "Publisher URL",
+        "de": "Publisher URL",
+        "fr": "Éditeur URL",
+        "it": "URL Publisher"
+      }
     },
     {
       "field_name": "contact_points",

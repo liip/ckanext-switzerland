@@ -592,3 +592,34 @@ def strxfrm(s):
     """Overriden from ckan.lib.helpers.strxfrm to handle our multilingual fields."""
     s = parse_and_localize(s)
     return unicodedata.normalize("NFD", s).lower()
+
+
+def ogdch_render_publisher(publisher_value):
+    """Return the publisher in the format
+    {
+        "name": {
+            "de": "German Name",
+            "en": "English Name",
+            "fr": "French Name",
+            "it": "Italian Name"
+            },
+        "url": "Publisher URL"
+        }
+
+    The input might be
+    - a dict
+    - a dict serialised to a json string
+    - a list of dicts, [{"label": "Publisher Name"}, ...] (deprecated September 2025)
+    """
+    if isinstance(publisher_value, list):
+        return {
+            "name": {lang: publisher_value[0]["label"] for lang in get_langs()},
+            "url": "",
+        }
+
+    try:
+        publisher = json.loads(publisher_value)
+    except TypeError:
+        return publisher_value
+    else:
+        return publisher

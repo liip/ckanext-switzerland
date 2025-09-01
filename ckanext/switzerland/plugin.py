@@ -92,6 +92,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "get_wordpress_url": sh.get_wordpress_url,
             "ogdch_get_accrual_periodicity_choices": sh.ogdch_get_accrual_periodicity_choices,
             "ogdch_get_license_choices": sh.ogdch_get_license_choices,
+            "ogdch_render_publisher": sh.ogdch_render_publisher,
         }
 
     def i18n_directory(self):

@@ -1,13 +1,12 @@
-{%- set publishers = data[field.field_name] -%}
-{% if publishers %}
-  {% if publishers|length == 1 %}
-    {{ publishers[0].label }}
+{%- set publisher = h.ogdch_render_publisher(data[field.field_name]) -%}
+{% if publisher %}
+  {%- set current_lang = h.lang() -%}  {# Get the current CKAN language #}
+  {%- set fallback_lang = 'en' -%}     {# Default fallback language #}
+  {%- set publisher_name = publisher.name.get(current_lang) or publisher.name.get(fallback_lang) -%}
+  {% if publisher.url %}
+    <a href="{{ publisher.url }}" target="_blank" class="break-word">{{ publisher_name }}</a>
   {% else %}
-    <ul>
-      {% for publisher in publishers %}
-      <li>{{ publisher.label }}</li>
-      {% endfor %}
-    </ul>
+    {{ publisher_name }}
   {% endif %}
 {% else %}
   -
