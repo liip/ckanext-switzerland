@@ -107,7 +107,15 @@ class BaseSBBHarvester(HarvesterBase):
         "relationships_as_object": [],
         "relationships_as_subject": [],
         "see_alsos": [],
-        "publishers": [{"label": "Publisher 1"}],
+        "publisher": {
+            "url": "",
+            "name": {
+                "de": "",
+                "fr": "",
+                "it": "",
+                "en": "",
+            },
+        },
         # keywords
         "keywords": {"fr": [], "en": [], "de": [], "it": []},
         "contact_points": [{"name": "Contact Name", "email": "contact@example.com"}],
@@ -749,7 +757,6 @@ class BaseSBBHarvester(HarvesterBase):
                 "relations",
                 "relationships_as_object",
                 "relationships_as_subject",
-                "publishers",
                 "see_alsos",
                 "temporals",
             ]:
