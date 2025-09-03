@@ -89,15 +89,59 @@
     },
     {
       "field_name": "publishers",
-      "label": {
-        "en": "Publishers",
-        "de": "Publishers",
-        "fr": "Editeurs",
-        "it": "Editori"
-      },
       "preset": "json_list_of_dicts_field",
-      "form_snippet": "publishers.html",
-      "display_snippet": "publishers.html"
+      "display_snippet": null,
+      "form_snippet": null
+    },
+    {
+      "field_name": "publisher",
+      "validators": "ogdch_validate_formfield_publisher",
+      "preset": "multilingual_text_full",
+      "mark_required": true,
+      "name": {
+        "en": "Name",
+        "de": "Name",
+        "fr": "Nom",
+        "it": "Nome"
+      },
+      "url": {
+        "en": "URL",
+        "de": "URL",
+        "fr": "URL",
+        "it": "URL"
+      },
+      "label": {
+        "en": "Publisher",
+        "de": "Publisher",
+        "fr": "Editeur",
+        "it": "Editore"
+      },
+      "form_snippet": "publisher.html",
+      "display_snippet": "publisher.html",
+      "label_name": {
+        "en": "Publisher name",
+        "de": "Publisher Name",
+        "fr": "Éditeur",
+        "it": "Nome Editore"
+      },
+      "label_url": {
+        "en": "Publisher URL",
+        "de": "Publisher URL",
+        "fr": "Éditeur URL",
+        "it": "URL Editore"
+      },
+      "form_placeholder_name": {
+        "en": "Publisher name",
+        "de": "Publisher Name",
+        "fr": "Éditeur",
+        "it": "Nome Editore"
+      },
+      "form_placeholder_url": {
+        "en": "Publisher URL",
+        "de": "Publisher URL",
+        "fr": "Éditeur URL",
+        "it": "URL Editore"
+      }
     },
     {
       "field_name": "contact_points",

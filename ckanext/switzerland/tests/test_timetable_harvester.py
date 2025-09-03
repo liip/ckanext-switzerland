@@ -50,6 +50,15 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
                 "en": "Timetable 2016",
             },
             relations=[],
+            publisher={
+                "url": "",
+                "name": {
+                    "de": "",
+                    "fr": "",
+                    "it": "",
+                    "en": "",
+                },
+            },
         )
 
         self.assertEqual(len(dataset["resources"]), 1)
@@ -82,6 +91,15 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
                 "en": "Timetable 2016",
             },
             relations=[],
+            publisher={
+                "url": "",
+                "name": {
+                    "de": "",
+                    "fr": "",
+                    "it": "",
+                    "en": "",
+                },
+            },
         )
         self.assertEqual(len(dataset1["resources"]), 1)
         self.assert_resource_data(
@@ -99,6 +117,15 @@ class TestTimetableHarvester(BaseSBBHarvesterTests):
                 "en": "Timetable 2015",
             },
             relations=[],
+            publisher={
+                "url": "",
+                "name": {
+                    "de": "",
+                    "fr": "",
+                    "it": "",
+                    "en": "",
+                },
+            },
         )
         self.assertEqual(len(dataset2["resources"]), 1)
         self.assert_resource_data(

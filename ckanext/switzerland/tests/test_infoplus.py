@@ -100,6 +100,15 @@ class TestInfoplusHarvester(BaseSBBHarvesterTests):
                 "en": "Station List",
             },
             relations=[],
+            publisher={
+                "url": "",
+                "name": {
+                    "de": "",
+                    "fr": "",
+                    "it": "",
+                    "en": "",
+                },
+            },
         )
 
         self.assertEqual(len(dataset["resources"]), 1)

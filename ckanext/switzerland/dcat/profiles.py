@@ -79,14 +79,20 @@ class SwissDCATAPProfile(RDFProfile):
                     lang_dict[lang] = ""
         return lang_dict
 
-    def _publishers(self, subject, predicate):
-        publishers = []
+    def _publisher(self, subject, predicate):
+        """Overwritten from parent method to get name as multilang value."""
+        publisher = {}
 
         for agent in self.g.objects(subject, predicate):
-            publisher = {"label": self._object_value(agent, RDFS.label)}
-            publishers.append(publisher)
+            publisher["uri"] = (
+                str(agent) if isinstance(agent, rdflib.term.URIRef) else ""
+            )
+            publisher["name"] = self._object_value(agent, FOAF.name, multilang=True)
+            publisher["email"] = self._object_value(agent, FOAF.mbox)
+            publisher["url"] = self._object_value(agent, FOAF.homepage)
+            publisher["type"] = self._object_value(agent, DCT.type)
 
-        return publishers
+        return publisher
 
     def _relations(self, subject, predicate):
         relations = []
@@ -215,7 +221,7 @@ class SwissDCATAPProfile(RDFProfile):
         )
 
         # Publisher
-        dataset_dict["publishers"] = self._publishers(dataset_ref, DCT.publisher)
+        dataset_dict["publisher"] = self._publisher(dataset_ref, DCT.publisher)
 
         # Relations
         dataset_dict["relations"] = self._relations(dataset_ref, DCT.relation)
@@ -419,7 +425,7 @@ class SwissDCATAPProfile(RDFProfile):
                 g.add((dataset_ref, DCAT.contactPoint, contact_details))
 
         # Publisher
-        self._add_publishers_to_graph(dataset_dict, dataset_ref)
+        self._add_publisher_to_graph(dataset_dict, dataset_ref)
 
         # Temporals
         self._add_temporals_to_graph(dataset_dict, dataset_ref)
@@ -439,16 +445,13 @@ class SwissDCATAPProfile(RDFProfile):
         for resource_dict in dataset_dict.get("resources", []):
             self._add_distribution_to_graph(dataset_ref, resource_dict)
 
-    def _add_publishers_to_graph(self, dataset_dict, dataset_ref):
-        if dataset_dict.get("publishers"):
-            publishers = dataset_dict.get("publishers")
-            for publisher in publishers:
-                publisher_name = publisher["label"]
-
-                publisher_details = BNode()
-                self.g.add((publisher_details, RDF.type, DCT.Description))
-                self.g.add((publisher_details, RDFS.label, Literal(publisher_name)))
-                self.g.add((dataset_ref, DCT.publisher, publisher_details))
+    def _add_publisher_to_graph(self, dataset_dict, dataset_ref):
+        publisher = dataset_dict.get("publisher")
+        if publisher:
+            publisher_details = URIRef(publisher["url"])
+            self.g.add((publisher_details, RDF.type, FOAF.Agent))
+            self._add_multilang_value(publisher_details, FOAF.name, "name", publisher)
+            self.g.add((dataset_ref, DCT.publisher, publisher_details))
 
     def _add_temporals_to_graph(self, dataset_dict, dataset_ref):
         temporals = dataset_dict.get("temporals")

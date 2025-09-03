@@ -48,6 +48,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "parse_json": sh.parse_json,
             "url": v.url_validator,
             "name_validator": v.ogdch_name_validator,
+            "ogdch_validate_formfield_publisher": v.ogdch_validate_formfield_publisher,
         }
 
     # IActions
@@ -92,6 +93,8 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "get_wordpress_url": sh.get_wordpress_url,
             "ogdch_get_accrual_periodicity_choices": sh.ogdch_get_accrual_periodicity_choices,
             "ogdch_get_license_choices": sh.ogdch_get_license_choices,
+            "ogdch_render_publisher": sh.ogdch_render_publisher,
+            "ogdch_publisher_form_helper": sh.ogdch_publisher_form_helper,
         }
 
     def i18n_directory(self):
@@ -222,8 +225,10 @@ class OgdchLanguagePlugin(plugins.SingletonPlugin):
         if pkg_dict.get("maintainer_email") is None and pkg_dict.get("contact_points"):
             pkg_dict["maintainer_email"] = pkg_dict["contact_points"][0]["email"]
 
-        if pkg_dict.get("author") is None and pkg_dict.get("publishers"):
-            pkg_dict["author"] = pkg_dict["publishers"][0]["label"]
+        if pkg_dict.get("author") is None and pkg_dict.get("publisher"):
+            pkg_dict["author"] = pkg_dict["publisher"]["name"][
+                sh.get_request_language()
+            ]
         if "notes" in pkg_dict:
             del pkg_dict["notes"]
 

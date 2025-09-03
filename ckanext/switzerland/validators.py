@@ -12,11 +12,13 @@ from ckan.model import PACKAGE_NAME_MAX_LENGTH
 from ckan.plugins.toolkit import _, missing
 
 from ckanext.scheming.validation import scheming_validator
-from ckanext.switzerland.helpers import parse_json
+from ckanext.switzerland.helpers import get_langs, parse_json
 
 log = logging.getLogger(__name__)
 name_match = re.compile(r"[a-z0-9_\-]*$")
 user_name_match = re.compile(r"[a-zA-Z0-9_\-@ ]*$")
+
+FORM_EXTRAS = ("__extras",)
 
 
 @scheming_validator
@@ -410,3 +412,71 @@ def ogdch_name_validator(value, context):
             )
 
     return value
+
+
+@scheming_validator
+def ogdch_validate_formfield_publisher(field, schema):
+    """This validator is only used for form validation
+    The data is extracted from the publisher form fields and transformed
+    into a form that is expected for database storage:
+    '{"name": {"de": "German Name", "en": "English Name", "fr": "French Name",
+    "it": "Italian Name"}, "url": "Publisher URL"}'
+    """
+
+    def validator(key, data, errors, context):
+        # the value is already a dict
+        if isinstance(data.get(key), dict):
+            data[key] = json.dumps(data.get(key))
+            return  # exit early since this case is handled
+        # the key is missing
+        if not data.get(key):
+            extras = data.get(FORM_EXTRAS)
+            output = {"url": "", "name": {"de": "", "en": "", "fr": "", "it": ""}}
+            if extras:
+                publisher = _get_publisher_from_form(extras)
+                if publisher:
+                    output = publisher
+                    output["name"] = {
+                        "de": extras.get("publisher-name-de", ""),
+                        "en": extras.get("publisher-name-en", ""),
+                        "fr": extras.get("publisher-name-fr", ""),
+                        "it": extras.get("publisher-name-it", ""),
+                    }
+                    if "publisher-url" in extras:
+                        del extras["publisher-url"]
+                    if any(
+                        key.startswith("publisher-name-") for key in list(extras.keys())
+                    ):
+                        for lang in get_langs():
+                            lang_key = f"publisher-name-{lang}"
+                            if lang_key in extras:
+                                del extras[lang_key]
+            data[key] = json.dumps(output)
+
+    return validator
+
+
+def _get_publisher_from_form(extras):
+    if isinstance(extras, dict):
+        publisher_fields = [
+            (key, value.strip())
+            for key, value in list(extras.items())
+            if key.startswith("publisher-")
+            if value.strip() != ""
+        ]
+        if not publisher_fields:
+            return None
+        else:
+            publisher = {"url": "", "name": ""}
+            publisher_url = [
+                field[1] for field in publisher_fields if field[0] == "publisher-url"
+            ]
+            if publisher_url:
+                publisher["url"] = publisher_url[0]
+            publisher_name = [
+                field[1] for field in publisher_fields if field[0] == "publisher-name"
+            ]
+            if publisher_name:
+                publisher["name"] = publisher_name[0]
+            return publisher
+    return None

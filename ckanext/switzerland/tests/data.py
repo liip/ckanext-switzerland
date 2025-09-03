@@ -99,7 +99,15 @@ def dataset(slug=None):
         title={"de": "", "it": "", "fr": "", "en": ""},
         description={"de": "", "it": "", "fr": "", "en": ""},
         contact_points=[{"name": "Contact Name", "email": "contact@example.com"}],
-        publishers=[{"label": "Publisher 1"}],
+        publisher={
+            "url": "http://example.org/publisher_info",
+            "name": {
+                "de": "Publisher 1 DE",
+                "fr": "Publisher 1 FR",
+                "it": "Publisher 1 IT",
+                "en": "Publisher 1 EN",
+            },
+        },
         relations=[{"url": "http://example.org", "label": "Example"}],
         temporals=[
             {"start_date": "2014-03-21T00:00:00", "end_date": "2019-03-21T00:00:00"}

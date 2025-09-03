@@ -165,7 +165,7 @@ class TestOgdchPackagePlugin(object):
             "Modified date",
             "Permalink",
             "Organization",
-            "Publishers",
+            "Publisher",
             "Contact points",
             "Keywords",
             "Further information",

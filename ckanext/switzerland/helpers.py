@@ -592,3 +592,93 @@ def strxfrm(s):
     """Overriden from ckan.lib.helpers.strxfrm to handle our multilingual fields."""
     s = parse_and_localize(s)
     return unicodedata.normalize("NFD", s).lower()
+
+
+def ogdch_render_publisher(publisher_value):
+    """Return the publisher in the format
+    {
+        "name": {
+            "de": "German Name",
+            "en": "English Name",
+            "fr": "French Name",
+            "it": "Italian Name"
+            },
+        "url": "Publisher URL"
+        }
+
+    The input might be
+    - a dict
+    - a dict serialised to a json string
+    - a list of dicts, [{"label": "Publisher Name"}, ...] (deprecated September 2025)
+    """
+    if isinstance(publisher_value, list):
+        return {
+            "name": {lang: publisher_value[0]["label"] for lang in get_langs()},
+            "url": "",
+        }
+
+    try:
+        publisher = json.loads(publisher_value)
+    except TypeError:
+        return publisher_value
+    else:
+        return publisher
+
+
+def ogdch_publisher_form_helper(data):
+    """Fill the publisher form snippet either from a previous form entry or from the db"""
+
+    # check for form inputs first
+    publisher_form_name = {
+        "fr": data.get("publisher-name-fr", ""),
+        "en": data.get("publisher-name-en", ""),
+        "de": data.get("publisher-name-de", ""),
+        "it": data.get("publisher-name-it", ""),
+    }
+    publisher_form_url = data.get("publisher-url")
+
+    if publisher_form_url or any(publisher_form_name.values()):
+        return {"name": publisher_form_name, "url": publisher_form_url}
+
+    # check for publisher from db
+    publisher_stored = data.get("publisher")
+    if isinstance(publisher_stored, str):
+        try:
+            publisher_stored = json.loads(publisher_stored)
+        except json.JSONDecodeError:
+            log.warning(f"Invalid JSON in publisher: {publisher_stored}")
+
+    if isinstance(publisher_stored, dict):
+        publisher_name = publisher_stored.get("name")
+        # handle stored publisher data (both as dict or string)
+        if isinstance(publisher_name, dict):
+            return {"name": publisher_name, "url": publisher_stored.get("url", "")}
+        elif isinstance(publisher_name, str):
+            return {
+                "name": {"de": publisher_name, "en": "", "fr": "", "it": ""},
+                "url": publisher_stored.get("url", ""),
+            }
+        else:
+            log.warning("Unexpected structure for publisher name")
+            return {
+                "name": {"de": "", "en": "", "fr": "", "it": ""},
+                "url": publisher_stored.get("url", ""),
+            }
+
+    # handle publisher in deprecated format
+    publisher_deprecated = _convert_from_publisher_deprecated(data)
+    if publisher_deprecated:
+        return publisher_deprecated
+
+    return {"name": {"de": "", "en": "", "fr": "", "it": ""}, "url": ""}
+
+
+def _convert_from_publisher_deprecated(data):
+    publishers = data.get("publishers", [])
+    if publishers:
+        return {
+            "name": {lang: publishers[0]["label"] for lang in get_langs()},
+            "url": "",
+        }
+
+    return None
