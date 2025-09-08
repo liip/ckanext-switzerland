@@ -501,7 +501,7 @@ def ogdch_isodatetime(field, schema):
             else:
                 try:
                     date = date_tz_str_to_datetime(value)
-                except (TypeError, ValueError) as e:
+                except (TypeError, ValueError):
                     raise df.Invalid(_("Date format incorrect"))
         else:
             if "resources" in key and len(key) > 1:
