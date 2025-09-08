@@ -172,6 +172,7 @@ class TestOgdchPackagePlugin(object):
             "Temporal coverage",
             "Update interval",
             "Languages",
+            "Terms of use",
         ]
 
         table = soup.find(
