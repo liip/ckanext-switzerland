@@ -163,7 +163,7 @@
     {
       "preset_name": "ogdch_date",
       "values": {
-        "display_snippet": "date.html",
+        "display_snippet": "datetime.html",
         "form_snippet": "datetime.html",
         "validators": "ogdch_isodatetime convert_to_json_if_datetime"
       }
