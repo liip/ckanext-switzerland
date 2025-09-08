@@ -9,10 +9,10 @@ from ckan.common import asbool
 from ckan.lib.munge import munge_tag
 from ckan.logic import NotFound, get_action
 from ckan.model import PACKAGE_NAME_MAX_LENGTH
-from ckan.plugins.toolkit import _, get_validator, missing
+from ckan.plugins.toolkit import _, get_display_timezone, get_validator, missing
 
+from ckanext.scheming.helpers import date_tz_str_to_datetime, scheming_datetime_to_utc
 from ckanext.scheming.validation import scheming_validator, validate_date_inputs
-from ckanext.scheming.helpers import scheming_datetime_to_utc, date_tz_str_to_datetime
 from ckanext.switzerland.helpers import get_langs, parse_json
 
 log = logging.getLogger(__name__)
@@ -485,7 +485,9 @@ def _get_publisher_from_form(extras):
 
 @scheming_validator
 def ogdch_isodatetime(field, schema):
-    """Copied from ckanext-scheming scheming_isodatetime_tz
+    """Copied from ckanext-scheming scheming_isodatetime_tz and updated:
+    - Accepts a naïve datetime value that reflects a time in the Europe/Zurich time zone
+    - Converts this to a naïve datetime value for the equivalent time in UTC
     """
 
     def validator(key, data, errors, context):
@@ -532,6 +534,8 @@ def ogdch_isodatetime(field, schema):
                     context=context,
                 )
                 if isinstance(date, datetime.datetime):
+                    local_tz = get_display_timezone()
+                    date = local_tz.localize(date)
                     date = scheming_datetime_to_utc(date)
 
         data[key] = date
