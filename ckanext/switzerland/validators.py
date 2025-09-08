@@ -501,11 +501,11 @@ def ogdch_isodatetime(field, schema):
                 try:
                     date = date_tz_str_to_datetime(value)
                 except (TypeError, ValueError) as e:
-                    raise df.Invalid(_('Date format incorrect'))
+                    raise df.Invalid(_("Date format incorrect"))
         else:
-            if 'resources' in key and len(key) > 1:
+            if "resources" in key and len(key) > 1:
                 # when a resource is edited, extras will be under a different key in the data
-                extras = data.get((('resources', key[1], '__extras')))
+                extras = data.get((("resources", key[1], "__extras")))
                 # the key for the current field also looks different for a resource,
                 # for example, a dataset might have the key ('start_timestamp')
                 # for a resource this might look like ('resources', 3, 'start_timestamp')
@@ -513,16 +513,16 @@ def ogdch_isodatetime(field, schema):
                 field_name_index_in_key = 2
 
             else:
-                extras = data.get(('__extras',))
+                extras = data.get(("__extras",))
                 field_name_index_in_key = 0
 
             if not extras or (
                 (
-                    key[field_name_index_in_key] + '_date' not in extras
-                    and key[field_name_index_in_key] + '_time' not in extras
+                    key[field_name_index_in_key] + "_date" not in extras
+                    and key[field_name_index_in_key] + "_time" not in extras
                 )
             ):
-                if field.get('required'):
+                if field.get("required"):
                     get_validator("not_empty")(key, data, errors, context)
             else:
                 date = validate_date_inputs(
