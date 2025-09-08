@@ -165,7 +165,13 @@
       "values": {
         "display_snippet": "datetime.html",
         "form_snippet": "datetime.html",
-        "validators": "ogdch_isodatetime convert_to_json_if_datetime"
+        "validators": "ogdch_isodatetime convert_to_json_if_datetime",
+        "help_text": {
+          "de": "Zeitzone Europe/Zurich",
+          "en": "Europe/Zurich time zone",
+          "fr": "Fuseau horaire Europe/Zurich",
+          "it": "Fuso orario Europa/Zurich"
+        }
       }
     },
     {
