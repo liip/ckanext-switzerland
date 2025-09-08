@@ -9,9 +9,10 @@ from ckan.common import asbool
 from ckan.lib.munge import munge_tag
 from ckan.logic import NotFound, get_action
 from ckan.model import PACKAGE_NAME_MAX_LENGTH
-from ckan.plugins.toolkit import _, missing
+from ckan.plugins.toolkit import _, get_validator, missing
 
-from ckanext.scheming.validation import scheming_validator
+from ckanext.scheming.validation import scheming_validator, validate_date_inputs
+from ckanext.scheming.helpers import scheming_datetime_to_utc, date_tz_str_to_datetime
 from ckanext.switzerland.helpers import get_langs, parse_json
 
 log = logging.getLogger(__name__)
@@ -480,3 +481,59 @@ def _get_publisher_from_form(extras):
                 publisher["name"] = publisher_name[0]
             return publisher
     return None
+
+
+@scheming_validator
+def ogdch_isodatetime(field, schema):
+    """Copied from ckanext-scheming scheming_isodatetime_tz
+    """
+
+    def validator(key, data, errors, context):
+        value = data[key]
+        date = None
+
+        if value:
+            if isinstance(value, datetime.datetime):
+                date = scheming_datetime_to_utc(value)
+            else:
+                try:
+                    date = date_tz_str_to_datetime(value)
+                except (TypeError, ValueError) as e:
+                    raise df.Invalid(_('Date format incorrect'))
+        else:
+            if 'resources' in key and len(key) > 1:
+                # when a resource is edited, extras will be under a different key in the data
+                extras = data.get((('resources', key[1], '__extras')))
+                # the key for the current field also looks different for a resource,
+                # for example, a dataset might have the key ('start_timestamp')
+                # for a resource this might look like ('resources', 3, 'start_timestamp')
+                # however, we need to pass on a tuple with just the field name
+                field_name_index_in_key = 2
+
+            else:
+                extras = data.get(('__extras',))
+                field_name_index_in_key = 0
+
+            if not extras or (
+                (
+                    key[field_name_index_in_key] + '_date' not in extras
+                    and key[field_name_index_in_key] + '_time' not in extras
+                )
+            ):
+                if field.get('required'):
+                    get_validator("not_empty")(key, data, errors, context)
+            else:
+                date = validate_date_inputs(
+                    field=field,
+                    key=(key[field_name_index_in_key],),
+                    data=data,
+                    extras=extras,
+                    errors=errors,
+                    context=context,
+                )
+                if isinstance(date, datetime.datetime):
+                    date = scheming_datetime_to_utc(date)
+
+        data[key] = date
+
+    return validator
