@@ -84,14 +84,16 @@ def _lang_fallback(lang_dict, default_value):
 
 def ogdch_get_media_type_choices(field):
     return [
-        {"label": "application/zip", "value": "application/zip"},
-        {"label": "application/csv", "value": "application/csv"},
+        {"label": "application/gzip", "value": "application/gzip"},
         {"label": "application/json", "value": "application/json"},
+        {"label": "application/protobuf", "value": "application/protobuf"},
         {
             "label": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         },
-        {"label": "application/protobuf", "value": "application/protobuf"},
+        {"label": "application/xml", "value": "application/xml"},
+        {"label": "application/zip", "value": "application/zip"},
+        {"label": "text/csv", "value": "text/csv"},
     ]
 
 
