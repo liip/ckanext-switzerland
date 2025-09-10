@@ -83,33 +83,16 @@ def _lang_fallback(lang_dict, default_value):
 
 
 def ogdch_get_media_type_choices(field):
-    map = [
-        {"label": label, "value": value}
-        for value, label in get_media_type_name(get_map=True).items()
+    return [
+        {"label": "application/zip", "value": "application/zip"},
+        {"label": "application/csv", "value": "application/csv"},
+        {"label": "application/json", "value": "application/json"},
+        {
+            "label": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+        {"label": "application/protobuf", "value": "application/protobuf"},
     ]
-    return map
-
-
-def get_media_type_name(identifier=None, get_map=False):
-    media_types = OrderedDict(
-        [
-            ("application/zip", "application/zip"),
-            ("application/csv", "application/csv"),
-            ("application/json", "application/json"),
-            ("application/json", "application/json"),
-            (
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            ),
-            ("application/protobuf", "application/protobuf"),
-        ]
-    )
-    if get_map:
-        return media_types
-    try:
-        return media_types[identifier]
-    except KeyError:
-        return identifier
 
 
 def get_default_licence_for_organization(org_dict):
