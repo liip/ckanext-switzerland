@@ -93,15 +93,15 @@ def ogdch_get_media_type_choices(field):
 def get_media_type_name(identifier=None, get_map=False):
     media_types = OrderedDict(
         [
-            ("application/zip", "ZIP"),
-            ("application/csv", "CSV"),
-            ("application/json", "JSON"),
-            ("application/xml", "XML"),
+            ("application/zip", "application/zip"),
+            ("application/csv", "application/csv"),
+            ("application/json", "application/json"),
+            ("application/json", "application/json"),
             (
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                "XLSX",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             ),
-            ("application/protobuf", "Protocol Buffer"),
+            ("application/protobuf", "application/protobuf"),
         ]
     )
     if get_map:
