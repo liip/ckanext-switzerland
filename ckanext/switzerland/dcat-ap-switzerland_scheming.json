@@ -108,12 +108,6 @@
       "preset": "dataset_organization"
     },
     {
-      "field_name": "publishers",
-      "preset": "json_list_of_dicts_field",
-      "display_snippet": null,
-      "form_snippet": null
-    },
-    {
       "field_name": "publisher",
       "validators": "ogdch_validate_formfield_publisher",
       "preset": "multilingual_text_full",
