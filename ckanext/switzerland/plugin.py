@@ -49,6 +49,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "url": v.url_validator,
             "name_validator": v.ogdch_name_validator,
             "ogdch_validate_formfield_publisher": v.ogdch_validate_formfield_publisher,
+            "ogdch_isodatetime": v.ogdch_isodatetime,
         }
 
     # IActions
