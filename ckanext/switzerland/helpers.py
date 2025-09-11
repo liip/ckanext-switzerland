@@ -82,6 +82,21 @@ def _lang_fallback(lang_dict, default_value):
     return default_value
 
 
+def ogdch_get_media_type_choices(field):
+    return [
+        {"label": "application/gzip", "value": "application/gzip"},
+        {"label": "application/json", "value": "application/json"},
+        {"label": "application/protobuf", "value": "application/protobuf"},
+        {
+            "label": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+        {"label": "application/xml", "value": "application/xml"},
+        {"label": "application/zip", "value": "application/zip"},
+        {"label": "text/csv", "value": "text/csv"},
+    ]
+
+
 def get_default_licence_for_organization(org_dict):
     if org_dict["name"] == "astra":
         return TERMS_OF_USE_BY_ASK

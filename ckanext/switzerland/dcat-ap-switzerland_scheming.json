@@ -336,12 +336,14 @@
     },
     {
       "field_name": "media_type",
+      "preset": "select",
       "label": {
         "en": "Media type",
         "de": "Medientyp",
         "fr": "Type de médias",
         "it": "Media type"
-      }
+      },
+      "choices_helper": "ogdch_get_media_type_choices"
     },
     {
       "field_name": "mimetype_inner",
