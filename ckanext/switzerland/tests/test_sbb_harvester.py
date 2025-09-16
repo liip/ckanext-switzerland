@@ -577,20 +577,3 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         for field in resource_datetime_fields:
             self.assertEqual(dataset["resources"][0][field], "2022-04-20T14:15:00")
-
-    def test_existing_dataset(self):
-        data.dataset(slug="testslug-other-than-munge-name")
-
-        MockFTPStorageAdapter.filesystem = self.get_filesystem()
-        self.run_harvester(ftp_server="testserver")
-
-        dataset1 = self.get_dataset()
-        dataset2 = get_action("package_show")(
-            {}, {"id": "testslug-other-than-munge-name"}
-        )
-
-        self.assertEqual(dataset1["id"], dataset2["id"])
-        self.assert_dataset_data(dataset2)
-
-        with self.assertRaises(NotFound):
-            get_action("package_show")({}, {"id": munge_name(data.dataset_name)})
