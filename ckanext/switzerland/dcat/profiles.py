@@ -10,7 +10,11 @@ from rdflib.namespace import RDF, RDFS, SKOS, Namespace
 
 from ckanext.dcat.profiles import RDFProfile
 from ckanext.dcat.utils import resource_uri
-from ckanext.switzerland.helpers import get_langs, map_to_valid_format
+from ckanext.switzerland.helpers import (
+    get_langs,
+    map_to_valid_format,
+    ogdch_get_default_terms_of_use,
+)
 
 log = logging.getLogger(__name__)
 
@@ -399,8 +403,20 @@ class SwissDCATAPProfile(RDFProfile):
                 g.add((relation, RDFS.label, Literal(relation_name)))
                 g.add((dataset_ref, DCT.relation, relation))
 
-        relation = URIRef("https://opentransportdata.swiss/terms-of-use/")
-        g.add((relation, RDFS.label, Literal("Terms of use")))
+        # Add the dataset's terms of use as a relation
+        terms_of_use_name = (
+            dataset_dict["odpch_license_name"]
+            if dataset_dict.get("odpch_license_name")
+            else ogdch_get_default_terms_of_use()["name"]
+        )
+        terms_of_use_url = (
+            dataset_dict["odpch_license_url"]
+            if dataset_dict.get("odpch_license_url")
+            else ogdch_get_default_terms_of_use()["url"]
+        )
+
+        relation = URIRef(terms_of_use_url)
+        g.add((relation, RDFS.label, Literal(terms_of_use_name)))
         g.add((dataset_ref, DCT.relation, relation))
 
         # References

@@ -8,7 +8,10 @@
         <a href="{{ pkg.odpch_license_url }}">{{ _('Terms of use') }}</a>
       {% endif %}
     {% else %}
-      <a href="https://opentransportdata.swiss/{{ _('en/terms-of-use') }}">{{ _('Terms of use opentransportdata.swiss') }}</a>
+    {% set default_terms_of_use_url = h.ogdch_get_default_terms_of_use()["url"] %}
+    {% set default_terms_of_use_name = h.ogdch_get_default_terms_of_use()["name"] %}
+
+    <a href="{{ default_terms_of_use_url }}">{{ default_terms_of_use_name }}</a>
     {% endif %}
   </td>
 </tr>

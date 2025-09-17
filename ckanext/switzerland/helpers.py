@@ -670,3 +670,10 @@ def _convert_from_publisher_deprecated(data):
         }
 
     return None
+
+
+def ogdch_get_default_terms_of_use():
+    return {
+        "name": _("Terms of use opentransportdata.swiss"),
+        "url": f"https://opentransportdata.swiss/{ _('en/terms-of-use') }",
+    }

@@ -96,6 +96,7 @@ class OgdchPlugin(plugins.SingletonPlugin):
             "ogdch_render_publisher": sh.ogdch_render_publisher,
             "ogdch_publisher_form_helper": sh.ogdch_publisher_form_helper,
             "ogdch_get_media_type_choices": sh.ogdch_get_media_type_choices,
+            "ogdch_get_default_terms_of_use": sh.ogdch_get_default_terms_of_use,
         }
 
     def i18n_directory(self):
