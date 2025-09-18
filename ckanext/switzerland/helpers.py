@@ -505,7 +505,6 @@ def clean_up_list_fields(search_data, validated_dict):
     need them in the Solr document and they will cause an atomic error if left in.
     """
     for key in [
-        "publishers",
         "contact_points",
         "relations",
         "temporals",
