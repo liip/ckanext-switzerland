@@ -4,6 +4,7 @@ import os
 import sys
 
 import ckan.lib.helpers as h
+import ckan.lib.uploader as uploader
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
@@ -389,6 +390,27 @@ class OgdchPackagePlugin(OgdchLanguagePlugin):
         search_params["qf"] = query_fields + " res_name res_description"
 
         return search_params
+
+
+class OgdchResourcePlugin(plugins.SingletonPlugin):
+    plugins.implements(plugins.IResourceController, inherit=True)
+
+    # IResourceController
+
+    def before_resource_create(self, context, resource):
+        return self._set_resource_byte_size(resource)
+
+    def before_resource_update(self, context, current, resource):
+        return self._set_resource_byte_size(resource)
+
+    def _set_resource_byte_size(self, resource):
+        upload = uploader.get_resource_uploader(resource)
+
+        if "byte_size" not in resource:
+            if hasattr(upload, "filesize"):
+                resource["byte_size"] = upload.filesize
+
+        return resource
 
 
 class LangToString(object):
