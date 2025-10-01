@@ -225,3 +225,20 @@ class TestOgdchPackagePlugin(object):
         permalink = soup.find("th", text="Permalink").findNext("td").find("a")
         assert permalink.text == "Permalink"
         assert permalink["href"] == "/dataset/dataset/resource_permalink/my_file.csv"
+
+
+@pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
+class TestOgdchResourcePlugin(object):
+    def test_uploaded_resource(self, create_with_upload):
+        dataset = data.dataset()
+        resource = create_with_upload(
+            data.ist_file,
+            "file.txt",
+            context={"user": data.user()["name"]},
+            package_id=dataset["id"],
+            license="http://dcat-ap.ch/vocabulary/licenses/terms_open",
+        )
+        assert resource["url_type"] == "upload"
+        assert resource["format"] == "TXT"
+        assert resource["size"] == 2538
+        assert resource["byte_size"] == 2538
