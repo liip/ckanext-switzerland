@@ -404,11 +404,17 @@ class OgdchResourcePlugin(plugins.SingletonPlugin):
         return self._set_resource_size_values(resource)
 
     def _set_resource_size_values(self, resource):
+        upload_field_storage = resource.get("upload")
+
+        # This pops the upload_field_storage off the resource, so we have to add it back
+        # later
         upload = uploader.get_resource_uploader(resource)
 
         if hasattr(upload, "filesize"):
             resource["size"] = upload.filesize
             resource["byte_size"] = upload.filesize
+
+        resource["upload"] = upload_field_storage
 
         return resource
 
