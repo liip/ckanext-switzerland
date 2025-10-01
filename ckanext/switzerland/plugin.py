@@ -398,17 +398,17 @@ class OgdchResourcePlugin(plugins.SingletonPlugin):
     # IResourceController
 
     def before_resource_create(self, context, resource):
-        return self._set_resource_byte_size(resource)
+        return self._set_resource_size_values(resource)
 
     def before_resource_update(self, context, current, resource):
-        return self._set_resource_byte_size(resource)
+        return self._set_resource_size_values(resource)
 
-    def _set_resource_byte_size(self, resource):
+    def _set_resource_size_values(self, resource):
         upload = uploader.get_resource_uploader(resource)
 
-        if "byte_size" not in resource:
-            if hasattr(upload, "filesize"):
-                resource["byte_size"] = upload.filesize
+        if hasattr(upload, "filesize"):
+            resource["size"] = upload.filesize
+            resource["byte_size"] = upload.filesize
 
         return resource
 
