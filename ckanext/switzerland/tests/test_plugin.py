@@ -225,3 +225,36 @@ class TestOgdchPackagePlugin(object):
         permalink = soup.find("th", text="Permalink").findNext("td").find("a")
         assert permalink.text == "Permalink"
         assert permalink["href"] == "/dataset/dataset/resource_permalink/my_file.csv"
+
+
+@pytest.mark.usefixtures("with_plugins", "clean_db", "clean_index")
+class TestOgdchResourcePlugin(object):
+    def test_uploaded_resource_size(self, create_with_upload):
+        # Create a resource with an uploaded file, and check that the size and byte_size
+        # are set
+        dataset = data.dataset()
+        resource = create_with_upload(
+            data.ist_file,
+            "file.txt",
+            context={"user": data.user()["name"]},
+            package_id=dataset["id"],
+            license="http://dcat-ap.ch/vocabulary/licenses/terms_open",
+        )
+        assert resource["url_type"] == "upload"
+        assert resource["format"] == "TXT"
+        assert resource["size"] == 2538
+        assert resource["byte_size"] == 2538
+
+        # Update the file and check that the sizes are set to the new value
+        resource_update = create_with_upload(
+            data.bahnhof_file,
+            "file.txt",
+            action="resource_update",
+            context={"user": data.user()["name"]},
+            id=resource["id"],
+            license="http://dcat-ap.ch/vocabulary/licenses/terms_open",
+        )
+        assert resource_update["url_type"] == "upload"
+        assert resource_update["format"] == "TXT"
+        assert resource_update["size"] == 733
+        assert resource_update["byte_size"] == 733
