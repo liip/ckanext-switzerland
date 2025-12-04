@@ -1,0 +1,57 @@
+[project]
+name = "ckanext-switzerland"
+version = "0.0.1"
+dynamic = ["dependencies", "optional-dependencies"]
+description = "Plugins for data.opentransportdata.swiss"
+authors = [
+    {name = "Liip AG", email = "odpch@liip.ch"}
+]
+maintainers = [
+    {name = "Liip AG", email = "odpch@liip.ch"}
+]
+license = {text = "AGPL"}
+classifiers = [
+    "Intended Audience :: Developers",
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+]
+keywords = [
+    "CKAN",
+    "schema",
+    "DCAT",
+    "DCAT-AP",
+    "DCAT-AP CH",
+    "harvest",
+    "Switzerland",
+]
+
+[project.urls]
+Documentation = "https://github.com/opendata-swiss/ckanext-switzerland-ng"
+Repository = "https://github.com/opendata-swiss/ckanext-switzerland-ng"
+Issues = "https://github.com/opendata-swiss/ckanext-switzerland-ng/issues"
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+optional-dependencies = {dev = { file = ["dev-requirements.txt"] }}
+
+[tool.isort]
+profile = "black"
+
+[project.entry-points."ckan.plugins"]
+ogdch = "ckanext.switzerland.plugin:OgdchPlugin"
+ogdch_pkg = "ckanext.switzerland.plugin:OgdchPackagePlugin"
+ogdch_res = "ckanext.switzerland.plugin:OgdchResourcePlugin"
+ogdch_group = "ckanext.switzerland.plugin:OgdchGroupPlugin"
+ogdch_org = "ckanext.switzerland.plugin:OgdchOrganizationPlugin"
+dcat_ch_rdf_harvester = "ckanext.switzerland.dcat.harvesters:SwissDCATRDFHarvester"
+sbb_harvester = "ckanext.switzerland.harvester.sbb_harvester:SBBHarvester"
+timetable_harvester = "ckanext.switzerland.harvester.timetable_harvester:TimetableHarvester"
+
+[project.entry-points."ckan.rdf.profiles"]
+swiss_dcat_ap = "ckanext.switzerland.dcat.profiles:SwissDCATAPProfile"
