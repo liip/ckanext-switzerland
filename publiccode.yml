@@ -32,7 +32,7 @@ description:
     screenshots:
       - https://raw.githubusercontent.com/liip/ckanext-switzerland/main/screenshot.png
 legal:
-  license: GPL-3.0-only
+  license: AGPL-3.0-or-later
 maintenance:
   type: contract
   contractors:
