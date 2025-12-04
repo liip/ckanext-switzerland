@@ -1,0 +1,54 @@
+publiccodeYmlVersion: 0.5.0
+name: ckanext-switzerland
+url: https://github.com/liip/ckanext-switzerland
+releaseDate: 2016-06-09
+logo: https://raw.githubusercontent.com/liip/ckanext-switzerland/main/logo.png
+platforms:
+  - web
+organisation:
+  uri: https://www.sbb.ch
+usedBy:
+  - Business office of Customer Information System Tasks (SBB CFF FFS)
+developmentStatus: stable
+softwareType: addon
+dependsOn:
+  open:
+    - name: CKAN
+    - versionMin: "2.11"
+description:
+  en:
+    localisedName: ckanext-switzerland
+    shortDescription: CKAN extension implementing Swiss DCAT-AP profile, templates
+      and various harvesters for opentransportdata.swiss
+    longDescription: ckanext-switzerland is a plugin/extension for CKAN to support
+      the Swiss DCAT-AP profile (DCAT-AP Switzerland), including templates and
+      various plugins such as FTP- and S3-harvesters for e.g.
+      opentransportdata.swiss.
+    features:
+      - implementing Swiss DCAT-AP profile
+      - custom templates
+      - S3 harvester
+      - SFTP harvester
+    screenshots:
+      - https://raw.githubusercontent.com/liip/ckanext-switzerland/main/screenshot.png
+legal:
+  license: GPL-3.0-only
+maintenance:
+  type: contract
+  contractors:
+    - name: Liip AG
+      until: 2030-12-01
+      email: opendata@liip.ch
+      website: https://www.liip.ch/
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - de
+    - en
+    - fr
+    - it
+intendedAudience:
+  scope:
+    - government
+    - local-authorities
+    - research
