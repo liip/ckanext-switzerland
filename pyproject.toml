@@ -43,6 +43,9 @@ optional-dependencies = {dev = { file = ["dev-requirements.txt"] }}
 [tool.isort]
 profile = "black"
 
+[tool.pytest]
+addopts = ["--basetemp=/tmp/pytest"]
+
 [project.entry-points."ckan.plugins"]
 ogdch = "ckanext.switzerland.plugin:OgdchPlugin"
 ogdch_pkg = "ckanext.switzerland.plugin:OgdchPackagePlugin"
