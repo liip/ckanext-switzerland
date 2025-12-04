@@ -5,6 +5,9 @@ releaseDate: 2016-06-09
 logo: https://raw.githubusercontent.com/liip/ckanext-switzerland/main/logo.png
 platforms:
   - web
+categories:
+  - data-visualization
+  - data-collection
 organisation:
   uri: https://www.sbb.ch
 usedBy:
