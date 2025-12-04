@@ -23,7 +23,7 @@ setup(
     author="""Liip AG""",
     author_email="""odpch@liip.ch""",
     # Choose your license
-    license="AGPL",
+    license="AGPL-3.0-or-later",
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         # How mature is this project? Common values are
