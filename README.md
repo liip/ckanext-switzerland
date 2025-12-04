@@ -6,7 +6,7 @@ CKAN extension for DCAT-AP Switzerland, templates and different plugins includin
 
 ## Requirements
 
-- CKAN 2.10+
+- CKAN 2.11+
 - ckanext-fluent
 - ckanext-harvest
 - ckanext-scheming
@@ -50,9 +50,7 @@ do:
 
     git clone https://github.com/ogdch/ckanext-switzerland.git
     cd ckanext-switzerland
-    python setup.py develop
-    pip install -r dev-requirements.txt
-    pip install -r requirements.txt
+    pip install .[dev]
 
 ## Schema
 
