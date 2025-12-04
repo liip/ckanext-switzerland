@@ -17,7 +17,7 @@ softwareType: addon
 dependsOn:
   open:
     - name: CKAN
-    - versionMin: "2.11"
+      versionMin: "2.11"
 description:
   en:
     localisedName: ckanext-switzerland
