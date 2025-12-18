@@ -4,6 +4,8 @@ ckanext-switzerland
 CKAN extension for DCAT-AP Switzerland, templates and different plugins including FTP- and S3-Harvester for
 [opentransportdata.swiss](https://opentransportdata.swiss).
 
+![screenshot.png](screenshot.png)
+
 ## Requirements
 
 - CKAN 2.10+
