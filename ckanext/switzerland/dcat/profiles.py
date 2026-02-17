@@ -323,6 +323,15 @@ class SwissDCATAPProfile(RDFProfile):
         uri = LANGUAGE_URI_MAPPING.get((lang_code or "").lower())
         return URIRef(uri) if uri else None
 
+    def _add_languages_to_graph(self, subject_ref, languages):
+        languages = languages or []
+        if not isinstance(languages, list):
+            languages = [languages]
+        for lang in languages:
+            lang_uri = self._get_language_uri(lang)
+            if lang_uri:
+                self.g.add((subject_ref, DCT.language, lang_uri))
+
     def graph_from_dataset(self, dataset_dict, dataset_ref):
         g = self.g
 
@@ -403,14 +412,7 @@ class SwissDCATAPProfile(RDFProfile):
         self._add_list_triples_from_dict(dataset_dict, dataset_ref, items)
 
         # Languages
-        languages = dataset_dict.get("language", [])
-        if languages:
-            if not isinstance(languages, list):
-                languages = [languages]
-            for lang in languages:
-                lang_uri = self._get_language_uri(lang)
-                if lang_uri:
-                    g.add((dataset_ref, DCT.language, lang_uri))
+        self._add_languages_to_graph(dataset_ref, dataset_dict.get("language"))
 
         # Relations
         if dataset_dict.get("relations"):
@@ -530,14 +532,10 @@ class SwissDCATAPProfile(RDFProfile):
         ]
         self._add_list_triples_from_dict(resource_dict, distribution, items)
         # Languages
-        languages = resource_dict.get("language") or dataset_dict.get("language", None) or []
-        if languages:
-            if not isinstance(languages, list):
-                languages = [languages]
-            for lang in languages:
-                lang_uri = self._get_language_uri(lang)
-                if lang_uri:
-                    g.add((distribution, DCT.language, lang_uri))
+        self._add_languages_to_graph(
+            distribution,
+            resource_dict.get("language") or dataset_dict.get("language"),
+        )
         # URL
         url = resource_dict.get("url")
         g.add((distribution, DCAT.accessURL, URIRef(url)))
