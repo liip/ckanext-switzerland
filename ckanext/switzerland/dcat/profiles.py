@@ -34,6 +34,13 @@ XML = Namespace("http://www.w3.org/2001/XMLSchema")
 
 GEOJSON_IMT = "https://www.iana.org/assignments/media-types/application/vnd.geo+json"
 
+LANGUAGE_URI_MAPPING = {
+    "en": "http://publications.europa.eu/resource/authority/language/ENG",
+    "de": "http://publications.europa.eu/resource/authority/language/DEU",
+    "fr": "http://publications.europa.eu/resource/authority/language/FRA",
+    "it": "http://publications.europa.eu/resource/authority/language/ITA",
+}
+
 namespaces = {
     "dct": DCT,
     "dcat": DCAT,
@@ -312,6 +319,10 @@ class SwissDCATAPProfile(RDFProfile):
             if value:
                 destination_dict[key] = self._clean_datetime(value)
 
+    def _get_language_uri(self, lang_code):
+        uri = LANGUAGE_URI_MAPPING.get((lang_code or "").lower())
+        return URIRef(uri) if uri else None
+
     def graph_from_dataset(self, dataset_dict, dataset_ref):
         g = self.g
 
@@ -381,7 +392,6 @@ class SwissDCATAPProfile(RDFProfile):
 
         # Lists
         items = [
-            ("language", DCT.language, None, Literal),
             ("conforms_to", DCT.conformsTo, None, Literal),
             ("alternate_identifier", ADMS.identifier, None, Literal),
             ("documentation", FOAF.page, None, Literal),
@@ -391,6 +401,16 @@ class SwissDCATAPProfile(RDFProfile):
             ("sample", ADMS.sample, None, Literal),
         ]
         self._add_list_triples_from_dict(dataset_dict, dataset_ref, items)
+
+        # Languages
+        languages = dataset_dict.get("language", [])
+        if languages:
+            if not isinstance(languages, list):
+                languages = [languages]
+            for lang in languages:
+                lang_uri = self._get_language_uri(lang)
+                if lang_uri:
+                    g.add((dataset_ref, DCT.language, lang_uri))
 
         # Relations
         if dataset_dict.get("relations"):
