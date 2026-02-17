@@ -7,7 +7,7 @@
   {% block structured_data %}
     <!-- Structured data -->
     <script type="application/ld+json">
-      {{ h.structured_data(pkg) | safe }}
+      {{ h.structured_data(pkg, ["swiss_schemaorg"]) | safe }}
     </script>
   {% endblock %}
 {% endblock %}
