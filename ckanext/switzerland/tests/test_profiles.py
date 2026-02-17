@@ -152,3 +152,42 @@ def test_distribution_handles_unknown_language_codes_gracefully(profile):
 
     # no triples should be created for unknown language codes
     assert langs_in_graph == []
+
+
+def test_dataset_and_resource_handle_unknown_language_codes_gracefully(profile):
+    """
+    If a language code is not in LANGUAGE_URI_MAPPING, _get_language_uri returns None
+    and no DCT.language triple should be emitted.
+    """
+    from ckanext.switzerland.dcat import profiles as profiles_module
+
+    def fake_resource_uri(res):
+        return res["uri"]
+
+    dataset_ref = rdflib.URIRef("http://example.org/dataset/1")
+
+    dataset_dict = {
+        "name": "test-dataset",
+        "organization": {"name": "org-id"},
+        # unknown code, not in LANGUAGE_URI_MAPPING
+        "language": ["xx"],
+    }
+
+    res_uri = "http://example.org/resource/3"
+    resource_dict = {
+        "uri": res_uri,
+        # unknown code, not in LANGUAGE_URI_MAPPING
+        "language": ["yy"],
+        "url_type": "api",
+        "url": "http://example.org/api-3",
+    }
+
+    profile._add_distribution_to_graph(dataset_ref, resource_dict, dataset_dict)
+
+    dist_ref = rdflib.URIRef(res_uri)
+    langs_in_resource_graph = list(profile.g.objects(dist_ref, DCT.language))
+    langs_in_dataset_graph = list(profile.g.objects(dataset_ref, DCT.language))
+
+    # no triples should be created for unknown language codes
+    assert langs_in_dataset_graph == []
+    assert langs_in_resource_graph == []
