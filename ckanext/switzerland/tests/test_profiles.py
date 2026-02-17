@@ -1,11 +1,10 @@
-import rdflib
 import pytest
+import rdflib
 
 from ckanext.switzerland.dcat.profiles import (
-    SwissDCATAPProfile,
     DCT,
-    DCAT,
     LANGUAGE_URI_MAPPING,
+    SwissDCATAPProfile,
 )
 
 
