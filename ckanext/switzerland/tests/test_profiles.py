@@ -49,10 +49,6 @@ def test_resource_uses_its_own_languages_over_dataset(profile):
     If a resource has its own 'language' list, those should be used
     (and mapped to URIs), not the dataset-level languages.
     """
-    from ckanext.switzerland.dcat import profiles as profiles_module
-
-    def fake_resource_uri(res):
-        return res["uri"]
 
     dataset_ref = rdflib.URIRef("http://example.org/dataset/1")
 
@@ -86,10 +82,6 @@ def test_resource_falls_back_to_dataset_languages(profile):
     """
     If a resource has no 'language', fall back to dataset_dict['language'].
     """
-    from ckanext.switzerland.dcat import profiles as profiles_module
-
-    def fake_resource_uri(res):
-        return res["uri"]
 
     dataset_ref = rdflib.URIRef("http://example.org/dataset/1")
 
@@ -123,11 +115,6 @@ def test_distribution_handles_unknown_language_codes_gracefully(profile):
     If a language code is not in LANGUAGE_URI_MAPPING, _get_language_uri returns None
     and no DCT.language triple should be emitted.
     """
-    from ckanext.switzerland.dcat import profiles as profiles_module
-
-    def fake_resource_uri(res):
-        return res["uri"]
-
     dataset_ref = rdflib.URIRef("http://example.org/dataset/1")
 
     dataset_dict = {
@@ -159,11 +146,6 @@ def test_dataset_and_resource_handle_unknown_language_codes_gracefully(profile):
     If a language code is not in LANGUAGE_URI_MAPPING, _get_language_uri returns None
     and no DCT.language triple should be emitted.
     """
-    from ckanext.switzerland.dcat import profiles as profiles_module
-
-    def fake_resource_uri(res):
-        return res["uri"]
-
     dataset_ref = rdflib.URIRef("http://example.org/dataset/1")
 
     dataset_dict = {
