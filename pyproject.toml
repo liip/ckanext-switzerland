@@ -58,3 +58,4 @@ timetable_harvester = "ckanext.switzerland.harvester.timetable_harvester:Timetab
 
 [project.entry-points."ckan.rdf.profiles"]
 swiss_dcat_ap = "ckanext.switzerland.dcat.profiles:SwissDCATAPProfile"
+swiss_schemaorg = "ckanext.switzerland.dcat.profiles:SwissSchemaOrgProfile"
