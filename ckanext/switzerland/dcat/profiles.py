@@ -3,17 +3,20 @@ import re
 import time
 from datetime import datetime
 
+import ckan.plugins.toolkit as tk
 import rdflib
 from ckan.lib.helpers import url_for
 from rdflib import BNode, Literal, URIRef
 from rdflib.namespace import RDF, RDFS, SKOS, Namespace
 
-from ckanext.dcat.profiles import RDFProfile
+from ckanext.dcat.profiles import CleanedURIRef, RDFProfile, SchemaOrgProfile
 from ckanext.dcat.utils import resource_uri
 from ckanext.switzerland.helpers import (
     get_langs,
     map_to_valid_format,
     ogdch_get_default_terms_of_use,
+    get_publisher_dict_from_dataset,
+    uri_to_iri,
 )
 
 log = logging.getLogger(__name__)
@@ -538,6 +541,55 @@ class SwissDCATAPProfile(RDFProfile):
         g.add((catalog_ref, RDF.type, DCAT.Catalog))
 
 
+class MultiLangProfile(RDFProfile):
+    def _add_multilang_value(
+            self, subject, predicate, key=None, data_dict=None, multilang_values=None
+    ):
+        if not multilang_values and data_dict and key:
+            multilang_values = data_dict.get(key)
+        if multilang_values:
+            try:
+                for key, values in multilang_values.items():
+                    if values:
+                        # the values can be either a multilang-dict or they are
+                        # nested in another iterable (e.g. keywords)
+                        if not isinstance(values, list):
+                            values = [values]
+                        for value in values:
+                            if value:
+                                self.g.add(
+                                    (subject, predicate, Literal(value, lang=key))
+                                )
+            # if multilang_values is not iterable, it is simply added as a non-
+            # translated Literal
+            except AttributeError:
+                self.g.add((subject, predicate, Literal(multilang_values)))
+
+    def _add_multilang_triples_from_dict(self, _dict, subject, items):
+        for item in items:
+            key, predicate, fallbacks, _type = item
+            self._add_multilang_triple_from_dict(
+                _dict, subject, predicate, key, fallbacks=fallbacks
+            )
+
+    def _add_multilang_triple_from_dict(
+            self, _dict, subject, predicate, key, fallbacks=None
+    ):
+        """
+        Adds a new multilang triple to the graph with the provided parameters
+
+        The subject and predicate of the triple are passed as the relevant
+        RDFLib objects (URIRef or BNode). The object is always a literal value,
+        which is extracted from the dict using the provided key (see
+        `_get_dict_value`).
+        """
+        value = self._get_dict_value(_dict, key)
+
+        if value:
+            self._add_multilang_value(subject, predicate, multilang_values=value)
+
+
+
 class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
     def _basic_fields_graph(self, dataset_ref, dataset_dict):
         items = [
@@ -558,13 +610,13 @@ class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
 
     def _publisher_graph(self, dataset_ref, dataset_dict):
         if any(
-                [
-                    self._get_dataset_value(dataset_dict, "publisher_uri"),
-                    self._get_dataset_value(dataset_dict, "publisher_name"),
-                    dataset_dict.get("organization"),
-                ]
+            [
+                self._get_dataset_value(dataset_dict, "publisher_uri"),
+                self._get_dataset_value(dataset_dict, "publisher_name"),
+                dataset_dict.get("organization"),
+            ]
         ):
-            publisher_uri, publisher_name = dh.get_publisher_dict_from_dataset(
+            publisher_uri, publisher_name = get_publisher_dict_from_dataset(
                 dataset_dict.get("publisher")
             )
             if publisher_uri:
@@ -591,7 +643,7 @@ class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
 
             publisher_url = self._get_dataset_value(dataset_dict, "publisher_url")
             if not publisher_url and dataset_dict.get("organization"):
-                publisher_url = dataset_dict["organization"].get("url") or config.get(
+                publisher_url = dataset_dict["organization"].get("url") or tk.config.get(
                     "ckan.site_url", ""
                 )
 
@@ -667,7 +719,8 @@ class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
                 if not contact_point.get("email") or not contact_point.get("name"):
                     continue
                 contact_details = BNode()
-                contact_point_email = EMAIL_MAILTO_PREFIX + contact_point["email"]
+
+                contact_point_email = f"mailto:{contact_point['email']}"
                 contact_point_name = contact_point["name"]
 
                 g.add((contact_details, RDF.type, VCARD.Organization))
@@ -683,7 +736,7 @@ class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
         download_url = resource_dict.get("download_url")
         if download_url:
             try:
-                download_url = dh.uri_to_iri(download_url)
+                download_url = uri_to_iri(download_url)
                 g.add((distribution, SCHEMA.downloadURL, URIRef(download_url)))
             except ValueError:
                 # only add valid URL
@@ -692,7 +745,7 @@ class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
         url = resource_dict.get("url")
         if (url and not download_url) or (url and url != download_url):
             try:
-                url = dh.uri_to_iri(url)
+                url = uri_to_iri(url)
                 g.add((distribution, SCHEMA.accessURL, URIRef(url)))
             except ValueError:
                 # only add valid URL
@@ -703,8 +756,6 @@ class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
         return g
 
     def graph_from_dataset(self, dataset_dict, dataset_ref):
-        dataset_uri = dh.dataset_uri(dataset_dict, dataset_ref)
-        dataset_ref = URIRef(dataset_uri)
         g = self.g
 
         # Contact details
@@ -712,7 +763,7 @@ class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
 
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
-            distribution = URIRef(dh.resource_uri(resource_dict))
+            distribution = URIRef(resource_uri(resource_dict))
 
             g.add((dataset_ref, SCHEMA.distribution, distribution))
             g.add((distribution, RDF.type, SCHEMA.Distribution))
@@ -767,4 +818,3 @@ class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
 
     def parse_dataset(self, dataset_dict, dataset_ref):
         super(SwissSchemaOrgProfile, self).parse_dataset(dataset_dict, dataset_ref)
-
