@@ -44,7 +44,7 @@ def test_dataset_languages_are_mapped_to_uris(profile):
     assert all(isinstance(o, rdflib.term.URIRef) for o in langs_in_graph)
 
 
-def test_resource_uses_its_own_languages_over_dataset(profile, monkeypatch):
+def test_resource_uses_its_own_languages_over_dataset(profile):
     """
     If a resource has its own 'language' list, those should be used
     (and mapped to URIs), not the dataset-level languages.
@@ -53,8 +53,6 @@ def test_resource_uses_its_own_languages_over_dataset(profile, monkeypatch):
 
     def fake_resource_uri(res):
         return res["uri"]
-
-    monkeypatch.setattr(profiles_module, "resource_uri", fake_resource_uri)
 
     dataset_ref = rdflib.URIRef("http://example.org/dataset/1")
 
@@ -84,7 +82,7 @@ def test_resource_uses_its_own_languages_over_dataset(profile, monkeypatch):
     assert str(lang) == LANGUAGE_URI_MAPPING["it"]
 
 
-def test_resource_falls_back_to_dataset_languages(profile, monkeypatch):
+def test_resource_falls_back_to_dataset_languages(profile):
     """
     If a resource has no 'language', fall back to dataset_dict['language'].
     """
@@ -92,8 +90,6 @@ def test_resource_falls_back_to_dataset_languages(profile, monkeypatch):
 
     def fake_resource_uri(res):
         return res["uri"]
-
-    monkeypatch.setattr(profiles_module, "resource_uri", fake_resource_uri)
 
     dataset_ref = rdflib.URIRef("http://example.org/dataset/1")
 
@@ -122,7 +118,7 @@ def test_resource_falls_back_to_dataset_languages(profile, monkeypatch):
     assert str(lang) == LANGUAGE_URI_MAPPING["fr"]
 
 
-def test_distribution_handles_unknown_language_codes_gracefully(profile, monkeypatch):
+def test_distribution_handles_unknown_language_codes_gracefully(profile):
     """
     If a language code is not in LANGUAGE_URI_MAPPING, _get_language_uri returns None
     and no DCT.language triple should be emitted.
@@ -131,8 +127,6 @@ def test_distribution_handles_unknown_language_codes_gracefully(profile, monkeyp
 
     def fake_resource_uri(res):
         return res["uri"]
-
-    monkeypatch.setattr(profiles_module, "resource_uri", fake_resource_uri)
 
     dataset_ref = rdflib.URIRef("http://example.org/dataset/1")
 
