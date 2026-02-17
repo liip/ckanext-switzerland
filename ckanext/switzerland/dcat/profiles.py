@@ -479,7 +479,7 @@ class SwissDCATAPProfile(RDFProfile):
 
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
-            self._add_distribution_to_graph(dataset_ref, resource_dict)
+            self._add_distribution_to_graph(dataset_ref, resource_dict, dataset_dict)
 
     def _add_publisher_to_graph(self, dataset_dict, dataset_ref):
         publisher = dataset_dict.get("publisher")
@@ -504,7 +504,7 @@ class SwissDCATAPProfile(RDFProfile):
                         self._add_date_triple(temporal_extent, SCHEMA.endDate, end)
                     self.g.add((dataset_ref, DCT.temporal, temporal_extent))
 
-    def _add_distribution_to_graph(self, dataset_ref, resource_dict):
+    def _add_distribution_to_graph(self, dataset_ref, resource_dict, dataset_dict):
         g = self.g
 
         distribution = URIRef(resource_uri(resource_dict))
@@ -526,10 +526,18 @@ class SwissDCATAPProfile(RDFProfile):
         #  Lists
         items = [
             ("documentation", FOAF.page, None, Literal),
-            ("language", DCT.language, None, Literal),
             ("conforms_to", DCT.conformsTo, None, Literal),
         ]
         self._add_list_triples_from_dict(resource_dict, distribution, items)
+        # Languages
+        languages = resource_dict.get("language") or dataset_dict.get("language", None) or []
+        if languages:
+            if not isinstance(languages, list):
+                languages = [languages]
+            for lang in languages:
+                lang_uri = self._get_language_uri(lang)
+                if lang_uri:
+                    g.add((distribution, DCT.language, lang_uri))
         # URL
         url = resource_dict.get("url")
         g.add((distribution, DCAT.accessURL, URIRef(url)))
