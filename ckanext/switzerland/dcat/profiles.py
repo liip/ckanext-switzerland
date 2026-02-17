@@ -37,6 +37,13 @@ XML = Namespace("http://www.w3.org/2001/XMLSchema")
 
 GEOJSON_IMT = "https://www.iana.org/assignments/media-types/application/vnd.geo+json"
 
+LANGUAGE_URI_MAPPING = {
+    "en": "http://publications.europa.eu/resource/authority/language/ENG",
+    "de": "http://publications.europa.eu/resource/authority/language/DEU",
+    "fr": "http://publications.europa.eu/resource/authority/language/FRA",
+    "it": "http://publications.europa.eu/resource/authority/language/ITA",
+}
+
 namespaces = {
     "dct": DCT,
     "dcat": DCAT,
@@ -792,7 +799,7 @@ class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
                     # Already a valid EU language URI
                     g.add((distribution, DCT.language, URIRef(lang)))
                 else:
-                    uri = language_uri_map.get(lang, None)
+                    uri = LANGUAGE_URI_MAPPING.get(lang, None)
                     if uri:
                         g.add((distribution, DCT.language, URIRef(uri)))
                     else:
