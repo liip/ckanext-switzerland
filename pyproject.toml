@@ -9,7 +9,7 @@ authors = [
 maintainers = [
     {name = "Liip AG", email = "odpch@liip.ch"}
 ]
-license = {text = "AGPL"}
+license = {text = "AGPL-3.0-or-later"}
 classifiers = [
     "Intended Audience :: Developers",
     "Development Status :: 5 - Production/Stable",
