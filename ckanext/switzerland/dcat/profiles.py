@@ -550,7 +550,7 @@ class SwissDCATAPProfile(RDFProfile):
 
 class MultiLangProfile(RDFProfile):
     def _add_multilang_value(
-            self, subject, predicate, key=None, data_dict=None, multilang_values=None
+        self, subject, predicate, key=None, data_dict=None, multilang_values=None
     ):
         if not multilang_values and data_dict and key:
             multilang_values = data_dict.get(key)
@@ -580,7 +580,7 @@ class MultiLangProfile(RDFProfile):
             )
 
     def _add_multilang_triple_from_dict(
-            self, _dict, subject, predicate, key, fallbacks=None
+        self, _dict, subject, predicate, key, fallbacks=None
     ):
         """
         Adds a new multilang triple to the graph with the provided parameters
@@ -594,7 +594,6 @@ class MultiLangProfile(RDFProfile):
 
         if value:
             self._add_multilang_value(subject, predicate, multilang_values=value)
-
 
 
 class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
@@ -650,9 +649,9 @@ class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
 
             publisher_url = self._get_dataset_value(dataset_dict, "publisher_url")
             if not publisher_url and dataset_dict.get("organization"):
-                publisher_url = dataset_dict["organization"].get("url") or tk.config.get(
-                    "ckan.site_url", ""
-                )
+                publisher_url = dataset_dict["organization"].get(
+                    "url"
+                ) or tk.config.get("ckan.site_url", "")
 
             self.g.add((contact_point, SCHEMA.url, Literal(publisher_url)))
             items = [
