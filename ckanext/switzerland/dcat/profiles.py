@@ -13,9 +13,9 @@ from ckanext.dcat.profiles import CleanedURIRef, RDFProfile, SchemaOrgProfile
 from ckanext.dcat.utils import resource_uri
 from ckanext.switzerland.helpers import (
     get_langs,
+    get_publisher_dict_from_dataset,
     map_to_valid_format,
     ogdch_get_default_terms_of_use,
-    get_publisher_dict_from_dataset,
     uri_to_iri,
 )
 
