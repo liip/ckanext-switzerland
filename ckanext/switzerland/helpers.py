@@ -5,9 +5,11 @@ import os
 import unicodedata
 from collections import OrderedDict, defaultdict
 from datetime import datetime
+from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 import ckan.plugins.toolkit as tk
+import iribaker
 import requests
 from ckan.common import _
 from ckan.lib.helpers import _link_to
@@ -676,3 +678,31 @@ def ogdch_get_default_terms_of_use():
         "name": _("Terms of use opentransportdata.swiss"),
         "url": f"https://opentransportdata.swiss/{ _('en/terms-of-use') }",
     }
+
+
+def get_publisher_dict_from_dataset(publisher):
+    if not publisher:
+        return None, None
+    if not isinstance(publisher, dict):
+        publisher = json.loads(publisher)
+    return publisher.get("url"), publisher.get("name")
+
+
+def uri_to_iri(uri):
+    """
+    convert URI to IRI (used for RDF)
+    this function also validates the URI and throws a ValueError if the
+    provided URI is invalid
+    """
+    if not uri:
+        raise ValueError("Provided URI is empty or None")
+
+    result = urlparse(uri)
+    if not result.scheme or not result.netloc or result.netloc == "-":
+        raise ValueError("Provided URI does not have a valid schema or netloc")
+
+    try:
+        iri = iribaker.to_iri(uri)
+        return iri
+    except Exception as e:
+        raise ValueError(f"Provided URI can't be converted to IRI: {e}")

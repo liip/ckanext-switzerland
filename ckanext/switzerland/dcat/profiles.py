@@ -3,17 +3,20 @@ import re
 import time
 from datetime import datetime
 
+import ckan.plugins.toolkit as tk
 import rdflib
 from ckan.lib.helpers import url_for
 from rdflib import BNode, Literal, URIRef
 from rdflib.namespace import RDF, RDFS, SKOS, Namespace
 
-from ckanext.dcat.profiles import RDFProfile
+from ckanext.dcat.profiles import CleanedURIRef, RDFProfile, SchemaOrgProfile
 from ckanext.dcat.utils import resource_uri
 from ckanext.switzerland.helpers import (
     get_langs,
+    get_publisher_dict_from_dataset,
     map_to_valid_format,
     ogdch_get_default_terms_of_use,
+    uri_to_iri,
 )
 
 log = logging.getLogger(__name__)
@@ -562,3 +565,281 @@ class SwissDCATAPProfile(RDFProfile):
     def graph_from_catalog(self, catalog_dict, catalog_ref):
         g = self.g
         g.add((catalog_ref, RDF.type, DCAT.Catalog))
+
+
+class MultiLangProfile(RDFProfile):
+    def _add_multilang_value(
+        self, subject, predicate, key=None, data_dict=None, multilang_values=None
+    ):
+        if not multilang_values and data_dict and key:
+            multilang_values = data_dict.get(key)
+        if multilang_values:
+            try:
+                for key, values in multilang_values.items():
+                    if values:
+                        # the values can be either a multilang-dict or they are
+                        # nested in another iterable (e.g. keywords)
+                        if not isinstance(values, list):
+                            values = [values]
+                        for value in values:
+                            if value:
+                                self.g.add(
+                                    (subject, predicate, Literal(value, lang=key))
+                                )
+            # if multilang_values is not iterable, it is simply added as a non-
+            # translated Literal
+            except AttributeError:
+                self.g.add((subject, predicate, Literal(multilang_values)))
+
+    def _add_multilang_triples_from_dict(self, _dict, subject, items):
+        for item in items:
+            key, predicate, fallbacks, _type = item
+            self._add_multilang_triple_from_dict(
+                _dict, subject, predicate, key, fallbacks=fallbacks
+            )
+
+    def _add_multilang_triple_from_dict(
+        self, _dict, subject, predicate, key, fallbacks=None
+    ):
+        """
+        Adds a new multilang triple to the graph with the provided parameters
+
+        The subject and predicate of the triple are passed as the relevant
+        RDFLib objects (URIRef or BNode). The object is always a literal value,
+        which is extracted from the dict using the provided key (see
+        `_get_dict_value`).
+        """
+        value = self._get_dict_value(_dict, key)
+
+        if value:
+            self._add_multilang_value(subject, predicate, multilang_values=value)
+
+
+class SwissSchemaOrgProfile(SchemaOrgProfile, MultiLangProfile):
+    def _basic_fields_graph(self, dataset_ref, dataset_dict):
+        items = [
+            ("identifier", SCHEMA.identifier, None, Literal),
+            ("version", SCHEMA.version, ["dcat_version"], Literal),
+            ("issued", SCHEMA.datePublished, None, Literal),
+            ("modified", SCHEMA.dateModified, None, Literal),
+            ("author", SCHEMA.author, ["contact_name", "maintainer"], Literal),
+            ("url", SCHEMA.sameAs, None, Literal),
+        ]
+        self._add_triples_from_dict(dataset_dict, dataset_ref, items)
+
+        items = [
+            ("title", SCHEMA.name, None, Literal),
+            ("description", SCHEMA.description, None, Literal),
+        ]
+        self._add_multilang_triples_from_dict(dataset_dict, dataset_ref, items)
+
+    def _publisher_graph(self, dataset_ref, dataset_dict):
+        if any(
+            [
+                self._get_dataset_value(dataset_dict, "publisher_uri"),
+                self._get_dataset_value(dataset_dict, "publisher_name"),
+                dataset_dict.get("organization"),
+            ]
+        ):
+            publisher_uri, publisher_name = get_publisher_dict_from_dataset(
+                dataset_dict.get("publisher")
+            )
+            if publisher_uri:
+                publisher_details = CleanedURIRef(publisher_uri)
+            else:
+                publisher_details = BNode()
+
+            self.g.add((publisher_details, RDF.type, SCHEMA.Organization))
+            self.g.add((dataset_ref, SCHEMA.publisher, publisher_details))
+            self.g.add((dataset_ref, SCHEMA.sourceOrganization, publisher_details))
+
+            if not publisher_name and dataset_dict.get("organization"):
+                publisher_name = dataset_dict["organization"]["title"]
+                self._add_multilang_value(
+                    publisher_details, SCHEMA.name, multilang_values=publisher_name
+                )
+            else:
+                self.g.add((publisher_details, SCHEMA.name, Literal(publisher_name)))
+
+            contact_point = BNode()
+            self.g.add((publisher_details, SCHEMA.contactPoint, contact_point))
+
+            self.g.add((contact_point, SCHEMA.contactType, Literal("customer service")))
+
+            publisher_url = self._get_dataset_value(dataset_dict, "publisher_url")
+            if not publisher_url and dataset_dict.get("organization"):
+                publisher_url = dataset_dict["organization"].get(
+                    "url"
+                ) or tk.config.get("ckan.site_url", "")
+
+            self.g.add((contact_point, SCHEMA.url, Literal(publisher_url)))
+            items = [
+                (
+                    "publisher_email",
+                    SCHEMA.email,
+                    ["contact_email", "maintainer_email", "author_email"],
+                    Literal,
+                ),
+                (
+                    "publisher_name",
+                    SCHEMA.name,
+                    ["contact_name", "maintainer", "author"],
+                    Literal,
+                ),
+            ]
+
+            self._add_triples_from_dict(dataset_dict, contact_point, items)
+
+    def _temporal_graph(self, dataset_ref, dataset_dict):
+        # schema.org temporalCoverage only allows to specify one temporal
+        # DCAT-AP Switzerland allows to specify multiple
+        # for the mapping we always use the first one
+        temporals = self._get_dataset_value(dataset_dict, "temporals")
+        try:
+            start = temporals[0].get("start_date")
+            end = temporals[0].get("end_date")
+        except (IndexError, KeyError, TypeError):
+            # do not add temporals if there are none
+            return
+        if start or end:
+            if start and end:
+                self.g.add(
+                    (
+                        dataset_ref,
+                        SCHEMA.temporalCoverage,
+                        Literal(f"{start}/{end}"),
+                    )
+                )
+            elif start:
+                self._add_date_triple(dataset_ref, SCHEMA.temporalCoverage, start)
+            elif end:
+                self._add_date_triple(dataset_ref, SCHEMA.temporalCoverage, end)
+
+    def _tags_graph(self, dataset_ref, dataset_dict):
+        for tag in dataset_dict.get("keywords", []):
+            items = [
+                ("keywords", SCHEMA.keywords, None, Literal),
+            ]
+            self._add_multilang_triples_from_dict(dataset_dict, dataset_ref, items)
+
+    def _distribution_basic_fields_graph(self, distribution, resource_dict):
+        items = [
+            ("issued", SCHEMA.datePublished, None, Literal),
+            ("modified", SCHEMA.dateModified, None, Literal),
+        ]
+
+        self._add_triples_from_dict(resource_dict, distribution, items)
+
+        items = [
+            ("title", SCHEMA.name, None, Literal),
+            ("description", SCHEMA.description, None, Literal),
+        ]
+        self._add_multilang_triples_from_dict(resource_dict, distribution, items)
+
+    def contact_details(self, dataset_dict, dataset_ref, g):
+        # Contact details used by graph_from_dataset
+        if dataset_dict.get("contact_points"):
+            contact_points = self._get_dataset_value(dataset_dict, "contact_points")
+            for contact_point in contact_points:
+                if not contact_point.get("email") or not contact_point.get("name"):
+                    continue
+                contact_details = BNode()
+
+                contact_point_email = f"mailto:{contact_point['email']}"
+                contact_point_name = contact_point["name"]
+
+                g.add((contact_details, RDF.type, VCARD.Organization))
+                g.add((contact_details, VCARD.hasEmail, URIRef(contact_point_email)))
+                g.add((contact_details, VCARD.fn, Literal(contact_point_name)))
+
+                g.add((dataset_ref, SCHEMA.contactPoint, contact_details))
+
+        return g
+
+    def download_access_url(self, resource_dict, distribution, g):
+        # Download URL & Access URL used by graph_from_dataset
+        download_url = resource_dict.get("download_url")
+        if download_url:
+            try:
+                download_url = uri_to_iri(download_url)
+                g.add((distribution, SCHEMA.downloadURL, URIRef(download_url)))
+            except ValueError:
+                # only add valid URL
+                pass
+
+        url = resource_dict.get("url")
+        if (url and not download_url) or (url and url != download_url):
+            try:
+                url = uri_to_iri(url)
+                g.add((distribution, SCHEMA.accessURL, URIRef(url)))
+            except ValueError:
+                # only add valid URL
+                pass
+        elif download_url:
+            g.add((distribution, SCHEMA.accessURL, URIRef(download_url)))
+
+        return g
+
+    def graph_from_dataset(self, dataset_dict, dataset_ref):
+        g = self.g
+
+        # Contact details
+        self.contact_details(dataset_dict, dataset_ref, g)
+
+        # Resources
+        for resource_dict in dataset_dict.get("resources", []):
+            distribution = URIRef(resource_uri(resource_dict))
+
+            g.add((dataset_ref, SCHEMA.distribution, distribution))
+            g.add((distribution, RDF.type, SCHEMA.Distribution))
+
+            #  Simple values
+            items = [
+                ("status", ADMS.status, None, Literal),
+                ("coverage", DCT.coverage, None, Literal),
+                ("identifier", DCT.identifier, None, Literal),
+                ("spatial", DCT.spatial, None, Literal),
+            ]
+
+            self._add_triples_from_dict(resource_dict, distribution, items)
+
+            self._add_multilang_value(
+                distribution, DCT.title, "display_name", resource_dict
+            )
+            self._add_multilang_value(
+                distribution, DCT.description, "description", resource_dict
+            )
+
+            # Language
+            languages = resource_dict.get("language", [])
+            for lang in languages:
+                if "http://publications.europa.eu/resource/authority" in lang:
+                    # Already a valid EU language URI
+                    g.add((distribution, DCT.language, URIRef(lang)))
+                else:
+                    uri = LANGUAGE_URI_MAPPING.get(lang, None)
+                    if uri:
+                        g.add((distribution, DCT.language, URIRef(uri)))
+                    else:
+                        log.debug(f"Language '{lang}' not found in language_uri_map")
+
+            # Download URL & Access URL
+            self.download_access_url(resource_dict, distribution, g)
+
+            # Dates
+            items = [
+                ("issued", DCT.issued, None, Literal),
+                ("modified", DCT.modified, None, Literal),
+            ]
+
+            self._add_date_triples_from_dict(resource_dict, distribution, items)
+            # ByteSize
+            if resource_dict.get("byte_size"):
+                g.add(
+                    (distribution, SCHEMA.byteSize, Literal(resource_dict["byte_size"]))
+                )
+
+        super(SwissSchemaOrgProfile, self).graph_from_dataset(dataset_dict, dataset_ref)
+
+    def parse_dataset(self, dataset_dict, dataset_ref):
+        super(SwissSchemaOrgProfile, self).parse_dataset(dataset_dict, dataset_ref)
