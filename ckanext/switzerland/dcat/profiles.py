@@ -292,7 +292,7 @@ class SwissDCATAPProfile(RDFProfile):
         for language in self._object_value_list(distribution, DCAT.language):
             resource_dict["language"].append(language)
         # byteSize
-        byte_size = self._object_value_int(distribution, DCAT.byteSize)
+        byte_size = self._object_value_int(distribution, DCT.byteSize)
         if byte_size is not None:
             resource_dict["byte_size"] = byte_size
         # Distribution URI (explicitly show the missing ones)
@@ -557,7 +557,7 @@ class SwissDCATAPProfile(RDFProfile):
         self._add_date_triples_from_dict(resource_dict, distribution, items)
         # Numbers
         if resource_dict.get("byte_size"):
-            g.add((distribution, DCAT.byteSize, Literal(resource_dict["byte_size"])))
+            g.add((distribution, DCT.byteSize, Literal(resource_dict["byte_size"])))
 
     def graph_from_catalog(self, catalog_dict, catalog_ref):
         g = self.g
