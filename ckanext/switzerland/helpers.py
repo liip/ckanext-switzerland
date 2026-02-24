@@ -403,11 +403,12 @@ def map_to_valid_format(resource_format):
         "http://publications.europa.eu/resource/authority/file-type/XML": ["xml"],
         "http://publications.europa.eu/resource/authority/file-type/ZIP": ["zip", "gz"],
     }
-    resource_format_lower = resource_format.lower()
-    for key, values in list(format_mapping.items()):
-        if resource_format_lower in values:
-            return key
-    else:
+    try:
+        resource_format_lower = resource_format.lower()
+        for key, values in list(format_mapping.items()):
+            if resource_format_lower in values:
+                return key
+    except AttributeError:
         return None
 
 
