@@ -366,41 +366,49 @@ def resource_filename(resource_url):
 # all formats that need to be mapped have to be entered lower-case
 def map_to_valid_format(resource_format):
     format_mapping = {
-        "CSV": ["csv", "aspx", "text (.csv)", "comma ..."],
-        "GeoJSON": ["geojson"],
-        "GeoTIFF": ["geotiff"],
-        "GPKG": ["gpkg"],
-        "HTML": ["html"],
-        "INTERLIS": ["interlis"],
-        "JSON": ["json"],
-        "KMZ": ["kmz"],
-        "MULTIFORMAT": ["multiformat"],
-        "ODS": ["ods", "vnd.oas..."],
-        "PC-AXIS": ["pc-axis file"],
-        "PDF": ["pdf"],
-        "PNG": ["png"],
-        "RDF": ["sparql-..."],
-        "SHAPEFILE": [
-            "esri shapefile",
-            "esri geodatabase (....",
-            "esri file geodatabase",
-            "esri arcinfo ascii ...",
+        "http://publications.europa.eu/resource/authority/file-type/CSV": ["csv"],
+        "http://publications.europa.eu/resource/authority/file-type/GEOJSON": [
+            "geojson"
         ],
-        "TXT": ["text", "txt", "text (.txt)", "plain"],
-        "TIFF": ["tiff"],
-        "WCS": ["wcs"],
-        "WFS": ["wfs"],
-        "WMS": ["wms"],
-        "WMTS": ["wmts"],
-        "XLS": ["xls", "xlsx"],
-        "XML": ["xml"],
-        "ZIP": ["zip"],
+        "http://publications.europa.eu/resource/authority/file-type/GEOTIFF": [
+            "geotiff"
+        ],
+        "http://publications.europa.eu/resource/authority/file-type/GPKG": ["gpkg"],
+        "http://publications.europa.eu/resource/authority/file-type/HTML": ["html"],
+        "http://publications.europa.eu/resource/authority/file-type/JSON": ["json"],
+        "http://publications.europa.eu/resource/authority/file-type/KMZ": ["kmz"],
+        "http://publications.europa.eu/resource/authority/file-type/ODS": ["ods"],
+        "http://publications.europa.eu/resource/authority/file-type/PDF": ["pdf"],
+        "http://publications.europa.eu/resource/authority/file-type/PNG": ["png"],
+        "http://publications.europa.eu/resource/authority/file-type/RDF": [
+            "sparql-..."
+        ],
+        "http://publications.europa.eu/resource/authority/file-type/TXT": [
+            "text",
+            "txt",
+            "text (.txt)",
+            "plain",
+        ],
+        "http://publications.europa.eu/resource/authority/file-type/TIFF": ["tiff"],
+        "http://publications.europa.eu/resource/authority/file-type/WCS_SRVC": ["wcs"],
+        "http://publications.europa.eu/resource/authority/file-type/WFS_SRVC": ["wfs"],
+        "http://publications.europa.eu/resource/authority/file-type/WMS_SRVC": ["wms"],
+        "http://publications.europa.eu/resource/authority/file-type/WMTS_SRVC": [
+            "wmts"
+        ],
+        "http://publications.europa.eu/resource/authority/file-type/XLS": [
+            "xls",
+            "xlsx",
+        ],
+        "http://publications.europa.eu/resource/authority/file-type/XML": ["xml"],
+        "http://publications.europa.eu/resource/authority/file-type/ZIP": ["zip", "gz"],
     }
-    resource_format_lower = resource_format.lower()
-    for key, values in list(format_mapping.items()):
-        if resource_format_lower in values:
-            return key
-    else:
+    try:
+        resource_format_lower = resource_format.lower()
+        for key, values in list(format_mapping.items()):
+            if resource_format_lower in values:
+                return key
+    except AttributeError:
         return None
 
 
