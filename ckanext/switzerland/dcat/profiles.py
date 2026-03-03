@@ -6,7 +6,7 @@ from datetime import datetime
 import rdflib
 from ckan.lib.helpers import url_for
 from rdflib import BNode, Literal, URIRef
-from rdflib.namespace import RDF, RDFS, SKOS, Namespace
+from rdflib.namespace import RDF, RDFS, SKOS, XSD, Namespace
 
 from ckanext.dcat.profiles import RDFProfile
 from ckanext.dcat.utils import resource_uri
@@ -557,7 +557,13 @@ class SwissDCATAPProfile(RDFProfile):
         self._add_date_triples_from_dict(resource_dict, distribution, items)
         # Numbers
         if resource_dict.get("byte_size"):
-            g.add((distribution, DCAT.byteSize, Literal(resource_dict["byte_size"])))
+            g.add(
+                (
+                    distribution,
+                    DCAT.byteSize,
+                    Literal(resource_dict["byte_size"], datatype=XSD.decimal),
+                )
+            )
 
     def graph_from_catalog(self, catalog_dict, catalog_ref):
         g = self.g
