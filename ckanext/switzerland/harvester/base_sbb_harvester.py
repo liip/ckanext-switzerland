@@ -185,6 +185,9 @@ class BaseSBBHarvester(HarvesterBase):
                 "storage_adapter": str,
                 "bucket": str,
                 voluptuous.Required("date_pattern", default=""): str,
+                voluptuous.Required(
+                    "resource_sort_order", default="desc"
+                ): voluptuous.In(["asc", "desc"]),
             }
         )
 
@@ -988,23 +991,34 @@ class BaseSBBHarvester(HarvesterBase):
         unmatched_resources = []
 
         # get filename regex for permalink from harvester config or fallback to a
-        # catch-all
+        # catch-all that matches all filenames (.*)
         identifier_regex = self.config["resource_regex"]
         for resource in package["resources"]:
             if re.match(identifier_regex, resource["identifier"], re.IGNORECASE):
                 ordered_resources.append(resource)
             else:
+                # We only add to unmatched_resources if the resource_regex exists and a
+                # filename doesn't match it
                 unmatched_resources.append(resource)
+
+        if self.config["resource_sort_order"] == "asc":
+            reverse = False
+        else:
+            reverse = True
+        log.debug(
+            f"The configured resource_sort_order is {self.config['resource_sort_order']}"
+            f" and reverse is {reverse}"
+        )
 
         if self.config["date_pattern"]:
             ordered_resources.sort(
                 key=lambda r: re.search(
                     self.config["date_pattern"], r["identifier"]
                 ).group(),
-                reverse=True,
+                reverse=reverse,
             )
         else:
-            ordered_resources.sort(key=lambda r: r["identifier"], reverse=True)
+            ordered_resources.sort(key=lambda r: r["identifier"], reverse=reverse)
 
         return ordered_resources, unmatched_resources
 
