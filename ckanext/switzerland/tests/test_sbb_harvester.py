@@ -363,6 +363,12 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
             ),
         )
 
+    # TODO: add tests for resource_sort_order:
+    # - default resource_sort_order is "desc"
+    # - resource_sort_order set as "desc" is respected
+    # - resource_sort_order set as "asc" is respected
+    # - resource_sort_order is not used if resource_regex is set
+
     # cleanup tests
     def test_max_resources(self):
         filesystem = self.get_filesystem(filename="20160901.csv")
