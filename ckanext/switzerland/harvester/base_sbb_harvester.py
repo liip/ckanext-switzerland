@@ -194,6 +194,13 @@ class BaseSBBHarvester(HarvesterBase):
     def load_config(self, config_str):
         schema = self.get_config_validation_schema()
         data = json.loads(config_str)
+        # If resource_regex is in the config, ignore resource_sort_order.
+        if "resource_regex" in data and "resource_sort_order" in data:
+            del data["resource_sort_order"]
+            log.info(
+                "resource_regex is set in config: ignoring resource_sort_order and "
+                "using default value (desc)"
+            )
         return schema(data)
 
     # tested
@@ -1006,7 +1013,7 @@ class BaseSBBHarvester(HarvesterBase):
         else:
             reverse = True
         log.debug(
-            f"The configured resource_sort_order is {self.config['resource_sort_order']}"
+            f"resource_sort_order is {self.config['resource_sort_order']}"
             f" and reverse is {reverse}"
         )
 
@@ -1033,9 +1040,11 @@ class BaseSBBHarvester(HarvesterBase):
         # Deleting old resources, generate permalink, order resources:
         # We do this by matching a regex, defined in the `resource_regex` key of the
         # harvester json config, against the identifier (filename) of the resources of
-        # the dataset. The ones that matched are thrown in a list and sorted by name,
-        # descending. This makes the newest file appear first when the filesnames have
-        # the correct format (YYYY-MM-DD-*).
+        # the dataset. The ones that matched are thrown in a list and sorted by name.
+        # When resource_regex is omitted from the config JSON, resource_sort_order
+        # selects ascending vs descending; when resource_regex is included in the
+        # config, resource_sort_order is ignored and matched resources are always sorted
+        # descending (newest name first for YYYYMMDD-* style names).
         # In case filesnames have different structure, e.g., *_YYYY-MM-DD.csv,
         # `date_pattern` should be specified in the harvester configuration, which is
         # used to list the newest files on the top of the list.

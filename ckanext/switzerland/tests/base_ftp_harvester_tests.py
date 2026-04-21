@@ -24,6 +24,7 @@ class BaseSBBHarvesterTests(unittest.TestCase):
         self,
         force_all=False,
         resource_regex=None,
+        resource_sort_order=None,
         max_resources=None,
         dataset=data.dataset_name,
         timetable_regex=None,
@@ -47,6 +48,8 @@ class BaseSBBHarvesterTests(unittest.TestCase):
             config["force_all"] = True
         if resource_regex:
             config["resource_regex"] = resource_regex
+        if resource_sort_order is not None:
+            config["resource_sort_order"] = resource_sort_order
         if max_resources:
             config["max_resources"] = max_resources
         if timetable_regex:
