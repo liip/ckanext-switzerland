@@ -363,6 +363,78 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
             ),
         )
 
+    def test_resource_sort_order_default_is_desc(self):
+        """If resource_sort_order is omitted from config, resources are ordered desc."""
+        filesystem = self.get_filesystem(filename="20160901.csv")
+        MockFTPStorageAdapter.filesystem = filesystem
+        path = os.path.join(data.environment, data.folder, "20160902.csv")
+        filesystem.writetext(path, data.dataset_content_2)
+        self.run_harvester(ftp_server="testserver")
+
+        package = self.get_package()
+        self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
+        self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
+
+    def test_resource_sort_order_desc_explicit(self):
+        """resource_sort_order 'desc' sorts identifiers descending (newest name first)."""
+        filesystem = self.get_filesystem(filename="20160901.csv")
+        MockFTPStorageAdapter.filesystem = filesystem
+        path = os.path.join(data.environment, data.folder, "20160902.csv")
+        filesystem.writetext(path, data.dataset_content_2)
+        self.run_harvester(ftp_server="testserver", resource_sort_order="desc")
+
+        package = self.get_package()
+        self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
+        self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
+
+    def test_resource_sort_order_asc(self):
+        """resource_sort_order 'asc' sorts identifiers ascending."""
+        filesystem = self.get_filesystem(filename="20160901.csv")
+        MockFTPStorageAdapter.filesystem = filesystem
+        path = os.path.join(data.environment, data.folder, "20160902.csv")
+        filesystem.writetext(path, data.dataset_content_2)
+        self.run_harvester(ftp_server="testserver", resource_sort_order="asc")
+
+        package = self.get_package()
+        self.assertEqual(package.resources[0].extras["identifier"], "20160901.csv")
+        self.assertEqual(package.resources[1].extras["identifier"], "20160902.csv")
+        self.assertEqual(
+            package.extras["permalink"],
+            "http://odp.test/dataset/{}/resource/{}/download/20160901.csv".format(
+                package.id, package.resources[0].id
+            ),
+        )
+
+    def test_resource_sort_order_ignored_when_resource_regex_in_config(self):
+        """If resource_regex is present in the harvester config, resource_sort_order is
+        ignored: matched files keep descending identifier order even when asc is set.
+        Unmatched files still precede the matched block (unchanged).
+        """
+        filesystem = self.get_filesystem(filename="20160901.csv")
+        MockFTPStorageAdapter.filesystem = filesystem
+        path = os.path.join(data.environment, data.folder, "20160902.csv")
+        filesystem.writetext(path, data.dataset_content_2)
+        path = os.path.join(data.environment, data.folder, "1111Resource.csv")
+        filesystem.writetext(path, data.dataset_content_3)
+        path = os.path.join(data.environment, data.folder, "9999Resource.csv")
+        filesystem.writetext(path, data.dataset_content_3)
+
+        self.run_harvester(
+            resource_regex=r"\d{8}.csv",
+            resource_sort_order="asc",
+            ftp_server="testserver",
+        )
+        package = self.get_package()
+        self.assertEqual(
+            [r.extras["identifier"] for r in package.resources],
+            [
+                "1111Resource.csv",
+                "9999Resource.csv",
+                "20160902.csv",
+                "20160901.csv",
+            ],
+        )
+
     # cleanup tests
     def test_max_resources(self):
         filesystem = self.get_filesystem(filename="20160901.csv")

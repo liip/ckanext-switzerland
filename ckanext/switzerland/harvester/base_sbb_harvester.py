@@ -185,12 +185,22 @@ class BaseSBBHarvester(HarvesterBase):
                 "storage_adapter": str,
                 "bucket": str,
                 voluptuous.Required("date_pattern", default=""): str,
+                voluptuous.Required(
+                    "resource_sort_order", default="desc"
+                ): voluptuous.In(["asc", "desc"]),
             }
         )
 
     def load_config(self, config_str):
         schema = self.get_config_validation_schema()
         data = json.loads(config_str)
+        # If resource_regex is in the config, ignore resource_sort_order.
+        if "resource_regex" in data and "resource_sort_order" in data:
+            del data["resource_sort_order"]
+            log.info(
+                "resource_regex is set in config: ignoring resource_sort_order and "
+                "using default value (desc)"
+            )
         return schema(data)
 
     # tested
@@ -988,23 +998,34 @@ class BaseSBBHarvester(HarvesterBase):
         unmatched_resources = []
 
         # get filename regex for permalink from harvester config or fallback to a
-        # catch-all
+        # catch-all that matches all filenames (.*)
         identifier_regex = self.config["resource_regex"]
         for resource in package["resources"]:
             if re.match(identifier_regex, resource["identifier"], re.IGNORECASE):
                 ordered_resources.append(resource)
             else:
+                # We only add to unmatched_resources if the resource_regex exists and a
+                # filename doesn't match it
                 unmatched_resources.append(resource)
+
+        if self.config["resource_sort_order"] == "asc":
+            reverse = False
+        else:
+            reverse = True
+        log.debug(
+            f"resource_sort_order is {self.config['resource_sort_order']}"
+            f" and reverse is {reverse}"
+        )
 
         if self.config["date_pattern"]:
             ordered_resources.sort(
                 key=lambda r: re.search(
                     self.config["date_pattern"], r["identifier"]
                 ).group(),
-                reverse=True,
+                reverse=reverse,
             )
         else:
-            ordered_resources.sort(key=lambda r: r["identifier"], reverse=True)
+            ordered_resources.sort(key=lambda r: r["identifier"], reverse=reverse)
 
         return ordered_resources, unmatched_resources
 
@@ -1019,9 +1040,11 @@ class BaseSBBHarvester(HarvesterBase):
         # Deleting old resources, generate permalink, order resources:
         # We do this by matching a regex, defined in the `resource_regex` key of the
         # harvester json config, against the identifier (filename) of the resources of
-        # the dataset. The ones that matched are thrown in a list and sorted by name,
-        # descending. This makes the newest file appear first when the filesnames have
-        # the correct format (YYYY-MM-DD-*).
+        # the dataset. The ones that matched are thrown in a list and sorted by name.
+        # When resource_regex is omitted from the config JSON, resource_sort_order
+        # selects ascending vs descending; when resource_regex is included in the
+        # config, resource_sort_order is ignored and matched resources are always sorted
+        # descending (newest name first for YYYYMMDD-* style names).
         # In case filesnames have different structure, e.g., *_YYYY-MM-DD.csv,
         # `date_pattern` should be specified in the harvester configuration, which is
         # used to list the newest files on the top of the list.
