@@ -91,6 +91,14 @@ class BaseSBBHarvesterTests(unittest.TestCase):
         fs.settimes(path, modified=datetime(2000, 1, 1))
         return fs
 
+    def assert_resource_format_ignore_case(self, value, expected, msg=None):
+        """Assert resource ``format`` equals *expected*, case-insensitively."""
+        self.assertEqual(
+            (value or "").strip().lower(),
+            (expected or "").strip().lower(),
+            msg,
+        )
+
     def assert_dataset_data(self, dataset_data, **kwargs):
         expected_data = {
             "identifier": "Dataset",

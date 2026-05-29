@@ -6,8 +6,9 @@ from zoneinfo import ZoneInfo
 
 import pytest
 import time_machine
-from ckan.lib.munge import munge_name
+from ckan.lib.munge import munge_filename, munge_name
 from ckan.logic import NotFound, get_action
+from ckan.tests import factories
 from mock import patch
 
 from ckanext.harvest import model as harvester_model
@@ -146,6 +147,142 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(
             resource["license"],
             "http://dcat-ap.ch/vocabulary/licenses/terms_open",
+        )
+
+    def test_replace_same_filename_preserves_format_from_old_resource(self):
+        """When a file replaces an existing resource, ``format`` is copied from the old resource."""
+        dataset = data.dataset()
+        res = data.resource(dataset=dataset, filename=data.filename)
+        get_action("resource_patch")(
+            {"user": factories.Sysadmin()["name"]},
+            {"id": res["id"], "format": "GEOJSON"},
+        )
+
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
+        self.run_harvester(ftp_server="testserver")
+
+        dataset = self.get_dataset()
+        self.assertEqual(len(dataset["resources"]), 1)
+        resource = dataset["resources"][0]
+        self.assertEqual(resource["identifier"], data.filename)
+        self.assert_resource_format_ignore_case(resource["format"], "geojson")
+
+    def test_new_resource_copies_format_from_fallback_old_resource(self):
+        """With no matching resource for the filename, ``format`` is taken from the first existing resource."""
+        dataset = data.dataset()
+        res = data.resource(dataset=dataset)
+        get_action("resource_patch")(
+            {"user": factories.Sysadmin()["name"]},
+            {"id": res["id"], "format": "GEOJSON"},
+        )
+
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
+        self.run_harvester(ftp_server="testserver")
+
+        dataset = self.get_dataset()
+        self.assertEqual(len(dataset["resources"]), 2)
+        new_res = next(
+            r for r in dataset["resources"] if r["identifier"] == data.filename
+        )
+        self.assert_resource_format_ignore_case(new_res["format"], "geojson")
+
+    def test_copied_metadata_only_affects_new_harvested_resource(self):
+        """Only the resource created from the FTP file gets metadata copied from the fallback; other resources are unchanged."""
+        dataset = data.dataset()
+        aaa = data.resource(dataset=dataset)
+        get_action("resource_patch")(
+            {"user": factories.Sysadmin()["name"]},
+            {"id": aaa["id"], "format": "GEOJSON"},
+        )
+
+        factories.Resource(
+            package_id=dataset["id"],
+            identifier="Other.csv",
+            format="XML",
+            title={"de": "Other", "en": "Other", "fr": "Other", "it": "Other"},
+            name={"de": "Other", "en": "Other", "fr": "Other", "it": "Other"},
+            description={
+                "de": "Other desc",
+                "en": "Other desc",
+                "fr": "Other desc",
+                "it": "Other desc",
+            },
+            state="active",
+            rights="Other (Open)",
+            license="http://dcat-ap.ch/vocabulary/licenses/terms_open",
+            coverage="Coverage",
+            url="http://odp.test/dataset/testdataset/resource/download/{}".format(
+                munge_filename("Other.csv")
+            ),
+        )
+
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
+        self.run_harvester(ftp_server="testserver", resource_sort_order="asc")
+
+        dataset = self.get_dataset()
+        self.assertEqual(len(dataset["resources"]), 3)
+        by_identifier = {r["identifier"]: r for r in dataset["resources"]}
+
+        self.assert_resource_format_ignore_case(
+            by_identifier[data.filename]["format"],
+            "geojson",
+            "Harvested file should copy format from fallback resource",
+        )
+        self.assertEqual(
+            by_identifier["Other.csv"]["format"],
+            "XML",
+            "Another resource on the dataset must not be updated by the harvest import",
+        )
+        self.assert_resource_format_ignore_case(
+            by_identifier["AAAResource"]["format"],
+            "geojson",
+        )
+
+    def test_replace_same_filename_leaves_other_resources_untouched(self):
+        """Replacing a harvested file must not change ``format`` on other resources."""
+        dataset = data.dataset()
+        didok_res = data.resource(dataset=dataset, filename=data.filename)
+        get_action("resource_patch")(
+            {"user": factories.Sysadmin()["name"]},
+            {"id": didok_res["id"], "format": "GEOJSON"},
+        )
+
+        factories.Resource(
+            package_id=dataset["id"],
+            identifier="Other.csv",
+            format="XML",
+            title={"de": "Other", "en": "Other", "fr": "Other", "it": "Other"},
+            name={"de": "Other", "en": "Other", "fr": "Other", "it": "Other"},
+            description={
+                "de": "Other desc",
+                "en": "Other desc",
+                "fr": "Other desc",
+                "it": "Other desc",
+            },
+            state="active",
+            rights="Other (Open)",
+            license="http://dcat-ap.ch/vocabulary/licenses/terms_open",
+            coverage="Coverage",
+            url="http://odp.test/dataset/testdataset/resource/download/{}".format(
+                munge_filename("Other.csv")
+            ),
+        )
+
+        MockFTPStorageAdapter.filesystem = self.get_filesystem()
+        self.run_harvester(ftp_server="testserver")
+
+        dataset = self.get_dataset()
+        self.assertEqual(len(dataset["resources"]), 2)
+        by_identifier = {r["identifier"]: r for r in dataset["resources"]}
+
+        self.assert_resource_format_ignore_case(
+            by_identifier[data.filename]["format"],
+            "geojson",
+        )
+        self.assertEqual(
+            by_identifier["Other.csv"]["format"],
+            "XML",
+            "Sibling resource must not be modified when another resource is replaced",
         )
 
     def test_skip_already_harvested_file(self):

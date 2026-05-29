@@ -922,6 +922,7 @@ class BaseSBBHarvester(HarvesterBase):
                 "coverage",
                 "description",
                 "relations",
+                "format",
             ]
             for field in fields_from_old_resource_meta:
                 if old_resource_meta.get(field):
