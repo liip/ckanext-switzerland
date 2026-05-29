@@ -167,8 +167,8 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(resource["identifier"], data.filename)
         self.assert_resource_format_ignore_case(resource["format"], "geojson")
 
-    def test_new_resource_copies_format_from_fallback_old_resource(self):
-        """With no matching resource for the filename, ``format`` is taken from the first existing resource."""
+    def test_new_resource_keeps_mime_format_with_fallback_metadata(self):
+        """With no same-filename resource, ``format`` comes from MIME; other metadata may still be copied from a template resource."""
         dataset = data.dataset()
         res = data.resource(dataset=dataset)
         get_action("resource_patch")(
@@ -184,7 +184,12 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         new_res = next(
             r for r in dataset["resources"] if r["identifier"] == data.filename
         )
-        self.assert_resource_format_ignore_case(new_res["format"], "geojson")
+        self.assert_resource_format_ignore_case(new_res["format"], "csv")
+        self.assertEqual(
+            new_res["rights"],
+            res["rights"],
+            "Non-format fields should still be inherited from the fallback resource.",
+        )
 
     def test_copied_metadata_only_affects_new_harvested_resource(self):
         """Only the resource created from the FTP file gets metadata copied from the fallback; other resources are unchanged."""
@@ -225,8 +230,13 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
 
         self.assert_resource_format_ignore_case(
             by_identifier[data.filename]["format"],
-            "geojson",
-            "Harvested file should copy format from fallback resource",
+            "csv",
+            "Harvested file should use MIME format, not the template resource format",
+        )
+        self.assertEqual(
+            by_identifier[data.filename]["rights"],
+            by_identifier["AAAResource"]["rights"],
+            "Non-format metadata should still be copied from the fallback template resource.",
         )
         self.assertEqual(
             by_identifier["Other.csv"]["format"],
