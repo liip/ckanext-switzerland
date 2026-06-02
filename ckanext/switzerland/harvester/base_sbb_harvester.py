@@ -703,6 +703,9 @@ class BaseSBBHarvester(HarvesterBase):
 
         old_resource_id = None
         old_resource_meta = {}
+        # ``format`` is only copied when an incoming resource replaces an existing
+        # resource (same download filename / URL basename).
+        copy_format_from_same_filename_resource = False
 
         source_org_id = model.Package.get(harvest_object.source.id).owner_org
         source_org = get_action("organization_show")(context, {"id": source_org_id})
@@ -720,6 +723,7 @@ class BaseSBBHarvester(HarvesterBase):
 
             # check if there is a resource matching the filename in the package
             old_resource_meta = self.find_resource_in_package(dataset, filepath)
+            copy_format_from_same_filename_resource = bool(old_resource_meta)
             if old_resource_meta:
                 log.info(
                     "Found existing resource with this filename: %s"
@@ -923,6 +927,8 @@ class BaseSBBHarvester(HarvesterBase):
                 "description",
                 "relations",
             ]
+            if copy_format_from_same_filename_resource:
+                fields_from_old_resource_meta.append("format")
             for field in fields_from_old_resource_meta:
                 if old_resource_meta.get(field):
                     resource_meta[field] = old_resource_meta.get(field)
