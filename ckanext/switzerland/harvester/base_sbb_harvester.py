@@ -894,8 +894,6 @@ class BaseSBBHarvester(HarvesterBase):
                         % str(old_resource_meta)
                     )
 
-            copy_format_from_old_resource = copy_format_from_same_filename_resource
-
             resource_meta = self.resource_dict_meta
 
             resource_meta["identifier"] = file_name
@@ -929,7 +927,7 @@ class BaseSBBHarvester(HarvesterBase):
                 "description",
                 "relations",
             ]
-            if copy_format_from_old_resource:
+            if copy_format_from_same_filename_resource:
                 fields_from_old_resource_meta.append("format")
             for field in fields_from_old_resource_meta:
                 if old_resource_meta.get(field):
