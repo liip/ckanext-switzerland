@@ -165,7 +165,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(len(dataset["resources"]), 1)
         resource = dataset["resources"][0]
         self.assertEqual(resource["identifier"], data.filename)
-        self.assert_resource_format_ignore_case(resource["format"], "geojson")
+        self.assert_equal_ignore_case(resource["format"], "geojson")
 
     def test_new_resource_keeps_mime_format_with_fallback_metadata(self):
         """With no same-filename resource, ``format`` comes from MIME; other metadata may still be copied from a template resource."""
@@ -184,7 +184,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         new_res = next(
             r for r in dataset["resources"] if r["identifier"] == data.filename
         )
-        self.assert_resource_format_ignore_case(new_res["format"], "csv")
+        self.assert_equal_ignore_case(new_res["format"], "csv")
         self.assertEqual(
             new_res["rights"],
             res["rights"],
@@ -228,7 +228,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(len(dataset["resources"]), 3)
         by_identifier = {r["identifier"]: r for r in dataset["resources"]}
 
-        self.assert_resource_format_ignore_case(
+        self.assert_equal_ignore_case(
             by_identifier[data.filename]["format"],
             "csv",
             "Harvested file should use MIME format, not the template resource format",
@@ -243,7 +243,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
             "XML",
             "Another resource on the dataset must not be updated by the harvest import",
         )
-        self.assert_resource_format_ignore_case(
+        self.assert_equal_ignore_case(
             by_identifier["AAAResource"]["format"],
             "geojson",
         )
@@ -285,7 +285,7 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(len(dataset["resources"]), 2)
         by_identifier = {r["identifier"]: r for r in dataset["resources"]}
 
-        self.assert_resource_format_ignore_case(
+        self.assert_equal_ignore_case(
             by_identifier[data.filename]["format"],
             "geojson",
         )
