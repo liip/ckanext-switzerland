@@ -167,6 +167,24 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.assertEqual(resource["identifier"], data.filename)
         self.assert_equal_ignore_case(resource["format"], "geojson")
 
+    def test_find_resource_in_package_matches_by_identifier(self):
+        """Same-filename detection works when URL basename does not match."""
+        harvester = self.harvester_class()
+        dataset = {
+            "resources": [
+                {
+                    "id": "res-1",
+                    "identifier": data.filename,
+                    "format": "GEOJSON",
+                    "url": "https://cdn.example.com/unrelated-path/stale-name",
+                }
+            ]
+        }
+        matched = harvester.find_resource_in_package(
+            dataset, f"/tmp/harvest/{data.filename}"
+        )
+        self.assertEqual(matched["id"], "res-1")
+
     def test_new_resource_keeps_mime_format_with_fallback_metadata(self):
         """With no same-filename resource, ``format`` comes from MIME; other metadata may still be copied from a template resource."""
         dataset = data.dataset()
