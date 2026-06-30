@@ -357,7 +357,10 @@ class BaseSBBHarvester(HarvesterBase):
     # tested
     def find_resource_in_package(self, dataset, filepath):
         """
-        Identify a resource in a package by its (munged) filename
+        Identify a resource in a package by its FTP filename.
+
+        Prefer ``identifier`` (set by the harvester to the remote basename).
+        Fall back to the munged download URL basename for older resources.
 
         :param dataset: dataset dictionary
         :type dataset: dict
@@ -368,21 +371,23 @@ class BaseSBBHarvester(HarvesterBase):
         :rtype: dict
         """
         resource_meta = {}
-        if "resources" in dataset and len(dataset["resources"]):
-            # Find resource in the existing packages resource list
-            for res in dataset["resources"]:
-                # match the resource by its filename
-                match_name = munge_filename(os.path.basename(filepath))
-                if os.path.basename(res.get("url")) != match_name:
-                    continue
+        file_name = os.path.basename(filepath)
+        match_name = munge_filename(file_name)
+
+        for res in dataset.get("resources") or []:
+            if res.get("identifier") == file_name:
                 resource_meta = res
-                # there should only be one file with the same name in each dataset, so
-                # we can break
                 break
+            url_basename = os.path.basename((res.get("url") or "").split("?")[0])
+            if url_basename == match_name:
+                resource_meta = res
+                break
+
         return resource_meta
 
     def _get_dataset(self, dataset):
-        return get_action("ogdch_dataset_by_identifier")({}, {"identifier": dataset})
+        pkg = get_action("ogdch_dataset_by_identifier")({}, {"identifier": dataset})
+        return get_action("package_show")({}, {"id": pkg["id"]})
 
     def _get_mimetypes(self, filename):
         resource_formats = helpers.resource_formats()
