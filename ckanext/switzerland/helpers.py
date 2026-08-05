@@ -767,8 +767,7 @@ def get_robots_meta_content():
         return _ROBOTS_NOINDEX
 
     if _is_noindex_admin_path(path) or (
-        endpoint
-        and endpoint.startswith(_ROBOTS_NOINDEX_ENDPOINT_PREFIXES)
+        endpoint and endpoint.startswith(_ROBOTS_NOINDEX_ENDPOINT_PREFIXES)
     ):
         return _ROBOTS_NOINDEX
 
