@@ -144,7 +144,7 @@ class _FakeRequest:
             None,
             NOINDEX,
         ),
-        ("user.read", "/user/admin", None, INDEX),
+        ("user.read", "/user/admin", None, NOINDEX),
     ],
 )
 def test_get_robots_meta_content(monkeypatch, endpoint, path, args, expected):

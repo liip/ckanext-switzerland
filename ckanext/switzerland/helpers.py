@@ -753,7 +753,7 @@ def get_robots_meta_content():
     - Resource detail: noindex, follow
     - Organization pages: noindex, follow
     - Harvest pages: noindex, follow
-    - Everything else: index, follow
+    - Everything else: noindex, follow
     """
     try:
         endpoint = tk.request.endpoint
@@ -780,7 +780,7 @@ def get_robots_meta_content():
         # Group detail can still have dataset filter query params
         return _ROBOTS_NOINDEX if has_query else _ROBOTS_INDEX
 
-    return _ROBOTS_INDEX
+    return _ROBOTS_NOINDEX
 
 
 def _is_noindex_admin_path(path):
