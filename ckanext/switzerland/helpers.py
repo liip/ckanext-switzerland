@@ -792,14 +792,9 @@ def _is_noindex_admin_path(path):
 
 
 def _is_resource_path(path):
-    """True for /dataset/<id>/resource/<resource_id> HTML pages."""
+    """True for all /dataset/<id>/resource/... HTML pages."""
     if not path:
         return False
     parts = [p for p in path.strip("/").split("/") if p]
-    # dataset / <id> / resource / <resource_id> [/optional subpath]
-    return (
-        len(parts) >= 4
-        and parts[0] == "dataset"
-        and parts[2] == "resource"
-        and parts[3] != "new"
-    )
+    # dataset / <id> / resource / <resource_id-or-"new"> [/optional subpath]
+    return len(parts) >= 4 and parts[0] == "dataset" and parts[2] == "resource"

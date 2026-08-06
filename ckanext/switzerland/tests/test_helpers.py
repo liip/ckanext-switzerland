@@ -144,6 +144,8 @@ class _FakeRequest:
             None,
             NOINDEX,
         ),
+        # The "add new resource" form is a resource path too, so it's noindex as well
+        ("resource.new", "/dataset/bike-and-car-parking/resource/new", None, NOINDEX),
         ("user.read", "/user/admin", None, NOINDEX),
     ],
 )
