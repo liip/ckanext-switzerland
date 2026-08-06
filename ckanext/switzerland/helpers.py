@@ -714,3 +714,87 @@ def uri_to_iri(uri):
         return iri
     except Exception as e:
         raise ValueError(f"Provided URI can't be converted to IRI: {e}")
+
+
+# Indexable curated list / detail pages (dataset, showcase, group).
+# Filtered URLs (any query string) and organizations / resources / harvest are noindex.
+_ROBOTS_INDEXABLE_LIST_ENDPOINTS = frozenset(
+    {
+        "dataset.search",
+        "ogdch_home.search",
+        "group.index",
+        "showcase_blueprint.index",
+    }
+)
+_ROBOTS_INDEXABLE_DETAIL_ENDPOINTS = frozenset(
+    {
+        "dataset.read",
+        "group.read",
+        "showcase_blueprint.read",
+    }
+)
+_ROBOTS_RESOURCE_ENDPOINTS = frozenset(
+    {
+        "dataset_resource.read",
+        "resource.read",
+    }
+)
+_ROBOTS_NOINDEX_ENDPOINT_PREFIXES = ("organization.", "harvest.")
+_ROBOTS_NOINDEX = "noindex, follow"
+_ROBOTS_INDEX = "index, follow"
+
+
+def get_robots_meta_content():
+    """
+    Return the robots meta content for the current request.
+
+    - Dataset / showcase / group list and detail (no query): index, follow
+    - Same pages with any query parameters (filters, search, pagination): noindex, follow
+    - Resource detail: noindex, follow
+    - Organization pages: noindex, follow
+    - Harvest pages: noindex, follow
+    - Everything else: noindex, follow
+    """
+    try:
+        endpoint = tk.request.endpoint
+        args = tk.request.args
+        path = tk.request.path or ""
+    except RuntimeError:
+        # Outside a request context (e.g. some CLI / test helpers)
+        return _ROBOTS_INDEX
+
+    if endpoint in _ROBOTS_RESOURCE_ENDPOINTS or _is_resource_path(path):
+        return _ROBOTS_NOINDEX
+
+    if _is_noindex_admin_path(path) or (
+        endpoint and endpoint.startswith(_ROBOTS_NOINDEX_ENDPOINT_PREFIXES)
+    ):
+        return _ROBOTS_NOINDEX
+
+    has_query = bool(args)
+
+    if endpoint in _ROBOTS_INDEXABLE_LIST_ENDPOINTS:
+        return _ROBOTS_NOINDEX if has_query else _ROBOTS_INDEX
+
+    if endpoint in _ROBOTS_INDEXABLE_DETAIL_ENDPOINTS:
+        # Group detail can still have dataset filter query params
+        return _ROBOTS_NOINDEX if has_query else _ROBOTS_INDEX
+
+    return _ROBOTS_NOINDEX
+
+
+def _is_noindex_admin_path(path):
+    """True for organization and harvest UI paths."""
+    if not path:
+        return False
+    cleaned = path if path.startswith("/") else f"/{path}"
+    return cleaned.startswith("/organization") or cleaned.startswith("/harvest")
+
+
+def _is_resource_path(path):
+    """True for all /dataset/<id>/resource/... HTML pages."""
+    if not path:
+        return False
+    parts = [p for p in path.strip("/").split("/") if p]
+    # dataset / <id> / resource / <resource_id-or-"new"> [/optional subpath]
+    return len(parts) >= 4 and parts[0] == "dataset" and parts[2] == "resource"

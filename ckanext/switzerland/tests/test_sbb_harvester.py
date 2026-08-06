@@ -372,24 +372,25 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(ftp_server="testserver")
 
         package = self.get_package()
+        resources = self.get_dataset()["resources"]
 
         # none of the resources should be deleted
         self.assertEqual(len(package.resources), 2)
 
         # order should be: newest file first
-        self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
-        self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
+        self.assertEqual(resources[0]["identifier"], "20160902.csv")
+        self.assertEqual(resources[1]["identifier"], "20160901.csv")
 
         # permalink
         self.assertEqual(
             package.extras["permalink"],
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
-                package.id, package.resources[0].id
+                package.id, resources[0]["id"]
             ),
         )
 
-        self.assert_resource_data(package.resources[0].id, data.dataset_content_2)
-        self.assert_resource_data(package.resources[1].id, data.dataset_content_1)
+        self.assert_resource_data(resources[0]["id"], data.dataset_content_2)
+        self.assert_resource_data(resources[1]["id"], data.dataset_content_1)
 
     def test_update_file_of_old_version(self):
         """
@@ -421,22 +422,23 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(ftp_server="testserver")
 
         package = self.get_package()
+        resources = self.get_dataset()["resources"]
 
         self.assertEqual(len(package.resources), 2)
 
         # order should be: newest file first
-        self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
-        self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
+        self.assertEqual(resources[0]["identifier"], "20160902.csv")
+        self.assertEqual(resources[1]["identifier"], "20160901.csv")
 
         self.assertEqual(
             package.extras["permalink"],
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
-                package.id, package.resources[0].id
+                package.id, resources[0]["id"]
             ),
         )
 
-        self.assert_resource_data(package.resources[0].id, data.dataset_content_2)
-        self.assert_resource_data(package.resources[1].id, data.dataset_content_3)
+        self.assert_resource_data(resources[0]["id"], data.dataset_content_2)
+        self.assert_resource_data(resources[1]["id"], data.dataset_content_3)
 
     def test_update_file_of_newest_version(self):
         """
@@ -466,22 +468,23 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(ftp_server="testserver")
 
         package = self.get_package()
+        resources = self.get_dataset()["resources"]
 
         self.assertEqual(len(package.resources), 2)
 
         # order should be: newest file first
-        self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
-        self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
+        self.assertEqual(resources[0]["identifier"], "20160902.csv")
+        self.assertEqual(resources[1]["identifier"], "20160901.csv")
 
         self.assertEqual(
             package.extras["permalink"],
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
-                package.id, package.resources[0].id
+                package.id, resources[0]["id"]
             ),
         )
 
-        self.assert_resource_data(package.resources[0].id, data.dataset_content_3)
-        self.assert_resource_data(package.resources[1].id, data.dataset_content_1)
+        self.assert_resource_data(resources[0]["id"], data.dataset_content_3)
+        self.assert_resource_data(resources[1]["id"], data.dataset_content_1)
 
     def test_order_permalink_regex(self):
         filesystem = self.get_filesystem(filename="20160901.csv")
@@ -495,18 +498,19 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(resource_regex=r"\d{8}.csv", ftp_server="testserver")
 
         package = self.get_package()
+        resources = self.get_dataset()["resources"]
 
         self.assertEqual(len(package.resources), 4)
 
-        self.assertEqual(package.resources[0].extras["identifier"], "1111Resource.csv")
-        self.assertEqual(package.resources[1].extras["identifier"], "9999Resource.csv")
-        self.assertEqual(package.resources[2].extras["identifier"], "20160902.csv")
-        self.assertEqual(package.resources[3].extras["identifier"], "20160901.csv")
+        self.assertEqual(resources[0]["identifier"], "1111Resource.csv")
+        self.assertEqual(resources[1]["identifier"], "9999Resource.csv")
+        self.assertEqual(resources[2]["identifier"], "20160902.csv")
+        self.assertEqual(resources[3]["identifier"], "20160901.csv")
 
         self.assertEqual(
             package.extras["permalink"],
             "http://odp.test/dataset/{}/resource/{}/download/20160902.csv".format(
-                package.id, package.resources[2].id
+                package.id, resources[2]["id"]
             ),
         )
 
@@ -518,9 +522,9 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         filesystem.writetext(path, data.dataset_content_2)
         self.run_harvester(ftp_server="testserver")
 
-        package = self.get_package()
-        self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
-        self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
+        resources = self.get_dataset()["resources"]
+        self.assertEqual(resources[0]["identifier"], "20160902.csv")
+        self.assertEqual(resources[1]["identifier"], "20160901.csv")
 
     def test_resource_sort_order_desc_explicit(self):
         """resource_sort_order 'desc' sorts identifiers descending (newest name first)."""
@@ -530,9 +534,9 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         filesystem.writetext(path, data.dataset_content_2)
         self.run_harvester(ftp_server="testserver", resource_sort_order="desc")
 
-        package = self.get_package()
-        self.assertEqual(package.resources[0].extras["identifier"], "20160902.csv")
-        self.assertEqual(package.resources[1].extras["identifier"], "20160901.csv")
+        resources = self.get_dataset()["resources"]
+        self.assertEqual(resources[0]["identifier"], "20160902.csv")
+        self.assertEqual(resources[1]["identifier"], "20160901.csv")
 
     def test_resource_sort_order_asc(self):
         """resource_sort_order 'asc' sorts identifiers ascending."""
@@ -543,12 +547,13 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(ftp_server="testserver", resource_sort_order="asc")
 
         package = self.get_package()
-        self.assertEqual(package.resources[0].extras["identifier"], "20160901.csv")
-        self.assertEqual(package.resources[1].extras["identifier"], "20160902.csv")
+        resources = self.get_dataset()["resources"]
+        self.assertEqual(resources[0]["identifier"], "20160901.csv")
+        self.assertEqual(resources[1]["identifier"], "20160902.csv")
         self.assertEqual(
             package.extras["permalink"],
             "http://odp.test/dataset/{}/resource/{}/download/20160901.csv".format(
-                package.id, package.resources[0].id
+                package.id, resources[0]["id"]
             ),
         )
 
@@ -571,9 +576,9 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
             resource_sort_order="asc",
             ftp_server="testserver",
         )
-        package = self.get_package()
+        resources = self.get_dataset()["resources"]
         self.assertEqual(
-            [r.extras["identifier"] for r in package.resources],
+            [r["identifier"] for r in resources],
             [
                 "1111Resource.csv",
                 "9999Resource.csv",
@@ -598,12 +603,13 @@ class TestSBBHarvester(BaseSBBHarvesterTests):
         self.run_harvester(max_resources=3, ftp_server="testserver")
 
         package = self.get_package()
+        resources = self.get_dataset()["resources"]
 
         self.assertEqual(len(package.resources), 3)
 
-        self.assertEqual(package.resources[0].extras["identifier"], "20160904.csv")
-        self.assertEqual(package.resources[1].extras["identifier"], "20160903.csv")
-        self.assertEqual(package.resources[2].extras["identifier"], "20160902.csv")
+        self.assertEqual(resources[0]["identifier"], "20160904.csv")
+        self.assertEqual(resources[1]["identifier"], "20160903.csv")
+        self.assertEqual(resources[2]["identifier"], "20160902.csv")
 
     def test_resource_license_no_existing_resource(self):
         """With no existing resource to copy metadata from, the default license should

@@ -1,5 +1,10 @@
 {% ckan_extends %}
 
+{% block meta %}
+  {{ super() }}
+  <meta name="robots" content="{{ h.get_robots_meta_content() }}">
+{% endblock %}
+
 {% block links %}
   <!-- Data layer initialization -->
   <script>

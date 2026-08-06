@@ -350,13 +350,22 @@ def ogdch_fluent_tags(field, schema):
         if errors[key]:
             return
 
-        value = json.loads(data[key])
+        value = data[key]
+        if value is None or value is missing or value == "":
+            data[key] = json.dumps({lang: [] for lang in schema["form_languages"]})
+            return
+
+        if isinstance(value, dict):
+            parsed = value
+        else:
+            parsed = json.loads(value)
+
         new_value = {}
         for lang in schema["form_languages"]:
             new_value[lang] = []
-            if lang not in value.keys():
+            if lang not in parsed:
                 continue
-            for keyword in value[lang]:
+            for keyword in parsed[lang]:
                 new_value[lang].append(munge_tag(keyword))
 
         data[key] = json.dumps(new_value)
