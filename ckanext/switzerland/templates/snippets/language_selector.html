@@ -6,7 +6,7 @@
     <select id="field-lang-select" name="url" data-module="autocomplete" data-module-dropdown-class="lang-dropdown" data-module-container-class="lang-container">
       {% for locale in h.get_available_locales() %}
         <option value="{% url_for h.current_url(), locale=locale.short_name %}" {% if locale.short_name == current_lang %}selected="selected"{% endif %}>
-          {{ locale.display_name or locale.english_name }}
+          {{ locale.short_name|upper }}
         </option>
       {% endfor %}
     </select>
