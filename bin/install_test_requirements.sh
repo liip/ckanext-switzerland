@@ -12,6 +12,10 @@ pip install -e git+https://github.com/ckan/ckanext-fluent.git#egg=ckanext-fluent
 pip install -r https://raw.githubusercontent.com/ckan/ckanext-fluent/master/requirements.txt
 pip install -e git+https://github.com/ckan/ckanext-showcase.git#egg=ckanext-showcase
 
+# Fix KeyError in default_extras_schema (same as odp-docker patch 0008).
+# This can be removed, once this is released: https://github.com/ckan/ckan/issues/9523
+sed -i -e '/^def ignore_not_sysadmin/,/^def /s/^    data.pop(key)$/    data.pop(key, None)/' /srv/app/src/ckan/ckan/logic/validators.py
+
 # Replace default path to CKAN core config file with the one on the container
 sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' /__w/ckanext-switzerland/ckanext-switzerland/test.ini
 
